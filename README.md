@@ -55,12 +55,11 @@ Experimental = selectors verified against fixture HTML; real-page accuracy needs
 | Shortcut | Action |
 |---|---|
 | `Alt+Shift+M` | Export Markdown |
-| `Alt+Shift+P` | Export PDF |
 | `Alt+Shift+C` | Copy Markdown |
-| `Alt+Shift+H` | Copy HTML |
-| `Alt+Shift+J` | Export JSON |
-| `Alt+Shift+Z` | Export ZIP |
+| `Alt+Shift+P` | Export PDF |
 | `Alt+Shift+G` | Upload to GitHub Gist |
+
+Copy HTML, JSON, and ZIP are available via the popup and right-click menu (Chrome caps extensions at 4 keyboard shortcuts).
 
 ### Right-click context menu
 Right-click any supported page → **Export with Inkpour** → MD / Copy / JSON / ZIP / Upload to Gist.
