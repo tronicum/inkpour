@@ -488,18 +488,21 @@ async function main() {
     });
   });
 
-  // ── {time} filename token ─────────────────────────────────────────────────
-  await suite('buildFilename {time} token', async () => {
-    // We test this via Node.js directly — no DOM needed
-    function buildFilename(template, platform, titleSlug) {
+  // ── filename tokens ────────────────────────────────────────────────────────
+  await suite('buildFilename tokens', async () => {
+    // Mirrors popup.js / background.js — keep in sync
+    function buildFilename(template, platform, titleSlug, sourceUrl = '') {
       const now  = new Date();
       const date = now.toISOString().slice(0, 10);
       const time = now.toISOString().slice(11, 16).replace(':', '-');
+      let hostname = '';
+      try { hostname = sourceUrl ? new URL(sourceUrl).hostname : ''; } catch { /* ignore */ }
       return (template || '{platform}-{title}')
         .replace(/\{platform\}/g, platform || 'chat')
         .replace(/\{title\}/g,    titleSlug || 'export')
         .replace(/\{date\}/g,     date)
         .replace(/\{time\}/g,     time)
+        .replace(/\{url\}/g,      hostname || platform || 'chat')
         .replace(/[^a-z0-9_\-]+/gi, '-')
         .replace(/^-+|-+$/g, '')
         .slice(0, 100) || 'inkpour-export';
@@ -507,7 +510,6 @@ async function main() {
 
     await test('{time} expands to HH-MM', () => {
       const fn = buildFilename('{date}T{time}', 'claude', 'chat');
-      // Should match YYYY-MM-DDTHH-MM
       assert(/^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}$/.test(fn), `unexpected format: ${fn}`);
     });
 
@@ -517,9 +519,18 @@ async function main() {
       assert(/\d{4}-\d{2}-\d{2}-\d{2}-\d{2}$/.test(fn), `no date+time suffix: ${fn}`);
     });
 
+    await test('{url} expands to hostname', () => {
+      const fn = buildFilename('{url}-{title}', 'chatgpt', 'export', 'https://chatgpt.com/c/abc123');
+      assert(fn.startsWith('chatgpt-com-export'), `unexpected: ${fn}`);
+    });
+
+    await test('{url} falls back to platform when no sourceUrl', () => {
+      const fn = buildFilename('{url}-{title}', 'claude', 'note');
+      assert(fn.startsWith('claude-note'), `unexpected: ${fn}`);
+    });
+
     await test('unknown tokens are stripped by sanitiser', () => {
       const fn = buildFilename('{platform}-{unknown}', 'claude', 'title');
-      // {unknown} becomes "-unknown-" which gets sanitised to "-unknown-" then trimmed
       assert(fn.startsWith('claude-'), `unexpected: ${fn}`);
     });
   });

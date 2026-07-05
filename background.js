@@ -51,16 +51,17 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
     { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}' },
     stored?.inkpour_settings ?? {}
   );
-  const filename = buildFilename(settings.filenameTemplate, response.platform, response.filename);
+  const sourceUrl = tab?.url || '';
+  const filename  = buildFilename(settings.filenameTemplate, response.platform, response.filename, sourceUrl);
 
   if (info.menuItemId === 'inkpour-md') {
-    const md  = buildMarkdown(response.messages, response.title, response.site, settings);
+    const md  = buildMarkdown(response.messages, response.title, response.site, settings, sourceUrl);
     const url = 'data:text/markdown;charset=utf-8,' + encodeURIComponent(md);
     api.downloads.download({ url, filename: filename + '.md', saveAs: false });
   }
 
   if (info.menuItemId === 'inkpour-copy') {
-    const md = buildMarkdown(response.messages, response.title, response.site, settings);
+    const md = buildMarkdown(response.messages, response.title, response.site, settings, sourceUrl);
     await api.tabs.sendMessage(tab.id, { action: 'copyToClipboard', text: md });
   }
 
@@ -93,17 +94,25 @@ api.commands.onCommand.addListener(async (command) => {
     stored?.inkpour_settings ?? {}
   );
 
-  const filename = buildFilename(settings.filenameTemplate, response.platform, response.filename);
+  const sourceUrl = tab.url || '';
+  const filename  = buildFilename(settings.filenameTemplate, response.platform, response.filename, sourceUrl);
 
   if (command === 'export-markdown') {
-    const md  = buildMarkdown(response.messages, response.title, response.site, settings);
+    const md  = buildMarkdown(response.messages, response.title, response.site, settings, sourceUrl);
     const url = 'data:text/markdown;charset=utf-8,' + encodeURIComponent(md);
     api.downloads.download({ url, filename: filename + '.md', saveAs: false });
   }
 
+  if (command === 'export-pdf') {
+    // SW has no localStorage — store in storage.local, print.js reads both
+    const bodyContent = buildPrintBodyHTML(response.messages, response.title, response.site);
+    await api.storage.local.set({ inkpour_print_pending: bodyContent });
+    api.tabs.create({ url: api.runtime.getURL('print.html') });
+  }
+
   if (command === 'copy-markdown') {
     // Service workers don't have clipboard access — send to content script to copy
-    const md = buildMarkdown(response.messages, response.title, response.site, settings);
+    const md = buildMarkdown(response.messages, response.title, response.site, settings, sourceUrl);
     await api.tabs.sendMessage(tab.id, { action: 'copyToClipboard', text: md });
   }
 
@@ -122,7 +131,7 @@ api.commands.onCommand.addListener(async (command) => {
 
 // ─── Markdown builder (mirrors popup.js — keep in sync) ──────────────────
 
-function buildMarkdown(messages, title, site, opts = {}) {
+function buildMarkdown(messages, title, site, opts = {}, sourceUrl = '') {
   const date    = new Date().toISOString().replace('T', ' ').slice(0, 19);
   const isoDate = new Date().toISOString();
   let md = '';
@@ -132,7 +141,8 @@ function buildMarkdown(messages, title, site, opts = {}) {
     const yamlWords = messages
       .map(m => m.content.trim().split(/\s+/).filter(Boolean).length)
       .reduce((a, b) => a + b, 0);
-    md += `---\ntitle: "${safeTitle}"\nplatform: ${site}\nmessages: ${messages.length}\nwords: ${yamlWords}\ndate: ${isoDate}\nexporter: inkpour\n---\n\n`;
+    const urlLine = sourceUrl ? `\nsource_url: "${sourceUrl}"` : '';
+    md += `---\ntitle: "${safeTitle}"\nplatform: ${site}\nmessages: ${messages.length}\nwords: ${yamlWords}\ndate: ${isoDate}${urlLine}\nexporter: inkpour\n---\n\n`;
   }
 
   const wordCount = messages
@@ -140,7 +150,8 @@ function buildMarkdown(messages, title, site, opts = {}) {
     .reduce((a, b) => a + b, 0);
 
   md += `# ${title}\n\n`;
-  md += `> Exported from **${site}** on ${date} · ${messages.length} messages · ~${wordCount.toLocaleString()} words\n\n---\n\n`;
+  const srcNote = sourceUrl ? ` · [source](${sourceUrl})` : '';
+  md += `> Exported from **${site}** on ${date} · ${messages.length} messages · ~${wordCount.toLocaleString()} words${srcNote}\n\n---\n\n`;
 
   if (opts.generateTOC && messages.length > 4) {
     const counters = {};
@@ -272,15 +283,18 @@ function buildStandaloneHTML(messages, title, site) {
 
 // ─── Filename builder (mirrors popup.js — keep in sync) ──────────────────
 
-function buildFilename(template, platform, titleSlug) {
+function buildFilename(template, platform, titleSlug, sourceUrl = '') {
   const now  = new Date();
   const date = now.toISOString().slice(0, 10);
   const time = now.toISOString().slice(11, 16).replace(':', '-'); // HH-MM
+  let hostname = '';
+  try { hostname = sourceUrl ? new URL(sourceUrl).hostname : ''; } catch { /* ignore */ }
   return (template || '{platform}-{title}')
     .replace(/\{platform\}/g, platform || 'chat')
     .replace(/\{title\}/g,    titleSlug || 'export')
     .replace(/\{date\}/g,     date)
     .replace(/\{time\}/g,     time)
+    .replace(/\{url\}/g,      hostname || platform || 'chat')
     .replace(/[^a-z0-9_\-]+/gi, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 100) || 'inkpour-export';

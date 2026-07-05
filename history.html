@@ -65,8 +65,25 @@
       justify-content: space-between;
       margin-bottom: 1.25rem;
       gap: 10px;
+      flex-wrap: wrap;
     }
-    .count { font-size: 12px; color: var(--subtext); }
+    .toolbar-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+    .search-box {
+      flex: 1;
+      min-width: 120px;
+      max-width: 280px;
+      font-size: 12px;
+      padding: 5px 10px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .search-box:focus { border-color: var(--accent); }
+    .search-box::placeholder { color: var(--subtext); opacity: 0.7; }
+    .count { font-size: 12px; color: var(--subtext); white-space: nowrap; }
     .btn-clear {
       font-size: 12px;
       color: var(--error);
@@ -219,7 +236,10 @@
   </div>
 
   <div class="toolbar">
-    <span class="count" id="countLabel"></span>
+    <div class="toolbar-left">
+      <input class="search-box" id="searchBox" type="search" placeholder="Filter by title or platform…" />
+      <span class="count" id="countLabel"></span>
+    </div>
     <button class="btn-clear" id="clearBtn" disabled>Clear all</button>
   </div>
 

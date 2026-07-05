@@ -12,6 +12,10 @@
   const emptyState  = document.getElementById('emptyState');
   const countLabel  = document.getElementById('countLabel');
   const clearBtn    = document.getElementById('clearBtn');
+  const searchBox   = document.getElementById('searchBox');
+
+  // All loaded entries — filtering operates on this
+  let allEntries = [];
 
   // ─── Platform icons ────────────────────────────────────────────────────────
 
@@ -154,38 +158,60 @@
     return el;
   }
 
+  // ─── Filter and render ─────────────────────────────────────────────────────
+
+  function applyFilter(query) {
+    const q = query.trim().toLowerCase();
+    const filtered = q
+      ? allEntries.filter(e =>
+          e.title.toLowerCase().includes(q) ||
+          (e.platform || '').toLowerCase().includes(q) ||
+          (e.format || '').toLowerCase().includes(q)
+        )
+      : allEntries;
+
+    historyList.innerHTML = '';
+    if (filtered.length === 0) {
+      emptyState.hidden = false;
+      countLabel.textContent = q
+        ? `0 of ${allEntries.length} match`
+        : 'No exports yet';
+    } else {
+      emptyState.hidden = true;
+      countLabel.textContent = q
+        ? `${filtered.length} of ${allEntries.length} exports`
+        : `${allEntries.length} export${allEntries.length !== 1 ? 's' : ''}`;
+      for (const entry of filtered) {
+        historyList.appendChild(renderEntry(entry));
+      }
+    }
+  }
+
   // ─── Load and display ──────────────────────────────────────────────────────
 
   async function loadHistory() {
     const result = await api.storage.local.get('inkpour_history');
-    const history = result?.inkpour_history ?? [];
+    allEntries = result?.inkpour_history ?? [];
 
-    if (history.length === 0) {
-      emptyState.hidden = false;
-      countLabel.textContent = 'No exports yet';
-      clearBtn.disabled = true;
-      return;
-    }
-
-    emptyState.hidden = true;
-    countLabel.textContent = `${history.length} export${history.length !== 1 ? 's' : ''}`;
-    clearBtn.disabled = false;
-
-    historyList.innerHTML = '';
-    for (const entry of history) {
-      historyList.appendChild(renderEntry(entry));
-    }
+    clearBtn.disabled = allEntries.length === 0;
+    applyFilter(searchBox?.value ?? '');
   }
+
+  // ─── Search ────────────────────────────────────────────────────────────────
+
+  searchBox?.addEventListener('input', () => applyFilter(searchBox.value));
 
   // ─── Clear ─────────────────────────────────────────────────────────────────
 
   clearBtn.addEventListener('click', async () => {
     if (!confirm('Clear all export history? This cannot be undone.')) return;
     await api.storage.local.remove('inkpour_history');
+    allEntries = [];
     historyList.innerHTML = '';
     emptyState.hidden = false;
     countLabel.textContent = 'No exports yet';
     clearBtn.disabled = true;
+    if (searchBox) searchBox.value = '';
   });
 
   // ─── Init ──────────────────────────────────────────────────────────────────

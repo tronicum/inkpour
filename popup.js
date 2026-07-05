@@ -136,8 +136,8 @@
     setLoading(mdBtn, true);
     try {
       const data = await extractFromPage();
-      const md   = buildMarkdown(data.messages, data.title, data.site, userSettings);
-      downloadFile(md, buildFilename(userSettings.filenameTemplate, data.platform, data.filename) + '.md', 'text/markdown;charset=utf-8');
+      const md   = buildMarkdown(data.messages, data.title, data.site, userSettings, data.sourceUrl);
+      downloadFile(md, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl) + '.md', 'text/markdown;charset=utf-8');
       setStatus('✓ Saved — check your Downloads folder', 'success');
       saveLastExport('md', data, md);
     } catch (err) {
@@ -174,7 +174,7 @@
       const data        = await extractFromPage();
       const bodyContent = buildPrintBodyHTML(data.messages, data.title, data.site);
       const fullHTML    = buildStandaloneHTML(bodyContent, data.title);
-      downloadFile(fullHTML, buildFilename(userSettings.filenameTemplate, data.platform, data.filename) + '.html', 'text/html;charset=utf-8');
+      downloadFile(fullHTML, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl) + '.html', 'text/html;charset=utf-8');
       setStatus('✓ Saved — check your Downloads folder', 'success');
       saveLastExport('html', data, fullHTML);
     } catch (err) {
@@ -191,7 +191,7 @@
     setLoading(copyBtn, true);
     try {
       const data = await extractFromPage();
-      const md   = buildMarkdown(data.messages, data.title, data.site, userSettings);
+      const md   = buildMarkdown(data.messages, data.title, data.site, userSettings, data.sourceUrl);
       await navigator.clipboard.writeText(md);
       setStatus('✓ Markdown copied to clipboard', 'success');
       saveLastExport('copy-md', data, md);
@@ -229,7 +229,7 @@
     try {
       const data = await extractFromPage();
       const json  = buildJSON(data.messages, data.title, data.site, data.platform);
-      downloadFile(json, buildFilename(userSettings.filenameTemplate, data.platform, data.filename) + '.json', 'application/json;charset=utf-8');
+      downloadFile(json, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl) + '.json', 'application/json;charset=utf-8');
       setStatus('✓ Saved — check your Downloads folder', 'success');
       saveLastExport('json', data, json);
     } catch (err) {
@@ -261,12 +261,14 @@
     if (response.error)         throw new Error(response.error);
     if (!response.messages?.length) throw new Error('No messages found.');
 
-    return response; // { messages, title, site, filename }
+    // Attach the source tab URL so exports can include it
+    response.sourceUrl = tab.url || '';
+    return response; // { messages, title, site, filename, sourceUrl }
   }
 
   // ─── Markdown builder ─────────────────────────────────────────────────────
 
-  function buildMarkdown(messages, title, site, opts = {}) {
+  function buildMarkdown(messages, title, site, opts = {}, sourceUrl = '') {
     const date     = new Date().toISOString().replace('T', ' ').slice(0, 19);
     const isoDate  = new Date().toISOString();
     let md = '';
@@ -276,7 +278,8 @@
       const wordCount = messages
         .map(m => m.content.trim().split(/\s+/).filter(Boolean).length)
         .reduce((a, b) => a + b, 0);
-      md += `---\ntitle: "${safeTitle}"\nplatform: ${site}\nmessages: ${messages.length}\nwords: ${wordCount}\ndate: ${isoDate}\nurl: ${location?.href ?? ''}\nexporter: inkpour\n---\n\n`;
+      const urlLine = sourceUrl ? `\nsource_url: "${sourceUrl}"` : '';
+      md += `---\ntitle: "${safeTitle}"\nplatform: ${site}\nmessages: ${messages.length}\nwords: ${wordCount}\ndate: ${isoDate}${urlLine}\nexporter: inkpour\n---\n\n`;
     }
 
     const wordCount = messages
@@ -284,7 +287,8 @@
       .reduce((a, b) => a + b, 0);
 
     md += `# ${title}\n\n`;
-    md += `> Exported from **${site}** on ${date} · ${messages.length} messages · ~${wordCount.toLocaleString()} words\n\n---\n\n`;
+    const srcNote = sourceUrl ? ` · [source](${sourceUrl})` : '';
+    md += `> Exported from **${site}** on ${date} · ${messages.length} messages · ~${wordCount.toLocaleString()} words${srcNote}\n\n---\n\n`;
 
     // Optional table of contents for longer chats
     if (opts.generateTOC && messages.length > 4) {
@@ -314,18 +318,22 @@
   // ─── Filename builder ─────────────────────────────────────────────────────
 
   /**
-   * Expands a filename template like "{platform}-{title}" into an actual filename slug.
-   * Supported tokens: {platform}, {title}, {date}
+   * Expands a filename template into an actual filename slug.
+   * Tokens: {platform}, {title}, {date}, {time}, {url}
+   * {url} expands to the page hostname (e.g. "chatgpt.com").
    */
-  function buildFilename(template, platform, titleSlug) {
+  function buildFilename(template, platform, titleSlug, sourceUrl = '') {
     const now  = new Date();
     const date = now.toISOString().slice(0, 10); // YYYY-MM-DD
     const time = now.toISOString().slice(11, 16).replace(':', '-'); // HH-MM
+    let hostname = '';
+    try { hostname = sourceUrl ? new URL(sourceUrl).hostname : ''; } catch { /* ignore */ }
     return (template || '{platform}-{title}')
       .replace(/\{platform\}/g, platform || 'chat')
       .replace(/\{title\}/g,    titleSlug || 'export')
       .replace(/\{date\}/g,     date)
       .replace(/\{time\}/g,     time)
+      .replace(/\{url\}/g,      hostname || platform || 'chat')
       .replace(/[^a-z0-9_\-]+/gi, '-')
       .replace(/^-+|-+$/g, '')
       .slice(0, 100) || 'inkpour-export';

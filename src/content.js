@@ -254,8 +254,13 @@
     const toRow = tr =>
       Array.from(tr.querySelectorAll('th, td')).map(c => convertNode(c).replace(/\|/g, '\\|').trim());
     const header = toRow(rows[0]);
-    const sep    = header.map(() => '---');
     const body   = rows.slice(1).map(toRow);
+    // Detect numeric columns: if every non-empty body cell in a column looks like a number → right-align
+    const isNumeric = header.map((_, ci) =>
+      body.length > 0 &&
+      body.every(r => !r[ci] || /^-?[\d,]+(\.\d+)?%?$/.test(r[ci].replace(/,/g, '')))
+    );
+    const sep = header.map((_, ci) => isNumeric[ci] ? '--:' : '---');
     return `\n\n${[
       `| ${header.join(' | ')} |`,
       `| ${sep.join(' | ')} |`,

@@ -45,6 +45,10 @@
       "suggested_key": { "default": "Alt+Shift+H", "mac": "Alt+Shift+H" },
       "description": "Copy current chat as standalone HTML to clipboard"
     },
+    "export-pdf": {
+      "suggested_key": { "default": "Alt+Shift+P", "mac": "Alt+Shift+P" },
+      "description": "Export current chat to PDF"
+    },
     "export-json": {
       "suggested_key": { "default": "Alt+Shift+J", "mac": "Alt+Shift+J" },
       "description": "Export current chat to JSON"
