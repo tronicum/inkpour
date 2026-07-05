@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat to Markdown</title>
+  <style>
+    :root {
+      --bg:           #ffffff;
+      --surface:      #f4f4f5;
+      --text:         #18181b;
+      --subtext:      #71717a;
+      --accent:       #5b5bd6;
+      --accent-hover: #4747c2;
+      --accent-text:  #ffffff;
+      --border:       #e4e4e7;
+      --success:      #16a34a;
+      --error:        #dc2626;
+      --radius:       10px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:           #18181b;
+        --surface:      #27272a;
+        --text:         #fafafa;
+        --subtext:      #a1a1aa;
+        --accent:       #818cf8;
+        --accent-hover: #a5b4fc;
+        --accent-text:  #18181b;
+        --border:       #3f3f46;
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      width: 300px;
+      padding: 18px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      margin-bottom: 14px;
+    }
+    .logo {
+      width: 36px;
+      height: 36px;
+      background: var(--accent);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-text);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      flex-shrink: 0;
+      user-select: none;
+    }
+    .header-text h1 {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+    .header-text p {
+      font-size: 11px;
+      color: var(--subtext);
+      margin-top: 1px;
+    }
+
+    /* ── Divider ── */
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin-bottom: 14px;
+    }
+
+    /* ── Supported sites chip list ── */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 16px;
+    }
+    .chip {
+      font-size: 11px;
+      background: var(--surface);
+      color: var(--subtext);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2px 9px;
+    }
+
+    /* ── Export button ── */
+    .btn {
+      width: 100%;
+      padding: 10px;
+      background: var(--accent);
+      color: var(--accent-text);
+      border: none;
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+    .btn:hover:not(:disabled) { background: var(--accent-hover); }
+    .btn:disabled { opacity: 0.55; cursor: default; }
+    .btn .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-top-color: var(--accent-text);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .btn.loading .spinner { display: block; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Status message ── */
+    #status {
+      margin-top: 11px;
+      font-size: 12px;
+      text-align: center;
+      min-height: 16px;
+      color: var(--subtext);
+      line-height: 1.4;
+    }
+    #status.success { color: var(--success); }
+    #status.error   { color: var(--error); }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">M↓</div>
+    <div class="header-text">
+      <h1>Chat to Markdown</h1>
+      <p>Export AI chats as .md files</p>
+    </div>
+  </div>
+
+  <hr />
+
+  <div class="chips">
+    <span class="chip">ChatGPT</span>
+    <span class="chip">Claude</span>
+    <span class="chip">Gemini</span>
+    <span class="chip">AI Studio</span>
+    <span class="chip">Copilot</span>
+  </div>
+
+  <button class="btn" id="exportBtn">
+    <div class="spinner"></div>
+    <span>Export to Markdown</span>
+  </button>
+
+  <div id="status"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
