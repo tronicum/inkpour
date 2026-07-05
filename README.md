@@ -4,7 +4,7 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/tronicum/inkpour/ci.yml?branch=dev&style=flat-square&label=CI)](https://github.com/tronicum/inkpour/actions/workflows/ci.yml)
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL%20v3-blue?style=flat-square)](./LICENSE)
 [![MV3](https://img.shields.io/badge/Manifest-V3-5b5bd6?style=flat-square)](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json)
-[![Tests](https://img.shields.io/badge/tests-119%20passed-16a34a?style=flat-square)](./test/run-jsdom.js)
+[![Tests](https://img.shields.io/badge/tests-126%20passed-16a34a?style=flat-square)](./test/run-jsdom.js)
 
 **Export AI chat conversations to Markdown, PDF, HTML, JSON, or ZIP — one click, no accounts, no servers.**
 
@@ -33,6 +33,7 @@ Inkpour is a lightweight WebExtension (Manifest V3) that works in Firefox, Chrom
 | NotebookLM | notebooklm.google.com | 🧪 Experimental |
 | Kagi Assistant | kagi.com | 🧪 Experimental |
 | Z.ai (Zhipu GLM) | chat.z.ai | 🧪 Experimental |
+| Venice.ai | venice.ai | 🧪 Experimental |
 
 Experimental = selectors verified against fixture HTML; real-page accuracy needs ongoing maintenance as sites update their DOM.
 
@@ -42,7 +43,7 @@ Experimental = selectors verified against fixture HTML; real-page accuracy needs
 
 ### Export formats
 - **Markdown** (`.md`) — clean GFM with optional YAML front matter and table of contents
-- **Word** (`.docx`) — proper OOXML document: role headings, bold/italic/code formatting, code blocks in monospace, blockquotes, no server or external dependency
+- **Word** (`.docx`) — rich OOXML: colored message blocks (indigo/green), native tables, embedded hyperlinks, task-list checkboxes, code blocks, attribution footer — no server, no dependency
 - **PDF** — opens a clean, ad-free print-preview tab and triggers the browser print dialog
 - **HTML** — fully self-contained single file with dark/light mode, no external dependencies
 - **JSON** — structured `{ exporter, version, title, platform, exportedAt, messages[] }`
@@ -76,6 +77,7 @@ Click **⏱ History** in the popup footer to see the last 20 exports. Filter by 
 Faithfully converts the full rich-text DOM:
 - Headings, bold, italic, strikethrough, inline code, fenced code blocks with language tags
 - Tables (GFM pipe format, numeric columns right-aligned automatically)
+- Task lists (`- [x]` / `- [ ]`) with ☑/☐ rendering in HTML and DOCX
 - Nested lists (arbitrary depth), blockquotes, `<hr>`
 - `<details>/<summary>` → collapsible blockquote (preserves Claude's extended thinking blocks)
 - KaTeX / MathJax → `$…$` / `$$…$$` LaTeX math
@@ -141,14 +143,14 @@ git clone https://github.com/tronicum/inkpour.git
 ## Development
 
 ```bash
-npm test          # Run 103 JSDOM-based extraction tests (no browser needed)
+npm test          # Run 126 JSDOM-based extraction and builder tests (no browser needed)
 ```
 
 ### Project structure
 
 ```
 inkpour/
-├── manifest.json           MV3 manifest (19 host_permissions, 7 commands)
+├── manifest.json           MV3 manifest (21 host_permissions, 7 commands)
 ├── popup.html / popup.js   Popup UI: MD/PDF/HTML/JSON/ZIP + Copy MD/HTML + Gist
 ├── background.js           Service worker: keyboard shortcuts + context menus + webhook
 ├── settings.html / .js     Options page (format, filename, YAML, TOC, subfolder, Gist, webhook)
@@ -159,8 +161,8 @@ inkpour/
 │   ├── content.js          Extraction, htmlToMarkdown, in-page button, toasts
 │   └── utils.js            Shared builders: buildMarkdown, buildFilename, buildZip, …
 └── test/
-    ├── run-jsdom.js         JSDOM test harness (119 tests, 0 failures)
-    └── fixtures/            15 HTML fixtures — one per platform
+    ├── run-jsdom.js         JSDOM test harness (126 tests, 0 failures)
+    └── fixtures/            16 HTML fixtures — one per platform
 ```
 
 See [planning.md](./planning.md) for architecture decisions and next steps.
