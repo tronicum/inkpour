@@ -45,25 +45,22 @@
       "suggested_key": { "default": "Alt+Shift+C", "mac": "Alt+Shift+C" },
       "description": "Copy current chat as Markdown to clipboard"
     },
-    "copy-html": {
-      "suggested_key": { "default": "Alt+Shift+H", "mac": "Alt+Shift+H" },
-      "description": "Copy current chat as standalone HTML to clipboard"
-    },
     "export-pdf": {
       "suggested_key": { "default": "Alt+Shift+P", "mac": "Alt+Shift+P" },
       "description": "Export current chat to PDF"
     },
-    "export-json": {
-      "suggested_key": { "default": "Alt+Shift+J", "mac": "Alt+Shift+J" },
-      "description": "Export current chat to JSON"
-    },
-    "export-zip": {
-      "suggested_key": { "default": "Alt+Shift+Z", "mac": "Alt+Shift+Z" },
-      "description": "Export current chat as ZIP (chat.md + code files)"
-    },
     "upload-gist": {
       "suggested_key": { "default": "Alt+Shift+G", "mac": "Alt+Shift+G" },
       "description": "Upload current chat to GitHub Gist"
+    },
+    "copy-html": {
+      "description": "Copy current chat as standalone HTML to clipboard"
+    },
+    "export-json": {
+      "description": "Export current chat to JSON"
+    },
+    "export-zip": {
+      "description": "Export current chat as ZIP (chat.md + code files)"
     }
   },
 
