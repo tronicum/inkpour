@@ -332,7 +332,7 @@
       const msgs  = getSelectedMessages(data.messages);
       const notes = getExportNotes();
       const md   = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, userSettings, data.sourceUrl);
-      downloadFile(md, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs)) + '.md', 'text/markdown;charset=utf-8');
+      downloadFile(md, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length) + '.md', 'text/markdown;charset=utf-8');
       setStatus('✓ Saved — check your Downloads folder', 'success');
       saveLastExport('md', { ...data, messages: msgs }, md);
     } catch (err) {
@@ -369,7 +369,7 @@
       const data     = await extractFromPage();
       const msgs     = getSelectedMessages(data.messages);
       const fullHTML = buildStandaloneHTML(msgs, data.title, data.site);
-      downloadFile(fullHTML, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs)) + '.html', 'text/html;charset=utf-8');
+      downloadFile(fullHTML, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length) + '.html', 'text/html;charset=utf-8');
       setStatus('✓ Saved — check your Downloads folder', 'success');
       saveLastExport('html', { ...data, messages: msgs }, fullHTML);
     } catch (err) {
@@ -436,7 +436,7 @@
           json = JSON.stringify(obj, null, 2);
         } catch { /* leave json as-is if parse fails */ }
       }
-      downloadFile(json, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs)) + '.json', 'application/json;charset=utf-8');
+      downloadFile(json, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length) + '.json', 'application/json;charset=utf-8');
       setStatus('✓ Saved — check your Downloads folder', 'success');
       saveLastExport('json', { ...data, messages: msgs }, json);
     } catch (err) {
@@ -459,7 +459,7 @@
       const url   = URL.createObjectURL(blob);
       const a     = Object.assign(document.createElement('a'), {
         href:     url,
-        download: withSubfolder(buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs)) + '.docx'),
+        download: withSubfolder(buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length) + '.docx'),
       });
       document.body.appendChild(a);
       a.click();
@@ -490,7 +490,7 @@
       const url      = URL.createObjectURL(blob);
       const a        = Object.assign(document.createElement('a'), {
         href:     url,
-        download: withSubfolder(buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs)) + '.zip'),
+        download: withSubfolder(buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length) + '.zip'),
       });
       document.body.appendChild(a);
       a.click();
@@ -521,7 +521,7 @@
       const msgs  = getSelectedMessages(data.messages);
       const notes = getExportNotes();
       const md    = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, userSettings, data.sourceUrl);
-      const slug  = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs));
+      const slug  = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length);
       const filename = slug + '.md';
 
       setStatus('Uploading to GitHub Gist…');
