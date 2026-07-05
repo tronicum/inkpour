@@ -122,6 +122,7 @@
     const msgs  = data.messages;
     const n     = msgs.length;
     const words = countWords(msgs);
+    const readMin    = Math.max(1, Math.round(words / 200));
     const userCount  = msgs.filter(m => m.role === 'user').length;
     const aiCount    = msgs.filter(m => m.role !== 'user').length;
     const codeBlocks = msgs.reduce((sum, m) => {
@@ -130,7 +131,7 @@
     }, 0);
     const roleNote = ` · ${userCount}u/${aiCount}a`;
     const codeNote = codeBlocks > 0 ? ` · ${codeBlocks} code block${codeBlocks !== 1 ? 's' : ''}` : '';
-    setStatus(`Ready · ${n} message${n !== 1 ? 's' : ''}${roleNote} · ~${words.toLocaleString()} words${codeNote}`);
+    setStatus(`Ready · ${n} message${n !== 1 ? 's' : ''}${roleNote} · ~${words.toLocaleString()} words · ~${readMin} min read${codeNote}`);
   }
 
   function showTitleInput(title) {
