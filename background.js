@@ -351,6 +351,7 @@ const SUPPORTED_HOSTS = [
   'phind.com',
   'notebooklm.google.com',
   'kagi.com',
+  'chat.z.ai',
 ];
 
 function updateBadge(tabId, url) {

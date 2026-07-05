@@ -112,6 +112,13 @@
       "id": "kagi",
       "hosts": ["kagi.com"],
       "status": "experimental"
+    },
+    {
+      "name": "Z.ai (Zhipu GLM)",
+      "id": "zai",
+      "hosts": ["chat.z.ai"],
+      "status": "experimental",
+      "notes": "Svelte-based SPA. User messages in .chat-user, AI responses in .chat-assistant > #response-content-container."
     }
   ]
 }

@@ -28,6 +28,7 @@
     "*://www.phind.com/*",
     "*://notebooklm.google.com/*",
     "*://kagi.com/*",
+    "*://chat.z.ai/*",
     "*://api.github.com/*"
   ],
 
@@ -103,7 +104,8 @@
         "*://poe.com/*",
         "*://www.phind.com/*",
         "*://notebooklm.google.com/*",
-        "*://kagi.com/*"
+        "*://kagi.com/*",
+        "*://chat.z.ai/*"
       ],
       "js": ["src/content.js"],
       "run_at": "document_idle"
