@@ -107,32 +107,17 @@
       margin-bottom: 14px;
     }
 
-    /* ── Supported sites chip list ── */
-    .chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-      margin-bottom: 16px;
-    }
-    .chip {
-      font-size: 11px;
-      background: var(--surface);
+    /* ── Platform indicator (replaces chip list) ── */
+    .platform-indicator {
+      font-size: 12px;
+      margin-bottom: 14px;
+      min-height: 18px;
       color: var(--subtext);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 2px 9px;
-      transition: opacity 0.2s;
     }
-    .chip.active {
-      background: var(--accent);
-      color: var(--accent-text);
-      border-color: var(--accent);
+    .platform-indicator.detected {
+      color: var(--accent);
+      font-weight: 500;
     }
-    .chip.experimental {
-      border-style: dashed;
-      opacity: 0.7;
-    }
-    .chips.detected .chip:not(.active) { opacity: 0.35; }
 
     /* ── Export section ── */
     .export-label {
@@ -310,24 +295,7 @@
 
   <hr />
 
-  <div class="chips">
-    <span class="chip">ChatGPT</span>
-    <span class="chip">Claude</span>
-    <span class="chip">Gemini</span>
-    <span class="chip">AI Studio</span>
-    <span class="chip experimental" title="Experimental support">Google Search</span>
-    <span class="chip">Copilot</span>
-    <span class="chip">Grok</span>
-    <span class="chip experimental" title="Experimental support">Perplexity</span>
-    <span class="chip experimental" title="Experimental support">DeepSeek</span>
-    <span class="chip experimental" title="Experimental support">Meta AI</span>
-    <span class="chip experimental" title="Experimental support">Mistral</span>
-    <span class="chip experimental" title="Experimental support">HuggingChat</span>
-    <span class="chip experimental" title="Experimental support">Poe</span>
-    <span class="chip experimental" title="Experimental support">Phind</span>
-    <span class="chip experimental" title="Experimental support">NotebookLM</span>
-    <span class="chip experimental" title="Experimental support">Kagi</span>
-  </div>
+  <p class="platform-indicator" id="platformIndicator"></p>
 
   <p class="export-label">Export as</p>
   <div class="btn-group">

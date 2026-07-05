@@ -69,7 +69,7 @@
     if (gistBtn && userSettings.githubToken) gistBtn.hidden = false;
   });
 
-  // ─── Chip highlighting — detect current platform on popup open ───────────
+  // ─── Platform indicator — single line replacing the old chip list ────────
 
   const CHIP_HOSTS = {
     'ChatGPT':        ['chatgpt.com', 'chat.openai.com'],
@@ -79,6 +79,7 @@
     'Google Search':  ['www.google.com', 'google.com'],
     'Copilot':        ['copilot.microsoft.com', 'copilot.com'],
     'Grok':           ['grok.com'],
+    'Groq':           ['console.groq.com'],
     'Perplexity':     ['perplexity.ai'],
     'DeepSeek':       ['chat.deepseek.com'],
     'Meta AI':        ['meta.ai'],
@@ -101,23 +102,24 @@
     } catch { return false; }
   }
 
+  const platformIndicator = document.getElementById('platformIndicator');
+
   (async () => {
     try {
       const [tab] = await api.tabs.query({ active: true, currentWindow: true });
-      if (!tab?.url) return;
+      if (!tab?.url || !platformIndicator) return;
       const url = new URL(tab.url);
-      const chipEls = document.querySelectorAll('.chip');
-      let matched = false;
-      for (const chip of chipEls) {
-        const hosts = CHIP_HOSTS[chip.textContent.trim()];
-        if (hosts && hosts.some(h => url.hostname.includes(h))) {
-          chip.classList.add('active');
-          matched = true;
+      for (const [name, hosts] of Object.entries(CHIP_HOSTS)) {
+        if (hosts.some(h => url.hostname === h || url.hostname.endsWith('.' + h))) {
+          platformIndicator.textContent = `✓ ${name}`;
+          platformIndicator.classList.add('detected');
+          return;
         }
       }
-      if (matched) document.querySelector('.chips').classList.add('detected');
+      // Not a supported page — show subtle count
+      platformIndicator.textContent = `${Object.keys(CHIP_HOSTS).length} platforms supported`;
     } catch {
-      // permission error or non-URL tab — just leave chips as-is
+      // permission error or non-URL tab — leave blank
     }
   })();
 

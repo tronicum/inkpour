@@ -341,6 +341,7 @@ const SUPPORTED_HOSTS = [
   'www.google.com', 'google.com',
   'copilot.microsoft.com', 'copilot.com', 'www.copilot.com',
   'grok.com',
+  'console.groq.com',
   'perplexity.ai',
   'chat.deepseek.com',
   'meta.ai',

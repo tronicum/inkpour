@@ -306,6 +306,7 @@
     if ((host === 'www.google.com' || host === 'google.com') &&
         location.pathname === '/search')                                     return 'googlesearch';
     if (host.includes('grok.com'))                                          return 'grok';
+    if (host.includes('console.groq.com'))                                  return 'groq';
     if (host.includes('perplexity.ai'))                                     return 'perplexity';
     if (host.includes('chat.deepseek.com'))                                 return 'deepseek';
     if (host.includes('meta.ai'))                                           return 'metaai';
@@ -545,6 +546,66 @@
       const contentEl = item.querySelector('.response-content-markdown') ?? item;
       return { role, content: htmlToMarkdown(contentEl) };
     }).filter(m => m.content);
+  }
+
+  // Groq Playground (console.groq.com/playground) — experimental
+  // GroqCloud's playground is an OpenAI-compatible chat UI built on Next.js/Tailwind.
+  // Roles are "user" and "assistant" (displayed with the active model name).
+  function extractGroq() {
+    // Primary: role data attributes (most stable if present)
+    const byRole = document.querySelectorAll('[data-role], [data-message-role]');
+    if (byRole.length) {
+      return Array.from(byRole).map(el => {
+        const raw  = el.getAttribute('data-role') || el.getAttribute('data-message-role') || '';
+        const role = raw.toLowerCase() === 'user' ? 'You' : 'Groq';
+        return { role, content: htmlToMarkdown(el) };
+      }).filter(m => m.content);
+    }
+
+    // Secondary: look for alternating user / assistant containers.
+    // Groq's playground renders a label element ("user" / model name) immediately
+    // before each message bubble, so we walk sibling pairs.
+    const labelEls = document.querySelectorAll(
+      '[class*="role-label"], [class*="message-role"], [class*="chat-role"]'
+    );
+    if (labelEls.length) {
+      return Array.from(labelEls).map(label => {
+        const raw  = label.textContent.trim().toLowerCase();
+        const role = raw === 'user' ? 'You' : 'Groq';
+        const contentEl = label.nextElementSibling ?? label.parentElement?.nextElementSibling;
+        const content   = contentEl ? htmlToMarkdown(contentEl) : '';
+        return { role, content };
+      }).filter(m => m.content);
+    }
+
+    // Tertiary: generic message containers — Groq's chat bubbles are typically
+    // flex rows; user messages are right-aligned, assistant left-aligned.
+    const bubbles = document.querySelectorAll(
+      '[class*="message-bubble"], [class*="chat-bubble"], [class*="chat-message"]'
+    );
+    if (bubbles.length) {
+      return Array.from(bubbles).map(el => {
+        const isUser = el.classList.toString().includes('user') ||
+                       window.getComputedStyle(el).justifyContent === 'flex-end';
+        return { role: isUser ? 'You' : 'Groq', content: htmlToMarkdown(el) };
+      }).filter(m => m.content);
+    }
+
+    // Quaternary: prose blocks — AI responses are wrapped in .prose / .markdown
+    // and user messages appear in a plain text container above each one.
+    const proseEls = document.querySelectorAll('.prose, .markdown-body, [class*="prose"]');
+    if (proseEls.length) {
+      // Each .prose is an AI response; look for the user message immediately before it.
+      const messages = [];
+      proseEls.forEach(prose => {
+        const prev = prose.closest('[class*="message"], [class*="turn"]')?.previousElementSibling;
+        if (prev) messages.push({ role: 'You',  content: htmlToMarkdown(prev) });
+        messages.push({ role: 'Groq', content: htmlToMarkdown(prose) });
+      });
+      if (messages.length) return messages.filter(m => m.content);
+    }
+
+    return null;
   }
 
   // Perplexity (perplexity.ai) — experimental
@@ -1029,6 +1090,7 @@
       case 'gemini':      messages = extractGemini();            break;
       case 'aistudio':    messages = await extractAIStudio();    break;
       case 'grok':        messages = extractGrok();              break;
+      case 'groq':        messages = extractGroq();              break;
       case 'perplexity':  messages = extractPerplexity();        break;
       case 'deepseek':    messages = extractDeepSeek();          break;
       case 'metaai':      messages = extractMetaAI();            break;
