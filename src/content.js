@@ -961,13 +961,45 @@
     return messages;
   }
 
-  // ─── Title helper ─────────────────────────────────────────────────────────
+  // ─── Title helpers ────────────────────────────────────────────────────────
 
   function getCleanTitle() {
     const rawTitle = document.title.replace(/[<>:"/\\|?*\n]/g, ' ').trim() || 'Chat Export';
     return rawTitle
       .replace(/\s[-–]\s*(ChatGPT|Claude|Gemini|Copilot|Grok|Perplexity|DeepSeek|Meta AI|Mistral|HuggingChat|NotebookLM|Kagi)$/i, '')
       .trim();
+  }
+
+  /**
+   * If the page title is generic (e.g. "New chat", "Untitled"), derive a
+   * better title from the first user message (first 8 significant words).
+   * Returns the improved title, or the original if it already looks specific.
+   */
+  const GENERIC_TITLE_RE = /^(new\s+chat|new\s+conversation|untitled|chat|conversation|claude|gemini|chatgpt|gpt|copilot|grok|perplexity|deepseek|meta\s*ai|mistral|poe|phind|assistant|chat\s+export|start\s+a\s+new\s+chat)$/i;
+
+  function smartenTitle(title, messages) {
+    const clean = (title || '').trim();
+    // Keep it if it's specific enough
+    if (clean.length > 10 && !GENERIC_TITLE_RE.test(clean)) return clean;
+
+    // Find first user/human message
+    const firstUser = messages.find(m => {
+      const r = (m.role || '').toLowerCase();
+      return r === 'you' || r === 'user' || r === 'human';
+    });
+    if (!firstUser) return clean || 'Chat Export';
+
+    const words = firstUser.content
+      .replace(/```[\s\S]*?```/g, '')        // strip code fences
+      .replace(/[#*`_~\[\]()>|\\]/g, '')     // strip markdown syntax chars
+      .replace(/https?:\/\/\S+/g, '')         // strip bare URLs
+      .trim()
+      .split(/\s+/)
+      .filter(w => w.length > 1)              // skip single-char tokens
+      .slice(0, 8)
+      .join(' ');
+
+    return words.length > 4 ? words : (clean || 'Chat Export');
   }
 
   // ─── In-page Markdown builder ─────────────────────────────────────────────
@@ -1144,7 +1176,7 @@
       try {
         const messages = await extractMessages();
         if (!messages.length) throw new Error('No messages found');
-        const title    = getCleanTitle();
+        const title    = smartenTitle(getCleanTitle(), messages);
         const platform = detectSite();
         const slug     = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
         const filename = `${platform}-${slug}`;
@@ -1285,7 +1317,7 @@
         return { error: 'No messages found. Make sure a chat is open and fully loaded.' };
       }
 
-      const cleanTitle = getCleanTitle();
+      const cleanTitle = smartenTitle(getCleanTitle(), messages);
       const slug = cleanTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
 
       return {

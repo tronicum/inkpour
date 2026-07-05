@@ -223,23 +223,25 @@ function buildMarkdown(messages, title, site, opts = {}, sourceUrl = '') {
 // ─── Filename builder ─────────────────────────────────────────────────────────
 
 /**
- * Tokens: {platform} {title} {date} {time} {url} {words}
- * {url} expands to the page hostname.
- * {words} expands to the approximate word count (0 if not provided).
+ * Tokens: {platform} {title} {date} {time} {url} {words} {msgcount}
+ * {url}      → page hostname
+ * {words}    → approximate word count (0 if not provided)
+ * {msgcount} → number of messages (0 if not provided)
  */
-function buildFilename(template, platform, titleSlug, sourceUrl = '', wordCount = 0) {
+function buildFilename(template, platform, titleSlug, sourceUrl = '', wordCount = 0, msgCount = 0) {
   const now  = new Date();
   const date = now.toISOString().slice(0, 10); // YYYY-MM-DD
   const time = now.toISOString().slice(11, 16).replace(':', '-'); // HH-MM
   let hostname = '';
   try { hostname = sourceUrl ? new URL(sourceUrl).hostname : ''; } catch { /* ignore */ }
   return (template || '{platform}-{title}')
-    .replace(/\{platform\}/g, platform || 'chat')
-    .replace(/\{title\}/g,    titleSlug || 'export')
-    .replace(/\{date\}/g,     date)
-    .replace(/\{time\}/g,     time)
-    .replace(/\{url\}/g,      hostname || platform || 'chat')
-    .replace(/\{words\}/g,    String(wordCount || 0))
+    .replace(/\{platform\}/g,  platform || 'chat')
+    .replace(/\{title\}/g,     titleSlug || 'export')
+    .replace(/\{date\}/g,      date)
+    .replace(/\{time\}/g,      time)
+    .replace(/\{url\}/g,       hostname || platform || 'chat')
+    .replace(/\{words\}/g,     String(wordCount  || 0))
+    .replace(/\{msgcount\}/g,  String(msgCount   || 0))
     .replace(/[^a-z0-9_\-]+/gi, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 100) || 'inkpour-export';

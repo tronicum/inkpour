@@ -36,7 +36,7 @@ api.runtime.onMessage.addListener((message, sender) => {
     );
     const sourceUrl = sender.tab.url || '';
     const wordCount = (response.messages || []).reduce((s, m) => s + m.content.trim().split(/\s+/).filter(Boolean).length, 0);
-  const filename  = buildFilename(settings.filenameTemplate, response.platform, response.filename, sourceUrl, wordCount);
+  const filename  = buildFilename(settings.filenameTemplate, response.platform, response.filename, sourceUrl, wordCount, (response.messages||[]).length);
 
     if (message.format === 'pdf') {
       const bodyContent = buildPrintBodyHTML(response.messages, response.title, response.site);
@@ -120,7 +120,7 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
   );
   const sourceUrl = tab?.url || '';
   const wordCount = (response.messages || []).reduce((s, m) => s + m.content.trim().split(/\s+/).filter(Boolean).length, 0);
-  const filename  = buildFilename(settings.filenameTemplate, response.platform, response.filename, sourceUrl, wordCount);
+  const filename  = buildFilename(settings.filenameTemplate, response.platform, response.filename, sourceUrl, wordCount, (response.messages||[]).length);
 
   if (info.menuItemId === 'inkpour-md') {
     const md  = buildMarkdown(response.messages, response.title, response.site, settings, sourceUrl);
@@ -267,7 +267,7 @@ api.commands.onCommand.addListener(async (command) => {
 
   const sourceUrl = tab.url || '';
   const wordCount = (response.messages || []).reduce((s, m) => s + m.content.trim().split(/\s+/).filter(Boolean).length, 0);
-  const filename  = buildFilename(settings.filenameTemplate, response.platform, response.filename, sourceUrl, wordCount);
+  const filename  = buildFilename(settings.filenameTemplate, response.platform, response.filename, sourceUrl, wordCount, (response.messages||[]).length);
 
   if (command === 'export-markdown') {
     const md  = buildMarkdown(response.messages, response.title, response.site, settings, sourceUrl);
