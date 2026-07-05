@@ -4,7 +4,7 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/tronicum/inkpour/ci.yml?branch=dev&style=flat-square&label=CI)](https://github.com/tronicum/inkpour/actions/workflows/ci.yml)
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL%20v3-blue?style=flat-square)](./LICENSE)
 [![MV3](https://img.shields.io/badge/Manifest-V3-5b5bd6?style=flat-square)](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json)
-[![Tests](https://img.shields.io/badge/tests-70%20passed-16a34a?style=flat-square)](./test/run-jsdom.js)
+[![Tests](https://img.shields.io/badge/tests-77%20passed-16a34a?style=flat-square)](./test/run-jsdom.js)
 
 **Export AI chat conversations to Markdown, PDF, HTML, JSON, or ZIP — one click, no accounts, no servers.**
 
@@ -123,7 +123,7 @@ git clone https://github.com/tronicum/inkpour.git
 ## Development
 
 ```bash
-npm test          # Run 70 JSDOM-based extraction tests (no browser needed)
+npm test          # Run 77 JSDOM-based extraction tests (no browser needed)
 ```
 
 ### Project structure

@@ -1,6 +1,6 @@
 # Inkpour — Planning & Architecture Notes
 
-Last updated: 2026-07-05 (Tasks 1–32 complete)
+Last updated: 2026-07-05 (Tasks 1–33 complete)
 
 ## What it is
 
@@ -129,7 +129,9 @@ inkpour/
 
 ### Key design decisions
 
-**Single content script** (`src/content.js` IIFE): all extraction logic in one file — no module bundler needed, simpler for extension review. Trade-off: popup.js and background.js duplicate `buildMarkdown`/`buildFilename`/`buildJSON`/`buildZip`. Acceptable for current scale.
+**Shared utilities** (`src/utils.js`): all builder functions live here — `buildMarkdown`, `buildFilename`, `buildJSON`, `buildPrintBodyHTML`, `buildStandaloneHTML`, `buildZip`, `buildZipExport`, `esc`, `mdToHTML`, `uint8ToBase64`. Loaded via `<script src="src/utils.js">` in popup pages and `importScripts('src/utils.js')` in the service worker. No bundler required.
+
+**Single content script** (`src/content.js` IIFE): all extraction logic in one file — no module bundler needed, simpler for extension review.
 
 **Shadow DOM for in-page button**: prevents host-page CSS leaking into the Inkpour UI. The shadow root has `mode: 'open'` (allows debugging), `all: initial` resets inherited styles.
 
@@ -167,4 +169,4 @@ inkpour/
 - GitHub Gist upload (with user-configured token)
 - Streaming progress: show "Extracting…" while auto-scroll runs
 - Lifetime stats storage: persist cumulative stats beyond 20-entry rolling window
-- Shared `src/utils.js`: deduplicate `buildMarkdown`/`buildFilename`/`buildJSON`/`buildZip` from popup.js and background.js (needs dynamic import or build step)
+- ~~Shared `src/utils.js`~~: **done** — `src/utils.js` provides all shared builders; popup.html loads it via `<script>`, background.js via `importScripts()`
