@@ -231,6 +231,24 @@
 
   // ─── Load and display ──────────────────────────────────────────────────────
 
+  // ─── Lifetime stats footer ────────────────────────────────────────────────
+
+  async function renderLifetimeStats() {
+    const result  = await api.storage.local.get('inkpour_lifetime_stats');
+    const ls      = result?.inkpour_lifetime_stats;
+    const footer  = document.querySelector('footer');
+    if (!ls || !footer || ls.exports === 0) return;
+    const wordsNote = ls.words > 0 ? ` · ~${ls.words.toLocaleString()} words` : '';
+    const note = document.createElement('div');
+    note.style.marginTop = '8px';
+    note.style.fontSize  = '11px';
+    note.style.color     = 'var(--subtext)';
+    note.textContent = `All time: ${ls.exports} export${ls.exports !== 1 ? 's' : ''}${wordsNote}`;
+    footer.appendChild(note);
+  }
+
+  // ─── Load and display ──────────────────────────────────────────────────────
+
   async function loadHistory() {
     const result = await api.storage.local.get('inkpour_history');
     allEntries = result?.inkpour_history ?? [];
@@ -238,6 +256,7 @@
     clearBtn.disabled = allEntries.length === 0;
     renderStats(allEntries);
     applyFilter(searchBox?.value ?? '');
+    renderLifetimeStats().catch(() => {});
   }
 
   // ─── Search ────────────────────────────────────────────────────────────────

@@ -435,11 +435,19 @@
     }
 
     // Prepend to rolling history (max 20 entries)
-    api.storage.local.get('inkpour_history').then((result) => {
+    api.storage.local.get(['inkpour_history', 'inkpour_lifetime_stats']).then((result) => {
       const history = result?.inkpour_history ?? [];
       history.unshift(record);
       if (history.length > 20) history.splice(20);
-      api.storage.local.set({ inkpour_history: history });
+
+      // Accumulate lifetime stats — survive rolling window truncation
+      const prev  = result?.inkpour_lifetime_stats ?? { exports: 0, words: 0 };
+      const stats = {
+        exports: (prev.exports || 0) + 1,
+        words:   (prev.words   || 0) + (record.wordCount || 0),
+      };
+
+      api.storage.local.set({ inkpour_history: history, inkpour_lifetime_stats: stats });
     }).catch(() => {});
   }
 
