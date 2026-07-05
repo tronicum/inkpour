@@ -51,6 +51,14 @@
       "status": "full"
     },
     {
+      "name": "Groq Playground",
+      "id": "groq",
+      "hosts": ["console.groq.com"],
+      "urlPattern": "/playground",
+      "status": "experimental",
+      "notes": "GroqCloud playground chat. Fast inference, OpenAI-compatible roles. Multiple selector fallbacks since the Next.js SPA DOM changes with updates."
+    },
+    {
       "name": "Perplexity",
       "id": "perplexity",
       "hosts": ["perplexity.ai"],
