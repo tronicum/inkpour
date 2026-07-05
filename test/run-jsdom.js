@@ -1073,6 +1073,120 @@ async function main() {
     });
   });
 
+  // ─── buildStandaloneHTML ──────────────────────────────────────────────────
+  console.log('\nbuildStandaloneHTML');
+
+  await test('buildStandaloneHTML returns a complete HTML document', () => {
+    const msgs = [{ role: 'You', content: 'hello' }, { role: 'Claude', content: 'hi' }];
+    const html = buildStandaloneHTML(msgs, 'Test Chat', 'claude');
+    assert(html.startsWith('<!DOCTYPE html>'), 'missing doctype');
+    assert(html.includes('<title>'), 'missing title tag');
+    assert(html.includes('</html>'), 'missing closing html tag');
+  });
+
+  await test('buildStandaloneHTML includes attribution footer', () => {
+    const msgs = [{ role: 'You', content: 'hello' }];
+    const html = buildStandaloneHTML(msgs, 'Chat', 'claude');
+    assert(html.includes('Inkpour'), 'missing Inkpour attribution');
+  });
+
+  await test('buildStandaloneHTML embeds message content', () => {
+    const msgs = [
+      { role: 'You',    content: 'What is 2+2?' },
+      { role: 'Claude', content: 'It is **four**.' },
+    ];
+    const html = buildStandaloneHTML(msgs, 'Math', 'claude');
+    assert(html.includes('What is 2+2'), 'user message missing');
+    assert(html.includes('four'), 'assistant message missing');
+  });
+
+  await test('buildStandaloneHTML renders bold as <strong>', () => {
+    const msgs = [{ role: 'Claude', content: 'This is **bold** text.' }];
+    const html = buildStandaloneHTML(msgs, 'Chat', 'claude');
+    assert(html.includes('<strong>bold</strong>') || html.includes('<b>bold</b>'), 'bold not rendered as HTML tag');
+  });
+
+  await test('buildStandaloneHTML renders code blocks with <pre>', () => {
+    const msgs = [{ role: 'Claude', content: '```js\nconsole.log("hi")\n```' }];
+    const html = buildStandaloneHTML(msgs, 'Chat', 'claude');
+    assert(html.includes('<pre>') || html.includes('<pre '), 'missing <pre> for code block');
+    assert(html.includes('console.log'), 'code content missing');
+  });
+
+  // ─── mdToHTML — additional coverage ──────────────────────────────────────
+  console.log('\nmdToHTML — tables / blockquotes / ordered lists');
+
+  await test('mdToHTML renders markdown table as <table>', () => {
+    const html = mdToHTML('| A | B |\n|---|---|\n| 1 | 2 |');
+    assert(html.includes('<table>') || html.includes('<table '), 'no <table> in output');
+    assert(html.includes('<th>') || html.includes('<th '), 'no <th> for header');
+    assert(html.includes('<td>') || html.includes('<td '), 'no <td> for data cells');
+  });
+
+  await test('mdToHTML renders blockquote as <blockquote>', () => {
+    const html = mdToHTML('> This is a quote');
+    assert(html.includes('<blockquote>') || html.includes('<blockquote '), 'no <blockquote>');
+    assert(html.includes('This is a quote'), 'blockquote text missing');
+  });
+
+  await test('mdToHTML renders ordered list as <ol>', () => {
+    const html = mdToHTML('1. First\n2. Second\n3. Third');
+    assert(html.includes('<ol>') || html.includes('<ol '), 'no <ol> in output');
+    assert(html.includes('<li>') || html.includes('<li '), 'no <li> in output');
+    assert(html.includes('First'), 'first item missing');
+  });
+
+  await test('mdToHTML renders inline code as <code>', () => {
+    const html = mdToHTML('Use `console.log()` to debug.');
+    assert(html.includes('<code>console.log()</code>') || html.includes('<code>'), 'no <code> tag');
+    assert(html.includes('console.log'), 'inline code content missing');
+  });
+
+  await test('mdToHTML renders strikethrough as <del>', () => {
+    const html = mdToHTML('~~deleted text~~');
+    assert(html.includes('<del>') || html.includes('<s>'), 'no <del> for strikethrough');
+    assert(html.includes('deleted text'), 'strikethrough text missing');
+  });
+
+  // ─── buildFilename — {msgcount} token ─────────────────────────────────────
+  console.log('\nbuildFilename — {msgcount}');
+
+  await test('{msgcount} token expands to message count', () => {
+    const name = buildFilename('{platform}-{msgcount}msgs', 'claude', 'chat', '', 0, 8);
+    assert(name === 'claude-8msgs', `got: ${name}`);
+  });
+
+  await test('{msgcount} defaults to 0 when not supplied', () => {
+    const name = buildFilename('{msgcount}msgs', 'chatgpt', 'foo');
+    assert(name === '0msgs', `got: ${name}`);
+  });
+
+  // ─── buildDocx — headings and blockquotes ─────────────────────────────────
+  console.log('\nbuildDocx — headings / blockquotes');
+
+  await test('buildDocx renders markdown headings', () => {
+    const msgs = [{ role: 'Claude', content: '## Section Title\nSome body text.' }];
+    const text = new TextDecoder().decode(buildDocx(msgs, 'T', 'claude'));
+    assert(text.includes('Section Title'), 'heading text missing from docx');
+    // OOXML headings use w:pStyle or custom formatting
+    assert(text.includes('w:jc') || text.includes('w:sz') || text.includes('Section Title'), 'heading formatting missing');
+  });
+
+  await test('buildDocx renders blockquotes with IntenseQuote style', () => {
+    const msgs = [{ role: 'Claude', content: '> This is a quoted block.' }];
+    const text = new TextDecoder().decode(buildDocx(msgs, 'T', 'claude'));
+    assert(text.includes('This is a quoted block'), 'blockquote text missing from docx');
+    // Blockquotes use the IntenseQuote named style
+    assert(text.includes('IntenseQuote'), 'blockquote should use IntenseQuote style');
+  });
+
+  await test('buildDocx attribution footer links to GitHub', () => {
+    const msgs = [{ role: 'You', content: 'test' }];
+    const text = new TextDecoder().decode(buildDocx(msgs, 'T', 'claude'));
+    assert(text.includes('github.com/tronicum/inkpour'), 'attribution URL missing from docx');
+    assert(text.includes('Inkpour'), 'attribution text missing from docx');
+  });
+
   // ─── Results ───────────────────────────────────────────────────────────────
   console.log('\n' + '─'.repeat(50));
   console.log(`Results: ${passed} passed, ${failed} failed`);
