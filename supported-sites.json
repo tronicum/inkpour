@@ -1,0 +1,101 @@
+{
+  "version": "1",
+  "description": "Machine-readable list of AI chat platforms supported by Inkpour",
+  "platforms": [
+    {
+      "name": "ChatGPT",
+      "id": "chatgpt",
+      "hosts": ["chatgpt.com", "chat.openai.com"],
+      "status": "full",
+      "notes": "Auto-scroll, canvas extraction"
+    },
+    {
+      "name": "Claude",
+      "id": "claude",
+      "hosts": ["claude.ai"],
+      "status": "full",
+      "notes": "Artifact extraction, thinking block collapsing"
+    },
+    {
+      "name": "Google Gemini",
+      "id": "gemini",
+      "hosts": ["gemini.google.com"],
+      "status": "full",
+      "notes": "Auto-scroll"
+    },
+    {
+      "name": "Google AI Studio",
+      "id": "aistudio",
+      "hosts": ["aistudio.google.com"],
+      "status": "full",
+      "notes": "Edit-mode extraction"
+    },
+    {
+      "name": "Microsoft Copilot",
+      "id": "copilot",
+      "hosts": ["copilot.microsoft.com", "copilot.com", "www.copilot.com"],
+      "status": "full"
+    },
+    {
+      "name": "Grok",
+      "id": "grok",
+      "hosts": ["grok.com"],
+      "status": "full"
+    },
+    {
+      "name": "Perplexity",
+      "id": "perplexity",
+      "hosts": ["perplexity.ai"],
+      "status": "experimental",
+      "notes": "Citation footnotes extracted"
+    },
+    {
+      "name": "DeepSeek",
+      "id": "deepseek",
+      "hosts": ["chat.deepseek.com"],
+      "status": "experimental"
+    },
+    {
+      "name": "Meta AI",
+      "id": "metaai",
+      "hosts": ["meta.ai"],
+      "status": "experimental"
+    },
+    {
+      "name": "Mistral Le Chat",
+      "id": "mistral",
+      "hosts": ["chat.mistral.ai"],
+      "status": "experimental"
+    },
+    {
+      "name": "HuggingChat",
+      "id": "huggingchat",
+      "hosts": ["huggingface.co"],
+      "status": "experimental"
+    },
+    {
+      "name": "Poe",
+      "id": "poe",
+      "hosts": ["poe.com"],
+      "status": "experimental"
+    },
+    {
+      "name": "Phind",
+      "id": "phind",
+      "hosts": ["phind.com"],
+      "status": "experimental"
+    },
+    {
+      "name": "NotebookLM",
+      "id": "notebooklm",
+      "hosts": ["notebooklm.google.com"],
+      "status": "experimental"
+    },
+    {
+      "name": "Kagi Assistant",
+      "id": "kagi",
+      "hosts": ["kagi.com"],
+      "status": "experimental"
+    }
+  ]
+}
