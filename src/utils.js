@@ -96,6 +96,10 @@ function buildPrintBodyHTML(messages, title, site) {
     );
   }
 
+  parts.push(
+    `<footer class="inkpour-footer"><a href="https://github.com/tronicum/inkpour">Exported with Inkpour</a></footer>`
+  );
+
   return parts.join('\n');
 }
 
@@ -144,6 +148,9 @@ function buildStandaloneHTML(messages, title, site) {
     .content pre code { background: transparent; padding: 0; }
     .content blockquote { border-left: 3px solid #d1d5db; margin: 0.6rem 0; padding: 0.3rem 0.9rem; color: #6b7280; font-style: italic; }
     .content hr { border: none; border-top: 1px solid #e5e7eb; margin: 1rem 0; }
+    .inkpour-footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; text-align: center; font-size: 0.78rem; color: #9ca3af; font-family: system-ui, sans-serif; }
+    .inkpour-footer a { color: inherit; text-decoration: none; }
+    .inkpour-footer a:hover { text-decoration: underline; }
     @media (prefers-color-scheme: dark) {
       body { color: #e4e4e7; background: #09090b; }
       #page { background: #18181b; box-shadow: 0 2px 20px rgba(0,0,0,0.4); }
@@ -155,6 +162,7 @@ function buildStandaloneHTML(messages, title, site) {
       .content code { background: rgba(255,255,255,0.1); }
       .content blockquote { border-left-color: #52525b; color: #a1a1aa; }
       .content hr { border-top-color: #3f3f46; }
+      .inkpour-footer { border-top-color: #3f3f46; color: #52525b; }
     }
   </style>
 </head>
@@ -223,6 +231,9 @@ function buildMarkdown(messages, title, site, opts = {}, sourceUrl = '') {
       : `## ${role}`;
     md += `${heading}\n\n${content.trim()}\n\n---\n\n`;
   }
+
+  // Attribution footer — subtle, links back to the tool
+  md += `*Exported with [Inkpour](https://github.com/tronicum/inkpour)*\n`;
   return md;
 }
 
