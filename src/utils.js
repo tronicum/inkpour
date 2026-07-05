@@ -38,6 +38,7 @@ function mdToHTML(md) {
   md = md.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   md = md.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
   md = md.replace(/~~(.+?)~~/g, '<del>$1</del>');
+  md = md.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
 
   // 5. Horizontal rule
   md = md.replace(/^---$/gm, '<hr>');
@@ -473,10 +474,11 @@ function _htmlDecodeText(s) {
 
 /**
  * Parse HTML inline markup (output of mdToHTML) into OOXML <w:r> elements.
- * Handles: <strong>, <em>, <code>, <del>, <strong><em>, plain text nodes.
+ * Handles: <strong>, <em>, <code>, <del>, <strong><em>, <a href>, plain text.
+ * Hyperlinks are registered in _docxLinkMap so buildDocx can emit relationship entries.
  */
 function _htmlInlineToRuns(html) {
-  const TOKEN = /<strong><em>([\s\S]*?)<\/em><\/strong>|<strong>([\s\S]*?)<\/strong>|<em>([\s\S]*?)<\/em>|<code>([\s\S]*?)<\/code>|<del>([\s\S]*?)<\/del>/g;
+  const TOKEN = /<strong><em>([\s\S]*?)<\/em><\/strong>|<strong>([\s\S]*?)<\/strong>|<em>([\s\S]*?)<\/em>|<code>([\s\S]*?)<\/code>|<del>([\s\S]*?)<\/del>|<a\s+href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g;
   let result = '';
   let last   = 0;
   let m;
@@ -487,10 +489,28 @@ function _htmlInlineToRuns(html) {
     else if (m[3]) result += _wRun(_htmlDecodeText(m[3]), { italic: true });
     else if (m[4]) result += _wRun(_htmlDecodeText(m[4]), { code: true });
     else if (m[5]) result += _wRun(_htmlDecodeText(m[5]), { strike: true });
+    else if (m[6] !== undefined) {
+      // Hyperlink — register URL, emit <w:hyperlink>
+      const href = m[6];
+      const text = _htmlDecodeText(m[7] || href);
+      const rId  = _docxLinkRId(href);
+      const rPr  = `<w:rPr><w:color w:val="5B5BD6"/><w:u w:val="single"/></w:rPr>`;
+      result += `<w:hyperlink r:id="${rId}"><w:r>${rPr}<w:t xml:space="preserve">${_xmlEsc(text)}</w:t></w:r></w:hyperlink>`;
+    }
     last = m.index + m[0].length;
   }
   if (last < html.length) result += _wRun(_htmlDecodeText(html.slice(last)));
   return result || _wRun('');
+}
+
+// Per-export link registry — populated during _htmlInlineToRuns, consumed by buildDocx.
+let _docxLinks = [];   // [{url, rId}]
+function _docxLinkRId(url) {
+  const existing = _docxLinks.find(l => l.url === url);
+  if (existing) return existing.rId;
+  const rId = `rId${3 + _docxLinks.length}`; // rId1=styles, rId2=footer link, rId3+ = content links
+  _docxLinks.push({ url, rId });
+  return rId;
 }
 
 /**
@@ -814,6 +834,7 @@ function _mdToOOXML(content) {
  * @returns {Uint8Array}
  */
 function buildDocx(messages, title, site, opts = {}, sourceUrl = '') {
+  _docxLinks = []; // reset per-export link registry
   const date     = new Date().toLocaleString(undefined, {
     year: 'numeric', month: 'long', day: 'numeric',
     hour: '2-digit', minute: '2-digit',
@@ -850,13 +871,18 @@ function buildDocx(messages, title, site, opts = {}, sourceUrl = '') {
     body += _wPara('', '', '<w:spacing w:before="0" w:after="200"/>');
   }
 
+  // Attribution footer
+  const footerRpr = `<w:rPr><w:i/><w:color w:val="9CA3AF"/><w:sz w:val="16"/><w:szCs w:val="16"/></w:rPr>`;
+  body += `<w:p><w:pPr><w:pBdr><w:top w:val="single" w:sz="4" w:space="1" w:color="E5E7EB"/></w:pBdr><w:spacing w:before="160" w:after="0"/><w:jc w:val="center"/></w:pPr><w:r>${footerRpr}<w:t>Exported with </w:t></w:r><w:hyperlink r:id="rId2"><w:r>${footerRpr}<w:rPr><w:i/><w:color w:val="9CA3AF"/><w:sz w:val="16"/><w:szCs w:val="16"/><w:u w:val="single"/></w:rPr><w:t>Inkpour</w:t></w:r></w:hyperlink></w:p>`;
+
   // Section properties (A4 page)
   body += `<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr>`;
 
   // ── OOXML files ──────────────────────────────────────────────────────────
   const NS_W   = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+  const NS_R   = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
   const NS_PKG = 'http://schemas.openxmlformats.org/package/2006';
-  const NS_REL = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+  const NS_REL = NS_R;
 
   const contentTypes = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="${NS_PKG}/content-types">
@@ -871,9 +897,14 @@ function buildDocx(messages, title, site, opts = {}, sourceUrl = '') {
   <Relationship Id="rId1" Type="${NS_REL}/officeDocument" Target="word/document.xml"/>
 </Relationships>`;
 
+  const contentLinkRels = _docxLinks
+    .map(({ url, rId }) => `  <Relationship Id="${rId}" Type="${NS_REL}/hyperlink" Target="${url}" TargetMode="External"/>`)
+    .join('\n');
   const docRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="${NS_PKG}/relationships">
   <Relationship Id="rId1" Type="${NS_REL}/styles" Target="styles.xml"/>
+  <Relationship Id="rId2" Type="${NS_REL}/hyperlink" Target="https://github.com/tronicum/inkpour" TargetMode="External"/>
+${contentLinkRels}
 </Relationships>`;
 
   const styles = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -914,7 +945,7 @@ function buildDocx(messages, title, site, opts = {}, sourceUrl = '') {
 </w:styles>`;
 
   const document = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:w="${NS_W}">
+<w:document xmlns:w="${NS_W}" xmlns:r="${NS_R}">
   <w:body>
 ${body}
   </w:body>

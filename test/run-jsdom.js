@@ -954,6 +954,15 @@ async function main() {
     assert(text.includes('w:ind'),    'list indent missing');
   });
 
+  await test('buildDocx embeds hyperlinks as OOXML w:hyperlink', () => {
+    const msgs = [{ role: 'Claude', content: 'See [OpenAI](https://openai.com) for details.' }];
+    const text  = new TextDecoder().decode(buildDocx(msgs, 'T', 'claude'));
+    assert(text.includes('w:hyperlink'),   'no w:hyperlink element');
+    assert(text.includes('openai.com'),    'link URL missing from relationships');
+    assert(text.includes('OpenAI'),        'link text missing');
+    assert(text.includes('TargetMode="External"'), 'external target mode missing');
+  });
+
   // ─── notesBlockMD ─────────────────────────────────────────────────────────
   await test('notesBlockMD returns empty string for empty input', () => {
     assert(notesBlockMD('') === '', 'empty string should return empty');
