@@ -89,6 +89,7 @@
     'Phind':          ['phind.com'],
     'NotebookLM':     ['notebooklm.google.com'],
     'Kagi':           ['kagi.com'],
+    'Z.ai':           ['chat.z.ai'],
   };
 
   // Flat set of all supported hostnames — used to distinguish "wrong site" from

@@ -32,6 +32,7 @@ Inkpour is a lightweight WebExtension (Manifest V3) that works in Firefox, Chrom
 | Phind | phind.com | 🧪 Experimental |
 | NotebookLM | notebooklm.google.com | 🧪 Experimental |
 | Kagi Assistant | kagi.com | 🧪 Experimental |
+| Z.ai (Zhipu GLM) | chat.z.ai | 🧪 Experimental |
 
 Experimental = selectors verified against fixture HTML; real-page accuracy needs ongoing maintenance as sites update their DOM.
 

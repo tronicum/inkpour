@@ -307,6 +307,7 @@
         location.pathname === '/search')                                     return 'googlesearch';
     if (host.includes('grok.com'))                                          return 'grok';
     if (host.includes('console.groq.com'))                                  return 'groq';
+    if (host.includes('chat.z.ai'))                                         return 'zai';
     if (host.includes('perplexity.ai'))                                     return 'perplexity';
     if (host.includes('chat.deepseek.com'))                                 return 'deepseek';
     if (host.includes('meta.ai'))                                           return 'metaai';
@@ -873,6 +874,33 @@
       .filter(m => m.content);
   }
 
+  // Z.ai (chat.z.ai) — Zhipu AI / GLM-5, Svelte-based chat UI
+  // Selectors confirmed by live DOM inspection:
+  //   .chat-user    — user turn wrapper (plain text in whitespace-pre-wrap div)
+  //   .chat-assistant — AI turn wrapper (rendered markdown in #response-content-container)
+  //   .dot inside .chat-assistant — streaming indicator (pulsing dots)
+  function extractZAI() {
+    const userEls     = Array.from(document.querySelectorAll('.chat-user'))
+      .map(el => ({ el, role: 'You' }));
+    const assistantEls = Array.from(document.querySelectorAll('.chat-assistant'))
+      .map(el => ({ el, role: 'Z.ai' }));
+
+    const combined = [...userEls, ...assistantEls].sort(sortByDOMOrder);
+    if (!combined.length) return null;
+
+    return combined.map(({ el, role }) => {
+      if (role === 'You') {
+        // User text lives in a whitespace-pre-wrap container — grab plain text
+        const textEl = el.querySelector('[class*="whitespace-pre-wrap"], [class*="whitespace"]');
+        const content = (textEl ?? el).textContent.trim();
+        return { role, content };
+      }
+      // AI response: prefer #response-content-container, fall back to whole element
+      const contentEl = el.querySelector('#response-content-container') ?? el;
+      return { role, content: htmlToMarkdown(contentEl) };
+    }).filter(m => m.content);
+  }
+
   // Google Search — AI Overviews and AI Mode (google.com/search)
   // Handles two variants:
   //   - Standard search with AI Overview (appears above organic results)
@@ -1063,6 +1091,11 @@
       );
     }
 
+    // Z.ai: pulsing dot animation inside the assistant container means streaming
+    if (site === 'zai') {
+      return !!document.querySelector('.chat-assistant .dot');
+    }
+
     // Generic fallback: look for any visible "Stop generating" button
     const stopBtns = document.querySelectorAll(
       'button[aria-label*="stop" i], button[title*="stop" i], ' +
@@ -1091,6 +1124,7 @@
       case 'aistudio':    messages = await extractAIStudio();    break;
       case 'grok':        messages = extractGrok();              break;
       case 'groq':        messages = extractGroq();              break;
+      case 'zai':         messages = extractZAI();               break;
       case 'perplexity':  messages = extractPerplexity();        break;
       case 'deepseek':    messages = extractDeepSeek();          break;
       case 'metaai':      messages = extractMetaAI();            break;
