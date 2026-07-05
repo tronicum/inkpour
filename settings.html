@@ -266,6 +266,30 @@
     </div>
   </section>
 
+  <!-- Integrations -->
+  <section>
+    <h2>Integrations</h2>
+
+    <div class="field">
+      <div class="field-label">
+        <strong>GitHub token</strong>
+        <span>Personal access token with <code>gist</code> scope — enables "Upload to Gist" button in popup. <a href="https://github.com/settings/tokens/new?scopes=gist" target="_blank" rel="noopener">Create one →</a></span>
+      </div>
+      <input type="password" id="githubToken" placeholder="ghp_…" style="min-width:180px; font-family: monospace;" />
+    </div>
+
+    <div class="field">
+      <div class="field-label">
+        <strong>Gist visibility</strong>
+        <span>Secret Gists are unlisted (anyone with the link can view)</span>
+      </div>
+      <select id="gistPublic">
+        <option value="false">Secret (unlisted)</option>
+        <option value="true">Public</option>
+      </select>
+    </div>
+  </section>
+
   <div class="save-row">
     <button class="btn-save" id="saveBtn">Save</button>
     <span id="saveStatus"></span>

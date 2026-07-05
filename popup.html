@@ -210,6 +210,19 @@
     #status.error    { color: var(--error); }
     #status.warning  { color: #d97706; }
 
+    /* ── Gist link ── */
+    #gist-link {
+      margin-top: 5px;
+      font-size: 11px;
+      text-align: center;
+    }
+    #gist-link a {
+      color: var(--accent);
+      text-decoration: none;
+      word-break: break-all;
+    }
+    #gist-link a:hover { text-decoration: underline; }
+
     /* ── Last export hint ── */
     #last-export {
       margin-top: 6px;
@@ -309,9 +322,14 @@
       <div class="spinner"></div>
       <span>ZIP</span>
     </button>
+    <button class="btn copy-btn" id="gistBtn" title="Upload Markdown to GitHub Gist" hidden>
+      <div class="spinner"></div>
+      <span>Gist ↑</span>
+    </button>
   </div>
 
   <div id="status"></div>
+  <div id="gist-link"></div>
   <div id="last-export"></div>
 
   <div class="footer-links">

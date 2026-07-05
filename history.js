@@ -60,6 +60,7 @@
     'html':      'HTML',
     'json':      'JSON',
     'zip':       'ZIP',
+    'gist':      'Gist',
     'copy-md':   'Copy MD',
     'copy-html': 'Copy HTML',
   };

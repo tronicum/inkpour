@@ -24,7 +24,8 @@
     "*://poe.com/*",
     "*://www.phind.com/*",
     "*://notebooklm.google.com/*",
-    "*://kagi.com/*"
+    "*://kagi.com/*",
+    "*://api.github.com/*"
   ],
 
   "background": {

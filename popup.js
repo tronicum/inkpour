@@ -15,10 +15,12 @@
   const copyHtmlBtn = document.getElementById('copyHtmlBtn');
   const jsonBtn     = document.getElementById('jsonBtn');
   const zipBtn      = document.getElementById('zipBtn');
+  const gistBtn     = document.getElementById('gistBtn');
   const settingsBtn  = document.getElementById('settingsBtn');
   const historyBtn   = document.getElementById('historyBtn');
   const settingsBtn2 = document.getElementById('settingsBtn2');
   const status       = document.getElementById('status');
+  const gistLinkEl   = document.getElementById('gist-link');
   const lastExportEl = document.getElementById('last-export');
 
   // ─── Load user settings ───────────────────────────────────────────────────
@@ -30,6 +32,8 @@
     filenameTemplate:   '{platform}-{title}',
     downloadSubfolder:  '',   // e.g. "AI Chats" or "Obsidian/Exports"
     obsidianTags:       false, // add tags: [ai-chat, {platform}] to YAML
+    githubToken:        '',
+    gistPublic:         false,
   };
   let userSettings = { ...SETTING_DEFAULTS };
 
@@ -39,6 +43,8 @@
     const btnMap = { md: mdBtn, pdf: pdfBtn, html: htmlBtn, json: jsonBtn, zip: zipBtn };
     const defaultBtn = btnMap[userSettings.defaultFormat];
     if (defaultBtn) defaultBtn.classList.add('default-format');
+    // Show Gist button only when a token is configured
+    if (gistBtn && userSettings.githubToken) gistBtn.hidden = false;
   });
 
   // ─── Chip highlighting — detect current platform on popup open ───────────
@@ -279,6 +285,55 @@
       setStatus(err.message, err.streaming ? 'warning' : 'error');
     } finally {
       setLoading(zipBtn, false);
+    }
+  });
+
+  // ─── GitHub Gist upload ───────────────────────────────────────────────────
+
+  gistBtn?.addEventListener('click', async () => {
+    if (!userSettings.githubToken) {
+      setStatus('Add a GitHub token in Settings first.', 'warning');
+      return;
+    }
+    if (gistLinkEl) gistLinkEl.innerHTML = '';
+    clearStatus();
+    setLoading(gistBtn, true);
+    try {
+      const data = await extractFromPage();
+      const md   = buildMarkdown(data.messages, data.title, data.site, userSettings, data.sourceUrl);
+      const slug = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl);
+      const filename = slug + '.md';
+
+      setStatus('Uploading to GitHub Gist…');
+      const res = await fetch('https://api.github.com/gists', {
+        method: 'POST',
+        headers: {
+          'Authorization': `token ${userSettings.githubToken}`,
+          'Accept':        'application/vnd.github.v3+json',
+          'Content-Type':  'application/json',
+        },
+        body: JSON.stringify({
+          description: data.title,
+          public:      userSettings.gistPublic === true,
+          files: { [filename]: { content: md } },
+        }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message || `GitHub API error ${res.status}`);
+      }
+
+      const gist = await res.json();
+      setStatus('✓ Gist created', 'success');
+      if (gistLinkEl) {
+        gistLinkEl.innerHTML = `<a href="${gist.html_url}" target="_blank" rel="noopener">${gist.html_url}</a>`;
+      }
+      saveLastExport('gist', data, md);
+    } catch (err) {
+      setStatus(err.message || 'Gist upload failed', 'error');
+    } finally {
+      setLoading(gistBtn, false);
     }
   });
 
