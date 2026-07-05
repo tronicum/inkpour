@@ -159,7 +159,7 @@
     try {
       const data = await extractFromPage();
       const md   = buildMarkdown(data.messages, data.title, data.site, userSettings, data.sourceUrl);
-      downloadFile(md, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl) + '.md', 'text/markdown;charset=utf-8');
+      downloadFile(md, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(data.messages)) + '.md', 'text/markdown;charset=utf-8');
       setStatus('✓ Saved — check your Downloads folder', 'success');
       saveLastExport('md', data, md);
     } catch (err) {
@@ -195,7 +195,7 @@
     try {
       const data     = await extractFromPage();
       const fullHTML = buildStandaloneHTML(data.messages, data.title, data.site);
-      downloadFile(fullHTML, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl) + '.html', 'text/html;charset=utf-8');
+      downloadFile(fullHTML, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(data.messages)) + '.html', 'text/html;charset=utf-8');
       setStatus('✓ Saved — check your Downloads folder', 'success');
       saveLastExport('html', data, fullHTML);
     } catch (err) {
@@ -249,7 +249,7 @@
     try {
       const data = await extractFromPage();
       const json  = buildJSON(data.messages, data.title, data.site, data.platform);
-      downloadFile(json, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl) + '.json', 'application/json;charset=utf-8');
+      downloadFile(json, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(data.messages)) + '.json', 'application/json;charset=utf-8');
       setStatus('✓ Saved — check your Downloads folder', 'success');
       saveLastExport('json', data, json);
     } catch (err) {
@@ -274,7 +274,7 @@
       const url      = URL.createObjectURL(blob);
       const a        = Object.assign(document.createElement('a'), {
         href:     url,
-        download: withSubfolder(buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl) + '.zip'),
+        download: withSubfolder(buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(data.messages)) + '.zip'),
       });
       document.body.appendChild(a);
       a.click();
@@ -303,7 +303,7 @@
     try {
       const data = await extractFromPage();
       const md   = buildMarkdown(data.messages, data.title, data.site, userSettings, data.sourceUrl);
-      const slug = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl);
+      const slug = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(data.messages));
       const filename = slug + '.md';
 
       setStatus('Uploading to GitHub Gist…');
@@ -379,6 +379,11 @@
    * Prepend the configured downloads subfolder (if any) to a bare filename.
    * The browser's Downloads API interprets slashes as subdirectory separators.
    */
+  /** Approximate word count across all messages. */
+  function countWords(messages) {
+    return messages.reduce((sum, m) => sum + m.content.trim().split(/\s+/).filter(Boolean).length, 0);
+  }
+
   function withSubfolder(filename) {
     const sub = (userSettings.downloadSubfolder || '').trim().replace(/\/+$/, '');
     return sub ? `${sub}/${filename}` : filename;

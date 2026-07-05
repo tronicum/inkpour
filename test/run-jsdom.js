@@ -622,6 +622,71 @@ async function main() {
     });
   });
 
+  // ─── buildFilename — new tokens ────────────────────────────────────────────
+  console.log('\nbuildFilename — tokens');
+
+  await test('{words} token expands to word count', () => {
+    const name = buildFilename('{platform}-{words}w', 'claude', 'my-chat', '', 1234);
+    assert(name === 'claude-1234w', `got: ${name}`);
+  });
+
+  await test('{words} defaults to 0 when not supplied', () => {
+    const name = buildFilename('{words}w-{platform}', 'chatgpt', 'foo', '');
+    assert(name === '0w-chatgpt', `got: ${name}`);
+  });
+
+  await test('{date} token produces YYYY-MM-DD', () => {
+    const name = buildFilename('{date}-export', 'claude', 'chat', '');
+    assert(/^\d{4}-\d{2}-\d{2}-export$/.test(name), `unexpected format: ${name}`);
+  });
+
+  await test('{url} token expands to hostname', () => {
+    const name = buildFilename('{url}-chat', 'claude', 'foo', 'https://claude.ai/chat/abc');
+    assert(name === 'claude-ai-chat', `got: ${name}`);
+  });
+
+  await test('all special chars sanitized from filename', () => {
+    const name = buildFilename('{title}', 'chatgpt', 'my title: a "test" & more!', '');
+    assert(!/["&:!]/.test(name), `unsanitized chars in: ${name}`);
+    assert(name.length > 0, 'empty filename');
+  });
+
+  await test('overlong filename truncated to 100 chars', () => {
+    const longSlug = 'a'.repeat(200);
+    const name = buildFilename('{title}', 'chatgpt', longSlug, '');
+    assert(name.length <= 100, `filename too long: ${name.length}`);
+  });
+
+  // ─── buildJSON ─────────────────────────────────────────────────────────────
+  console.log('\nbuildJSON');
+
+  await test('buildJSON produces valid JSON', () => {
+    const msgs = [{ role: 'You', content: 'hello' }, { role: 'Claude', content: 'hi there' }];
+    const json = buildJSON(msgs, 'Test Chat', 'claude.ai', 'claude');
+    let parsed;
+    try { parsed = JSON.parse(json); } catch { assert(false, 'invalid JSON output'); }
+    assert(parsed.title === 'Test Chat', 'title missing');
+    assert(Array.isArray(parsed.messages), 'messages not array');
+    assert(parsed.messages.length === 2, 'wrong message count');
+  });
+
+  await test('buildJSON includes platform field', () => {
+    const msgs = [{ role: 'You', content: 'hi' }];
+    const json = buildJSON(msgs, 'Chat', 'chatgpt.com', 'chatgpt');
+    const parsed = JSON.parse(json);
+    assert(parsed.platform === 'chatgpt', `platform: ${parsed.platform}`);
+  });
+
+  await test('buildJSON preserves role and content per message', () => {
+    const msgs = [
+      { role: 'You',    content: 'question here' },
+      { role: 'Claude', content: 'answer here'   },
+    ];
+    const parsed = JSON.parse(buildJSON(msgs, 'T', 'claude.ai', 'claude'));
+    assert(parsed.messages[0].role === 'You',           'first role wrong');
+    assert(parsed.messages[1].content === 'answer here','second content wrong');
+  });
+
   // ─── Results ───────────────────────────────────────────────────────────────
   console.log('\n' + '─'.repeat(50));
   console.log(`Results: ${passed} passed, ${failed} failed`);
