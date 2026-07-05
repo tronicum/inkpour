@@ -352,6 +352,7 @@ const SUPPORTED_HOSTS = [
   'notebooklm.google.com',
   'kagi.com',
   'chat.z.ai',
+  'venice.ai',
 ];
 
 function updateBadge(tabId, url) {

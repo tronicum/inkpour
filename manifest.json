@@ -31,6 +31,7 @@
     "*://notebooklm.google.com/*",
     "*://kagi.com/*",
     "*://chat.z.ai/*",
+    "*://venice.ai/*",
     "*://api.github.com/*"
   ],
 
@@ -107,7 +108,8 @@
         "*://www.phind.com/*",
         "*://notebooklm.google.com/*",
         "*://kagi.com/*",
-        "*://chat.z.ai/*"
+        "*://chat.z.ai/*",
+        "*://venice.ai/*"
       ],
       "js": ["src/content.js"],
       "run_at": "document_idle"
