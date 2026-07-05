@@ -160,6 +160,70 @@
 
       case 'table': return convertTable(node);
 
+      // ── Collapsible sections ─────────────────────────────────────────────
+      // <details><summary>Thinking…</summary>…</details>
+      // Used by Claude's extended thinking, and some platforms for footnotes/sources.
+      // Rendered as a labelled blockquote so content is visible in all MD renderers.
+      case 'details': {
+        const summaryEl = node.querySelector(':scope > summary');
+        const label = summaryEl ? summaryEl.textContent.trim() : 'Details';
+        // Process child nodes directly, skipping <summary> — avoids recursive loop
+        const body = Array.from(node.childNodes)
+          .filter(n => !(n.nodeType === Node.ELEMENT_NODE &&
+                         n.tagName.toLowerCase() === 'summary'))
+          .map(convertNode)
+          .join('')
+          .trim();
+        if (!body) return '';
+        const lines = body.split('\n').map(l => `> ${l}`).join('\n');
+        return `\n\n> **${label}**\n>\n${lines}\n\n`;
+      }
+
+      case 'summary': return ''; // handled inside <details>
+
+      // ── Math ────────────────────────────────────────────────────────────
+      // KaTeX renders <span class="katex">…</span> with an <annotation> holding
+      // the LaTeX source. MathJax uses <mjx-container> with a similar pattern.
+      case 'span': {
+        // KaTeX inline math: extract LaTeX from <annotation encoding="application/x-tex">
+        if (node.classList?.contains('katex') || node.classList?.contains('katex-display')) {
+          const annotation = node.querySelector('annotation[encoding="application/x-tex"]');
+          if (annotation) {
+            const tex = annotation.textContent.trim();
+            const isDisplay = node.classList.contains('katex-display');
+            return isDisplay ? `\n\n$$\n${tex}\n$$\n\n` : `$${tex}$`;
+          }
+        }
+        return children();
+      }
+
+      // MathJax container
+      case 'mjx-container': {
+        const annotation = node.querySelector('annotation[encoding="application/x-tex"]') ||
+                           node.querySelector('annotation');
+        if (annotation) {
+          const tex = annotation.textContent.trim();
+          const isBlock = node.getAttribute('display') === 'true';
+          return isBlock ? `\n\n$$\n${tex}\n$$\n\n` : `$${tex}$`;
+        }
+        return children();
+      }
+
+      // ── Figures ──────────────────────────────────────────────────────────
+      case 'figure': {
+        const caption = node.querySelector('figcaption');
+        const imgEl   = node.querySelector('img');
+        const captionText = caption ? caption.textContent.trim() : '';
+        if (imgEl) {
+          const alt  = imgEl.getAttribute('alt') || captionText;
+          const src  = imgEl.getAttribute('src') || '';
+          const md   = `![${alt}](${src})`;
+          return captionText ? `\n\n${md}\n*${captionText}*\n\n` : `\n\n${md}\n\n`;
+        }
+        return children();
+      }
+      case 'figcaption': return ''; // handled inside <figure>
+
       default: return children();
     }
   }

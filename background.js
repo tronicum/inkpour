@@ -273,11 +273,14 @@ function buildStandaloneHTML(messages, title, site) {
 // ─── Filename builder (mirrors popup.js — keep in sync) ──────────────────
 
 function buildFilename(template, platform, titleSlug) {
-  const date = new Date().toISOString().slice(0, 10);
+  const now  = new Date();
+  const date = now.toISOString().slice(0, 10);
+  const time = now.toISOString().slice(11, 16).replace(':', '-'); // HH-MM
   return (template || '{platform}-{title}')
     .replace(/\{platform\}/g, platform || 'chat')
     .replace(/\{title\}/g,    titleSlug || 'export')
     .replace(/\{date\}/g,     date)
+    .replace(/\{time\}/g,     time)
     .replace(/[^a-z0-9_\-]+/gi, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 100) || 'inkpour-export';

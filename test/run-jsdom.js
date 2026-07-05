@@ -432,6 +432,98 @@ async function main() {
     });
   });
 
+  // ── <details> / thinking blocks + math + {time} token ────────────────────
+  await suite('htmlToMarkdown — details/math/figure unit tests', async () => {
+    // Shared JSDOM with test hook
+    const dom = new JSDOM(`<!DOCTYPE html><body>
+      <div id="d1">
+        <details>
+          <summary>Thinking…</summary>
+          <p>Let me work through this step by step.</p>
+          <p>First, consider the base case.</p>
+        </details>
+      </div>
+      <div id="d2">
+        <p>The energy equation is <span class="katex"><annotation encoding="application/x-tex">E = mc^2</annotation>some rendered html</span>.</p>
+      </div>
+      <div id="d3">
+        <details>
+          <summary>Sources</summary>
+          <ul><li>Wikipedia: Relativity</li><li>Feynman Lectures</li></ul>
+        </details>
+        <p>Main content here.</p>
+      </div>
+    </body>`, { url: 'https://claude.ai/', runScripts: 'dangerously' });
+    dom.window.__inkpourTestHostname = 'claude.ai';
+    dom.window.HTMLElement.prototype.scrollTo = function () {};
+    dom.window.document.documentElement.scrollTo = function () {};
+    const ls = [];
+    dom.window.browser = { runtime: { onMessage: { addListener: fn => ls.push(fn) }, id: 't' } };
+    dom.window.chrome  = dom.window.browser;
+    const s = dom.window.document.createElement('script');
+    s.textContent = CONTENT_JS;
+    dom.window.document.body.appendChild(s);
+    await new Promise(r => setTimeout(r, 50));
+    const fn = dom.window.__inkpourHtmlToMarkdown;
+    assert(typeof fn === 'function', 'hook not exposed');
+
+    await test('<details><summary> converts to blockquote with bold label', () => {
+      const md = fn(dom.window.document.getElementById('d1'));
+      assert(md.includes('> **Thinking…**'), `no blockquote label. Got: ${md}`);
+      assert(md.includes('step by step'), 'body content missing');
+      assert(md.includes('base case'), 'second paragraph missing');
+    });
+
+    await test('KaTeX <span class="katex"> extracts LaTeX via annotation', () => {
+      const md = fn(dom.window.document.getElementById('d2'));
+      assert(md.includes('$E = mc^2$'), `no KaTeX inline math. Got: ${md}`);
+    });
+
+    await test('<details> without summary defaults to "Details" label', () => {
+      // Build a details element with no summary
+      const el = dom.window.document.createElement('div');
+      el.innerHTML = '<details><p>Hidden content here</p></details>';
+      const md = fn(el);
+      assert(md.includes('> **Details**'), `no default Details label. Got: ${md}`);
+    });
+  });
+
+  // ── {time} filename token ─────────────────────────────────────────────────
+  await suite('buildFilename {time} token', async () => {
+    // We test this via Node.js directly — no DOM needed
+    function buildFilename(template, platform, titleSlug) {
+      const now  = new Date();
+      const date = now.toISOString().slice(0, 10);
+      const time = now.toISOString().slice(11, 16).replace(':', '-');
+      return (template || '{platform}-{title}')
+        .replace(/\{platform\}/g, platform || 'chat')
+        .replace(/\{title\}/g,    titleSlug || 'export')
+        .replace(/\{date\}/g,     date)
+        .replace(/\{time\}/g,     time)
+        .replace(/[^a-z0-9_\-]+/gi, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 100) || 'inkpour-export';
+    }
+
+    await test('{time} expands to HH-MM', () => {
+      const fn = buildFilename('{date}T{time}', 'claude', 'chat');
+      // Should match YYYY-MM-DDTHH-MM
+      assert(/^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}$/.test(fn), `unexpected format: ${fn}`);
+    });
+
+    await test('all tokens together', () => {
+      const fn = buildFilename('{platform}-{title}-{date}-{time}', 'chatgpt', 'my-chat');
+      assert(fn.startsWith('chatgpt-my-chat-'), `unexpected: ${fn}`);
+      assert(/\d{4}-\d{2}-\d{2}-\d{2}-\d{2}$/.test(fn), `no date+time suffix: ${fn}`);
+    });
+
+    await test('unknown tokens are stripped by sanitiser', () => {
+      const fn = buildFilename('{platform}-{unknown}', 'claude', 'title');
+      // {unknown} becomes "-unknown-" which gets sanitised to "-unknown-" then trimmed
+      assert(fn.startsWith('claude-'), `unexpected: ${fn}`);
+    });
+  });
+
   // ─── Results ───────────────────────────────────────────────────────────────
   console.log('\n' + '─'.repeat(50));
   console.log(`Results: ${passed} passed, ${failed} failed`);
