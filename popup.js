@@ -26,6 +26,14 @@
   const notesInput    = document.getElementById('notesInput');
   const gistLinkEl    = document.getElementById('gist-link');
   const lastExportEl  = document.getElementById('last-export');
+  const selectToggle  = document.getElementById('selectToggle');
+  const selectSection = document.getElementById('select-section');
+  const selectCount   = document.getElementById('selectCount');
+  const msgCheckboxes = document.getElementById('msgCheckboxes');
+  const selectAllBtn  = document.getElementById('selectAll');
+  const selectNoneBtn = document.getElementById('selectNone');
+  const selectUserBtn = document.getElementById('selectUser');
+  const selectAIBtn   = document.getElementById('selectAI');
 
   // ─── Load user settings ───────────────────────────────────────────────────
 
@@ -159,6 +167,85 @@
     return (notesInput?.value || '').trim();
   }
 
+  // ─── Selective export ────────────────────────────────────────────────────────
+
+  /** Show the "Select messages" toggle after extraction. */
+  function showSelectToggle() {
+    if (!selectToggle) return;
+    selectToggle.style.display = 'block';
+    selectToggle.hidden = false;
+  }
+
+  /** Populate the checkbox list from the current cachedData messages. */
+  function buildMessageSelector(messages) {
+    if (!msgCheckboxes) return;
+    msgCheckboxes.innerHTML = '';
+    messages.forEach((msg, i) => {
+      const isUser = msg.role.toLowerCase() === 'you' || msg.role.toLowerCase() === 'user';
+      const preview = msg.content.replace(/\s+/g, ' ').slice(0, 72);
+      const row = document.createElement('label');
+      row.className = 'msg-row';
+      row.innerHTML = `
+        <input type="checkbox" data-idx="${i}" checked>
+        <span class="msg-role ${isUser ? 'user' : 'ai'}">${esc(msg.role.slice(0, 6))}</span>
+        <span class="msg-preview">${esc(preview)}</span>`;
+      row.querySelector('input').addEventListener('change', updateSelectCount);
+      msgCheckboxes.appendChild(row);
+    });
+    updateSelectCount();
+  }
+
+  function updateSelectCount() {
+    if (!msgCheckboxes || !selectCount) return;
+    const all     = msgCheckboxes.querySelectorAll('input[type=checkbox]');
+    const checked = msgCheckboxes.querySelectorAll('input[type=checkbox]:checked');
+    selectCount.textContent = `${checked.length} of ${all.length} selected`;
+  }
+
+  /**
+   * Return the subset of messages currently checked.
+   * Falls back to all messages if the selector is hidden or all are checked.
+   */
+  function getSelectedMessages(allMessages) {
+    if (!selectSection || selectSection.hidden) return allMessages;
+    const boxes = msgCheckboxes?.querySelectorAll('input[type=checkbox]') ?? [];
+    if (!boxes.length) return allMessages;
+    const selected = [];
+    boxes.forEach((box, i) => {
+      if (box.checked && allMessages[i]) selected.push(allMessages[i]);
+    });
+    return selected.length ? selected : allMessages;
+  }
+
+  // Quick-select helpers
+  function setCheckboxes(predicate, messages) {
+    const boxes = msgCheckboxes?.querySelectorAll('input[type=checkbox]') ?? [];
+    boxes.forEach((box, i) => {
+      box.checked = predicate(messages[i], i);
+    });
+    updateSelectCount();
+  }
+
+  selectToggle?.addEventListener('click', () => {
+    const open = selectSection && !selectSection.hidden;
+    if (selectSection) {
+      selectSection.hidden = open;
+      selectSection.style.display = open ? 'none' : 'block';
+    }
+    if (selectToggle) selectToggle.textContent = open ? '☑ Select messages' : '✕ Close selector';
+  });
+
+  selectAllBtn?.addEventListener('click',  () => setCheckboxes(() => true,  cachedData?.messages ?? []));
+  selectNoneBtn?.addEventListener('click', () => setCheckboxes(() => false, cachedData?.messages ?? []));
+  selectUserBtn?.addEventListener('click', () => setCheckboxes(m => {
+    const r = (m.role || '').toLowerCase();
+    return r === 'you' || r === 'user';
+  }, cachedData?.messages ?? []));
+  selectAIBtn?.addEventListener('click',   () => setCheckboxes(m => {
+    const r = (m.role || '').toLowerCase();
+    return r !== 'you' && r !== 'user';
+  }, cachedData?.messages ?? []));
+
   // Wire the toggle
   notesToggle?.addEventListener('click', () => {
     const open = notesSection && !notesSection.hidden;
@@ -198,6 +285,8 @@
         updatePeekStatus(response);
         showTitleInput(response.title);
         showNotesToggle();
+        showSelectToggle();
+        buildMessageSelector(response.messages);
       } else {
         clearStatus();
       }
@@ -236,11 +325,12 @@
     setLoading(mdBtn, true);
     try {
       const data = await extractFromPage();
+      const msgs  = getSelectedMessages(data.messages);
       const notes = getExportNotes();
-      const md   = notesBlockMD(notes) + buildMarkdown(data.messages, data.title, data.site, userSettings, data.sourceUrl);
-      downloadFile(md, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(data.messages)) + '.md', 'text/markdown;charset=utf-8');
+      const md   = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, userSettings, data.sourceUrl);
+      downloadFile(md, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs)) + '.md', 'text/markdown;charset=utf-8');
       setStatus('✓ Saved — check your Downloads folder', 'success');
-      saveLastExport('md', data, md);
+      saveLastExport('md', { ...data, messages: msgs }, md);
     } catch (err) {
       setStatus(err.message, err.streaming ? 'warning' : 'error');
     } finally {
@@ -255,11 +345,11 @@
     setLoading(pdfBtn, true);
     try {
       const data        = await extractFromPage();
-      const bodyContent = buildPrintBodyHTML(data.messages, data.title, data.site);
+      const msgs        = getSelectedMessages(data.messages);
+      const bodyContent = buildPrintBodyHTML(msgs, data.title, data.site);
       localStorage.setItem('inkpour_print', bodyContent);
       await api.tabs.create({ url: api.runtime.getURL('print.html') });
-      // For PDF, store the HTML body so history page can re-open the print tab
-      saveLastExport('pdf', data, bodyContent);
+      saveLastExport('pdf', { ...data, messages: msgs }, bodyContent);
     } catch (err) {
       setStatus(err.message, err.streaming ? 'warning' : 'error');
       setLoading(pdfBtn, false);
@@ -273,10 +363,11 @@
     setLoading(htmlBtn, true);
     try {
       const data     = await extractFromPage();
-      const fullHTML = buildStandaloneHTML(data.messages, data.title, data.site);
-      downloadFile(fullHTML, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(data.messages)) + '.html', 'text/html;charset=utf-8');
+      const msgs     = getSelectedMessages(data.messages);
+      const fullHTML = buildStandaloneHTML(msgs, data.title, data.site);
+      downloadFile(fullHTML, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs)) + '.html', 'text/html;charset=utf-8');
       setStatus('✓ Saved — check your Downloads folder', 'success');
-      saveLastExport('html', data, fullHTML);
+      saveLastExport('html', { ...data, messages: msgs }, fullHTML);
     } catch (err) {
       setStatus(err.message, err.streaming ? 'warning' : 'error');
     } finally {
@@ -291,8 +382,9 @@
     setLoading(copyBtn, true);
     try {
       const data  = await extractFromPage();
+      const msgs  = getSelectedMessages(data.messages);
       const notes = getExportNotes();
-      const md    = notesBlockMD(notes) + buildMarkdown(data.messages, data.title, data.site, userSettings, data.sourceUrl);
+      const md    = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, userSettings, data.sourceUrl);
       await navigator.clipboard.writeText(md);
       setStatus('✓ Markdown copied to clipboard', 'success');
       saveLastExport('copy-md', data, md);
@@ -310,7 +402,8 @@
     setLoading(copyHtmlBtn, true);
     try {
       const data     = await extractFromPage();
-      const fullHTML = buildStandaloneHTML(data.messages, data.title, data.site);
+      const msgs     = getSelectedMessages(data.messages);
+      const fullHTML = buildStandaloneHTML(msgs, data.title, data.site);
       await navigator.clipboard.writeText(fullHTML);
       setStatus('✓ HTML copied — paste into any editor', 'success');
       saveLastExport('copy-html', data, fullHTML);
@@ -328,8 +421,9 @@
     setLoading(jsonBtn, true);
     try {
       const data  = await extractFromPage();
+      const msgs  = getSelectedMessages(data.messages);
       const notes = getExportNotes();
-      let json = buildJSON(data.messages, data.title, data.site, data.platform);
+      let json = buildJSON(msgs, data.title, data.site, data.platform);
       // Inject notes field after the top-level exportedAt key if present
       if (notes) {
         try {
@@ -338,9 +432,9 @@
           json = JSON.stringify(obj, null, 2);
         } catch { /* leave json as-is if parse fails */ }
       }
-      downloadFile(json, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(data.messages)) + '.json', 'application/json;charset=utf-8');
+      downloadFile(json, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs)) + '.json', 'application/json;charset=utf-8');
       setStatus('✓ Saved — check your Downloads folder', 'success');
-      saveLastExport('json', data, json);
+      saveLastExport('json', { ...data, messages: msgs }, json);
     } catch (err) {
       setStatus(err.message, err.streaming ? 'warning' : 'error');
     } finally {
@@ -355,15 +449,16 @@
     setLoading(zipBtn, true);
     try {
       const data = await extractFromPage();
+      const msgs = getSelectedMessages(data.messages);
       const { files, codeCount } = buildZipExport(
-        data.messages, data.title, data.site, userSettings, data.sourceUrl
+        msgs, data.title, data.site, userSettings, data.sourceUrl
       );
       const zipBytes = buildZip(files);
       const blob     = new Blob([zipBytes], { type: 'application/zip' });
       const url      = URL.createObjectURL(blob);
       const a        = Object.assign(document.createElement('a'), {
         href:     url,
-        download: withSubfolder(buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(data.messages)) + '.zip'),
+        download: withSubfolder(buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs)) + '.zip'),
       });
       document.body.appendChild(a);
       a.click();
@@ -371,7 +466,7 @@
       setTimeout(() => URL.revokeObjectURL(url), 1000);
       const note = codeCount > 0 ? ` + ${codeCount} code file${codeCount !== 1 ? 's' : ''}` : '';
       setStatus(`✓ ZIP saved — chat.md${note}`, 'success');
-      saveLastExport('zip', data, ''); // content not stored (binary)
+      saveLastExport('zip', { ...data, messages: msgs }, ''); // content not stored (binary)
     } catch (err) {
       setStatus(err.message, err.streaming ? 'warning' : 'error');
     } finally {
@@ -391,9 +486,10 @@
     setLoading(gistBtn, true);
     try {
       const data  = await extractFromPage();
+      const msgs  = getSelectedMessages(data.messages);
       const notes = getExportNotes();
-      const md    = notesBlockMD(notes) + buildMarkdown(data.messages, data.title, data.site, userSettings, data.sourceUrl);
-      const slug  = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(data.messages));
+      const md    = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, userSettings, data.sourceUrl);
+      const slug  = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs));
       const filename = slug + '.md';
 
       setStatus('Uploading to GitHub Gist…');
@@ -421,7 +517,7 @@
       if (gistLinkEl) {
         gistLinkEl.innerHTML = `<a href="${gist.html_url}" target="_blank" rel="noopener">${gist.html_url}</a>`;
       }
-      saveLastExport('gist', data, md, { gistUrl: gist.html_url });
+      saveLastExport('gist', { ...data, messages: msgs }, md, { gistUrl: gist.html_url });
     } catch (err) {
       setStatus(err.message || 'Gist upload failed', 'error');
     } finally {

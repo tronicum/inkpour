@@ -784,6 +784,34 @@ async function main() {
     assert(parsed.messages[1].content === 'answer here','second content wrong');
   });
 
+  // ─── buildMarkdown — reading time ─────────────────────────────────────────
+  console.log('\nbuildMarkdown — reading time');
+
+  await test('preamble includes reading time estimate', () => {
+    // 400 words → ~2 min at 200 wpm
+    const word = 'word';
+    const content = Array(400).fill(word).join(' ');
+    const msgs = [{ role: 'You', content }, { role: 'Claude', content }];
+    const md = buildMarkdown(msgs, 'Chat', 'claude');
+    assert(md.includes('min read'), `preamble missing "min read". Got: ${md.slice(0, 300)}`);
+  });
+
+  await test('reading time is at least 1 min for tiny chats', () => {
+    const msgs = [{ role: 'You', content: 'hi' }, { role: 'Claude', content: 'hello' }];
+    const md = buildMarkdown(msgs, 'Chat', 'claude');
+    assert(md.includes('~1 min read'), `expected ~1 min read. Got: ${md.slice(0, 300)}`);
+  });
+
+  await test('YAML front matter includes reading_time_min', () => {
+    const content = Array(600).fill('word').join(' ');
+    const msgs = [{ role: 'You', content }];
+    const md = buildMarkdown(msgs, 'Chat', 'claude', { yamlFrontMatter: true });
+    assert(md.includes('reading_time_min:'), `YAML missing reading_time_min. Got: ${md.slice(0, 400)}`);
+    const match = md.match(/reading_time_min:\s*(\d+)/);
+    assert(match, 'reading_time_min not parseable');
+    assert(Number(match[1]) >= 1, `reading time should be >= 1, got ${match[1]}`);
+  });
+
   // ─── Results ───────────────────────────────────────────────────────────────
   console.log('\n' + '─'.repeat(50));
   console.log(`Results: ${passed} passed, ${failed} failed`);
