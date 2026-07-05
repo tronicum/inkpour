@@ -1224,12 +1224,14 @@ async function main() {
     assert(text.includes('w:jc') || text.includes('w:sz') || text.includes('Section Title'), 'heading formatting missing');
   });
 
-  await test('buildDocx renders blockquotes with IntenseQuote style', () => {
+  await test('buildDocx renders blockquotes with IntenseQuote style and indent', () => {
     const msgs = [{ role: 'Claude', content: '> This is a quoted block.' }];
     const text = new TextDecoder().decode(buildDocx(msgs, 'T', 'claude'));
     assert(text.includes('This is a quoted block'), 'blockquote text missing from docx');
-    // Blockquotes use the IntenseQuote named style
+    // IntenseQuote style is referenced in the paragraph
     assert(text.includes('IntenseQuote'), 'blockquote should use IntenseQuote style');
+    // IntenseQuote style definition includes w:ind
+    assert(text.includes('w:ind'), 'IntenseQuote style should define indent');
   });
 
   await test('buildDocx attribution footer links to GitHub', () => {

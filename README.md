@@ -23,6 +23,7 @@ Inkpour is a lightweight WebExtension (Manifest V3) that works in Firefox, Chrom
 | Google Search (AI Overview / AI Mode) | google.com/search | 🧪 Experimental |
 | Microsoft Copilot | copilot.microsoft.com / copilot.com | ✅ Full |
 | Grok | grok.com | ✅ Full |
+| Groq Playground | console.groq.com/playground | 🧪 Experimental |
 | Perplexity | perplexity.ai | 🧪 Experimental |
 | DeepSeek | chat.deepseek.com | 🧪 Experimental |
 | Meta AI | meta.ai | 🧪 Experimental |
