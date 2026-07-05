@@ -86,6 +86,12 @@ api.runtime.onInstalled.addListener(() => {
     title:    'Export ZIP (chat + code files)',
     contexts: ['page'],
   });
+  api.contextMenus.create({
+    id:       'inkpour-gist',
+    parentId: 'inkpour-parent',
+    title:    'Upload to GitHub Gist',
+    contexts: ['page'],
+  });
 });
 
 api.contextMenus.onClicked.addListener(async (info, tab) => {
@@ -132,7 +138,57 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
     const url  = 'data:application/zip;base64,' + b64;
     api.downloads.download({ url, filename: withSubfolder(settings, filename + '.zip'), saveAs: false });
   }
+
+  if (info.menuItemId === 'inkpour-gist') {
+    await doGistUpload(tab, settings, response, sourceUrl, filename);
+  }
 });
+
+// ─── GitHub Gist upload helper ────────────────────────────────────────────
+
+async function doGistUpload(tab, settings, response, sourceUrl, filename) {
+  const token = settings.githubToken || '';
+  if (!token) {
+    api.runtime.openOptionsPage();
+    return;
+  }
+  const md = buildMarkdown(response.messages, response.title, response.site, settings, sourceUrl);
+  const gistFilename = filename + '.md';
+  let res;
+  try {
+    res = await fetch('https://api.github.com/gists', {
+      method:  'POST',
+      headers: {
+        'Authorization': `token ${token}`,
+        'Accept':        'application/vnd.github.v3+json',
+        'Content-Type':  'application/json',
+      },
+      body: JSON.stringify({
+        description: response.title,
+        public:      settings.gistPublic === true,
+        files: { [gistFilename]: { content: md } },
+      }),
+    });
+  } catch {
+    await api.tabs.sendMessage(tab.id, {
+      action: 'showToast', text: '✗ Gist upload failed (network error)', variant: 'error',
+    }).catch(() => {});
+    return;
+  }
+  if (!res.ok) {
+    const errBody = await res.json().catch(() => ({}));
+    const msg = errBody.message || `HTTP ${res.status}`;
+    await api.tabs.sendMessage(tab.id, {
+      action: 'showToast', text: `✗ Gist upload failed: ${msg}`, variant: 'error',
+    }).catch(() => {});
+    return;
+  }
+  const gist = await res.json();
+  api.tabs.create({ url: gist.html_url });
+  await api.tabs.sendMessage(tab.id, {
+    action: 'showToast', text: '✓ Gist created', variant: 'success',
+  }).catch(() => {});
+}
 
 // ─── Keyboard shortcuts ───────────────────────────────────────────────────
 
@@ -200,57 +256,7 @@ api.commands.onCommand.addListener(async (command) => {
   }
 
   if (command === 'upload-gist') {
-    const token = settings.githubToken || '';
-    if (!token) {
-      // No token — open settings so user can add one
-      api.runtime.openOptionsPage();
-      return;
-    }
-    const md = buildMarkdown(response.messages, response.title, response.site, settings, sourceUrl);
-    const gistFilename = filename + '.md';
-    let res;
-    try {
-      res = await fetch('https://api.github.com/gists', {
-        method:  'POST',
-        headers: {
-          'Authorization': `token ${token}`,
-          'Accept':        'application/vnd.github.v3+json',
-          'Content-Type':  'application/json',
-        },
-        body: JSON.stringify({
-          description: response.title,
-          public:      settings.gistPublic === true,
-          files: { [gistFilename]: { content: md } },
-        }),
-      });
-    } catch (err) {
-      // Network failure — notify via content script toast
-      await api.tabs.sendMessage(tab.id, {
-        action:  'showToast',
-        text:    '✗ Gist upload failed (network error)',
-        variant: 'error',
-      }).catch(() => {});
-      return;
-    }
-    if (!res.ok) {
-      const errBody = await res.json().catch(() => ({}));
-      const msg = errBody.message || `HTTP ${res.status}`;
-      await api.tabs.sendMessage(tab.id, {
-        action:  'showToast',
-        text:    `✗ Gist upload failed: ${msg}`,
-        variant: 'error',
-      }).catch(() => {});
-      return;
-    }
-    const gist = await res.json();
-    // Open the Gist in a new tab
-    api.tabs.create({ url: gist.html_url });
-    // Also notify in-page
-    await api.tabs.sendMessage(tab.id, {
-      action:  'showToast',
-      text:    '✓ Gist created',
-      variant: 'success',
-    }).catch(() => {});
+    await doGistUpload(tab, settings, response, sourceUrl, filename);
   }
 });
 
