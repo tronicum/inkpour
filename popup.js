@@ -14,6 +14,7 @@
   const copyBtn     = document.getElementById('copyBtn');
   const copyHtmlBtn = document.getElementById('copyHtmlBtn');
   const jsonBtn     = document.getElementById('jsonBtn');
+  const docxBtn     = document.getElementById('docxBtn');
   const zipBtn      = document.getElementById('zipBtn');
   const gistBtn     = document.getElementById('gistBtn');
   const settingsBtn  = document.getElementById('settingsBtn');
@@ -442,6 +443,34 @@
       setStatus(err.message, err.streaming ? 'warning' : 'error');
     } finally {
       setLoading(jsonBtn, false);
+    }
+  });
+
+  // ─── DOCX export ─────────────────────────────────────────────────────────
+
+  docxBtn?.addEventListener('click', async () => {
+    clearStatus();
+    setLoading(docxBtn, true);
+    try {
+      const data  = await extractFromPage();
+      const msgs  = getSelectedMessages(data.messages);
+      const bytes = buildDocx(msgs, data.title, data.site, userSettings, data.sourceUrl);
+      const blob  = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+      const url   = URL.createObjectURL(blob);
+      const a     = Object.assign(document.createElement('a'), {
+        href:     url,
+        download: withSubfolder(buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs)) + '.docx'),
+      });
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setStatus('✓ Saved — check your Downloads folder', 'success');
+      saveLastExport('docx', { ...data, messages: msgs }, '');
+    } catch (err) {
+      setStatus(err.message, err.streaming ? 'warning' : 'error');
+    } finally {
+      setLoading(docxBtn, false);
     }
   });
 
