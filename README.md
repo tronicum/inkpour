@@ -4,7 +4,7 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/tronicum/inkpour/ci.yml?branch=dev&style=flat-square&label=CI)](https://github.com/tronicum/inkpour/actions/workflows/ci.yml)
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL%20v3-blue?style=flat-square)](./LICENSE)
 [![MV3](https://img.shields.io/badge/Manifest-V3-5b5bd6?style=flat-square)](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json)
-[![Tests](https://img.shields.io/badge/tests-96%20passed-16a34a?style=flat-square)](./test/run-jsdom.js)
+[![Tests](https://img.shields.io/badge/tests-103%20passed-16a34a?style=flat-square)](./test/run-jsdom.js)
 
 **Export AI chat conversations to Markdown, PDF, HTML, JSON, or ZIP — one click, no accounts, no servers.**
 
@@ -40,6 +40,7 @@ Experimental = selectors verified against fixture HTML; real-page accuracy needs
 
 ### Export formats
 - **Markdown** (`.md`) — clean GFM with optional YAML front matter and table of contents
+- **Word** (`.docx`) — proper OOXML document: role headings, bold/italic/code formatting, code blocks in monospace, blockquotes, no server or external dependency
 - **PDF** — opens a clean, ad-free print-preview tab and triggers the browser print dialog
 - **HTML** — fully self-contained single file with dark/light mode, no external dependencies
 - **JSON** — structured `{ exporter, version, title, platform, exportedAt, messages[] }`
@@ -139,7 +140,7 @@ git clone https://github.com/tronicum/inkpour.git
 ## Development
 
 ```bash
-npm test          # Run 96 JSDOM-based extraction tests (no browser needed)
+npm test          # Run 103 JSDOM-based extraction tests (no browser needed)
 ```
 
 ### Project structure

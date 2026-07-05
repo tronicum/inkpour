@@ -812,6 +812,71 @@ async function main() {
     assert(Number(match[1]) >= 1, `reading time should be >= 1, got ${match[1]}`);
   });
 
+  // ─── buildDocx ────────────────────────────────────────────────────────────
+  console.log('\nbuildDocx');
+
+  await test('buildDocx returns a Uint8Array (ZIP bytes)', () => {
+    const msgs = [
+      { role: 'You',    content: 'Hello there' },
+      { role: 'Claude', content: 'Hi! How can I **help** you today?' },
+    ];
+    const bytes = buildDocx(msgs, 'Test Chat', 'claude');
+    assert(bytes instanceof Uint8Array, 'expected Uint8Array');
+    assert(bytes.length > 500, `docx suspiciously small: ${bytes.length} bytes`);
+  });
+
+  await test('buildDocx ZIP starts with PK signature', () => {
+    const msgs = [{ role: 'You', content: 'hi' }];
+    const bytes = buildDocx(msgs, 'Chat', 'claude');
+    // PK\x03\x04 = local file header signature
+    assert(bytes[0] === 0x50 && bytes[1] === 0x4B, `wrong ZIP signature: ${bytes[0].toString(16)} ${bytes[1].toString(16)}`);
+  });
+
+  await test('buildDocx document.xml contains title', () => {
+    const msgs = [{ role: 'You', content: 'Question here' }];
+    const bytes = buildDocx(msgs, 'My Special Chat', 'claude');
+    // Decode the ZIP and find document.xml content by scanning for the title string
+    const decoder = new TextDecoder();
+    const text    = decoder.decode(bytes);
+    assert(text.includes('My Special Chat'), 'title not found in docx bytes');
+  });
+
+  await test('buildDocx document.xml contains role names', () => {
+    const msgs = [
+      { role: 'You',    content: 'First message' },
+      { role: 'Claude', content: 'Second message' },
+    ];
+    const bytes = buildDocx(msgs, 'Chat', 'claude');
+    const text  = new TextDecoder().decode(bytes);
+    assert(text.includes('You'),    'user role not found in docx');
+    assert(text.includes('Claude'), 'assistant role not found in docx');
+  });
+
+  await test('buildDocx handles bold markdown in content', () => {
+    const msgs = [{ role: 'You', content: '**bold text** here' }];
+    const bytes = buildDocx(msgs, 'Chat', 'claude');
+    const text  = new TextDecoder().decode(bytes);
+    // bold run uses <w:b/>
+    assert(text.includes('<w:b/>'), 'no bold run in docx output');
+    assert(text.includes('bold text'), 'bold text content missing');
+  });
+
+  await test('buildDocx handles code fences', () => {
+    const msgs = [{ role: 'Claude', content: '```python\nprint("hello")\n```' }];
+    const bytes = buildDocx(msgs, 'Chat', 'claude');
+    const text  = new TextDecoder().decode(bytes);
+    assert(text.includes('print'), 'code content missing from docx');
+    assert(text.includes('Courier New'), 'code font not applied');
+  });
+
+  await test('buildDocx contains required OOXML parts', () => {
+    const msgs = [{ role: 'You', content: 'test' }];
+    const text  = new TextDecoder().decode(buildDocx(msgs, 'T', 'claude'));
+    assert(text.includes('[Content_Types].xml'), 'missing content types');
+    assert(text.includes('word/document.xml'),   'missing document part');
+    assert(text.includes('word/styles.xml'),      'missing styles part');
+  });
+
   // ─── Results ───────────────────────────────────────────────────────────────
   console.log('\n' + '─'.repeat(50));
   console.log(`Results: ${passed} passed, ${failed} failed`);

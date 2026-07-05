@@ -407,3 +407,315 @@ function buildZipExport(messages, title, site, opts, sourceUrl) {
 
   return { files, codeCount: files.length - 1 };
 }
+
+// ─── DOCX builder (pure JS, reuses buildZip) ─────────────────────────────────
+//
+// Generates a valid .docx (OOXML) from messages + title.
+// No external dependencies — all XML is built as template strings.
+// Returns a Uint8Array (the ZIP bytes), same as buildZip.
+
+/**
+ * Escape special characters for XML text content.
+ */
+function _xmlEsc(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+/**
+ * Parse a line of markdown inline syntax into OOXML <w:r> elements.
+ * Handles: ***bold+italic***, **bold**, *italic*, `code`, ~~strike~~, [text](url)
+ */
+function _mdInlineToRuns(text) {
+  // Token regex — order matters (longer markers first)
+  const TOKEN = /(\*\*\*(.+?)\*\*\*|\*\*(.+?)\*\*|\*([^*\n]+?)\*|`([^`\n]+?)`|~~(.+?)~~|\[([^\]]+)\]\(([^)]+)\))/g;
+  let result = '';
+  let last = 0;
+  let m;
+  while ((m = TOKEN.exec(text)) !== null) {
+    if (m.index > last) result += _wRun(text.slice(last, m.index));
+    if      (m[2]) result += _wRun(m[2], { bold: true, italic: true });
+    else if (m[3]) result += _wRun(m[3], { bold: true });
+    else if (m[4]) result += _wRun(m[4], { italic: true });
+    else if (m[5]) result += _wRun(m[5], { code: true });
+    else if (m[6]) result += _wRun(m[6], { strike: true });
+    else if (m[7]) result += _wRun(m[7]) + _wRun(` (${m[8]})`, { italic: true });
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) result += _wRun(text.slice(last));
+  return result || _wRun('');
+}
+
+/**
+ * Build a single <w:r> run with optional character properties.
+ */
+function _wRun(text, props = {}) {
+  const rpr = [];
+  if (props.bold)   rpr.push('<w:b/>');
+  if (props.italic) rpr.push('<w:i/>');
+  if (props.strike) rpr.push('<w:strike/>');
+  if (props.color)  rpr.push(`<w:color w:val="${props.color}"/>`);
+  if (props.code) {
+    rpr.push('<w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New"/>');
+    rpr.push('<w:sz w:val="18"/><w:szCs w:val="18"/>');
+    rpr.push('<w:shd w:val="clear" w:color="auto" w:fill="F3F4F6"/>');
+  }
+  const rprXml = rpr.length ? `<w:rPr>${rpr.join('')}</w:rPr>` : '';
+  return `<w:r>${rprXml}<w:t xml:space="preserve">${_xmlEsc(text)}</w:t></w:r>`;
+}
+
+/**
+ * Build a <w:p> paragraph with optional style and inner run XML.
+ */
+function _wPara(runs, style = '', extraPPr = '') {
+  const ppr = (style || extraPPr)
+    ? `<w:pPr>${style ? `<w:pStyle w:val="${style}"/>` : ''}${extraPPr}</w:pPr>`
+    : '';
+  return `<w:p>${ppr}${runs}</w:p>`;
+}
+
+/**
+ * Paragraph with a bottom border — used as a section divider.
+ */
+function _wHRule() {
+  return `<w:p><w:pPr><w:pBdr><w:bottom w:val="single" w:sz="6" w:space="1" w:color="D4D4D8"/></w:pBdr><w:spacing w:before="80" w:after="80"/></w:pPr></w:p>`;
+}
+
+/**
+ * Code block: one paragraph per line, monospaced, light-gray background.
+ * Lines are joined with <w:br/> inside a single paragraph for compactness.
+ */
+function _wCodeBlock(text, _lang) {
+  const lines  = text.split('\n');
+  const shd    = '<w:shd w:val="clear" w:color="auto" w:fill="F3F4F6"/>';
+  const font   = '<w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New"/>';
+  const sz     = '<w:sz w:val="18"/><w:szCs w:val="18"/>';
+  const rPrXml = `<w:rPr>${font}${sz}</w:rPr>`;
+
+  let runs = '';
+  lines.forEach((line, i) => {
+    runs += `<w:r>${rPrXml}<w:t xml:space="preserve">${_xmlEsc(line)}</w:t></w:r>`;
+    if (i < lines.length - 1) runs += `<w:r><w:br/></w:r>`;
+  });
+
+  const pPr = `<w:pPr><w:pStyle w:val="InkpourCode"/>${shd}<w:spacing w:before="40" w:after="40"/><w:ind w:left="360"/></w:pPr>`;
+  return `<w:p>${pPr}${runs}</w:p>`;
+}
+
+/**
+ * Convert markdown content string to a series of OOXML paragraph elements.
+ */
+function _mdToOOXML(content) {
+  const lines = content.split('\n');
+  const out   = [];
+  let inFence = false;
+  let fenceLines = [];
+  let fenceLang  = '';
+
+  for (const raw of lines) {
+    // ── Code fence ──
+    if (/^```/.test(raw)) {
+      if (!inFence) {
+        inFence    = true;
+        fenceLang  = raw.slice(3).trim();
+        fenceLines = [];
+      } else {
+        inFence = false;
+        out.push(_wCodeBlock(fenceLines.join('\n'), fenceLang));
+        fenceLines = [];
+      }
+      continue;
+    }
+    if (inFence) { fenceLines.push(raw); continue; }
+
+    // ── Headings ──
+    const hm = raw.match(/^(#{1,6})\s+(.+)$/);
+    if (hm) {
+      const styleMap = ['', 'Heading1', 'Heading2', 'Heading3', 'Heading4', 'Heading5', 'Heading6'];
+      out.push(_wPara(_mdInlineToRuns(hm[2]), styleMap[hm[1].length] || 'Heading3'));
+      continue;
+    }
+
+    // ── Horizontal rule ──
+    if (/^-{3,}$/.test(raw.trim())) { out.push(_wHRule()); continue; }
+
+    // ── Blockquote ──
+    if (/^> /.test(raw)) {
+      out.push(_wPara(_mdInlineToRuns(raw.slice(2)), 'InkpourQuote'));
+      continue;
+    }
+
+    // ── Unordered list ──
+    if (/^[*\-] /.test(raw)) {
+      const inner = _mdInlineToRuns(raw.replace(/^[*\-] /, ''));
+      const bullet = _wRun('• ', { bold: false });
+      out.push(_wPara(bullet + inner, '', '<w:ind w:left="440" w:hanging="280"/>'));
+      continue;
+    }
+
+    // ── Ordered list ──
+    const olm = raw.match(/^(\d+)\. (.+)$/);
+    if (olm) {
+      const inner  = _mdInlineToRuns(olm[2]);
+      const prefix = _wRun(`${olm[1]}. `);
+      out.push(_wPara(prefix + inner, '', '<w:ind w:left="440" w:hanging="280"/>'));
+      continue;
+    }
+
+    // ── Empty line ──
+    if (!raw.trim()) { out.push(_wPara('', '', '<w:spacing w:before="0" w:after="60"/>')); continue; }
+
+    // ── Normal paragraph ──
+    out.push(_wPara(_mdInlineToRuns(raw)));
+  }
+
+  // Flush an open fence (malformed markdown)
+  if (inFence && fenceLines.length) out.push(_wCodeBlock(fenceLines.join('\n'), fenceLang));
+
+  return out.join('\n');
+}
+
+/**
+ * Build a .docx (OOXML) archive from messages.
+ * Returns a Uint8Array (the ZIP bytes).
+ *
+ * @param {Array<{role:string,content:string}>} messages
+ * @param {string} title
+ * @param {string} site
+ * @param {{ yamlFrontMatter?:boolean }} opts  (opts not used for DOCX — just for API consistency)
+ * @param {string} sourceUrl
+ * @returns {Uint8Array}
+ */
+function buildDocx(messages, title, site, opts = {}, sourceUrl = '') {
+  const date     = new Date().toLocaleString(undefined, {
+    year: 'numeric', month: 'long', day: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  });
+  const wordCount = messages
+    .map(m => m.content.trim().split(/\s+/).filter(Boolean).length)
+    .reduce((a, b) => a + b, 0);
+  const srcNote  = sourceUrl ? ` · ${sourceUrl}` : '';
+  const metaText = `Exported from ${site} on ${date} · ${messages.length} messages · ~${wordCount.toLocaleString()} words${srcNote}`;
+
+  // ── Body paragraphs ──────────────────────────────────────────────────────
+  let body = '';
+
+  // Document title
+  body += _wPara(_wRun(title), 'Heading1');
+
+  // Metadata
+  body += _wPara(_wRun(metaText, { italic: true, color: '71717A' }), '', '<w:spacing w:after="240"/>');
+
+  // Messages
+  for (const { role, content } of messages) {
+    body += _wHRule();
+    // Role heading
+    body += _wPara(_wRun(role), 'Heading2');
+    // Content
+    body += _mdToOOXML(content.trim());
+    body += _wPara('', '', '<w:spacing w:after="120"/>'); // trailing spacer
+  }
+
+  // Section properties (A4 page)
+  body += `<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr>`;
+
+  // ── OOXML files ──────────────────────────────────────────────────────────
+  const NS_W   = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+  const NS_PKG = 'http://schemas.openxmlformats.org/package/2006';
+  const NS_REL = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+
+  const contentTypes = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="${NS_PKG}/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml"  ContentType="application/xml"/>
+  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+  <Override PartName="/word/styles.xml"   ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+</Types>`;
+
+  const pkgRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="${NS_PKG}/relationships">
+  <Relationship Id="rId1" Type="${NS_REL}/officeDocument" Target="word/document.xml"/>
+</Relationships>`;
+
+  const docRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="${NS_PKG}/relationships">
+  <Relationship Id="rId1" Type="${NS_REL}/styles" Target="styles.xml"/>
+</Relationships>`;
+
+  const styles = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="${NS_W}" w:docDefaults="">
+  <w:docDefaults>
+    <w:rPrDefault><w:rPr>
+      <w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/>
+      <w:sz w:val="22"/><w:szCs w:val="22"/>
+    </w:rPr></w:rPrDefault>
+    <w:pPrDefault><w:pPr><w:spacing w:after="160" w:line="276" w:lineRule="auto"/></w:pPr></w:pPrDefault>
+  </w:docDefaults>
+
+  <w:style w:type="paragraph" w:styleId="Normal">
+    <w:name w:val="Normal"/>
+  </w:style>
+
+  <w:style w:type="paragraph" w:styleId="Heading1">
+    <w:name w:val="heading 1"/>
+    <w:basedOn w:val="Normal"/>
+    <w:pPr><w:spacing w:before="240" w:after="120"/></w:pPr>
+    <w:rPr><w:b/><w:sz w:val="40"/><w:szCs w:val="40"/><w:color w:val="18181B"/></w:rPr>
+  </w:style>
+
+  <w:style w:type="paragraph" w:styleId="Heading2">
+    <w:name w:val="heading 2"/>
+    <w:basedOn w:val="Normal"/>
+    <w:pPr><w:spacing w:before="200" w:after="80"/></w:pPr>
+    <w:rPr><w:b/><w:sz w:val="28"/><w:szCs w:val="28"/><w:color w:val="3F3F46"/></w:rPr>
+  </w:style>
+
+  <w:style w:type="paragraph" w:styleId="Heading3">
+    <w:name w:val="heading 3"/>
+    <w:basedOn w:val="Normal"/>
+    <w:pPr><w:spacing w:before="160" w:after="60"/></w:pPr>
+    <w:rPr><w:b/><w:sz w:val="24"/><w:szCs w:val="24"/><w:color w:val="52525B"/></w:rPr>
+  </w:style>
+
+  <w:style w:type="paragraph" w:styleId="InkpourCode">
+    <w:name w:val="InkpourCode"/>
+    <w:basedOn w:val="Normal"/>
+    <w:pPr>
+      <w:shd w:val="clear" w:color="auto" w:fill="F3F4F6"/>
+      <w:spacing w:before="60" w:after="60"/>
+      <w:ind w:left="360"/>
+    </w:pPr>
+    <w:rPr>
+      <w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New"/>
+      <w:sz w:val="18"/><w:szCs w:val="18"/>
+    </w:rPr>
+  </w:style>
+
+  <w:style w:type="paragraph" w:styleId="InkpourQuote">
+    <w:name w:val="InkpourQuote"/>
+    <w:basedOn w:val="Normal"/>
+    <w:pPr>
+      <w:ind w:left="480"/>
+      <w:pBdr><w:left w:val="single" w:sz="6" w:space="12" w:color="A1A1AA"/></w:pBdr>
+    </w:pPr>
+    <w:rPr><w:i/><w:color w:val="71717A"/></w:rPr>
+  </w:style>
+</w:styles>`;
+
+  const document = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="${NS_W}">
+  <w:body>
+${body}
+  </w:body>
+</w:document>`;
+
+  return buildZip([
+    { name: '[Content_Types].xml',          content: contentTypes },
+    { name: '_rels/.rels',                   content: pkgRels      },
+    { name: 'word/_rels/document.xml.rels', content: docRels      },
+    { name: 'word/styles.xml',              content: styles       },
+    { name: 'word/document.xml',            content: document     },
+  ]);
+}

@@ -88,6 +88,12 @@ api.runtime.onInstalled.addListener(() => {
     contexts: ['page'],
   });
   api.contextMenus.create({
+    id:       'inkpour-docx',
+    parentId: 'inkpour-parent',
+    title:    'Export Word document (.docx)',
+    contexts: ['page'],
+  });
+  api.contextMenus.create({
     id:       'inkpour-gist',
     parentId: 'inkpour-parent',
     title:    'Upload to GitHub Gist',
@@ -141,6 +147,13 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
     api.downloads.download({ url, filename: withSubfolder(settings, filename + '.zip'), saveAs: false });
   }
 
+  if (info.menuItemId === 'inkpour-docx') {
+    const docxBytes = buildDocx(response.messages, response.title, response.site, settings, sourceUrl);
+    const b64  = uint8ToBase64(docxBytes);
+    const url  = 'data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,' + b64;
+    api.downloads.download({ url, filename: withSubfolder(settings, filename + '.docx'), saveAs: false });
+  }
+
   if (info.menuItemId === 'inkpour-gist') {
     await doGistUpload(tab, settings, response, sourceUrl, filename);
     doWebhook(settings, 'gist', response, wordCount);
@@ -153,6 +166,7 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
     'inkpour-copy': 'copy-md',
     'inkpour-json': 'json',
     'inkpour-zip':  'zip',
+    'inkpour-docx': 'docx',
   };
   const fmt = menuFormatMap[info.menuItemId];
   if (fmt) doWebhook(settings, fmt, response, wordCount);
