@@ -252,6 +252,41 @@
       white-space: nowrap;
     }
 
+    /* ── Section headings (Starred / Recent) ── */
+    .section-heading {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--subtext);
+      margin: 14px 0 6px;
+    }
+    .section-heading:first-child { margin-top: 0; }
+
+    /* ── Star button ── */
+    .star-btn {
+      font-size: 14px;
+      padding: 5px 8px;
+      border-color: transparent;
+      color: var(--subtext);
+      opacity: 0.5;
+      transition: opacity 0.15s, color 0.15s;
+    }
+    .star-btn:hover, .star-btn.starred {
+      opacity: 1;
+      color: #d97706;
+      border-color: transparent;
+      background: transparent;
+    }
+    .star-btn.starred { font-size: 15px; }
+
+    .entry-starred {
+      border-color: rgba(217, 119, 6, 0.35);
+    }
+    @media (prefers-color-scheme: dark) {
+      .entry-starred { border-color: rgba(251, 191, 36, 0.3); }
+    }
+
     /* ── Footer ── */
     footer {
       margin-top: 2rem;
@@ -296,7 +331,8 @@
       <input class="search-box" id="searchBox" type="search" placeholder="Filter by title or platform…" />
       <span class="count" id="countLabel"></span>
     </div>
-    <button class="btn-clear" id="clearBtn" disabled>Clear all</button>
+    <button class="btn-clear" id="clearBtn" disabled>Clear recent</button>
+    <button class="btn-clear" id="clearStarredBtn" hidden style="border-color:var(--subtext);color:var(--subtext)">Clear ★</button>
   </div>
 
   <div id="content">

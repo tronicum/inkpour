@@ -8,14 +8,17 @@
 
   const api = (typeof browser !== 'undefined') ? browser : chrome;
 
-  const historyList = document.getElementById('historyList');
-  const emptyState  = document.getElementById('emptyState');
-  const countLabel  = document.getElementById('countLabel');
-  const clearBtn    = document.getElementById('clearBtn');
-  const searchBox   = document.getElementById('searchBox');
+  const historyList     = document.getElementById('historyList');
+  const emptyState      = document.getElementById('emptyState');
+  const countLabel      = document.getElementById('countLabel');
+  const clearBtn        = document.getElementById('clearBtn');
+  const clearStarredBtn = document.getElementById('clearStarredBtn');
+  const searchBox       = document.getElementById('searchBox');
 
   // All loaded entries — filtering operates on this
-  let allEntries = [];
+  let allEntries   = [];
+  let starredIds   = new Set();   // IDs of starred entries
+  let starredStore = [];          // Full starred records from inkpour_starred
 
   // ─── Platform icons ────────────────────────────────────────────────────────
 
@@ -111,11 +114,30 @@
     }
   }
 
+  // ─── Star toggle ───────────────────────────────────────────────────────────
+
+  async function toggleStar(entry) {
+    const isStarred = starredIds.has(entry.id);
+    if (isStarred) {
+      starredIds.delete(entry.id);
+      starredStore = starredStore.filter(r => r.id !== entry.id);
+    } else {
+      starredIds.add(entry.id);
+      // Store the full record (deduped)
+      if (!starredStore.find(r => r.id === entry.id)) {
+        starredStore.unshift(entry);
+      }
+    }
+    await api.storage.local.set({ inkpour_starred: starredStore });
+    applyFilter(searchBox?.value ?? '');
+  }
+
   // ─── Render ────────────────────────────────────────────────────────────────
 
-  function renderEntry(entry) {
+  function renderEntry(entry, { inStarredSection = false } = {}) {
     const el = document.createElement('div');
     el.className = 'entry';
+    if (inStarredSection) el.classList.add('entry-starred');
 
     const icon = PLATFORM_ICON[entry.platform] ?? '💬';
     const fmtLabel = FORMAT_LABEL[entry.format] ?? entry.format.toUpperCase();
@@ -125,9 +147,12 @@
     const msgs  = entry.messageCount ? `${entry.messageCount} msgs` : '';
     const stats = [msgs, words].filter(Boolean).join(' · ');
 
-    const isCopy  = entry.format.startsWith('copy-');
-    const isGist  = entry.format === 'gist';
+    const isCopy     = entry.format.startsWith('copy-');
+    const isGist     = entry.format === 'gist';
     const hasContent = !!entry.content;
+    const isStarred  = starredIds.has(entry.id);
+    const starLabel  = isStarred ? '★' : '☆';
+    const starTitle  = isStarred ? 'Unpin from starred' : 'Pin to starred';
 
     el.innerHTML = `
       <div class="entry-icon">${icon}</div>
@@ -141,12 +166,17 @@
         </div>
       </div>
       <div class="entry-actions">
+        <button class="btn-action star-btn ${isStarred ? 'starred' : ''}" data-action="star" title="${starTitle}">${starLabel}</button>
         ${isGist && entry.gistUrl
           ? `<a class="btn-action" href="${entry.gistUrl}" target="_blank" rel="noopener" style="text-decoration:none">↗ Gist</a>`
           : hasContent && !isCopy ? `<button class="btn-action" data-action="download">↓ Save</button>` : ''}
         ${hasContent ? `<button class="btn-action secondary" data-action="copy">⎘ Copy</button>` : ''}
       </div>`;
 
+    el.querySelector('[data-action="star"]').addEventListener('click', async (e) => {
+      e.stopPropagation();
+      await toggleStar(entry);
+    });
     el.querySelector('[data-action="download"]')?.addEventListener('click', (e) => {
       e.stopPropagation();
       downloadContent(entry);
@@ -165,30 +195,66 @@
 
   // ─── Filter and render ─────────────────────────────────────────────────────
 
+  function matchesQuery(entry, q) {
+    return entry.title.toLowerCase().includes(q) ||
+           (entry.platform || '').toLowerCase().includes(q) ||
+           (entry.format || '').toLowerCase().includes(q);
+  }
+
+  function renderSection(label, entries, inStarredSection) {
+    if (!entries.length) return;
+    const heading = document.createElement('div');
+    heading.className = 'section-heading';
+    heading.textContent = label;
+    historyList.appendChild(heading);
+    for (const entry of entries) {
+      historyList.appendChild(renderEntry(entry, { inStarredSection }));
+    }
+  }
+
   function applyFilter(query) {
     const q = query.trim().toLowerCase();
-    const filtered = q
-      ? allEntries.filter(e =>
-          e.title.toLowerCase().includes(q) ||
-          (e.platform || '').toLowerCase().includes(q) ||
-          (e.format || '').toLowerCase().includes(q)
-        )
-      : allEntries;
+
+    // Starred entries not in recent (to avoid duplicates)
+    const recentIds = new Set(allEntries.map(e => e.id));
+    const starredOnly  = starredStore.filter(e => !recentIds.has(e.id));
+    const starredInRecent = allEntries.filter(e => starredIds.has(e.id));
+
+    const filteredStarredOnly  = q ? starredOnly.filter(e  => matchesQuery(e, q)) : starredOnly;
+    const filteredStarredRecent= q ? starredInRecent.filter(e => matchesQuery(e, q)) : starredInRecent;
+    const filteredRecent       = q
+      ? allEntries.filter(e => !starredIds.has(e.id) && matchesQuery(e, q))
+      : allEntries.filter(e => !starredIds.has(e.id));
+
+    const totalStarred  = filteredStarredOnly.length + filteredStarredRecent.length;
+    const totalFiltered = totalStarred + filteredRecent.length;
+    const totalAll      = starredOnly.length + allEntries.length;
 
     historyList.innerHTML = '';
-    if (filtered.length === 0) {
+    if (totalFiltered === 0 && totalAll === 0) {
       emptyState.hidden = false;
-      countLabel.textContent = q
-        ? `0 of ${allEntries.length} match`
-        : 'No exports yet';
-    } else {
-      emptyState.hidden = true;
-      countLabel.textContent = q
-        ? `${filtered.length} of ${allEntries.length} exports`
-        : `${allEntries.length} export${allEntries.length !== 1 ? 's' : ''}`;
-      for (const entry of filtered) {
-        historyList.appendChild(renderEntry(entry));
-      }
+      countLabel.textContent = 'No exports yet';
+      return;
+    }
+    if (totalFiltered === 0 && q) {
+      emptyState.hidden = false;
+      countLabel.textContent = `0 of ${totalAll} match`;
+      return;
+    }
+
+    emptyState.hidden = true;
+    countLabel.textContent = q
+      ? `${totalFiltered} of ${totalAll} exports`
+      : `${totalAll} export${totalAll !== 1 ? 's' : ''}`;
+
+    // Starred section (pinned-only first, then starred-recent)
+    if (totalStarred > 0) {
+      renderSection('★ Starred', [...filteredStarredOnly, ...filteredStarredRecent], true);
+    }
+    // Recent section
+    if (filteredRecent.length > 0) {
+      if (totalStarred > 0) renderSection('Recent', filteredRecent, false);
+      else for (const entry of filteredRecent) historyList.appendChild(renderEntry(entry));
     }
   }
 
@@ -250,11 +316,18 @@
   // ─── Load and display ──────────────────────────────────────────────────────
 
   async function loadHistory() {
-    const result = await api.storage.local.get('inkpour_history');
-    allEntries = result?.inkpour_history ?? [];
+    const result = await api.storage.local.get(['inkpour_history', 'inkpour_starred']);
+    allEntries   = result?.inkpour_history ?? [];
+    starredStore = result?.inkpour_starred ?? [];
+    starredIds   = new Set(starredStore.map(r => r.id));
 
-    clearBtn.disabled = allEntries.length === 0;
-    renderStats(allEntries);
+    clearBtn.disabled   = allEntries.length === 0;
+    clearBtn.textContent = starredStore.length > 0 ? 'Clear recent' : 'Clear all';
+    clearBtn.title      = starredStore.length > 0
+      ? 'Clear recent history (starred exports are kept)'
+      : 'Clear all export history';
+    if (clearStarredBtn) clearStarredBtn.hidden = starredStore.length === 0;
+    renderStats([...allEntries, ...starredStore.filter(e => !new Set(allEntries.map(x=>x.id)).has(e.id))]);
     applyFilter(searchBox?.value ?? '');
     renderLifetimeStats().catch(() => {});
   }
@@ -266,15 +339,31 @@
   // ─── Clear ─────────────────────────────────────────────────────────────────
 
   clearBtn.addEventListener('click', async () => {
-    if (!confirm('Clear all export history? This cannot be undone.')) return;
+    const hasStarred = starredStore.length > 0;
+    const msg = hasStarred
+      ? 'Clear recent history? Starred exports will be kept.'
+      : 'Clear all export history? This cannot be undone.';
+    if (!confirm(msg)) return;
     await api.storage.local.remove('inkpour_history');
     allEntries = [];
-    historyList.innerHTML = '';
-    emptyState.hidden = false;
-    countLabel.textContent = 'No exports yet';
-    clearBtn.disabled = true;
+    clearBtn.disabled    = true;
+    clearBtn.textContent = starredStore.length > 0 ? 'Clear recent' : 'Clear all';
     if (searchBox) searchBox.value = '';
-    renderStats([]);
+    starredIds = new Set(starredStore.map(r => r.id));
+    renderStats(starredStore);
+    applyFilter('');
+  });
+
+  // ─── Clear starred ─────────────────────────────────────────────────────────
+
+  clearStarredBtn?.addEventListener('click', async () => {
+    if (!confirm('Remove all starred exports? This cannot be undone.')) return;
+    await api.storage.local.remove('inkpour_starred');
+    starredStore = [];
+    starredIds   = new Set();
+    if (clearStarredBtn) clearStarredBtn.hidden = true;
+    applyFilter(searchBox?.value ?? '');
+    renderStats(allEntries);
   });
 
   // ─── Init ──────────────────────────────────────────────────────────────────
