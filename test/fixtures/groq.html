@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>What is Llama? - GroqCloud Playground</title>
+</head>
+<body>
+  <!-- GroqCloud Playground (console.groq.com/playground)
+       Primary selector: [data-role] attributes on message containers.
+       User messages: data-role="user"
+       Assistant messages: data-role="assistant" -->
+
+  <div class="playground-chat css-abc">
+
+    <!-- Turn 1: user -->
+    <div class="message-container css-111" data-role="user">
+      <p>What is Llama and who made it?</p>
+    </div>
+
+    <!-- Turn 2: assistant -->
+    <div class="message-container css-222" data-role="assistant">
+      <div class="prose css-333">
+        <p><strong>Llama</strong> (Large Language Model Meta AI) is a family of open-weight large language models
+        developed by <strong>Meta AI</strong>.</p>
+        <h3>Key facts</h3>
+        <ul>
+          <li>First released in February 2023</li>
+          <li>Available in multiple sizes (7B, 13B, 70B parameters)</li>
+          <li>Open-weight: weights are publicly available for research</li>
+        </ul>
+        <pre><code class="language-python">from transformers import AutoModelForCausalLM
+model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-7b-hf")
+</code></pre>
+      </div>
+    </div>
+
+    <!-- Turn 3: user -->
+    <div class="message-container css-111" data-role="user">
+      <p>How does it compare to GPT-4?</p>
+    </div>
+
+    <!-- Turn 4: assistant -->
+    <div class="message-container css-222" data-role="assistant">
+      <div class="prose css-333">
+        <p>Llama models are generally smaller and more efficient than GPT-4, but GPT-4 leads on
+        most benchmarks requiring <em>complex reasoning</em> or <em>multi-step tasks</em>.</p>
+        <p>The main trade-off: Llama is <strong>open-weight</strong> (run locally, fine-tune freely),
+        while GPT-4 is <strong>closed</strong> (API-only, no fine-tuning of base weights).</p>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

@@ -1073,6 +1073,49 @@ async function main() {
     });
   });
 
+  // ─── Groq extraction ──────────────────────────────────────────────────────
+  await suite('Groq extraction', async () => {
+    let result;
+    before: { result = await extractFromFixture('groq.html', 'console.groq.com'); }
+
+    await test('extracts 4 messages', () => {
+      assert(result.messages.length === 4, `got ${result.messages?.length}`);
+    });
+    await test('alternates You / Groq roles', () => {
+      assert(result.messages[0].role === 'You',  `role[0]=${result.messages[0].role}`);
+      assert(result.messages[1].role === 'Groq', `role[1]=${result.messages[1].role}`);
+      assert(result.messages[2].role === 'You',  `role[2]=${result.messages[2].role}`);
+      assert(result.messages[3].role === 'Groq', `role[3]=${result.messages[3].role}`);
+    });
+    await test('captures user message text', () => {
+      assert(result.messages[0].content.includes('Llama'), `content: ${result.messages[0].content.slice(0,80)}`);
+    });
+    await test('converts AI bold to markdown', () => {
+      assert(result.messages[1].content.includes('**Llama**'), `missing **Llama** bold`);
+    });
+    await test('converts AI heading', () => {
+      assert(result.messages[1].content.includes('### Key facts') ||
+             result.messages[1].content.includes('## Key facts') ||
+             result.messages[1].content.includes('Key facts'), 'heading missing');
+    });
+    await test('converts AI list items', () => {
+      assert(result.messages[1].content.includes('February 2023'), 'list content missing');
+    });
+    await test('converts AI code block with language', () => {
+      assert(result.messages[1].content.includes('```python') ||
+             result.messages[1].content.includes('```'), 'code fence missing');
+      assert(result.messages[1].content.includes('from_pretrained'), 'code content missing');
+    });
+    await test('converts AI italic to markdown', () => {
+      assert(result.messages[3].content.includes('*complex reasoning*') ||
+             result.messages[3].content.includes('_complex reasoning_') ||
+             result.messages[3].content.includes('complex reasoning'), 'italic content missing');
+    });
+    await test('returns platform=groq', () => {
+      assert(result.platform === 'groq', `platform=${result.platform}`);
+    });
+  });
+
   // ─── buildStandaloneHTML ──────────────────────────────────────────────────
   console.log('\nbuildStandaloneHTML');
 
@@ -1134,6 +1177,15 @@ async function main() {
     assert(html.includes('<ol>') || html.includes('<ol '), 'no <ol> in output');
     assert(html.includes('<li>') || html.includes('<li '), 'no <li> in output');
     assert(html.includes('First'), 'first item missing');
+  });
+
+  await test('mdToHTML merges consecutive blockquote lines into one <blockquote>', () => {
+    const html = mdToHTML('> Line one\n> Line two\n> Line three');
+    const count = (html.match(/<blockquote>/g) || []).length;
+    assert(count === 1, `expected 1 blockquote, got ${count}`);
+    assert(html.includes('Line one'), 'first line missing');
+    assert(html.includes('Line two'), 'second line missing');
+    assert(html.includes('<br>'), 'line separator missing in multi-line blockquote');
   });
 
   await test('mdToHTML renders inline code as <code>', () => {
