@@ -71,22 +71,34 @@
   // ─── Chip highlighting — detect current platform on popup open ───────────
 
   const CHIP_HOSTS = {
-    'ChatGPT':     ['chatgpt.com', 'chat.openai.com'],
-    'Claude':      ['claude.ai'],
-    'Gemini':      ['gemini.google.com'],
-    'AI Studio':   ['aistudio.google.com'],
-    'Copilot':     ['copilot.microsoft.com', 'copilot.com'],
-    'Grok':        ['grok.com'],
-    'Perplexity':  ['perplexity.ai'],
-    'DeepSeek':    ['chat.deepseek.com'],
-    'Meta AI':     ['meta.ai'],
-    'Mistral':     ['chat.mistral.ai'],
-    'HuggingChat': ['huggingface.co'],
-    'Poe':         ['poe.com'],
-    'Phind':       ['phind.com'],
-    'NotebookLM':  ['notebooklm.google.com'],
-    'Kagi':        ['kagi.com'],
+    'ChatGPT':        ['chatgpt.com', 'chat.openai.com'],
+    'Claude':         ['claude.ai'],
+    'Gemini':         ['gemini.google.com'],
+    'AI Studio':      ['aistudio.google.com'],
+    'Google Search':  ['www.google.com', 'google.com'],
+    'Copilot':        ['copilot.microsoft.com', 'copilot.com'],
+    'Grok':           ['grok.com'],
+    'Perplexity':     ['perplexity.ai'],
+    'DeepSeek':       ['chat.deepseek.com'],
+    'Meta AI':        ['meta.ai'],
+    'Mistral':        ['chat.mistral.ai'],
+    'HuggingChat':    ['huggingface.co'],
+    'Poe':            ['poe.com'],
+    'Phind':          ['phind.com'],
+    'NotebookLM':     ['notebooklm.google.com'],
+    'Kagi':           ['kagi.com'],
   };
+
+  // Flat set of all supported hostnames — used to distinguish "wrong site" from
+  // "right site but content script not loaded yet" when extraction fails.
+  const SUPPORTED_HOST_FLAT = Object.values(CHIP_HOSTS).flat();
+
+  function isSupportedHost(url) {
+    try {
+      const { hostname } = new URL(url);
+      return SUPPORTED_HOST_FLAT.some(h => hostname === h || hostname.endsWith('.' + h));
+    } catch { return false; }
+  }
 
   (async () => {
     try {
@@ -584,6 +596,9 @@
     try {
       response = await api.tabs.sendMessage(tab.id, { action: 'extract' });
     } catch {
+      if (!isSupportedHost(tab?.url || '')) {
+        throw new Error('Not a supported AI chat page. Open Inkpour on ChatGPT, Claude, Gemini, Google Search, or another supported platform.');
+      }
       throw new Error('Refresh the chat tab, then try again. (Content script not running — tab was open before the extension loaded.)');
     }
     clearStatus();

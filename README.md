@@ -20,6 +20,7 @@ Inkpour is a lightweight WebExtension (Manifest V3) that works in Firefox, Chrom
 | Claude | claude.ai | ✅ Full |
 | Google Gemini | gemini.google.com | ✅ Full |
 | Google AI Studio | aistudio.google.com | ✅ Full |
+| Google Search (AI Overview / AI Mode) | google.com/search | 🧪 Experimental |
 | Microsoft Copilot | copilot.microsoft.com / copilot.com | ✅ Full |
 | Grok | grok.com | ✅ Full |
 | Perplexity | perplexity.ai | 🧪 Experimental |

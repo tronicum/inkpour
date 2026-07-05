@@ -336,6 +336,7 @@ const SUPPORTED_HOSTS = [
   'chatgpt.com', 'chat.openai.com',
   'claude.ai',
   'gemini.google.com', 'aistudio.google.com',
+  'www.google.com', 'google.com',
   'copilot.microsoft.com', 'copilot.com', 'www.copilot.com',
   'grok.com',
   'perplexity.ai',

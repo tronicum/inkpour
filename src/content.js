@@ -303,6 +303,8 @@
         host.includes('copilot.com'))                                       return 'copilot';
     if (host.includes('gemini.google.com'))                                 return 'gemini';
     if (host.includes('aistudio.google.com'))                               return 'aistudio';
+    if ((host === 'www.google.com' || host === 'google.com') &&
+        location.pathname === '/search')                                     return 'googlesearch';
     if (host.includes('grok.com'))                                          return 'grok';
     if (host.includes('perplexity.ai'))                                     return 'perplexity';
     if (host.includes('chat.deepseek.com'))                                 return 'deepseek';
@@ -810,6 +812,88 @@
       .filter(m => m.content);
   }
 
+  // Google Search — AI Overviews and AI Mode (google.com/search)
+  // Handles two variants:
+  //   - Standard search with AI Overview (appears above organic results)
+  //   - AI Mode (?udm=50): full conversational interface
+  function extractGoogleAISearch() {
+    const sp    = new URLSearchParams(location.search);
+    const query = sp.get('q') || document.title.replace(/\s*-\s*Google\s+(Search|Search Labs|AI)?$/i, '').trim();
+    const isAIMode = sp.get('udm') === '50';
+
+    const messages = [];
+
+    if (isAIMode) {
+      // AI Mode: multi-turn conversational interface.
+      // Google uses various selectors; try the most specific first.
+      const userEls = document.querySelectorAll(
+        '[data-turn-query], [jsname="IWGqac"], .user-query-text, [aria-label*="Your question"]'
+      );
+      const aiEls = document.querySelectorAll(
+        '[data-turn-response], [jsname="rfDRyf"], .ai-response-container, [aria-label*="AI response"]'
+      );
+
+      if (userEls.length || aiEls.length) {
+        const maxTurns = Math.max(userEls.length, aiEls.length);
+        for (let i = 0; i < maxTurns; i++) {
+          if (userEls[i]) {
+            const c = htmlToMarkdown(userEls[i]).trim();
+            if (c) messages.push({ role: 'You', content: c });
+          }
+          if (aiEls[i]) {
+            const c = htmlToMarkdown(aiEls[i]).trim();
+            if (c) messages.push({ role: 'Gemini', content: c });
+          }
+        }
+      }
+
+      // Fallback: look for any message-like containers inside the AI Mode UI
+      if (!messages.length) {
+        const turns = document.querySelectorAll('[data-q], [data-message-role], [class*="conversation-turn"]');
+        turns.forEach(el => {
+          const role = el.getAttribute('data-message-role') || el.getAttribute('data-q') ? 'You' : 'Gemini';
+          const c = htmlToMarkdown(el).trim();
+          if (c) messages.push({ role, content: c });
+        });
+      }
+
+      if (messages.length) return messages;
+    }
+
+    // Standard search with AI Overview
+    // Insert user query as the first "turn"
+    if (query) messages.push({ role: 'You', content: query });
+
+    // Try multiple selectors for the AI Overview block — Google changes these frequently
+    const aiEl = (
+      // Custom element (most stable if present)
+      document.querySelector('ai-overview') ||
+      // Aria-labeled region
+      document.querySelector('[role="region"][aria-label*="AI Overview"]') ||
+      document.querySelector('[role="region"][aria-label*="AI overview"]') ||
+      // Data attributes used by Google's component framework
+      document.querySelector('[data-attrid*="description"]') ||
+      // Class-based (less stable, ordered roughly newest → oldest)
+      document.querySelector('.Lfqih') ||
+      document.querySelector('.xBhz3e') ||
+      document.querySelector('.AX8yFf') ||
+      document.querySelector('.LLtSOc') ||
+      // Broad fallback: first element with "AI Overview" in its visible text label
+      (() => {
+        const sections = document.querySelectorAll('[class*="overview"], [class*="Overview"]');
+        return sections[0] || null;
+      })()
+    );
+
+    if (aiEl) {
+      const content = htmlToMarkdown(aiEl).trim();
+      if (content) messages.push({ role: 'Gemini', content });
+    }
+
+    // Only return if we found an AI response (not just the bare query)
+    return messages.length >= 2 ? messages : null;
+  }
+
   // Generic best-effort fallback
   function extractGeneric() {
     const candidates = [
@@ -954,6 +1038,7 @@
       case 'phind':       messages = extractPhind();             break;
       case 'notebooklm':  messages = extractNotebookLM();        break;
       case 'kagi':        messages = extractKagi();              break;
+      case 'googlesearch': messages = extractGoogleAISearch();   break;
       default:            break;
     }
 
@@ -966,7 +1051,7 @@
   function getCleanTitle() {
     const rawTitle = document.title.replace(/[<>:"/\\|?*\n]/g, ' ').trim() || 'Chat Export';
     return rawTitle
-      .replace(/\s[-–]\s*(ChatGPT|Claude|Gemini|Copilot|Grok|Perplexity|DeepSeek|Meta AI|Mistral|HuggingChat|NotebookLM|Kagi)$/i, '')
+      .replace(/\s[-–]\s*(ChatGPT|Claude|Gemini|Copilot|Grok|Perplexity|DeepSeek|Meta AI|Mistral|HuggingChat|NotebookLM|Kagi|Google Search|Google AI|Google)$/i, '')
       .trim();
   }
 

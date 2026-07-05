@@ -15,6 +15,8 @@
     "*://copilot.com/*",
     "*://gemini.google.com/*",
     "*://aistudio.google.com/*",
+    "*://www.google.com/search*",
+    "*://google.com/search*",
     "*://grok.com/*",
     "*://perplexity.ai/*",
     "*://chat.deepseek.com/*",
@@ -57,6 +59,10 @@
     "export-zip": {
       "suggested_key": { "default": "Alt+Shift+Z", "mac": "Alt+Shift+Z" },
       "description": "Export current chat as ZIP (chat.md + code files)"
+    },
+    "upload-gist": {
+      "suggested_key": { "default": "Alt+Shift+G", "mac": "Alt+Shift+G" },
+      "description": "Upload current chat to GitHub Gist"
     }
   },
 
@@ -87,6 +93,8 @@
         "*://copilot.com/*",
         "*://gemini.google.com/*",
         "*://aistudio.google.com/*",
+        "*://www.google.com/search*",
+        "*://google.com/search*",
         "*://grok.com/*",
         "*://perplexity.ai/*",
         "*://chat.deepseek.com/*",

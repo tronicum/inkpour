@@ -31,6 +31,14 @@
       "notes": "Edit-mode extraction"
     },
     {
+      "name": "Google Search (AI Overview / AI Mode)",
+      "id": "googlesearch",
+      "hosts": ["www.google.com", "google.com"],
+      "urlPattern": "/search",
+      "status": "experimental",
+      "notes": "Extracts AI Overviews from search results and multi-turn conversations in AI Mode (?udm=50). Google's DOM changes frequently."
+    },
+    {
       "name": "Microsoft Copilot",
       "id": "copilot",
       "hosts": ["copilot.microsoft.com", "copilot.com", "www.copilot.com"],
