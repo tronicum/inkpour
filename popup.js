@@ -329,7 +329,7 @@
       if (gistLinkEl) {
         gistLinkEl.innerHTML = `<a href="${gist.html_url}" target="_blank" rel="noopener">${gist.html_url}</a>`;
       }
-      saveLastExport('gist', data, md);
+      saveLastExport('gist', data, md, { gistUrl: gist.html_url });
     } catch (err) {
       setStatus(err.message || 'Gist upload failed', 'error');
     } finally {
@@ -403,11 +403,12 @@
    * Persists the most recent export as a compact hint AND prepends a full
    * entry (including content) to the rolling inkpour_history array (max 20).
    *
-   * @param {string} format  - 'md', 'pdf', 'html', 'json', 'copy-md', 'copy-html'
-   * @param {object} data    - { messages, title, platform, filename }
-   * @param {string} content - the actual exported string (for re-download)
+   * @param {string} format   - 'md', 'pdf', 'html', 'json', 'copy-md', 'copy-html', 'gist'
+   * @param {object} data     - { messages, title, platform, filename }
+   * @param {string} content  - the actual exported string (for re-download)
+   * @param {object} extras   - optional extra fields (e.g. { gistUrl })
    */
-  function saveLastExport(format, data, content = '') {
+  function saveLastExport(format, data, content = '', extras = {}) {
     const wordCount = data.messages
       .map(m => m.content.trim().split(/\s+/).filter(Boolean).length)
       .reduce((a, b) => a + b, 0);
@@ -422,6 +423,7 @@
       wordCount,
       exportedAt:   new Date().toISOString(),
       content,      // may be empty for PDF (handled separately via localStorage)
+      ...extras,    // e.g. { gistUrl: 'https://gist.github.com/...' }
     };
 
     // Update last-export hint

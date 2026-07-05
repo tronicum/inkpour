@@ -125,7 +125,8 @@
     const msgs  = entry.messageCount ? `${entry.messageCount} msgs` : '';
     const stats = [msgs, words].filter(Boolean).join(' · ');
 
-    const isCopy = entry.format.startsWith('copy-');
+    const isCopy  = entry.format.startsWith('copy-');
+    const isGist  = entry.format === 'gist';
     const hasContent = !!entry.content;
 
     el.innerHTML = `
@@ -140,7 +141,9 @@
         </div>
       </div>
       <div class="entry-actions">
-        ${hasContent && !isCopy ? `<button class="btn-action" data-action="download">↓ Save</button>` : ''}
+        ${isGist && entry.gistUrl
+          ? `<a class="btn-action" href="${entry.gistUrl}" target="_blank" rel="noopener" style="text-decoration:none">↗ Gist</a>`
+          : hasContent && !isCopy ? `<button class="btn-action" data-action="download">↓ Save</button>` : ''}
         ${hasContent ? `<button class="btn-action secondary" data-action="copy">⎘ Copy</button>` : ''}
       </div>`;
 
