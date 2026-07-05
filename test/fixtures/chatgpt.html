@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>ChatGPT — Test Fixture</title></head>
+<body>
+  <!-- Simulates ChatGPT's [data-message-author-role] structure -->
+
+  <div data-message-author-role="user">
+    <div class="markdown">
+      <p>What is the speed of light? 🚀</p>
+    </div>
+  </div>
+
+  <div data-message-author-role="assistant">
+    <div class="markdown">
+      <p>The speed of light in a vacuum is approximately <strong>299,792,458 m/s</strong>.</p>
+      <p>In scientific notation: <strong>3 × 10⁸ m/s</strong>.</p>
+      <ul>
+        <li>Symbol: <em>c</em></li>
+        <li>Exact value: 299,792,458 m/s (by definition since 1983)</li>
+      </ul>
+      <pre><code class="language-python">SPEED_OF_LIGHT = 299_792_458  # metres per second
+print(f"c = {SPEED_OF_LIGHT:,} m/s")</code></pre>
+    </div>
+  </div>
+
+  <div data-message-author-role="user">
+    <div class="markdown">
+      <p>How long does light take to travel from the Sun to Earth?</p>
+    </div>
+  </div>
+
+  <div data-message-author-role="assistant">
+    <div class="markdown">
+      <p>About <strong>8 minutes and 20 seconds</strong> on average.</p>
+      <p>The Earth–Sun distance is ~149.6 million km, which divided by <em>c</em> gives roughly 499 seconds.</p>
+    </div>
+  </div>
+</body>
+</html>

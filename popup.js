@@ -11,8 +11,39 @@
   const mdBtn       = document.getElementById('mdBtn');
   const pdfBtn      = document.getElementById('pdfBtn');
   const htmlBtn     = document.getElementById('htmlBtn');
+  const copyBtn     = document.getElementById('copyBtn');
   const settingsBtn = document.getElementById('settingsBtn');
   const status      = document.getElementById('status');
+
+  // ─── Chip highlighting — detect current platform on popup open ───────────
+
+  const CHIP_HOSTS = {
+    'ChatGPT':    ['chatgpt.com', 'chat.openai.com'],
+    'Claude':     ['claude.ai'],
+    'Gemini':     ['gemini.google.com'],
+    'AI Studio':  ['aistudio.google.com'],
+    'Copilot':    ['copilot.microsoft.com'],
+  };
+
+  (async () => {
+    try {
+      const [tab] = await api.tabs.query({ active: true, currentWindow: true });
+      if (!tab?.url) return;
+      const url = new URL(tab.url);
+      const chipEls = document.querySelectorAll('.chip');
+      let matched = false;
+      for (const chip of chipEls) {
+        const hosts = CHIP_HOSTS[chip.textContent.trim()];
+        if (hosts && hosts.some(h => url.hostname.includes(h))) {
+          chip.classList.add('active');
+          matched = true;
+        }
+      }
+      if (matched) document.querySelector('.chips').classList.add('detected');
+    } catch {
+      // permission error or non-URL tab — just leave chips as-is
+    }
+  })();
 
   // ─── Settings ────────────────────────────────────────────────────────────
 
@@ -72,6 +103,23 @@
       setStatus(err.message, 'error');
     } finally {
       setLoading(htmlBtn, false);
+    }
+  });
+
+  // ─── Copy to clipboard ───────────────────────────────────────────────────
+
+  copyBtn.addEventListener('click', async () => {
+    clearStatus();
+    setLoading(copyBtn, true);
+    try {
+      const data = await extractFromPage();
+      const md   = buildMarkdown(data.messages, data.title, data.site);
+      await navigator.clipboard.writeText(md);
+      setStatus('✓ Copied to clipboard', 'success');
+    } catch (err) {
+      setStatus(err.message, 'error');
+    } finally {
+      setLoading(copyBtn, false);
     }
   });
 
@@ -263,6 +311,18 @@
     .content pre code { background: transparent; padding: 0; }
     .content blockquote { border-left: 3px solid #d1d5db; margin: 0.6rem 0; padding: 0.3rem 0.9rem; color: #6b7280; font-style: italic; }
     .content hr { border: none; border-top: 1px solid #e5e7eb; margin: 1rem 0; }
+    @media (prefers-color-scheme: dark) {
+      body { color: #e4e4e7; background: #09090b; }
+      #page { background: #18181b; box-shadow: 0 2px 20px rgba(0,0,0,0.4); }
+      .doc-header { border-bottom-color: #3f3f46; }
+      .doc-header h1 { color: #fafafa; }
+      .meta { color: #a1a1aa; }
+      .message.user { background: #1e1e3a; }
+      .message.assistant { background: #14291f; }
+      .content code { background: rgba(255,255,255,0.1); }
+      .content blockquote { border-left-color: #52525b; color: #a1a1aa; }
+      .content hr { border-top-color: #3f3f46; }
+    }
   </style>
 </head>
 <body>

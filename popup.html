@@ -121,7 +121,14 @@
       border: 1px solid var(--border);
       border-radius: 20px;
       padding: 2px 9px;
+      transition: opacity 0.2s;
     }
+    .chip.active {
+      background: var(--accent);
+      color: var(--accent-text);
+      border-color: var(--accent);
+    }
+    .chips.detected .chip:not(.active) { opacity: 0.35; }
 
     /* ── Export section ── */
     .export-label {
@@ -216,17 +223,21 @@
 
   <p class="export-label">Export as</p>
   <div class="btn-group">
-    <button class="btn" id="mdBtn">
+    <button class="btn" id="mdBtn" title="Export to Markdown (Alt+Shift+M)">
       <div class="spinner"></div>
-      <span>Markdown</span>
+      <span>MD</span>
     </button>
-    <button class="btn" id="pdfBtn">
+    <button class="btn" id="pdfBtn" title="Export to PDF">
       <div class="spinner"></div>
       <span>PDF</span>
     </button>
-    <button class="btn" id="htmlBtn">
+    <button class="btn" id="htmlBtn" title="Export to HTML">
       <div class="spinner"></div>
       <span>HTML</span>
+    </button>
+    <button class="btn" id="copyBtn" title="Copy Markdown to clipboard (Alt+Shift+C)">
+      <div class="spinner"></div>
+      <span>Copy</span>
     </button>
   </div>
 

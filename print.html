@@ -134,6 +134,20 @@
       margin: 1rem 0;
     }
 
+    /* ── Dark mode ── */
+    @media (prefers-color-scheme: dark) {
+      body { color: #e4e4e7; background: #09090b; }
+      #page { background: #18181b; box-shadow: 0 2px 20px rgba(0,0,0,0.4); }
+      .doc-header { border-bottom-color: #3f3f46; }
+      .doc-header h1 { color: #fafafa; }
+      .meta { color: #a1a1aa; }
+      .message.user { background: #1e1e3a; }
+      .message.assistant { background: #14291f; }
+      .content code { background: rgba(255,255,255,0.1); }
+      .content blockquote { border-left-color: #52525b; color: #a1a1aa; }
+      .content hr { border-top-color: #3f3f46; }
+    }
+
     /* ── Print overrides ── */
     @media print {
       body { background: none; padding: 0; }

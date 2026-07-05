@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Gemini — Test Fixture</title></head>
+<body>
+  <!-- Simulates Gemini's custom element structure -->
+
+  <user-query>
+    <p>What makes a good unit test? ✅</p>
+  </user-query>
+
+  <model-response>
+    <p>A good unit test is <strong>fast</strong>, <strong>isolated</strong>, and <strong>deterministic</strong>.</p>
+    <p>Key properties:</p>
+    <ul>
+      <li><em>Fast</em> — runs in milliseconds, no I/O or network</li>
+      <li><em>Isolated</em> — tests one thing, no shared state</li>
+      <li><em>Readable</em> — clearly expresses intent (Arrange / Act / Assert)</li>
+      <li><em>Reliable</em> — same result every run, no flakiness</li>
+    </ul>
+  </model-response>
+
+  <user-query>
+    <p>Give me a bad example 😬</p>
+  </user-query>
+
+  <model-response>
+    <pre><code class="language-javascript">// Bad: tests multiple things, relies on external state
+test('user', async () => {
+  const user = await db.find(1);         // network dep
+  expect(user.name).toBe('Alice');       // test 1
+  expect(user.email).toContain('@'));    // test 2
+  expect(sendWelcomeEmail(user)).toBe(true); // side effect
+});</code></pre>
+  </model-response>
+</body>
+</html>

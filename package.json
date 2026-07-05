@@ -1,0 +1,16 @@
+{
+  "name": "inkpour",
+  "version": "0.1.0",
+  "description": "Export AI chat conversations to Markdown, PDF and HTML — Firefox/Chrome WebExtension",
+  "private": true,
+  "scripts": {
+    "test":        "playwright test",
+    "test:e2e":    "playwright test test/e2e",
+    "test:unit":   "playwright test test/unit",
+    "test:chrome": "playwright test --project=chrome",
+    "test:firefox":"playwright test --project=firefox"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.45.0"
+  }
+}

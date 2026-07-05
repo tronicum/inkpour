@@ -326,6 +326,14 @@
   // ─── Message listener ─────────────────────────────────────────────────────
 
   api.runtime.onMessage.addListener((msg) => {
+    // Clipboard write — delegated here from background.js (service workers
+    // don't have clipboard access; content scripts in active tabs do)
+    if (msg.action === 'copyToClipboard') {
+      return navigator.clipboard.writeText(msg.text)
+        .then(() => ({ ok: true }))
+        .catch(err => ({ error: err.message }));
+    }
+
     if (msg.action !== 'extract') return;
 
     // Return a Promise — Firefox waits for it and sends the resolved value back

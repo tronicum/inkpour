@@ -1,10 +1,13 @@
 # 🐟 Inkpour
 
+[![Beta](https://img.shields.io/badge/status-beta-orange?style=flat-square)](https://github.com/tronicum/inkpour)
+[![CI](https://img.shields.io/github/actions/workflow/status/tronicum/inkpour/ci.yml?branch=dev&style=flat-square&label=CI)](https://github.com/tronicum/inkpour/actions/workflows/ci.yml)
+[![License: AGPL v3](https://img.shields.io/badge/license-AGPL%20v3-blue?style=flat-square)](./LICENSE)
+[![MV3](https://img.shields.io/badge/Manifest-V3-5b5bd6?style=flat-square)](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json)
+
 **Export your AI chat conversations to Markdown, PDF, and HTML — directly from your browser.**
 
-Inkpour is a lightweight Firefox WebExtension (Manifest V3) that saves conversations from the AI tools you use every day into clean, portable documents. One click, no accounts, no servers — everything happens locally in your browser.
-
-> **Status:** Early development. Works well for Markdown and PDF export. Actively adding features — see [Roadmap](#roadmap).
+Inkpour is a lightweight WebExtension (Manifest V3) that saves conversations from the AI tools you use every day into clean, portable documents. One click, no accounts, no servers — everything happens locally in your browser.
 
 ---
 
@@ -23,10 +26,13 @@ Inkpour is a lightweight Firefox WebExtension (Manifest V3) that saves conversat
 ## Features
 
 - Export conversations to **Markdown** (`.md`), **PDF**, or self-contained **HTML**
+- **Copy to clipboard** — one click or `Alt+Shift+C` to copy Markdown directly
+- **Keyboard shortcuts** — `Alt+Shift+M` to export, `Alt+Shift+C` to copy (no popup needed)
 - Preserves headings, bold, italic, inline code, fenced code blocks, tables, lists, and emojis
 - PDF export opens a clean, ad-free print preview — no Google UI, no clutter
 - HTML export is a single self-contained file, openable in any browser
-- Dark and light mode popup UI, adapts to your system preference
+- Dark and light mode throughout — popup, PDF preview, and HTML export all follow system preference
+- Active platform chip highlights which site you're on when you open the popup
 - No data leaves your machine — no accounts, no telemetry, no backend
 
 ---
@@ -64,9 +70,11 @@ Or download the ZIP from the green **Code** button on this page and unzip it.
 
 1. Open any supported AI chat page with a conversation loaded
 2. Click the Inkpour icon in your toolbar
-3. Choose **Markdown**, **PDF**, or **HTML**
-   - Markdown and HTML download immediately to your Downloads folder
-   - PDF opens a clean preview tab and triggers the print dialog — choose **Save to PDF** in the printer list
+3. Choose **MD**, **PDF**, **HTML**, or **Copy**
+   - **MD** and **HTML** download immediately to your Downloads folder
+   - **PDF** opens a clean preview tab and triggers the print dialog — choose **Save to PDF**
+   - **Copy** puts the Markdown on your clipboard instantly
+4. Or skip the popup entirely with keyboard shortcuts: `Alt+Shift+M` (export MD) / `Alt+Shift+C` (copy)
 
 ### Troubleshooting
 
@@ -119,6 +127,10 @@ inkpour/
 - [x] Markdown export
 - [x] PDF export (clean print preview, ad-free)
 - [x] HTML export (self-contained file)
+- [x] Copy to clipboard (popup button + Alt+Shift+C)
+- [x] Keyboard shortcuts (Alt+Shift+M export, Alt+Shift+C copy)
+- [x] Platform chip highlighting in popup
+- [x] Dark mode PDF preview and HTML export
 - [ ] YAML front matter (title, date, platform, URL)
 - [ ] Table of contents for long conversations
 - [ ] In-page export button injected next to share button
@@ -126,7 +138,6 @@ inkpour/
 - [ ] Gemini selector improvements
 - [ ] Google Search AI mode support
 - [ ] Safari / iOS support via Xcode Web Extension converter
-- [ ] Keyboard shortcut
 
 ---
 

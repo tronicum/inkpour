@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Claude — Test Fixture</title></head>
+<body>
+  <!-- Simulates Claude's data-testid + font-claude-message structure -->
+
+  <div data-testid="user-message">
+    <p>Explain recursion in one sentence 🤔</p>
+  </div>
+
+  <div class="font-claude-message">
+    <p>Recursion is when a function <strong>calls itself</strong> with a simpler version of the problem until it reaches a base case that stops the chain.</p>
+    <pre><code class="language-javascript">function factorial(n) {
+  if (n <= 1) return 1;       // base case
+  return n * factorial(n - 1); // recursive case
+}</code></pre>
+  </div>
+
+  <div data-testid="user-message">
+    <p>What are the risks? ⚠️</p>
+  </div>
+
+  <div class="font-claude-message">
+    <p>The main risks are:</p>
+    <ul>
+      <li><strong>Stack overflow</strong> — too many nested calls exhaust the call stack</li>
+      <li><strong>Infinite loops</strong> — missing or incorrect base case</li>
+      <li><strong>Performance</strong> — repeated subproblem computation without memoisation</li>
+    </ul>
+  </div>
+</body>
+</html>
