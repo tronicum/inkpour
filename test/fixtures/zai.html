@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>What is quantum computing? - Z.ai</title>
+</head>
+<body>
+  <!-- Z.ai (chat.z.ai) — Zhipu AI / GLM-5 — Svelte-based chat UI -->
+  <!-- User messages: .chat-user > div[class*="whitespace-pre-wrap"] -->
+  <!-- AI messages:   .chat-assistant > #response-content-container  -->
+
+  <div class="chat-container">
+
+    <!-- Turn 1: user -->
+    <div class="chat-user svelte-a1b2c3">
+      <div class="user-avatar svelte-a1b2c3">You</div>
+      <div class="user-content svelte-a1b2c3">
+        <div class="whitespace-pre-wrap svelte-a1b2c3">What is quantum computing?</div>
+      </div>
+    </div>
+
+    <!-- Turn 2: AI -->
+    <div class="chat-assistant svelte-a1b2c3">
+      <div class="assistant-avatar svelte-a1b2c3">Z.ai</div>
+      <div id="response-content-container">
+        <p><strong>Quantum computing</strong> is a type of computation that harnesses quantum mechanical phenomena
+        such as <em>superposition</em> and <em>entanglement</em> to process information in fundamentally new ways.</p>
+        <p>Key concepts include:</p>
+        <ul>
+          <li><strong>Qubits</strong> — the quantum equivalent of classical bits, capable of representing 0, 1, or both simultaneously</li>
+          <li><strong>Superposition</strong> — a qubit exists in multiple states at once until measured</li>
+          <li><strong>Entanglement</strong> — two qubits become correlated regardless of distance</li>
+        </ul>
+        <pre><code class="language-python">from qiskit import QuantumCircuit
+qc = QuantumCircuit(2)
+qc.h(0)         # Hadamard gate — superposition
+qc.cx(0, 1)     # CNOT gate — entanglement
+print(qc)
+</code></pre>
+      </div>
+    </div>
+
+    <!-- Turn 3: user -->
+    <div class="chat-user svelte-a1b2c3">
+      <div class="user-avatar svelte-a1b2c3">You</div>
+      <div class="user-content svelte-a1b2c3">
+        <div class="whitespace-pre-wrap svelte-a1b2c3">How does it differ from classical computing?</div>
+      </div>
+    </div>
+
+    <!-- Turn 4: AI -->
+    <div class="chat-assistant svelte-a1b2c3">
+      <div class="assistant-avatar svelte-a1b2c3">Z.ai</div>
+      <div id="response-content-container">
+        <p>Classical computers use bits that are strictly 0 or 1. Quantum computers use qubits that exploit
+        superposition, allowing them to explore many solutions simultaneously rather than one by one.</p>
+        <p>For certain problems — like factoring large numbers or simulating molecules — this provides an
+        <strong>exponential speedup</strong> over the best known classical algorithms.</p>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

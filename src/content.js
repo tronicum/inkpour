@@ -715,31 +715,43 @@
   }
 
   // HuggingChat (huggingface.co/chat) — experimental
-  // Selectors based on chat-ui open-source repo (github.com/huggingface/chat-ui)
+  // Confirmed against chat-ui source (ChatMessage.svelte, July 2026):
+  //   User turn:     [data-message-type="user"]     → text in p.disabled or p.whitespace-break-spaces
+  //   Assistant turn:[data-message-role="assistant"] → rendered markdown in .prose child
   function extractHuggingChat() {
-    // chat-ui renders messages with data attributes in newer versions
-    const byDataRole = document.querySelectorAll('[data-message-role]');
-    if (byDataRole.length) {
-      return Array.from(byDataRole).map(el => {
-        const role = el.getAttribute('data-message-role');
-        const isUser = role === 'user';
-        return { role: isUser ? 'You' : 'HuggingChat', content: htmlToMarkdown(el) };
+    // Primary: verified data attributes from chat-ui open-source Svelte component
+    const userEls = Array.from(document.querySelectorAll('[data-message-type="user"]'));
+    const aiEls   = Array.from(document.querySelectorAll('[data-message-role="assistant"]'));
+
+    if (userEls.length || aiEls.length) {
+      const combined = [
+        ...userEls.map(el => ({ el, role: 'You' })),
+        ...aiEls.map(el => ({ el, role: 'HuggingChat' })),
+      ].sort(sortByDOMOrder);
+
+      return combined.map(({ el, role }) => {
+        if (role === 'You') {
+          // User text lives in a plain <p> (no markdown rendering)
+          const p = el.querySelector('p.disabled, p[class*="whitespace-break-spaces"], p[class*="whitespace-pre"]');
+          return { role, content: (p ?? el).textContent.trim() };
+        }
+        // AI response: grab the .prose child (rendered markdown); fall back to full element
+        const prose = el.querySelector('.prose') ?? el;
+        return { role, content: htmlToMarkdown(prose) };
       }).filter(m => m.content);
     }
 
-    // Fallback: class-name patterns from chat-ui Svelte components
-    const userEls = Array.from(document.querySelectorAll(
-      '[class*="from-user"], [class*="human-message"], ' +
-      'div[class*="UserMessage"], .message-wrapper.user'
+    // Fallback: older chat-ui versions used class patterns
+    const fallbackUser = Array.from(document.querySelectorAll(
+      '[class*="from-user"], [class*="human-message"], .message-wrapper.user'
     )).map(el => ({ el, role: 'You' }));
 
-    const aiEls = Array.from(document.querySelectorAll(
-      '[class*="from-assistant"], [class*="from-model"], ' +
-      'div[class*="AssistantMessage"], .message-wrapper.assistant'
+    const fallbackAI = Array.from(document.querySelectorAll(
+      '[class*="from-assistant"], [class*="from-model"], .message-wrapper.assistant'
     )).map(el => ({ el, role: 'HuggingChat' }));
 
-    if (!userEls.length && !aiEls.length) return null;
-    return [...userEls, ...aiEls]
+    if (!fallbackUser.length && !fallbackAI.length) return null;
+    return [...fallbackUser, ...fallbackAI]
       .sort(sortByDOMOrder)
       .map(({ el, role }) => ({ role, content: htmlToMarkdown(el) }))
       .filter(m => m.content);
