@@ -331,8 +331,23 @@
     return Array.from(turns).map(turn => {
       const role     = turn.getAttribute('data-message-author-role');
       const label    = role === 'user' ? 'You' : 'ChatGPT';
-      const contentEl = turn.querySelector('.markdown, [class*="prose"], .text-message') ?? turn;
-      return { role: label, content: htmlToMarkdown(contentEl) };
+      const contentEl = (turn.querySelector('.markdown, [class*="prose"], .text-message') ?? turn).cloneNode(true);
+
+      // ChatGPT Canvas: canvas documents appear as embedded components.
+      // Extract the code/text from them before stripping.
+      const canvasSuffix = [];
+      contentEl.querySelectorAll('[class*="canvas"], [data-testid*="canvas"]').forEach(cvEl => {
+        const codeEl = cvEl.querySelector('code, pre, textarea, [class*="content-editable"]');
+        if (codeEl) {
+          const code = codeEl.textContent.trim();
+          if (code) canvasSuffix.push(`\`\`\`\n${code}\n\`\`\``);
+        }
+        cvEl.remove();
+      });
+
+      let content = htmlToMarkdown(contentEl);
+      if (canvasSuffix.length) content = (content ? content + '\n\n' : '') + canvasSuffix.join('\n\n');
+      return { role: label, content };
     }).filter(m => m.content);
   }
 
@@ -351,10 +366,42 @@
     const combined = [...userEls, ...assistantEls].sort(sortByDOMOrder);
     if (!combined.length) return null;
     return combined.map(({ el, role }) => {
-      // Skip artifact blocks (code editors embedded in Claude's UI)
       const clone = el.cloneNode(true);
-      clone.querySelectorAll('.artifact-block-cell, [class*="artifact"]').forEach(n => n.remove());
-      return { role, content: htmlToMarkdown(clone) };
+
+      // Extract artifact code before removing the artifact block.
+      // Claude renders artifacts as isolated code editors — the code source is
+      // inside a <code> element or a [class*="ace_text"] / .cm-content block.
+      // We inject it as a fenced code block so the export is complete.
+      const artifactSuffix = [];
+      clone.querySelectorAll('.artifact-block-cell, [class*="artifact-block"]').forEach(artEl => {
+        // Try to grab the artifact's code content
+        const codeEl = artEl.querySelector('code, pre, .cm-content, [class*="ace_text-layer"]');
+        if (codeEl) {
+          // Detect language from sibling header or code class
+          let lang = '';
+          const header = artEl.querySelector('[class*="lang"], [data-artifacttype]');
+          if (header) {
+            const t = (header.textContent || header.getAttribute('data-artifacttype') || '').trim().toLowerCase();
+            if (/^[a-z][a-z0-9+#.-]{0,20}$/.test(t)) lang = t;
+          }
+          if (!lang) {
+            const cls = codeEl.className || '';
+            const m = cls.match(/language-(\w+)/);
+            if (m) lang = m[1];
+          }
+          const code = codeEl.textContent.trim();
+          if (code) artifactSuffix.push(`\`\`\`${lang}\n${code}\n\`\`\``);
+        }
+        artEl.remove();
+      });
+      // Also strip remaining artifact-related UI elements (buttons, badges)
+      clone.querySelectorAll('[class*="artifact"]').forEach(n => n.remove());
+
+      let content = htmlToMarkdown(clone);
+      if (artifactSuffix.length) {
+        content = (content ? content + '\n\n' : '') + artifactSuffix.join('\n\n');
+      }
+      return { role, content };
     }).filter(m => m.content);
   }
 
