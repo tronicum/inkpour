@@ -177,6 +177,10 @@ Feature-rich Tampermonkey userscript covering ChatGPT, Claude, Copilot, Gemini, 
 
 ---
 
+## Privacy
+
+Inkpour collects no data and makes no external requests unless you explicitly configure a GitHub token or webhook. See [PRIVACY.md](./PRIVACY.md) for full details.
+
 ## License
 
 AGPL-3.0. Portions derived from [chat-export by Trifall](https://github.com/Trifall/chat-export) (MIT) — original copyright retained in LICENSE.
