@@ -245,6 +245,25 @@
         <div class="toggle-track"></div>
       </label>
     </div>
+
+    <div class="field">
+      <div class="field-label">
+        <strong>Downloads subfolder</strong>
+        <span>Optional sub-path within your default downloads folder (e.g. <code>AI Chats</code>)</span>
+      </div>
+      <input type="text" id="downloadSubfolder" placeholder="e.g. AI Chats" style="min-width:160px" />
+    </div>
+
+    <div class="field">
+      <div class="field-label">
+        <strong>Obsidian tags in YAML</strong>
+        <span>Adds <code>tags: [ai-chat, {platform}]</code> to front matter (requires YAML enabled)</span>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="obsidianTags" />
+        <div class="toggle-track"></div>
+      </label>
+    </div>
   </section>
 
   <div class="save-row">

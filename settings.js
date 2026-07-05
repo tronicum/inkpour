@@ -40,15 +40,19 @@
     pdfAutoPrint:     true,
     yamlFrontMatter:  false,
     generateTOC:      false,
+    downloadSubfolder: '',
+    obsidianTags:      false,
   };
 
   api.storage.local.get('inkpour_settings', (result) => {
     const prefs = Object.assign({}, DEFAULTS, result.inkpour_settings ?? {});
-    document.getElementById('defaultFormat').value     = prefs.defaultFormat;
-    document.getElementById('filenameTemplate').value  = prefs.filenameTemplate;
-    document.getElementById('pdfAutoPrint').checked    = prefs.pdfAutoPrint;
-    document.getElementById('yamlFrontMatter').checked = prefs.yamlFrontMatter;
-    document.getElementById('generateTOC').checked     = prefs.generateTOC;
+    document.getElementById('defaultFormat').value      = prefs.defaultFormat;
+    document.getElementById('filenameTemplate').value   = prefs.filenameTemplate;
+    document.getElementById('pdfAutoPrint').checked     = prefs.pdfAutoPrint;
+    document.getElementById('yamlFrontMatter').checked  = prefs.yamlFrontMatter;
+    document.getElementById('generateTOC').checked      = prefs.generateTOC;
+    document.getElementById('downloadSubfolder').value  = prefs.downloadSubfolder;
+    document.getElementById('obsidianTags').checked     = prefs.obsidianTags;
   });
 
   // ─── Save ─────────────────────────────────────────────────────────────────
@@ -60,6 +64,8 @@
       pdfAutoPrint:     document.getElementById('pdfAutoPrint').checked,
       yamlFrontMatter:  document.getElementById('yamlFrontMatter').checked,
       generateTOC:      document.getElementById('generateTOC').checked,
+      downloadSubfolder: document.getElementById('downloadSubfolder').value.trim(),
+      obsidianTags:      document.getElementById('obsidianTags').checked,
     };
     api.storage.local.set({ inkpour_settings: prefs }, () => {
       const el = document.getElementById('saveStatus');

@@ -5,6 +5,12 @@
 
 const api = (typeof browser !== 'undefined') ? browser : chrome;
 
+// ─── Downloads subfolder helper ───────────────────────────────────────────
+function withSubfolder(settings, filename) {
+  const sub = (settings.downloadSubfolder || '').trim().replace(/\/+$/, '');
+  return sub ? sub + '/' + filename : filename;
+}
+
 // ─── In-page button export requests ──────────────────────────────────────
 // Content script sends { action: 'inPageExport', format: 'pdf'|'zip' }
 // Background handles it so the SW can download files / open tabs.
@@ -22,7 +28,7 @@ api.runtime.onMessage.addListener((message, sender) => {
 
     const stored   = await api.storage.local.get('inkpour_settings');
     const settings = Object.assign(
-      { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}' },
+      { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}', downloadSubfolder: '', obsidianTags: false },
       stored?.inkpour_settings ?? {}
     );
     const sourceUrl = sender.tab.url || '';
@@ -39,7 +45,7 @@ api.runtime.onMessage.addListener((message, sender) => {
       const zipBytes  = buildZip(files);
       const b64  = uint8ToBase64(zipBytes);
       const url  = 'data:application/zip;base64,' + b64;
-      api.downloads.download({ url, filename: filename + '.zip', saveAs: false });
+      api.downloads.download({ url, filename: withSubfolder(settings, filename + '.zip'), saveAs: false });
     }
   })();
 });
@@ -93,7 +99,7 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
 
   const stored   = await api.storage.local.get('inkpour_settings');
   const settings = Object.assign(
-    { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}' },
+    { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}', downloadSubfolder: '', obsidianTags: false },
     stored?.inkpour_settings ?? {}
   );
   const sourceUrl = tab?.url || '';
@@ -102,7 +108,7 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId === 'inkpour-md') {
     const md  = buildMarkdown(response.messages, response.title, response.site, settings, sourceUrl);
     const url = 'data:text/markdown;charset=utf-8,' + encodeURIComponent(md);
-    api.downloads.download({ url, filename: filename + '.md', saveAs: false });
+    api.downloads.download({ url, filename: withSubfolder(settings, filename + '.md'), saveAs: false });
   }
 
   if (info.menuItemId === 'inkpour-copy') {
@@ -113,7 +119,7 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId === 'inkpour-json') {
     const json = buildJSON(response.messages, response.title, response.site, response.platform);
     const url  = 'data:application/json;charset=utf-8,' + encodeURIComponent(json);
-    api.downloads.download({ url, filename: filename + '.json', saveAs: false });
+    api.downloads.download({ url, filename: withSubfolder(settings, filename + '.json'), saveAs: false });
   }
 
   if (info.menuItemId === 'inkpour-zip') {
@@ -121,7 +127,7 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
     const zipBytes  = buildZip(files);
     const b64  = uint8ToBase64(zipBytes);
     const url  = 'data:application/zip;base64,' + b64;
-    api.downloads.download({ url, filename: filename + '.zip', saveAs: false });
+    api.downloads.download({ url, filename: withSubfolder(settings, filename + '.zip'), saveAs: false });
   }
 });
 
@@ -143,7 +149,7 @@ api.commands.onCommand.addListener(async (command) => {
   // Load user settings so keyboard shortcuts respect all preferences
   const stored   = await api.storage.local.get('inkpour_settings');
   const settings = Object.assign(
-    { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}' },
+    { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}', downloadSubfolder: '', obsidianTags: false },
     stored?.inkpour_settings ?? {}
   );
 
@@ -153,7 +159,7 @@ api.commands.onCommand.addListener(async (command) => {
   if (command === 'export-markdown') {
     const md  = buildMarkdown(response.messages, response.title, response.site, settings, sourceUrl);
     const url = 'data:text/markdown;charset=utf-8,' + encodeURIComponent(md);
-    api.downloads.download({ url, filename: filename + '.md', saveAs: false });
+    api.downloads.download({ url, filename: withSubfolder(settings, filename + '.md'), saveAs: false });
   }
 
   if (command === 'export-pdf') {
@@ -178,7 +184,7 @@ api.commands.onCommand.addListener(async (command) => {
   if (command === 'export-json') {
     const json = buildJSON(response.messages, response.title, response.site, response.platform);
     const url  = 'data:application/json;charset=utf-8,' + encodeURIComponent(json);
-    api.downloads.download({ url, filename: filename + '.json', saveAs: false });
+    api.downloads.download({ url, filename: withSubfolder(settings, filename + '.json'), saveAs: false });
   }
 
   if (command === 'export-zip') {
@@ -187,7 +193,7 @@ api.commands.onCommand.addListener(async (command) => {
     // base64-encode for data: URL (no createObjectURL in SW)
     const b64  = uint8ToBase64(zipBytes);
     const url  = 'data:application/zip;base64,' + b64;
-    api.downloads.download({ url, filename: filename + '.zip', saveAs: false });
+    api.downloads.download({ url, filename: withSubfolder(settings, filename + '.zip'), saveAs: false });
   }
 });
 
@@ -203,8 +209,9 @@ function buildMarkdown(messages, title, site, opts = {}, sourceUrl = '') {
     const yamlWords = messages
       .map(m => m.content.trim().split(/\s+/).filter(Boolean).length)
       .reduce((a, b) => a + b, 0);
-    const urlLine = sourceUrl ? `\nsource_url: "${sourceUrl}"` : '';
-    md += `---\ntitle: "${safeTitle}"\nplatform: ${site}\nmessages: ${messages.length}\nwords: ${yamlWords}\ndate: ${isoDate}${urlLine}\nexporter: inkpour\n---\n\n`;
+    const urlLine  = sourceUrl ? `\nsource_url: "${sourceUrl}"` : '';
+    const tagsLine = opts.obsidianTags ? `\ntags: [ai-chat, ${site}]` : '';
+    md += `---\ntitle: "${safeTitle}"\nplatform: ${site}\nmessages: ${messages.length}\nwords: ${yamlWords}\ndate: ${isoDate}${urlLine}${tagsLine}\nexporter: inkpour\n---\n\n`;
   }
 
   const wordCount = messages

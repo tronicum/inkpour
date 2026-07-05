@@ -24,10 +24,12 @@
   // ─── Load user settings ───────────────────────────────────────────────────
 
   const SETTING_DEFAULTS = {
-    defaultFormat:    'md',
-    yamlFrontMatter:  false,
-    generateTOC:      false,
-    filenameTemplate: '{platform}-{title}',
+    defaultFormat:      'md',
+    yamlFrontMatter:    false,
+    generateTOC:        false,
+    filenameTemplate:   '{platform}-{title}',
+    downloadSubfolder:  '',   // e.g. "AI Chats" or "Obsidian/Exports"
+    obsidianTags:       false, // add tags: [ai-chat, {platform}] to YAML
   };
   let userSettings = { ...SETTING_DEFAULTS };
 
@@ -105,11 +107,22 @@
       if (!tab?.id) return;
       const response = await api.tabs.sendMessage(tab.id, { action: 'extract' });
       if (response?.messages?.length) {
-        const n    = response.messages.length;
-        const words = response.messages
+        const msgs  = response.messages;
+        const n     = msgs.length;
+        const words = msgs
           .map(m => m.content.trim().split(/\s+/).length)
           .reduce((a, b) => a + b, 0);
-        setStatus(`Ready · ${n} message${n !== 1 ? 's' : ''} · ~${words.toLocaleString()} words`);
+        // Role breakdown
+        const userCount = msgs.filter(m => m.role === 'user').length;
+        const aiCount   = msgs.filter(m => m.role !== 'user').length;
+        // Code block count — count ``` fences in all content
+        const codeBlocks = msgs.reduce((sum, m) => {
+          const matches = m.content.match(/```[\s\S]*?```/g);
+          return sum + (matches ? matches.length : 0);
+        }, 0);
+        const roleNote  = ` · ${userCount}u/${aiCount}a`;
+        const codeNote  = codeBlocks > 0 ? ` · ${codeBlocks} code block${codeBlocks !== 1 ? 's' : ''}` : '';
+        setStatus(`Ready · ${n} message${n !== 1 ? 's' : ''}${roleNote} · ~${words.toLocaleString()} words${codeNote}`);
       }
     } catch {
       // Not a supported page or content script not ready — stay silent
@@ -255,7 +268,7 @@
       const url      = URL.createObjectURL(blob);
       const a        = Object.assign(document.createElement('a'), {
         href:     url,
-        download: buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl) + '.zip',
+        download: withSubfolder(buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl) + '.zip'),
       });
       document.body.appendChild(a);
       a.click();
@@ -313,8 +326,9 @@
       const wordCount = messages
         .map(m => m.content.trim().split(/\s+/).filter(Boolean).length)
         .reduce((a, b) => a + b, 0);
-      const urlLine = sourceUrl ? `\nsource_url: "${sourceUrl}"` : '';
-      md += `---\ntitle: "${safeTitle}"\nplatform: ${site}\nmessages: ${messages.length}\nwords: ${wordCount}\ndate: ${isoDate}${urlLine}\nexporter: inkpour\n---\n\n`;
+      const urlLine  = sourceUrl ? `\nsource_url: "${sourceUrl}"` : '';
+      const tagsLine = opts.obsidianTags ? `\ntags: [ai-chat, ${site}]` : '';
+      md += `---\ntitle: "${safeTitle}"\nplatform: ${site}\nmessages: ${messages.length}\nwords: ${wordCount}\ndate: ${isoDate}${urlLine}${tagsLine}\nexporter: inkpour\n---\n\n`;
     }
 
     const wordCount = messages
@@ -487,12 +501,21 @@
 
   // ─── Utilities ────────────────────────────────────────────────────────────
 
+  /**
+   * Prepend the configured downloads subfolder (if any) to a bare filename.
+   * The browser's Downloads API interprets slashes as subdirectory separators.
+   */
+  function withSubfolder(filename) {
+    const sub = (userSettings.downloadSubfolder || '').trim().replace(/\/+$/, '');
+    return sub ? `${sub}/${filename}` : filename;
+  }
+
   function downloadFile(text, filename, mimeType) {
     const blob = new Blob([text], { type: mimeType });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
     a.href     = url;
-    a.download = filename;
+    a.download = withSubfolder(filename);
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
