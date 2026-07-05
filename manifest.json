@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Babelfish Exporter",
+  "name": "Inkpour",
   "version": "0.1.0",
-  "description": "Export AI chat conversations (ChatGPT, Claude, Gemini, Copilot) to clean Markdown files.",
+  "description": "Export AI chat conversations (ChatGPT, Claude, Gemini, Copilot) to Markdown, PDF and more.",
 
   "permissions": ["activeTab"],
 
@@ -17,7 +17,11 @@
 
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Export chat to Markdown"
+    "default_title": "Inkpour",
+    "default_icon": {
+      "48": "icons/icon-48.png",
+      "96": "icons/icon-96.png"
+    }
   },
 
   "content_scripts": [
