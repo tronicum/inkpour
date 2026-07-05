@@ -1143,9 +1143,59 @@
     window.__inkpourHtmlToMarkdown = htmlToMarkdown;
   }
 
+  // ─── In-page toast notification ───────────────────────────────────────────
+
+  function showToast(text, variant = 'info') {
+    const host = document.createElement('div');
+    host.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:2147483647;pointer-events:none;';
+    document.body.appendChild(host);
+    const shadow = host.attachShadow({ mode: 'open' });
+
+    const colors = {
+      success: { bg: '#16a34a', text: '#fff' },
+      error:   { bg: '#dc2626', text: '#fff' },
+      info:    { bg: '#5b5bd6', text: '#fff' },
+    };
+    const c = colors[variant] || colors.info;
+
+    shadow.innerHTML = `<style>
+      .toast {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 16px;
+        border-radius: 10px;
+        background: ${c.bg};
+        color: ${c.text};
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.22);
+        opacity: 1;
+        transform: translateY(0);
+        transition: opacity 0.4s ease, transform 0.4s ease;
+        white-space: nowrap;
+      }
+      .toast.fade { opacity: 0; transform: translateY(8px); }
+    </style>
+    <div class="toast">${text}</div>`;
+
+    const toastEl = shadow.querySelector('.toast');
+    setTimeout(() => {
+      toastEl.classList.add('fade');
+      setTimeout(() => document.body.removeChild(host), 450);
+    }, 2800);
+  }
+
   // ─── Message listener ─────────────────────────────────────────────────────
 
   api.runtime.onMessage.addListener((msg) => {
+    // In-page toast — triggered from background.js after keyboard shortcut actions
+    if (msg.action === 'showToast') {
+      showToast(msg.text, msg.variant);
+      return Promise.resolve({ ok: true });
+    }
+
     // Clipboard write — delegated here from background.js (service workers
     // don't have clipboard access; content scripts in active tabs do)
     if (msg.action === 'copyToClipboard') {

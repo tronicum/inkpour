@@ -198,5 +198,59 @@ api.commands.onCommand.addListener(async (command) => {
     const url  = 'data:application/zip;base64,' + b64;
     api.downloads.download({ url, filename: withSubfolder(settings, filename + '.zip'), saveAs: false });
   }
+
+  if (command === 'upload-gist') {
+    const token = settings.githubToken || '';
+    if (!token) {
+      // No token — open settings so user can add one
+      api.runtime.openOptionsPage();
+      return;
+    }
+    const md = buildMarkdown(response.messages, response.title, response.site, settings, sourceUrl);
+    const gistFilename = filename + '.md';
+    let res;
+    try {
+      res = await fetch('https://api.github.com/gists', {
+        method:  'POST',
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept':        'application/vnd.github.v3+json',
+          'Content-Type':  'application/json',
+        },
+        body: JSON.stringify({
+          description: response.title,
+          public:      settings.gistPublic === true,
+          files: { [gistFilename]: { content: md } },
+        }),
+      });
+    } catch (err) {
+      // Network failure — notify via content script toast
+      await api.tabs.sendMessage(tab.id, {
+        action:  'showToast',
+        text:    '✗ Gist upload failed (network error)',
+        variant: 'error',
+      }).catch(() => {});
+      return;
+    }
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      const msg = errBody.message || `HTTP ${res.status}`;
+      await api.tabs.sendMessage(tab.id, {
+        action:  'showToast',
+        text:    `✗ Gist upload failed: ${msg}`,
+        variant: 'error',
+      }).catch(() => {});
+      return;
+    }
+    const gist = await res.json();
+    // Open the Gist in a new tab
+    api.tabs.create({ url: gist.html_url });
+    // Also notify in-page
+    await api.tabs.sendMessage(tab.id, {
+      action:  'showToast',
+      text:    '✓ Gist created',
+      variant: 'success',
+    }).catch(() => {});
+  }
 });
 
