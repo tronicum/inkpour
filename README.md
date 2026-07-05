@@ -4,7 +4,7 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/tronicum/inkpour/ci.yml?branch=dev&style=flat-square&label=CI)](https://github.com/tronicum/inkpour/actions/workflows/ci.yml)
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL%20v3-blue?style=flat-square)](./LICENSE)
 [![MV3](https://img.shields.io/badge/Manifest-V3-5b5bd6?style=flat-square)](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json)
-[![Tests](https://img.shields.io/badge/tests-126%20passed-16a34a?style=flat-square)](./test/run-jsdom.js)
+[![Tests](https://img.shields.io/badge/tests-134%20passed-16a34a?style=flat-square)](./test/run-jsdom.js)
 
 **Export AI chat conversations to Markdown, PDF, HTML, JSON, or ZIP — one click, no accounts, no servers.**
 
@@ -102,7 +102,7 @@ Default: `{platform}-{title}`.
 - Selective export: click "☑ Select messages" to open a scrollable checkbox list — export only the turns you want. Quick-select buttons: All, None, User only, AI only
 - Streaming guard: warns if the AI is still generating instead of exporting an incomplete response
 - Auto-scroll: triggers lazy-loading of older messages on ChatGPT, Gemini, and AI Studio before extraction
-- In-page floating button (Shadow DOM, dark-mode aware) — export without opening the popup
+- In-page floating button (Shadow DOM, dark-mode aware) — MD, Copy MD, DOCX, PDF, ZIP without opening the popup
 - In-page toast notifications for keyboard shortcut feedback
 
 ### Settings
@@ -143,7 +143,7 @@ git clone https://github.com/tronicum/inkpour.git
 ## Development
 
 ```bash
-npm test          # Run 126 JSDOM-based extraction and builder tests (no browser needed)
+npm test          # Run 134 JSDOM-based extraction and builder tests (no browser needed)
 ```
 
 ### Project structure
