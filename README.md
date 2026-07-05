@@ -4,7 +4,7 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/tronicum/inkpour/ci.yml?branch=dev&style=flat-square&label=CI)](https://github.com/tronicum/inkpour/actions/workflows/ci.yml)
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL%20v3-blue?style=flat-square)](./LICENSE)
 [![MV3](https://img.shields.io/badge/Manifest-V3-5b5bd6?style=flat-square)](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json)
-[![Tests](https://img.shields.io/badge/tests-106%20passed-16a34a?style=flat-square)](./test/run-jsdom.js)
+[![Tests](https://img.shields.io/badge/tests-110%20passed-16a34a?style=flat-square)](./test/run-jsdom.js)
 
 **Export AI chat conversations to Markdown, PDF, HTML, JSON, or ZIP — one click, no accounts, no servers.**
 
@@ -148,7 +148,7 @@ npm test          # Run 103 JSDOM-based extraction tests (no browser needed)
 
 ```
 inkpour/
-├── manifest.json           MV3 manifest (15 host_permissions, 7 commands)
+├── manifest.json           MV3 manifest (19 host_permissions, 7 commands)
 ├── popup.html / popup.js   Popup UI: MD/PDF/HTML/JSON/ZIP + Copy MD/HTML + Gist
 ├── background.js           Service worker: keyboard shortcuts + context menus + webhook
 ├── settings.html / .js     Options page (format, filename, YAML, TOC, subfolder, Gist, webhook)
@@ -159,7 +159,7 @@ inkpour/
 │   ├── content.js          Extraction, htmlToMarkdown, in-page button, toasts
 │   └── utils.js            Shared builders: buildMarkdown, buildFilename, buildZip, …
 └── test/
-    ├── run-jsdom.js         JSDOM test harness (93 tests, 0 failures)
+    ├── run-jsdom.js         JSDOM test harness (110 tests, 0 failures)
     └── fixtures/            15 HTML fixtures — one per platform
 ```
 
