@@ -329,6 +329,8 @@ api.commands.onCommand.addListener(async (command) => {
 });
 
 // ─── Action badge — show "ON" on supported AI chat pages ──────────────────
+// Canonical source of truth is supported-sites.json — this flat array is
+// derived from it (service workers can't fetch local extension files at runtime).
 
 const SUPPORTED_HOSTS = [
   'chatgpt.com', 'chat.openai.com',
