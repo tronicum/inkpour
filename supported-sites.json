@@ -119,6 +119,13 @@
       "hosts": ["chat.z.ai"],
       "status": "experimental",
       "notes": "Svelte-based SPA. User messages in .chat-user, AI responses in .chat-assistant > #response-content-container."
+    },
+    {
+      "name": "Venice.ai",
+      "id": "venice",
+      "hosts": ["venice.ai"],
+      "status": "experimental",
+      "notes": "Chakra UI + react-virtuoso. AI turns in .assistant > .assistant-content > .prose, user turns by class patterns with chakra-stack fallback."
     }
   ]
 }

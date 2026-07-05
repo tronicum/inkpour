@@ -963,6 +963,22 @@ async function main() {
     assert(text.includes('TargetMode="External"'), 'external target mode missing');
   });
 
+  await test('mdToHTML renders task list checkboxes', () => {
+    const html = mdToHTML('- [x] Done item\n- [ ] Open item');
+    assert(html.includes('☑'),          'checked checkbox missing');
+    assert(html.includes('☐'),          'unchecked checkbox missing');
+    assert(html.includes('task-list'),  'task-list class missing');
+    assert(html.includes('task-done'),  'task-done class missing');
+  });
+
+  await test('buildDocx renders task list with symbols and strikethrough', () => {
+    const msgs = [{ role: 'Claude', content: '- [x] Done\n- [ ] Pending' }];
+    const text  = new TextDecoder().decode(buildDocx(msgs, 'T', 'claude'));
+    assert(text.includes('☑'),        'checked symbol missing');
+    assert(text.includes('☐'),        'unchecked symbol missing');
+    assert(text.includes('w:strike'), 'done items should have strikethrough');
+  });
+
   // ─── notesBlockMD ─────────────────────────────────────────────────────────
   await test('notesBlockMD returns empty string for empty input', () => {
     assert(notesBlockMD('') === '', 'empty string should return empty');

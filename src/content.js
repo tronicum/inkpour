@@ -317,6 +317,7 @@
     if (host.includes('phind.com'))                                          return 'phind';
     if (host.includes('notebooklm.google.com'))                             return 'notebooklm';
     if (host.includes('kagi.com'))                                          return 'kagi';
+    if (host.includes('venice.ai'))                                         return 'venice';
     return 'generic';
   }
 
@@ -886,6 +887,49 @@
       .filter(m => m.content);
   }
 
+  // Venice.ai (venice.ai) — Chakra UI + react-virtuoso
+  // DOM confirmed July 2026:
+  //   All turns live inside .chakra-stack (react-virtuoso scroll root)
+  //   AI turns:   .assistant > .assistant-content > .prose
+  //   User turns: direct children of chakra-stack that are NOT .assistant
+  //               (bare div/p with no assistant class)
+  function extractVenice() {
+    // Prefer explicit AI containers
+    const aiEls = Array.from(document.querySelectorAll('.assistant-content .prose, .assistant .prose'))
+      .map(el => ({ el, role: 'Venice' }));
+
+    // User messages: elements marked with aria or class patterns
+    const userEls = Array.from(document.querySelectorAll(
+      '[class*="userMessage"], [class*="user-message"], [class*="UserMessage"], ' +
+      '[data-role="user"], [aria-label*="user"], [aria-label*="You"]'
+    )).map(el => ({ el, role: 'You' }));
+
+    // Fallback: scan the chakra scroll root for alternating blocks
+    if (!aiEls.length && !userEls.length) {
+      const root = document.querySelector('.minds-chat-scroll-root, [class*="chakra-stack"]');
+      if (!root) return null;
+      const children = Array.from(root.children);
+      const combined = [];
+      for (const child of children) {
+        const isAI = child.classList.contains('assistant') ||
+                     child.querySelector('.assistant-content, .prose');
+        const prose = isAI && (child.querySelector('.prose') ?? child);
+        if (isAI && prose) {
+          combined.push({ el: prose, role: 'Venice' });
+        } else if (!isAI && child.textContent.trim()) {
+          combined.push({ el: child, role: 'You' });
+        }
+      }
+      return combined.map(({ el, role }) => ({ role, content: htmlToMarkdown(el) }))
+                     .filter(m => m.content);
+    }
+
+    return [...userEls, ...aiEls]
+      .sort(sortByDOMOrder)
+      .map(({ el, role }) => ({ role, content: htmlToMarkdown(el) }))
+      .filter(m => m.content);
+  }
+
   // Z.ai (chat.z.ai) — Zhipu AI / GLM-5, Svelte-based chat UI
   // Selectors confirmed by live DOM inspection:
   //   .chat-user    — user turn wrapper (plain text in whitespace-pre-wrap div)
@@ -1146,6 +1190,7 @@
       case 'phind':       messages = extractPhind();             break;
       case 'notebooklm':  messages = extractNotebookLM();        break;
       case 'kagi':        messages = extractKagi();              break;
+      case 'venice':      messages = extractVenice();            break;
       case 'googlesearch': messages = extractGoogleAISearch();   break;
       default:            break;
     }

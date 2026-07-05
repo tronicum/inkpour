@@ -90,6 +90,7 @@
     'NotebookLM':     ['notebooklm.google.com'],
     'Kagi':           ['kagi.com'],
     'Z.ai':           ['chat.z.ai'],
+    'Venice':         ['venice.ai'],
   };
 
   // Flat set of all supported hostnames — used to distinguish "wrong site" from

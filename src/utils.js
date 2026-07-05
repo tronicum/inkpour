@@ -60,7 +60,20 @@ function mdToHTML(md) {
     return `<table><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`;
   });
 
-  // 7. Lists — group consecutive list lines
+  // 7. Task lists (must come before regular lists)
+  md = md.replace(/((?:^- \[[ x]\] .+$\n?)+)/gm, match => {
+    const items = match.trim().split('\n').map(l => {
+      const done = /^- \[x\] /i.test(l);
+      const text = l.replace(/^- \[[ x]\] /i, '');
+      const box  = done
+        ? '<span class="task-done">☑</span>'
+        : '<span class="task-open">☐</span>';
+      return `<li class="${done ? 'task-done' : 'task-open'}">${box} ${text}</li>`;
+    }).join('');
+    return `<ul class="task-list">${items}</ul>`;
+  });
+
+  // 7b. Regular lists — group consecutive list lines
   md = md.replace(/((?:^\* .+$\n?)+)/gm, match => {
     const items = match.trim().split('\n')
       .map(l => `<li>${l.replace(/^\* /, '')}</li>`).join('');
@@ -163,6 +176,11 @@ function buildStandaloneHTML(messages, title, site) {
     .content pre code { background: transparent; padding: 0; }
     .content blockquote { border-left: 3px solid #d1d5db; margin: 0.6rem 0; padding: 0.3rem 0.9rem; color: #6b7280; font-style: italic; }
     .content hr { border: none; border-top: 1px solid #e5e7eb; margin: 1rem 0; }
+    .content .task-list { list-style: none; padding-left: 0.25rem; }
+    .content .task-list li { display: flex; align-items: baseline; gap: 0.4rem; margin: 0.2rem 0; }
+    .content .task-done { color: #16a34a; font-size: 1.1em; }
+    .content .task-open { color: #9ca3af; font-size: 1.1em; }
+    .content li.task-done > :not(span) { color: #9ca3af; text-decoration: line-through; }
     .inkpour-footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; text-align: center; font-size: 0.78rem; color: #9ca3af; font-family: system-ui, sans-serif; }
     .inkpour-footer a { color: inherit; text-decoration: none; }
     .inkpour-footer a:hover { text-decoration: underline; }
@@ -676,10 +694,22 @@ function _htmlToOOXML(html, fill = '') {
       continue;
     }
 
-    // ── Unordered list ──
-    if (/^<ul>/.test(raw)) {
-      for (const [, c] of raw.matchAll(/<li>([\s\S]*?)<\/li>/g)) {
-        out.push(_wPara(_wRun('• ') + _htmlInlineToRuns(c), '', '<w:ind w:left="440" w:hanging="280"/>', fill));
+    // ── Unordered list (including task lists) ──
+    if (/^<ul/.test(raw)) {
+      for (const [, cls, c] of raw.matchAll(/<li(?:\s+class="([^"]*)")?>([\s\S]*?)<\/li>/g)) {
+        const isTask = cls && cls.includes('task-');
+        const isDone = cls && cls.includes('task-done');
+        if (isTask) {
+          // Strip the <span class="task-...">☑/☐</span> — use text symbol instead
+          const text = c.replace(/<span[^>]*>[^<]*<\/span>\s*/g, '');
+          const symbol = _wRun(isDone ? '☑ ' : '☐ ', isDone ? { color: '16A34A' } : { color: '9CA3AF' });
+          const content = isDone
+            ? _wRun(_htmlDecodeText(text), { strike: true, color: '9CA3AF' })
+            : _htmlInlineToRuns(text);
+          out.push(_wPara(symbol + content, '', '<w:ind w:left="440" w:hanging="280"/>', fill));
+        } else {
+          out.push(_wPara(_wRun('• ') + _htmlInlineToRuns(c), '', '<w:ind w:left="440" w:hanging="280"/>', fill));
+        }
       }
       continue;
     }
@@ -748,79 +778,7 @@ function _wMsgLabel(role, accentColor, fill) {
   return `<w:p>${pPr}<w:r>${rPr}<w:t>${_xmlEsc(role)}</w:t></w:r></w:p>`;
 }
 
-/**
- * Convert markdown content string to a series of OOXML paragraph elements.
- */
-function _mdToOOXML(content) {
-  const lines = content.split('\n');
-  const out   = [];
-  let inFence = false;
-  let fenceLines = [];
-  let fenceLang  = '';
 
-  for (const raw of lines) {
-    // ── Code fence ──
-    if (/^```/.test(raw)) {
-      if (!inFence) {
-        inFence    = true;
-        fenceLang  = raw.slice(3).trim();
-        fenceLines = [];
-      } else {
-        inFence = false;
-        out.push(_wCodeBlock(fenceLines.join('\n'), fenceLang));
-        fenceLines = [];
-      }
-      continue;
-    }
-    if (inFence) { fenceLines.push(raw); continue; }
-
-    // ── Headings ──
-    const hm = raw.match(/^(#{1,6})\s+(.+)$/);
-    if (hm) {
-      const styleMap = ['', 'Heading1', 'Heading2', 'Heading3', 'Heading4', 'Heading5', 'Heading6'];
-      out.push(_wPara(_mdInlineToRuns(hm[2]), styleMap[hm[1].length] || 'Heading3'));
-      continue;
-    }
-
-    // ── Horizontal rule ──
-    if (/^-{3,}$/.test(raw.trim())) { out.push(_wHRule()); continue; }
-
-    // ── Blockquote ──
-    // IntenseQuote is a standard OOXML built-in — renders as indented italic in Word/Pages.
-    if (/^> /.test(raw)) {
-      out.push(_wPara(_mdInlineToRuns(raw.slice(2)), 'IntenseQuote'));
-      continue;
-    }
-
-    // ── Unordered list ──
-    if (/^[*\-] /.test(raw)) {
-      const inner = _mdInlineToRuns(raw.replace(/^[*\-] /, ''));
-      const bullet = _wRun('• ', { bold: false });
-      out.push(_wPara(bullet + inner, '', '<w:ind w:left="440" w:hanging="280"/>'));
-      continue;
-    }
-
-    // ── Ordered list ──
-    const olm = raw.match(/^(\d+)\. (.+)$/);
-    if (olm) {
-      const inner  = _mdInlineToRuns(olm[2]);
-      const prefix = _wRun(`${olm[1]}. `);
-      out.push(_wPara(prefix + inner, '', '<w:ind w:left="440" w:hanging="280"/>'));
-      continue;
-    }
-
-    // ── Empty line ──
-    if (!raw.trim()) { out.push(_wPara('', '', '<w:spacing w:before="0" w:after="60"/>')); continue; }
-
-    // ── Normal paragraph ──
-    out.push(_wPara(_mdInlineToRuns(raw)));
-  }
-
-  // Flush an open fence (malformed markdown)
-  if (inFence && fenceLines.length) out.push(_wCodeBlock(fenceLines.join('\n'), fenceLang));
-
-  return out.join('\n');
-}
 
 /**
  * Build a .docx (OOXML) archive from messages.
