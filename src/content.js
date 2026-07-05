@@ -84,6 +84,25 @@
         return inner ? `~~${inner}~~` : '';
       }
 
+      case 'mark': {
+        // Highlighted text — render as bold (no universal MD highlight syntax)
+        const inner = children().trim();
+        return inner ? `**${inner}**` : '';
+      }
+
+      case 'kbd': {
+        // Keyboard key — render as inline code
+        const inner = children().trim();
+        return inner ? `\`${inner}\`` : '';
+      }
+
+      case 'abbr': {
+        // Abbreviation — include title in parens if present
+        const inner = children().trim();
+        const title = node.getAttribute('title');
+        return title ? `${inner} (${title})` : inner;
+      }
+
       case 'sup': {
         const inner = children().trim();
         return inner ? `^${inner}^` : '';

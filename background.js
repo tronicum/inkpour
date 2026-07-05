@@ -143,8 +143,45 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
 
   if (info.menuItemId === 'inkpour-gist') {
     await doGistUpload(tab, settings, response, sourceUrl, filename);
+    doWebhook(settings, 'gist', response, wordCount);
+    return;
   }
+
+  // Fire webhook after context-menu exports
+  const menuFormatMap = {
+    'inkpour-md':   'md',
+    'inkpour-copy': 'copy-md',
+    'inkpour-json': 'json',
+    'inkpour-zip':  'zip',
+  };
+  const fmt = menuFormatMap[info.menuItemId];
+  if (fmt) doWebhook(settings, fmt, response, wordCount);
 });
+
+// ─── Webhook helper ───────────────────────────────────────────────────────
+
+function doWebhook(settings, format, response, wordCount) {
+  const url = (settings.webhookUrl || '').trim();
+  if (!url) return;
+  const record = {
+    source:       'inkpour',
+    id:           Date.now().toString(),
+    title:        response.title,
+    platform:     response.platform,
+    format,
+    messageCount: (response.messages || []).length,
+    wordCount,
+    exportedAt:   new Date().toISOString(),
+  };
+  // Optionally include the content — background.js doesn't have the built
+  // markdown/json at this point in all branches, so we omit content here.
+  // Content-inclusive webhooks should be configured via the popup export buttons.
+  fetch(url, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(record),
+  }).catch(() => {}); // best-effort
+}
 
 // ─── GitHub Gist upload helper ────────────────────────────────────────────
 
@@ -260,6 +297,20 @@ api.commands.onCommand.addListener(async (command) => {
 
   if (command === 'upload-gist') {
     await doGistUpload(tab, settings, response, sourceUrl, filename);
+    doWebhook(settings, 'gist', response, wordCount);
+    return; // gist handler already opened a tab + toasted
   }
+
+  // Fire webhook after non-gist commands (best-effort)
+  const formatMap = {
+    'export-markdown': 'md',
+    'export-pdf':      'pdf',
+    'copy-markdown':   'copy-md',
+    'copy-html':       'copy-html',
+    'export-json':     'json',
+    'export-zip':      'zip',
+  };
+  const fmt = formatMap[command];
+  if (fmt) doWebhook(settings, fmt, response, wordCount);
 });
 
