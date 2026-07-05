@@ -20,6 +20,7 @@
   const historyBtn   = document.getElementById('historyBtn');
   const settingsBtn2 = document.getElementById('settingsBtn2');
   const status       = document.getElementById('status');
+  const titleInput   = document.getElementById('titleInput');
   const gistLinkEl   = document.getElementById('gist-link');
   const lastExportEl = document.getElementById('last-export');
 
@@ -129,11 +130,33 @@
     setStatus(`Ready · ${n} message${n !== 1 ? 's' : ''}${roleNote} · ~${words.toLocaleString()} words${codeNote}`);
   }
 
+  function showTitleInput(title) {
+    if (!titleInput) return;
+    titleInput.value = title;
+    titleInput.style.display = 'block';
+    titleInput.hidden = false;
+  }
+
+  function hideTitleInput() {
+    if (!titleInput) return;
+    titleInput.style.display = 'none';
+    titleInput.hidden = true;
+  }
+
+  /** Return user-edited title if the field is visible, otherwise the original. */
+  function getEffectiveTitle(originalTitle) {
+    if (titleInput && !titleInput.hidden && titleInput.value.trim()) {
+      return titleInput.value.trim();
+    }
+    return originalTitle;
+  }
+
   async function runPeek() {
     try {
       const [tab] = await api.tabs.query({ active: true, currentWindow: true });
       if (!tab?.id) return;
       setStatus('Extracting…');
+      hideTitleInput();
       const response = await api.tabs.sendMessage(tab.id, { action: 'extract' });
       if (response?.error && !response.streaming) {
         setStatus(response.error, 'error');
@@ -147,6 +170,7 @@
         response.sourceUrl = tab.url || '';
         cachedData = response;
         updatePeekStatus(response);
+        showTitleInput(response.title);
       } else {
         clearStatus();
       }
@@ -369,8 +393,16 @@
   // ─── Shared extraction helper ─────────────────────────────────────────────
 
   async function extractFromPage() {
-    // Return cached extraction if available (populated by eager peek on open)
-    if (cachedData) return cachedData;
+    // Return cached extraction if available, applying any user title edit
+    if (cachedData) {
+      const effectiveTitle = getEffectiveTitle(cachedData.title);
+      if (effectiveTitle !== cachedData.title) {
+        // Re-derive filename slug from custom title
+        const customSlug = effectiveTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
+        return { ...cachedData, title: effectiveTitle, filename: customSlug };
+      }
+      return cachedData;
+    }
 
     let tab;
     try {
@@ -397,6 +429,8 @@
     // Attach the source tab URL so exports can include it
     response.sourceUrl = tab.url || '';
     cachedData = response;
+    showTitleInput(response.title);
+    response.title = getEffectiveTitle(response.title);
     return response; // { messages, title, site, filename, sourceUrl }
   }
 
