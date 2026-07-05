@@ -14,8 +14,10 @@
   const copyBtn     = document.getElementById('copyBtn');
   const copyHtmlBtn = document.getElementById('copyHtmlBtn');
   const jsonBtn     = document.getElementById('jsonBtn');
-  const settingsBtn = document.getElementById('settingsBtn');
-  const status      = document.getElementById('status');
+  const settingsBtn  = document.getElementById('settingsBtn');
+  const historyBtn   = document.getElementById('historyBtn');
+  const settingsBtn2 = document.getElementById('settingsBtn2');
+  const status       = document.getElementById('status');
   const lastExportEl = document.getElementById('last-export');
 
   // ─── Load user settings ───────────────────────────────────────────────────
@@ -116,11 +118,15 @@
   // ─── Settings ────────────────────────────────────────────────────────────
 
   settingsBtn.addEventListener('click', () => {
-    // Opens the extension's options page when one exists;
-    // placeholder until settings.html is built.
-    if (api.runtime.openOptionsPage) {
-      api.runtime.openOptionsPage();
-    }
+    if (api.runtime.openOptionsPage) api.runtime.openOptionsPage();
+  });
+
+  settingsBtn2?.addEventListener('click', () => {
+    if (api.runtime.openOptionsPage) api.runtime.openOptionsPage();
+  });
+
+  historyBtn?.addEventListener('click', () => {
+    api.tabs.create({ url: api.runtime.getURL('history.html') });
   });
 
   // ─── Markdown export ─────────────────────────────────────────────────────
@@ -133,7 +139,7 @@
       const md   = buildMarkdown(data.messages, data.title, data.site, userSettings);
       downloadFile(md, buildFilename(userSettings.filenameTemplate, data.platform, data.filename) + '.md', 'text/markdown;charset=utf-8');
       setStatus('✓ Saved — check your Downloads folder', 'success');
-      saveLastExport('md', data);
+      saveLastExport('md', data, md);
     } catch (err) {
       setStatus(err.message, err.streaming ? 'warning' : 'error');
     } finally {
@@ -151,7 +157,8 @@
       const bodyContent = buildPrintBodyHTML(data.messages, data.title, data.site);
       localStorage.setItem('inkpour_print', bodyContent);
       await api.tabs.create({ url: api.runtime.getURL('print.html') });
-      saveLastExport('pdf', data);
+      // For PDF, store the HTML body so history page can re-open the print tab
+      saveLastExport('pdf', data, bodyContent);
     } catch (err) {
       setStatus(err.message, err.streaming ? 'warning' : 'error');
       setLoading(pdfBtn, false);
@@ -169,7 +176,7 @@
       const fullHTML    = buildStandaloneHTML(bodyContent, data.title);
       downloadFile(fullHTML, buildFilename(userSettings.filenameTemplate, data.platform, data.filename) + '.html', 'text/html;charset=utf-8');
       setStatus('✓ Saved — check your Downloads folder', 'success');
-      saveLastExport('html', data);
+      saveLastExport('html', data, fullHTML);
     } catch (err) {
       setStatus(err.message, err.streaming ? 'warning' : 'error');
     } finally {
@@ -187,7 +194,7 @@
       const md   = buildMarkdown(data.messages, data.title, data.site, userSettings);
       await navigator.clipboard.writeText(md);
       setStatus('✓ Markdown copied to clipboard', 'success');
-      saveLastExport('copy-md', data);
+      saveLastExport('copy-md', data, md);
     } catch (err) {
       setStatus(err.message, err.streaming ? 'warning' : 'error');
     } finally {
@@ -206,7 +213,7 @@
       const fullHTML    = buildStandaloneHTML(bodyContent, data.title);
       await navigator.clipboard.writeText(fullHTML);
       setStatus('✓ HTML copied — paste into any editor', 'success');
-      saveLastExport('copy-html', data);
+      saveLastExport('copy-html', data, fullHTML);
     } catch (err) {
       setStatus(err.message, err.streaming ? 'warning' : 'error');
     } finally {
@@ -224,7 +231,7 @@
       const json  = buildJSON(data.messages, data.title, data.site, data.platform);
       downloadFile(json, buildFilename(userSettings.filenameTemplate, data.platform, data.filename) + '.json', 'application/json;charset=utf-8');
       setStatus('✓ Saved — check your Downloads folder', 'success');
-      saveLastExport('json', data);
+      saveLastExport('json', data, json);
     } catch (err) {
       setStatus(err.message, err.streaming ? 'warning' : 'error');
     } finally {
@@ -512,31 +519,48 @@ ${bodyContent}
 </html>`;
   }
 
-  // ─── Last-export persistence ──────────────────────────────────────────────
+  // ─── Export persistence (last hint + rolling history) ─────────────────────
 
   /**
-   * Persists a compact record of the most recent successful export to storage.
-   * Displayed on the next popup open as a subtle hint ("Last: claude · 24 msgs · 2h ago").
+   * Persists the most recent export as a compact hint AND prepends a full
+   * entry (including content) to the rolling inkpour_history array (max 20).
+   *
+   * @param {string} format  - 'md', 'pdf', 'html', 'json', 'copy-md', 'copy-html'
+   * @param {object} data    - { messages, title, platform, filename }
+   * @param {string} content - the actual exported string (for re-download)
    */
-  function saveLastExport(format, data) {
+  function saveLastExport(format, data, content = '') {
     const wordCount = data.messages
       .map(m => m.content.trim().split(/\s+/).filter(Boolean).length)
       .reduce((a, b) => a + b, 0);
-    api.storage.local.set({
-      inkpour_last_export: {
-        title:        data.title,
-        platform:     data.platform,
-        messageCount: data.messages.length,
-        wordCount,
-        format,
-        exportedAt:   new Date().toISOString(),
-      },
-    });
-    // Update the last-export hint live so it's correct if user keeps popup open
+
+    const record = {
+      id:           Date.now().toString(),
+      title:        data.title,
+      platform:     data.platform,
+      slug:         data.filename,
+      format,
+      messageCount: data.messages.length,
+      wordCount,
+      exportedAt:   new Date().toISOString(),
+      content,      // may be empty for PDF (handled separately via localStorage)
+    };
+
+    // Update last-export hint
+    api.storage.local.set({ inkpour_last_export: record });
     if (lastExportEl) {
+      const fmtLabel = format.toUpperCase().replace('-', ' ');
       lastExportEl.textContent =
-        `Last: ${data.platform} · ${data.messages.length} msgs · ${format.toUpperCase()} · just now`;
+        `Last: ${data.platform} · ${data.messages.length} msgs · ${fmtLabel} · just now`;
     }
+
+    // Prepend to rolling history (max 20 entries)
+    api.storage.local.get('inkpour_history').then((result) => {
+      const history = result?.inkpour_history ?? [];
+      history.unshift(record);
+      if (history.length > 20) history.splice(20);
+      api.storage.local.set({ inkpour_history: history });
+    }).catch(() => {});
   }
 
   /**

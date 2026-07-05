@@ -219,6 +219,27 @@
       opacity: 0.65;
       letter-spacing: 0.01em;
     }
+
+    /* ── Footer links ── */
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+    .footer-link {
+      font-size: 11px;
+      color: var(--subtext);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .footer-link:hover { color: var(--accent); }
   </style>
 </head>
 <body>
@@ -288,6 +309,11 @@
 
   <div id="status"></div>
   <div id="last-export"></div>
+
+  <div class="footer-links">
+    <button class="footer-link" id="historyBtn">⏱ History</button>
+    <button class="footer-link" id="settingsBtn2">⚙ Settings</button>
+  </div>
 
   <script src="popup.js"></script>
 </body>

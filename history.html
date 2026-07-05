@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inkpour — Export History</title>
+  <style>
+    :root {
+      --bg:       #ffffff;
+      --surface:  #f4f4f5;
+      --text:     #18181b;
+      --subtext:  #71717a;
+      --accent:   #5b5bd6;
+      --border:   #e4e4e7;
+      --success:  #16a34a;
+      --error:    #dc2626;
+      --radius:   10px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:      #18181b;
+        --surface: #27272a;
+        --text:    #fafafa;
+        --subtext: #a1a1aa;
+        --accent:  #818cf8;
+        --border:  #3f3f46;
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+      padding: 2rem;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 2rem;
+    }
+    .logo {
+      width: 38px; height: 38px;
+      background: var(--accent);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 14px; font-weight: 700;
+      letter-spacing: -1px; flex-shrink: 0;
+    }
+    .header-text h1 { font-size: 17px; font-weight: 700; }
+    .header-text p  { font-size: 11px; color: var(--subtext); margin-top: 1px; }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+      gap: 10px;
+    }
+    .count { font-size: 12px; color: var(--subtext); }
+    .btn-clear {
+      font-size: 12px;
+      color: var(--error);
+      background: none;
+      border: 1px solid var(--error);
+      border-radius: 7px;
+      padding: 5px 12px;
+      cursor: pointer;
+      opacity: 0.75;
+      transition: opacity 0.15s;
+    }
+    .btn-clear:hover { opacity: 1; }
+    .btn-clear:disabled { opacity: 0.35; cursor: default; }
+
+    /* ── Empty state ── */
+    .empty {
+      text-align: center;
+      padding: 4rem 0;
+      color: var(--subtext);
+    }
+    .empty p:first-child { font-size: 2rem; margin-bottom: 0.75rem; }
+    .empty p:last-child  { font-size: 13px; }
+
+    /* ── History list ── */
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .entry {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: border-color 0.15s;
+    }
+    .entry:hover { border-color: var(--accent); }
+
+    .entry-icon {
+      font-size: 18px;
+      line-height: 1;
+      flex-shrink: 0;
+      width: 26px;
+      text-align: center;
+    }
+
+    .entry-meta {
+      flex: 1;
+      min-width: 0;
+    }
+    .entry-title {
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 3px;
+    }
+    .entry-details {
+      font-size: 11px;
+      color: var(--subtext);
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    /* Platform + format badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 1px 7px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--subtext);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .badge.format-md   { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+    .badge.format-html { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+    .badge.format-json { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+    .badge.format-pdf  { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
+    .badge.format-copy-md   { background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe; }
+    .badge.format-copy-html { background: #fdf4ff; color: #9333ea; border-color: #e9d5ff; }
+    @media (prefers-color-scheme: dark) {
+      .badge.format-md   { background: #1e3a5f; color: #93c5fd; border-color: #1d4ed8; }
+      .badge.format-html { background: #431407; color: #fdba74; border-color: #9a3412; }
+      .badge.format-json { background: #052e16; color: #86efac; border-color: #166534; }
+      .badge.format-pdf  { background: #450a0a; color: #fca5a5; border-color: #991b1b; }
+      .badge.format-copy-md   { background: #2e1065; color: #c4b5fd; border-color: #5b21b6; }
+      .badge.format-copy-html { background: #3b0764; color: #d8b4fe; border-color: #7e22ce; }
+    }
+
+    /* ── Actions ── */
+    .entry-actions {
+      display: flex;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+    .btn-action {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 7px;
+      cursor: pointer;
+      border: 1.5px solid var(--accent);
+      background: transparent;
+      color: var(--accent);
+      transition: background 0.12s, color 0.12s;
+      white-space: nowrap;
+    }
+    .btn-action:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-action.secondary {
+      border-color: var(--border);
+      color: var(--subtext);
+    }
+    .btn-action.secondary:hover {
+      background: var(--border);
+      color: var(--text);
+    }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 2rem;
+      font-size: 11px;
+      text-align: center;
+      color: var(--subtext);
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">ip</div>
+    <div class="header-text">
+      <h1>Export History</h1>
+      <p>Last 20 exports — stored locally, never uploaded</p>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <span class="count" id="countLabel"></span>
+    <button class="btn-clear" id="clearBtn" disabled>Clear all</button>
+  </div>
+
+  <div id="content">
+    <div class="empty" id="emptyState" hidden>
+      <p>📭</p>
+      <p>No exports yet. Export a chat from the popup to see it here.</p>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+
+  <footer>
+    <a href="popup.html" id="backLink">← Back to popup</a>
+    &nbsp;·&nbsp;
+    Content stored in browser extension storage
+  </footer>
+
+  <script src="history.js"></script>
+</body>
+</html>

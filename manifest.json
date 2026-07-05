@@ -96,7 +96,7 @@
 
   "web_accessible_resources": [
     {
-      "resources": ["print.html"],
+      "resources": ["print.html", "history.html"],
       "matches": ["<all_urls>"]
     }
   ],
