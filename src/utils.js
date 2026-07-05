@@ -181,6 +181,10 @@ function buildStandaloneHTML(messages, title, site) {
     .content .task-done { color: #16a34a; font-size: 1.1em; }
     .content .task-open { color: #9ca3af; font-size: 1.1em; }
     .content li.task-done > :not(span) { color: #9ca3af; text-decoration: line-through; }
+    .content a { color: #5b5bd6; text-decoration: underline; text-underline-offset: 2px; }
+    .content a:hover { color: #4338ca; }
+    .content details { border-left: 3px solid #e5e7eb; padding-left: 0.75rem; margin: 0.5rem 0; }
+    .content summary { cursor: pointer; color: #6b7280; font-style: italic; user-select: none; margin-bottom: 0.3rem; }
     .inkpour-footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; text-align: center; font-size: 0.78rem; color: #9ca3af; font-family: system-ui, sans-serif; }
     .inkpour-footer a { color: inherit; text-decoration: none; }
     .inkpour-footer a:hover { text-decoration: underline; }
@@ -195,6 +199,10 @@ function buildStandaloneHTML(messages, title, site) {
       .content code { background: rgba(255,255,255,0.1); }
       .content blockquote { border-left-color: #52525b; color: #a1a1aa; }
       .content hr { border-top-color: #3f3f46; }
+      .content a { color: #818cf8; }
+      .content a:hover { color: #a5b4fc; }
+      .content details { border-left-color: #3f3f46; }
+      .content summary { color: #71717a; }
       .inkpour-footer { border-top-color: #3f3f46; color: #52525b; }
     }
   </style>
@@ -667,7 +675,7 @@ function _htmlToOOXML(html, fill = '') {
   const out = [];
 
   // Tokenise into block-level chunks
-  const BLOCK = /(<table[\s\S]*?<\/table>|<pre><code[^>]*>[\s\S]*?<\/code><\/pre>|<ul>[\s\S]*?<\/ul>|<ol>[\s\S]*?<\/ol>|<h[1-6]>[\s\S]*?<\/h[1-6]>|<blockquote>[\s\S]*?<\/blockquote>|<hr>|<p>[\s\S]*?<\/p>)/g;
+  const BLOCK = /(<details>[\s\S]*?<\/details>|<table[\s\S]*?<\/table>|<pre><code[^>]*>[\s\S]*?<\/code><\/pre>|<ul[^>]*>[\s\S]*?<\/ul>|<ol>[\s\S]*?<\/ol>|<h[1-6]>[\s\S]*?<\/h[1-6]>|<blockquote>[\s\S]*?<\/blockquote>|<hr>|<p>[\s\S]*?<\/p>)/g;
   let last = 0, m;
   const tokens = [];
   while ((m = BLOCK.exec(html)) !== null) {
@@ -680,6 +688,26 @@ function _htmlToOOXML(html, fill = '') {
   if (tail) tokens.push({ raw: tail, block: false });
 
   for (const { raw } of tokens) {
+    // ── Details / summary (collapsible section) ──
+    if (/^<details>/.test(raw)) {
+      const sumM  = raw.match(/<summary>([\s\S]*?)<\/summary>/);
+      const label = sumM ? _htmlDecodeText(sumM[1]) : 'Details';
+      // Label as italic bold paragraph with left border
+      const bdr   = `<w:pBdr><w:left w:val="single" w:sz="6" w:space="4" w:color="D4D4D8"/></w:pBdr>`;
+      out.push(`<w:p><w:pPr>${bdr}<w:spacing w:before="80" w:after="40"/></w:pPr><w:r><w:rPr><w:b/><w:i/><w:color w:val="71717A"/></w:rPr><w:t>${_xmlEsc(label)}</w:t></w:r></w:p>`);
+      // Body (everything after </summary>)
+      const bodyHtml = raw.replace(/<details>/, '').replace(/<\/details>$/, '')
+                          .replace(/<summary>[\s\S]*?<\/summary>/, '').trim();
+      if (bodyHtml) {
+        const bodyPPr = `<w:ind w:left="360"/>`;
+        const inner   = _htmlToOOXML(bodyHtml, fill);
+        // Indent all body paragraphs
+        out.push(inner.replace(/<w:pPr>/g, `<w:pPr>${bodyPPr}`)
+                      .replace(/<w:p>(?!<w:pPr>)/g, `<w:p><w:pPr>${bodyPPr}</w:pPr>`));
+      }
+      continue;
+    }
+
     // ── Table ──
     if (/^<table/.test(raw)) {
       out.push(_wTable(raw, fill));
