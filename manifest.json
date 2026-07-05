@@ -65,6 +65,10 @@
     },
     "export-zip": {
       "description": "Export current chat as ZIP (chat.md + code files)"
+    },
+    "export-docx": {
+      "suggested_key": { "default": "Alt+Shift+D", "mac": "Alt+Shift+D" },
+      "description": "Export current chat to Word document (.docx)"
     }
   },
 

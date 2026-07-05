@@ -318,6 +318,13 @@ api.commands.onCommand.addListener(async (command) => {
     api.downloads.download({ url, filename: withSubfolder(settings, filename + '.zip'), saveAs: false });
   }
 
+  if (command === 'export-docx') {
+    const docxBytes = buildDocx(response.messages, response.title, response.site, settings, sourceUrl);
+    const b64  = uint8ToBase64(docxBytes);
+    const url  = 'data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,' + b64;
+    api.downloads.download({ url, filename: withSubfolder(settings, filename + '.docx'), saveAs: false });
+  }
+
   if (command === 'upload-gist') {
     await doGistUpload(tab, settings, response, sourceUrl, filename);
     doWebhook(settings, 'gist', response, wordCount);
@@ -328,6 +335,7 @@ api.commands.onCommand.addListener(async (command) => {
   const formatMap = {
     'export-markdown': 'md',
     'export-pdf':      'pdf',
+    'export-docx':     'docx',
     'copy-markdown':   'copy-md',
     'copy-html':       'copy-html',
     'export-json':     'json',
