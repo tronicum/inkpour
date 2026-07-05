@@ -181,23 +181,21 @@ function buildMarkdown(messages, title, site, opts = {}, sourceUrl = '') {
   const isoDate = new Date().toISOString();
   let md = '';
 
-  if (opts.yamlFrontMatter) {
-    const safeTitle = title.replace(/"/g, '\\"');
-    const yamlWords = messages
-      .map(m => m.content.trim().split(/\s+/).filter(Boolean).length)
-      .reduce((a, b) => a + b, 0);
-    const urlLine  = sourceUrl ? `\nsource_url: "${sourceUrl}"` : '';
-    const tagsLine = opts.obsidianTags ? `\ntags: [ai-chat, ${site}]` : '';
-    md += `---\ntitle: "${safeTitle}"\nplatform: ${site}\nmessages: ${messages.length}\nwords: ${yamlWords}\ndate: ${isoDate}${urlLine}${tagsLine}\nexporter: inkpour\n---\n\n`;
-  }
-
   const wordCount = messages
     .map(m => m.content.trim().split(/\s+/).filter(Boolean).length)
     .reduce((a, b) => a + b, 0);
+  const readingMin = Math.max(1, Math.round(wordCount / 200));
+
+  if (opts.yamlFrontMatter) {
+    const safeTitle = title.replace(/"/g, '\\"');
+    const urlLine  = sourceUrl ? `\nsource_url: "${sourceUrl}"` : '';
+    const tagsLine = opts.obsidianTags ? `\ntags: [ai-chat, ${site}]` : '';
+    md += `---\ntitle: "${safeTitle}"\nplatform: ${site}\nmessages: ${messages.length}\nwords: ${wordCount}\nreading_time_min: ${readingMin}\ndate: ${isoDate}${urlLine}${tagsLine}\nexporter: inkpour\n---\n\n`;
+  }
 
   md += `# ${title}\n\n`;
   const srcNote = sourceUrl ? ` · [source](${sourceUrl})` : '';
-  md += `> Exported from **${site}** on ${date} · ${messages.length} messages · ~${wordCount.toLocaleString()} words${srcNote}\n\n---\n\n`;
+  md += `> Exported from **${site}** on ${date} · ${messages.length} messages · ~${wordCount.toLocaleString()} words · ~${readingMin} min read${srcNote}\n\n---\n\n`;
 
   if (opts.generateTOC && messages.length > 4) {
     const counters = {};
