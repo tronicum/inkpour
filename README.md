@@ -4,7 +4,7 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/tronicum/inkpour/ci.yml?branch=dev&style=flat-square&label=CI)](https://github.com/tronicum/inkpour/actions/workflows/ci.yml)
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL%20v3-blue?style=flat-square)](./LICENSE)
 [![MV3](https://img.shields.io/badge/Manifest-V3-5b5bd6?style=flat-square)](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json)
-[![Tests](https://img.shields.io/badge/tests-93%20passed-16a34a?style=flat-square)](./test/run-jsdom.js)
+[![Tests](https://img.shields.io/badge/tests-96%20passed-16a34a?style=flat-square)](./test/run-jsdom.js)
 
 **Export AI chat conversations to Markdown, PDF, HTML, JSON, or ZIP — one click, no accounts, no servers.**
 
@@ -90,9 +90,12 @@ Default: `{platform}-{title}`.
 - Platform chips in popup highlight the current site
 - Eager extraction on popup open — cached result reused for all buttons, no duplicate DOM crawl
 - Click the status bar to re-extract (useful after AI finishes generating)
-- Message-count peek on open: "Ready · 12 messages · 4u/8a · ~1,800 words · 3 code blocks"
+- Message-count peek on open: "Ready · 12 messages · 4u/8a · ~1,800 words · ~9 min read · 3 code blocks"
 - Last-export hint: "Last: claude · 12 msgs · MD · 2h ago"
 - Source URL included in markdown preamble (and in YAML front matter when enabled)
+- Reading time estimate (`~N min read`) in the preamble and popup status bar; `reading_time_min` field in YAML front matter
+- Personal notes field (click "+ Add notes"): free-text annotation prepended as a Markdown blockquote in MD/copy/Gist exports, included as a `notes` field in JSON
+- Selective export: click "☑ Select messages" to open a scrollable checkbox list — export only the turns you want. Quick-select buttons: All, None, User only, AI only
 - Streaming guard: warns if the AI is still generating instead of exporting an incomplete response
 - Auto-scroll: triggers lazy-loading of older messages on ChatGPT, Gemini, and AI Studio before extraction
 - In-page floating button (Shadow DOM, dark-mode aware) — export without opening the popup
@@ -136,7 +139,7 @@ git clone https://github.com/tronicum/inkpour.git
 ## Development
 
 ```bash
-npm test          # Run 93 JSDOM-based extraction tests (no browser needed)
+npm test          # Run 96 JSDOM-based extraction tests (no browser needed)
 ```
 
 ### Project structure
