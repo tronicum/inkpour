@@ -34,7 +34,7 @@
   api.storage.local.get('inkpour_settings', (result) => {
     userSettings = Object.assign({}, SETTING_DEFAULTS, result?.inkpour_settings ?? {});
     // Highlight default format button
-    const btnMap = { md: mdBtn, pdf: pdfBtn, html: htmlBtn, json: jsonBtn };
+    const btnMap = { md: mdBtn, pdf: pdfBtn, html: htmlBtn, json: jsonBtn, zip: zipBtn };
     const defaultBtn = btnMap[userSettings.defaultFormat];
     if (defaultBtn) defaultBtn.classList.add('default-format');
   });

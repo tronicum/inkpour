@@ -32,6 +32,12 @@ api.runtime.onInstalled.addListener(() => {
     title:    'Export JSON',
     contexts: ['page'],
   });
+  api.contextMenus.create({
+    id:       'inkpour-zip',
+    parentId: 'inkpour-parent',
+    title:    'Export ZIP (chat + code files)',
+    contexts: ['page'],
+  });
 });
 
 api.contextMenus.onClicked.addListener(async (info, tab) => {
@@ -69,6 +75,14 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
     const json = buildJSON(response.messages, response.title, response.site, response.platform);
     const url  = 'data:application/json;charset=utf-8,' + encodeURIComponent(json);
     api.downloads.download({ url, filename: filename + '.json', saveAs: false });
+  }
+
+  if (info.menuItemId === 'inkpour-zip') {
+    const { files } = buildZipExport(response.messages, response.title, response.site, settings, sourceUrl);
+    const zipBytes  = buildZip(files);
+    const b64  = btoa(String.fromCharCode(...zipBytes));
+    const url  = 'data:application/zip;base64,' + b64;
+    api.downloads.download({ url, filename: filename + '.zip', saveAs: false });
   }
 });
 

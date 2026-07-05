@@ -59,6 +59,7 @@
     'pdf':       'PDF',
     'html':      'HTML',
     'json':      'JSON',
+    'zip':       'ZIP',
     'copy-md':   'Copy MD',
     'copy-html': 'Copy HTML',
   };

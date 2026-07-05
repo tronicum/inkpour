@@ -4,9 +4,9 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/tronicum/inkpour/ci.yml?branch=dev&style=flat-square&label=CI)](https://github.com/tronicum/inkpour/actions/workflows/ci.yml)
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL%20v3-blue?style=flat-square)](./LICENSE)
 [![MV3](https://img.shields.io/badge/Manifest-V3-5b5bd6?style=flat-square)](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json)
-[![Tests](https://img.shields.io/badge/tests-64%20passed-16a34a?style=flat-square)](./test/run-jsdom.js)
+[![Tests](https://img.shields.io/badge/tests-70%20passed-16a34a?style=flat-square)](./test/run-jsdom.js)
 
-**Export AI chat conversations to Markdown, PDF, HTML, or JSON — one click, no accounts, no servers.**
+**Export AI chat conversations to Markdown, PDF, HTML, JSON, or ZIP — one click, no accounts, no servers.**
 
 Inkpour is a lightweight WebExtension (Manifest V3) that works in Firefox, Chrome, Edge, and Brave. Everything happens locally in your browser.
 
@@ -43,6 +43,7 @@ Experimental = selectors verified against fixture HTML; real-page accuracy needs
 - **PDF** — opens a clean, ad-free print-preview tab and triggers the browser print dialog
 - **HTML** — fully self-contained single file with dark/light mode, no external dependencies
 - **JSON** — structured `{ exporter, version, title, platform, exportedAt, messages[] }`
+- **ZIP** — `chat.md` + every code block extracted as its own file (`snippet-1.py`, `snippet-2.js`, …)
 
 ### Clipboard
 - **Copy MD** (`Alt+Shift+C`) — Markdown to clipboard instantly
@@ -52,37 +53,46 @@ Experimental = selectors verified against fixture HTML; real-page accuracy needs
 | Shortcut | Action |
 |---|---|
 | `Alt+Shift+M` | Export Markdown |
+| `Alt+Shift+P` | Export PDF |
 | `Alt+Shift+C` | Copy Markdown |
 | `Alt+Shift+H` | Copy HTML |
 | `Alt+Shift+J` | Export JSON |
+| `Alt+Shift+Z` | Export ZIP |
 
 ### Right-click context menu
-Right-click any supported page → **Export with Inkpour** → MD / Copy / JSON.
+Right-click any supported page → **Export with Inkpour** → MD / Copy / JSON / ZIP.
+
+### Export history
+Click **⏱ History** in the popup footer to see the last 20 exports. Filter by title or platform, re-download, or copy any previous export.
 
 ### Markdown quality
 Faithfully converts the full rich-text DOM:
 - Headings, bold, italic, strikethrough, inline code, fenced code blocks with language tags
-- Tables (GFM pipe format), nested lists, blockquotes
+- Tables (GFM pipe format, numeric columns right-aligned automatically)
+- Nested lists, blockquotes, `<hr>`
 - `<details>/<summary>` → collapsible blockquote (preserves Claude's extended thinking blocks)
 - KaTeX / MathJax → `$…$` / `$$…$$` LaTeX math
 - Citation superscripts (`<a><sup>1</sup></a>`) → `[^1]` footnotes with a **Sources:** section (Perplexity)
 - Figure + figcaption → `![alt](src)\n*caption*`
+- Images: `data:` URIs noted as `[embedded image]`, ephemeral `blob:` URLs noted as `[blob image — not persistent]`
 
 ### Filename templates
-Tokens: `{platform}`, `{title}`, `{date}` (YYYY-MM-DD), `{time}` (HH-MM). Default: `{platform}-{title}`.
+Tokens: `{platform}`, `{title}`, `{date}` (YYYY-MM-DD), `{time}` (HH-MM), `{url}` (page hostname).
+Default: `{platform}-{title}`.
 
 ### UX details
 - Platform chips in popup highlight the current site
 - Message-count peek on open: "Ready · 12 messages · ~1,800 words"
 - Last-export hint: "Last: claude · 12 msgs · MD · 2h ago"
+- Source URL included in markdown preamble (and in YAML front matter when enabled)
 - Streaming guard: warns if the AI is still generating instead of exporting an incomplete response
 - Auto-scroll: triggers lazy-loading of older messages on ChatGPT, Gemini, and AI Studio before extraction
 - In-page floating button (Shadow DOM, dark-mode aware) — export without opening the popup
 
 ### Settings
-- Default format preference
-- Filename template
-- YAML front matter (title, platform, date, URL, word count)
+- Default format preference (MD / PDF / HTML / JSON / ZIP)
+- Filename template with `{url}` support
+- YAML front matter (title, platform, date, source_url, word count)
 - Table of contents for long chats
 
 ---
@@ -113,24 +123,25 @@ git clone https://github.com/tronicum/inkpour.git
 ## Development
 
 ```bash
-npm test          # Run 64 JSDOM-based extraction tests (no browser needed)
+npm test          # Run 70 JSDOM-based extraction tests (no browser needed)
 ```
 
 ### Project structure
 
 ```
 inkpour/
-├── manifest.json          MV3 manifest (15 host_permissions, 4 commands)
-├── popup.html / popup.js  Popup UI + export logic
-├── background.js          Service worker: keyboard shortcuts + context menus
-├── settings.html / .js    Options page
-├── print.html / print.js  PDF print-preview tab
-├── icons/                 16 / 32 / 48 / 128 px PNGs
+├── manifest.json           MV3 manifest (15 host_permissions, 6 commands)
+├── popup.html / popup.js   Popup UI: MD/PDF/HTML/JSON/ZIP + Copy MD/HTML buttons
+├── background.js           Service worker: keyboard shortcuts + context menus + ZIP builder
+├── settings.html / .js     Options page (format, filename, YAML, TOC)
+├── print.html / print.js   PDF print-preview tab
+├── history.html / .js      Export history page with search and re-download
+├── icons/                  16 / 32 / 48 / 128 px PNGs
 ├── src/
-│   └── content.js         Extraction, htmlToMarkdown, in-page button (~1100 lines)
+│   └── content.js          Extraction, htmlToMarkdown, in-page button
 └── test/
-    ├── run-jsdom.js        JSDOM test harness (64 tests)
-    └── fixtures/           15 HTML fixtures — one per platform
+    ├── run-jsdom.js         JSDOM test harness (70 tests, 0 failures)
+    └── fixtures/            15 HTML fixtures — one per platform
 ```
 
 See [planning.md](./planning.md) for architecture decisions and next steps.

@@ -154,8 +154,12 @@
 
       case 'img': {
         const alt = node.getAttribute('alt') || '';
-        const src = node.getAttribute('src') || '';
-        return alt ? `![${alt}](${src})` : '';
+        let src   = node.getAttribute('src') || '';
+        // Skip embedded data URIs (too large for Markdown) and ephemeral blob URLs
+        if (src.startsWith('data:')) src = '[embedded image]';
+        else if (src.startsWith('blob:'))  src = '[blob image — not persistent]';
+        if (!src && !alt) return '';
+        return `![${alt}](${src})`;
       }
 
       case 'table': return convertTable(node);
