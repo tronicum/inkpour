@@ -288,6 +288,25 @@
         <option value="true">Public</option>
       </select>
     </div>
+
+    <div class="field">
+      <div class="field-label">
+        <strong>Webhook URL</strong>
+        <span>After each export, Inkpour sends a POST request here with export metadata (title, platform, format, word count). Works with n8n, Zapier, Make.com, or any HTTP endpoint.</span>
+      </div>
+      <input type="url" id="webhookUrl" placeholder="https://hooks.example.com/…" style="min-width:260px; font-family: monospace; font-size: 12px;" />
+    </div>
+
+    <div class="field">
+      <div class="field-label">
+        <strong>Include content in webhook</strong>
+        <span>Send the full exported text in the webhook payload (increases payload size significantly for long chats)</span>
+      </div>
+      <label class="toggle" for="webhookIncludeContent">
+        <input type="checkbox" id="webhookIncludeContent" role="switch" />
+        <div class="toggle-track"></div>
+      </label>
+    </div>
   </section>
 
   <div class="save-row">

@@ -42,8 +42,10 @@
     generateTOC:      false,
     downloadSubfolder: '',
     obsidianTags:      false,
-    githubToken:       '',
-    gistPublic:        false,
+    githubToken:          '',
+    gistPublic:           false,
+    webhookUrl:           '',
+    webhookIncludeContent: false,
   };
 
   api.storage.local.get('inkpour_settings', (result) => {
@@ -55,8 +57,10 @@
     document.getElementById('generateTOC').checked      = prefs.generateTOC;
     document.getElementById('downloadSubfolder').value  = prefs.downloadSubfolder;
     document.getElementById('obsidianTags').checked     = prefs.obsidianTags;
-    document.getElementById('githubToken').value        = prefs.githubToken;
-    document.getElementById('gistPublic').value         = String(prefs.gistPublic);
+    document.getElementById('githubToken').value             = prefs.githubToken;
+    document.getElementById('gistPublic').value              = String(prefs.gistPublic);
+    document.getElementById('webhookUrl').value              = prefs.webhookUrl;
+    document.getElementById('webhookIncludeContent').checked = prefs.webhookIncludeContent;
   });
 
   // ─── Save ─────────────────────────────────────────────────────────────────
@@ -70,8 +74,10 @@
       generateTOC:      document.getElementById('generateTOC').checked,
       downloadSubfolder: document.getElementById('downloadSubfolder').value.trim(),
       obsidianTags:      document.getElementById('obsidianTags').checked,
-      githubToken:       document.getElementById('githubToken').value.trim(),
-      gistPublic:        document.getElementById('gistPublic').value === 'true',
+      githubToken:           document.getElementById('githubToken').value.trim(),
+      gistPublic:            document.getElementById('gistPublic').value === 'true',
+      webhookUrl:            document.getElementById('webhookUrl').value.trim(),
+      webhookIncludeContent: document.getElementById('webhookIncludeContent').checked,
     };
     api.storage.local.set({ inkpour_settings: prefs }, () => {
       const el = document.getElementById('saveStatus');

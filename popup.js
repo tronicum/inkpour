@@ -32,8 +32,10 @@
     filenameTemplate:   '{platform}-{title}',
     downloadSubfolder:  '',   // e.g. "AI Chats" or "Obsidian/Exports"
     obsidianTags:       false, // add tags: [ai-chat, {platform}] to YAML
-    githubToken:        '',
-    gistPublic:         false,
+    githubToken:           '',
+    gistPublic:            false,
+    webhookUrl:            '',
+    webhookIncludeContent: false,
   };
   let userSettings = { ...SETTING_DEFAULTS };
 
@@ -449,6 +451,26 @@
 
       api.storage.local.set({ inkpour_history: history, inkpour_lifetime_stats: stats });
     }).catch(() => {});
+
+    // Fire webhook (best-effort, non-blocking)
+    doWebhook(record);
+  }
+
+  /**
+   * POST export metadata (and optionally content) to the configured webhook URL.
+   * Runs best-effort — errors are silently swallowed so they never break the export.
+   */
+  function doWebhook(record) {
+    const url = (userSettings.webhookUrl || '').trim();
+    if (!url) return;
+    const payload = userSettings.webhookIncludeContent
+      ? record
+      : (({ content, ...rest }) => rest)(record); // omit content if not requested
+    fetch(url, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ source: 'inkpour', ...payload }),
+    }).catch(() => {}); // best-effort
   }
 
   /**
