@@ -1368,6 +1368,9 @@
     <button class="menu-btn" id="inkpour-copy">
       <span class="icon">⎘</span> Copy MD
     </button>
+    <button class="menu-btn" id="inkpour-html">
+      <span class="icon">🌐</span> Export HTML
+    </button>
     <button class="menu-btn" id="inkpour-docx">
       <span class="icon">📄</span> Export DOCX
     </button>
@@ -1388,11 +1391,12 @@
     const menu    = shadow.getElementById('inkpour-menu');
     const mdBtn   = shadow.getElementById('inkpour-md');
     const cpBtn   = shadow.getElementById('inkpour-copy');
+    const htmlBtn = shadow.getElementById('inkpour-html');
     const docxBtn = shadow.getElementById('inkpour-docx');
     const pdfBtn  = shadow.getElementById('inkpour-pdf');
     const zipBtn  = shadow.getElementById('inkpour-zip');
     const status  = shadow.getElementById('inkpour-status');
-    const allBtns = [mdBtn, cpBtn, docxBtn, pdfBtn, zipBtn];
+    const allBtns = [mdBtn, cpBtn, htmlBtn, docxBtn, pdfBtn, zipBtn];
 
     // Toggle menu
     fab.addEventListener('click', (e) => {
@@ -1463,6 +1467,7 @@
 
     mdBtn.addEventListener('click', () => runExport('md'));
     cpBtn.addEventListener('click', () => runExport('copy'));
+    htmlBtn.addEventListener('click', () => runBgExport('html'));
     docxBtn.addEventListener('click', () => runBgExport('docx'));
     pdfBtn.addEventListener('click', () => runBgExport('pdf'));
     zipBtn.addEventListener('click', () => runBgExport('zip'));

@@ -96,8 +96,8 @@ Default: `{platform}-{title}`
 
 ### In-page floating button (Shadow DOM)
 - Injected on all supported pages; isolated via `attachShadow({ mode: 'open' })`
-- FAB (indigo circle, "ip") → expands menu: Export MD / Copy MD / Export DOCX / Export PDF / Export ZIP
-- DOCX, PDF, ZIP route through `inPageExport` message to background.js (SW builds + downloads)
+- FAB (indigo circle, "ip") → expands menu: Export MD / Copy MD / Export HTML / Export DOCX / Export PDF / Export ZIP
+- HTML, DOCX, PDF, ZIP route through `inPageExport` message to background.js (SW builds + downloads)
 - Dark-mode aware (CSS `prefers-color-scheme`)
 - SPA navigation: `MutationObserver` reinjects button on URL change
 

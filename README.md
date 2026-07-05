@@ -103,7 +103,7 @@ Default: `{platform}-{title}`.
 - Selective export: click "☑ Select messages" to open a scrollable checkbox list — export only the turns you want. Quick-select buttons: All, None, User only, AI only
 - Streaming guard: warns if the AI is still generating instead of exporting an incomplete response
 - Auto-scroll: triggers lazy-loading of older messages on ChatGPT, Gemini, and AI Studio before extraction
-- In-page floating button (Shadow DOM, dark-mode aware) — MD, Copy MD, DOCX, PDF, ZIP without opening the popup
+- In-page floating button (Shadow DOM, dark-mode aware) — MD / Copy MD / HTML / DOCX / PDF / ZIP without opening the popup
 - In-page toast notifications for keyboard shortcut feedback
 
 ### Settings
