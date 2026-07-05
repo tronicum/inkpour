@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Build & publish release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to create GitHub Releases
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read version from manifest
+        id: meta
+        run: |
+          VERSION=$(node -e "process.stdout.write(require('./manifest.json').version)")
+          NAME=$(node -e "process.stdout.write(require('./manifest.json').name)")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "name=$NAME"       >> $GITHUB_OUTPUT
+          echo "zip=inkpour-$VERSION.zip" >> $GITHUB_OUTPUT
+
+      - name: Verify tag matches manifest version
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"   # strip leading 'v'
+          MANIFEST="${{ steps.meta.outputs.version }}"
+          if [ "$TAG" != "$MANIFEST" ]; then
+            echo "✗ Tag $GITHUB_REF_NAME doesn't match manifest version $MANIFEST"
+            exit 1
+          fi
+          echo "✓ Tag and manifest version both: $MANIFEST"
+
+      - name: Build extension zip
+        run: |
+          zip -r "${{ steps.meta.outputs.zip }}" . \
+            --exclude '.git/*' \
+            --exclude '.github/*' \
+            --exclude '*.lock' \
+            --exclude 'planning.md'
+          echo "✓ Built ${{ steps.meta.outputs.zip }} ($(du -sh ${{ steps.meta.outputs.zip }} | cut -f1))"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "${{ steps.meta.outputs.name }} v${{ steps.meta.outputs.version }}"
+          files: ${{ steps.meta.outputs.zip }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true

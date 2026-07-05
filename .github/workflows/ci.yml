@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  validate:
+    name: Validate extension
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate manifest.json
+        run: |
+          node -e "
+            const fs = require('fs');
+            const m = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
+            const required = ['manifest_version', 'name', 'version', 'action', 'permissions'];
+            required.forEach(k => { if (!m[k]) throw new Error('manifest.json missing field: ' + k); });
+            if (m.manifest_version !== 3) throw new Error('Expected manifest_version 3, got ' + m.manifest_version);
+            if (!m.content_scripts?.length) throw new Error('No content_scripts defined');
+            console.log('✓ manifest.json — ' + m.name + ' v' + m.version + ' (MV3)');
+          "
+
+      - name: Check JS syntax
+        run: |
+          FILES=(
+            popup.js
+            print.js
+            settings.js
+            src/content.js
+            src/extractors/chatgpt.js
+            src/extractors/claude.js
+            src/extractors/gemini.js
+            src/extractors/aistudio.js
+            src/extractors/copilot.js
+            src/extractors/index.js
+            src/exporters/markdown.js
+            src/exporters/pdf.js
+            src/exporters/json.js
+            src/browser/index.js
+            src/browser/firefox.js
+            src/browser/safari.js
+          )
+          FAILED=0
+          for f in "${FILES[@]}"; do
+            if [ -f "$f" ]; then
+              if node --check "$f" 2>&1; then
+                echo "✓ $f"
+              else
+                echo "✗ $f"
+                FAILED=1
+              fi
+            else
+              echo "⚠ missing: $f"
+            fi
+          done
+          exit $FAILED
+
+      - name: Check required files exist
+        run: |
+          REQUIRED=(
+            manifest.json
+            popup.html popup.js
+            print.html print.js
+            settings.html settings.js
+            src/content.js
+            icons/icon-48.png
+            icons/icon-96.png
+          )
+          MISSING=0
+          for f in "${REQUIRED[@]}"; do
+            if [ ! -f "$f" ]; then
+              echo "✗ missing required file: $f"
+              MISSING=1
+            else
+              echo "✓ $f"
+            fi
+          done
+          exit $MISSING
