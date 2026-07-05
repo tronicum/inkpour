@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>HuggingChat</title></head>
+<body>
+  <!--
+    Simulates HuggingChat's DOM structure (huggingface.co/chat).
+    Uses data-message-role attributes, mirroring chat-ui's open-source rendering.
+    Experimental — selectors may need updating as chat-ui evolves.
+    Source: github.com/huggingface/chat-ui (Apache 2.0)
+  -->
+
+  <!-- User message -->
+  <div class="message-wrapper" data-message-role="user">
+    <div class="message-content whitespace-break-spaces">
+      What open-source LLMs run well on consumer GPUs? 🖥️
+    </div>
+  </div>
+
+  <!-- AI message -->
+  <div class="message-wrapper" data-message-role="assistant">
+    <div class="message-content prose">
+      <p>Several open-source models run well on consumer hardware:</p>
+      <ul>
+        <li><strong>Llama 3.2 (1B / 3B)</strong> — Meta's compact models, great for 8GB VRAM</li>
+        <li><strong>Mistral 7B / Mixtral 8×7B</strong> — strong reasoning at 7B scale</li>
+        <li><strong>Phi-3 Mini</strong> — Microsoft's efficient 3.8B model</li>
+        <li><strong>Gemma 2 (2B / 9B)</strong> — Google's open models with strong benchmarks</li>
+      </ul>
+      <p>For 4GB VRAM, use <strong>Q4 quantization</strong> via <code>llama.cpp</code> or Ollama.</p>
+      <pre><code class="language-bash">ollama run llama3.2:3b</code></pre>
+    </div>
+  </div>
+
+  <!-- Second user message -->
+  <div class="message-wrapper" data-message-role="user">
+    <div class="message-content whitespace-break-spaces">
+      Which one is best for coding tasks?
+    </div>
+  </div>
+
+  <!-- Second AI message -->
+  <div class="message-wrapper" data-message-role="assistant">
+    <div class="message-content prose">
+      <p>For coding on consumer hardware, top picks are:</p>
+      <ol>
+        <li><strong>DeepSeek-Coder-V2-Lite</strong> (16B, MoE) — best code quality in class</li>
+        <li><strong>Qwen2.5-Coder-7B</strong> — excellent for 8GB cards</li>
+        <li><strong>CodeLlama-7B</strong> — Meta's dedicated code model, wide format support</li>
+      </ol>
+      <p>Benchmark tip: check <em>HumanEval</em> and <em>MBPP</em> scores when comparing.</p>
+    </div>
+  </div>
+</body>
+</html>

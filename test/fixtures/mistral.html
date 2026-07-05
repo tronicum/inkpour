@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Mistral Le Chat</title></head>
+<body>
+  <!--
+    Simulates Mistral Le Chat's DOM structure (chat.mistral.ai).
+    Uses data-role attributes for role detection.
+    Experimental — selectors may need updating if Mistral changes its DOM.
+  -->
+
+  <!-- User message -->
+  <div class="conversation-turn" data-role="user">
+    <div class="turn-content">
+      <p>Explain gradient descent in machine learning 📉</p>
+    </div>
+  </div>
+
+  <!-- AI message -->
+  <div class="conversation-turn" data-role="assistant">
+    <div class="turn-content">
+      <p><strong>Gradient descent</strong> is an optimization algorithm used to minimize a loss function by iteratively adjusting model parameters.</p>
+      <p>The update rule is:</p>
+      <pre><code class="language-python">theta = theta - learning_rate * gradient(loss, theta)</code></pre>
+      <p>Key variants include:</p>
+      <ul>
+        <li><em>Batch gradient descent</em> — uses the full dataset per step</li>
+        <li><em>Stochastic gradient descent (SGD)</em> — one sample per step</li>
+        <li><em>Mini-batch gradient descent</em> — a small batch per step (most common)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Second user message -->
+  <div class="conversation-turn" data-role="user">
+    <div class="turn-content">
+      <p>What learning rate should I use?</p>
+    </div>
+  </div>
+
+  <!-- Second AI message -->
+  <div class="conversation-turn" data-role="assistant">
+    <div class="turn-content">
+      <p>Choosing the right learning rate is crucial:</p>
+      <ul>
+        <li>Too <strong>high</strong>: overshoots the minimum, diverges</li>
+        <li>Too <strong>low</strong>: converges very slowly</li>
+        <li>Typical range: <code>1e-4</code> to <code>1e-1</code></li>
+      </ul>
+      <p>Use a <strong>learning rate scheduler</strong> (e.g., cosine annealing, warmup) for best results in deep learning.</p>
+    </div>
+  </div>
+</body>
+</html>

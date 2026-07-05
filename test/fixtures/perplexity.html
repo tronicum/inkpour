@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>What is quantum entanglement? - Perplexity</title></head>
+<body>
+  <!--
+    Simulates Perplexity's DOM structure (perplexity.ai, as of 2026).
+    User queries use .whitespace-pre-line inside a query container.
+    AI answers use .prose inside an answer container.
+    Experimental — selectors may need updating if Perplexity changes its DOM.
+  -->
+
+  <!-- User query turn -->
+  <div class="break-words whitespace-pre-line" data-testid="query-text">
+    What is quantum entanglement? 🔬
+  </div>
+
+  <!-- AI answer turn — includes citation superscript links to test footnote extraction -->
+  <div data-testid="answer">
+    <div class="prose dark:prose-invert">
+      <p>Quantum entanglement is a phenomenon where two or more particles become <strong>correlated</strong> in such a way that the quantum state of each particle cannot be described independently.<a href="https://en.wikipedia.org/wiki/Quantum_entanglement"><sup>1</sup></a></p>
+      <ul>
+        <li><em>Non-local</em> — correlation persists regardless of distance<a href="https://arxiv.org/abs/quant-ph/0002007"><sup>2</sup></a></li>
+        <li><em>Instantaneous</em> — measuring one particle instantly affects the other</li>
+        <li><em>No faster-than-light communication</em> — cannot transmit information<a href="https://en.wikipedia.org/wiki/Quantum_entanglement"><sup>1</sup></a></li>
+      </ul>
+      <pre><code class="language-python">from qiskit import QuantumCircuit
+
+# Create a Bell state (maximally entangled pair)
+qc = QuantumCircuit(2)
+qc.h(0)    # Hadamard gate on qubit 0
+qc.cx(0, 1)  # CNOT: entangle qubit 0 and 1
+print(qc)</code></pre>
+    </div>
+  </div>
+
+  <!-- Second user query -->
+  <div class="break-words whitespace-pre-line" data-testid="query-text">
+    Can entanglement be used for teleportation? 🚀
+  </div>
+
+  <!-- Second AI answer -->
+  <div data-testid="answer">
+    <div class="prose dark:prose-invert">
+      <p><strong>Quantum teleportation</strong> is real but often misunderstood. It teleports <em>quantum state</em>, not matter or energy.</p>
+      <p>The process requires a classical communication channel alongside the entangled pair, making it impossible to use for faster-than-light signalling.</p>
+    </div>
+  </div>
+</body>
+</html>

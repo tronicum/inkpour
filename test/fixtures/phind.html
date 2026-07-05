@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Phind - AI Search and Developer Assistant</title></head>
+<body>
+  <!--
+    Simulates Phind's DOM structure (www.phind.com, as of 2026).
+    Phind blends web search results with AI answers. We target only the
+    conversational AI portions (user queries + AI responses), not the
+    web search result cards embedded in answers.
+    Experimental — selectors may need updating if Phind changes its DOM.
+  -->
+
+  <!-- User query -->
+  <div class="userMessage_container__xyz">
+    <div class="messageBody__abc">
+      <p>How do I implement a binary search tree in Python? 🌳</p>
+    </div>
+  </div>
+
+  <!-- Phind AI answer -->
+  <div class="phindAnswer_wrapper__xyz">
+    <div class="answerBody__abc">
+      <p>A <strong>Binary Search Tree (BST)</strong> is a node-based data structure where:</p>
+      <ul>
+        <li>Left subtree nodes have <em>smaller</em> values than the parent</li>
+        <li>Right subtree nodes have <em>larger</em> values than the parent</li>
+      </ul>
+      <pre><code class="language-python">class Node:
+    def __init__(self, value):
+        self.value = value
+        self.left  = None
+        self.right = None
+
+class BST:
+    def __init__(self):
+        self.root = None
+
+    def insert(self, value):
+        if not self.root:
+            self.root = Node(value)
+        else:
+            self._insert(self.root, value)
+
+    def _insert(self, node, value):
+        if value < node.value:
+            if node.left is None:
+                node.left = Node(value)
+            else:
+                self._insert(node.left, value)
+        else:
+            if node.right is None:
+                node.right = Node(value)
+            else:
+                self._insert(node.right, value)
+
+    def search(self, value):
+        return self._search(self.root, value)
+
+    def _search(self, node, value):
+        if node is None or node.value == value:
+            return node
+        if value < node.value:
+            return self._search(node.left, value)
+        return self._search(node.right, value)</code></pre>
+    </div>
+  </div>
+
+  <!-- Second user query -->
+  <div class="userMessage_container__xyz">
+    <div class="messageBody__abc">
+      <p>What is the time complexity of BST operations?</p>
+    </div>
+  </div>
+
+  <!-- Second Phind answer -->
+  <div class="phindAnswer_wrapper__xyz">
+    <div class="answerBody__abc">
+      <p>BST time complexities depend on the tree's balance:</p>
+      <table>
+        <thead>
+          <tr><th>Operation</th><th>Average</th><th>Worst (unbalanced)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Search</td><td>O(log n)</td><td>O(n)</td></tr>
+          <tr><td>Insert</td><td>O(log n)</td><td>O(n)</td></tr>
+          <tr><td>Delete</td><td>O(log n)</td><td>O(n)</td></tr>
+        </tbody>
+      </table>
+      <p>Use a <strong>self-balancing BST</strong> (AVL tree or Red-Black tree) for guaranteed O(log n) operations.</p>
+    </div>
+  </div>
+</body>
+</html>

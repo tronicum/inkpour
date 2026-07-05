@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Claude-3.5-Sonnet on Poe</title></head>
+<body>
+  <!--
+    Simulates Poe's DOM structure (poe.com, as of 2026).
+    Poe's Next.js frontend renders messages with CSS module class names
+    containing 'humanMessage' and 'botMessage' substrings.
+    Experimental — selectors may need updating if Poe changes its DOM.
+  -->
+
+  <!-- User message -->
+  <div class="Message_humanMessageBubble__xyz">
+    <div class="Message_messageText__abc">
+      <p>Explain the CAP theorem 🔺</p>
+    </div>
+  </div>
+
+  <!-- Bot message (Claude on Poe) -->
+  <div class="Message_botMessageBubble__xyz">
+    <div class="Message_messageText__abc">
+      <p>The <strong>CAP theorem</strong> (Brewer's theorem) states that a distributed system can only guarantee two of these three properties simultaneously:</p>
+      <ul>
+        <li><strong>Consistency</strong> — every read receives the most recent write</li>
+        <li><strong>Availability</strong> — every request receives a response (may not be latest)</li>
+        <li><strong>Partition tolerance</strong> — the system continues despite network partitions</li>
+      </ul>
+      <p>In practice, network partitions are unavoidable, so real systems must choose between <em>CP</em> (e.g., HBase, Zookeeper) and <em>AP</em> (e.g., DynamoDB, Cassandra).</p>
+    </div>
+  </div>
+
+  <!-- Second user message -->
+  <div class="Message_humanMessageBubble__xyz">
+    <div class="Message_messageText__abc">
+      <p>Show me a simple example of an eventually consistent store</p>
+    </div>
+  </div>
+
+  <!-- Second bot message -->
+  <div class="Message_botMessageBubble__xyz">
+    <div class="Message_messageText__abc">
+      <p>Here's a minimal eventually-consistent key-value store in Python:</p>
+      <pre><code class="language-python">class EventualStore:
+    def __init__(self):
+        self._data = {}
+        self._version = {}
+
+    def put(self, key, value):
+        self._version[key] = self._version.get(key, 0) + 1
+        self._data[key] = (value, self._version[key])
+
+    def get(self, key):
+        entry = self._data.get(key)
+        return entry[0] if entry else None
+
+    def merge(self, other):
+        """Last-write-wins based on version number."""
+        for k, (val, ver) in other._data.items():
+            own_ver = self._version.get(k, 0)
+            if ver > own_ver:
+                self._data[k] = (val, ver)
+                self._version[k] = ver</code></pre>
+    </div>
+  </div>
+</body>
+</html>

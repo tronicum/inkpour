@@ -38,7 +38,7 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
-      width: 300px;
+      width: 320px;
       padding: 18px;
       -webkit-font-smoothing: antialiased;
     }
@@ -128,6 +128,10 @@
       color: var(--accent-text);
       border-color: var(--accent);
     }
+    .chip.experimental {
+      border-style: dashed;
+      opacity: 0.7;
+    }
     .chips.detected .chip:not(.active) { opacity: 0.35; }
 
     /* ── Export section ── */
@@ -167,6 +171,7 @@
       color: var(--accent-text);
     }
     .btn:disabled { opacity: 0.45; cursor: default; }
+    .btn.default-format { background: var(--accent); color: var(--accent-text); }
 
     .btn .spinner {
       width: 12px;
@@ -183,6 +188,15 @@
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ── Secondary copy row ── */
+    .copy-group {
+      margin-top: 6px;
+    }
+    .copy-btn {
+      font-size: 12px;
+      padding: 7px 6px;
+    }
+
     /* ── Status message ── */
     #status {
       margin-top: 11px;
@@ -192,8 +206,19 @@
       color: var(--subtext);
       line-height: 1.4;
     }
-    #status.success { color: var(--success); }
-    #status.error   { color: var(--error); }
+    #status.success  { color: var(--success); }
+    #status.error    { color: var(--error); }
+    #status.warning  { color: #d97706; }
+
+    /* ── Last export hint ── */
+    #last-export {
+      margin-top: 6px;
+      font-size: 10.5px;
+      text-align: center;
+      color: var(--subtext);
+      opacity: 0.65;
+      letter-spacing: 0.01em;
+    }
   </style>
 </head>
 <body>
@@ -219,6 +244,16 @@
     <span class="chip">Gemini</span>
     <span class="chip">AI Studio</span>
     <span class="chip">Copilot</span>
+    <span class="chip">Grok</span>
+    <span class="chip experimental" title="Experimental support">Perplexity</span>
+    <span class="chip experimental" title="Experimental support">DeepSeek</span>
+    <span class="chip experimental" title="Experimental support">Meta AI</span>
+    <span class="chip experimental" title="Experimental support">Mistral</span>
+    <span class="chip experimental" title="Experimental support">HuggingChat</span>
+    <span class="chip experimental" title="Experimental support">Poe</span>
+    <span class="chip experimental" title="Experimental support">Phind</span>
+    <span class="chip experimental" title="Experimental support">NotebookLM</span>
+    <span class="chip experimental" title="Experimental support">Kagi</span>
   </div>
 
   <p class="export-label">Export as</p>
@@ -235,13 +270,24 @@
       <div class="spinner"></div>
       <span>HTML</span>
     </button>
-    <button class="btn" id="copyBtn" title="Copy Markdown to clipboard (Alt+Shift+C)">
+    <button class="btn" id="jsonBtn" title="Export to JSON (Alt+Shift+J)">
       <div class="spinner"></div>
-      <span>Copy</span>
+      <span>JSON</span>
+    </button>
+  </div>
+  <div class="btn-group copy-group">
+    <button class="btn copy-btn" id="copyBtn" title="Copy Markdown to clipboard (Alt+Shift+C)">
+      <div class="spinner"></div>
+      <span>Copy MD</span>
+    </button>
+    <button class="btn copy-btn" id="copyHtmlBtn" title="Copy standalone HTML to clipboard">
+      <div class="spinner"></div>
+      <span>Copy HTML</span>
     </button>
   </div>
 
   <div id="status"></div>
+  <div id="last-export"></div>
 
   <script src="popup.js"></script>
 </body>

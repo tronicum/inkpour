@@ -13,13 +13,16 @@ Inkpour is a lightweight WebExtension (Manifest V3) that saves conversations fro
 
 ## Supported platforms
 
-| Platform | URL |
-|---|---|
-| ChatGPT | chat.openai.com / chatgpt.com |
-| Claude | claude.ai |
-| Google Gemini | gemini.google.com |
-| Google AI Studio | aistudio.google.com |
-| Microsoft Copilot | copilot.microsoft.com |
+| Platform | URL | Status |
+|---|---|---|
+| ChatGPT | chatgpt.com / chat.openai.com | ✅ Full support |
+| Claude | claude.ai | ✅ Full support |
+| Google Gemini | gemini.google.com | ✅ Full support |
+| Google AI Studio | aistudio.google.com | ✅ Full support |
+| Microsoft Copilot | copilot.microsoft.com / copilot.com | ✅ Full support |
+| Grok | grok.com | ✅ Full support |
+| Perplexity | perplexity.ai | 🧪 Experimental |
+| DeepSeek | chat.deepseek.com | 🧪 Experimental |
 
 ---
 
@@ -127,15 +130,23 @@ inkpour/
 - [x] Markdown export
 - [x] PDF export (clean print preview, ad-free)
 - [x] HTML export (self-contained file)
+- [x] Markdown export
+- [x] PDF export (clean print preview, ad-free)
+- [x] HTML export (self-contained file)
 - [x] Copy to clipboard (popup button + Alt+Shift+C)
 - [x] Keyboard shortcuts (Alt+Shift+M export, Alt+Shift+C copy)
 - [x] Platform chip highlighting in popup
 - [x] Dark mode PDF preview and HTML export
-- [ ] YAML front matter (title, date, platform, URL)
+- [x] YAML front matter (opt-in via Settings)
+- [x] Default format preference (via Settings)
+- [x] Grok support
+- [x] Perplexity support (experimental)
+- [x] DeepSeek support (experimental)
+- [x] Strip "You said" / "Gemini said" UI labels from Gemini exports
+- [x] Title suffix cleanup (strips "- ChatGPT", "- Claude", etc.)
 - [ ] Table of contents for long conversations
 - [ ] In-page export button injected next to share button
 - [ ] Improved AI Studio extraction (Trifall edit-mode approach)
-- [ ] Gemini selector improvements
 - [ ] Google Search AI mode support
 - [ ] Safari / iOS support via Xcode Web Extension converter
 

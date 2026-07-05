@@ -39,6 +39,7 @@
     filenameTemplate: '{platform}-{title}',
     pdfAutoPrint:     true,
     yamlFrontMatter:  false,
+    generateTOC:      false,
   };
 
   api.storage.local.get('inkpour_settings', (result) => {
@@ -47,6 +48,7 @@
     document.getElementById('filenameTemplate').value  = prefs.filenameTemplate;
     document.getElementById('pdfAutoPrint').checked    = prefs.pdfAutoPrint;
     document.getElementById('yamlFrontMatter').checked = prefs.yamlFrontMatter;
+    document.getElementById('generateTOC').checked     = prefs.generateTOC;
   });
 
   // ─── Save ─────────────────────────────────────────────────────────────────
@@ -57,6 +59,7 @@
       filenameTemplate: document.getElementById('filenameTemplate').value.trim() || DEFAULTS.filenameTemplate,
       pdfAutoPrint:     document.getElementById('pdfAutoPrint').checked,
       yamlFrontMatter:  document.getElementById('yamlFrontMatter').checked,
+      generateTOC:      document.getElementById('generateTOC').checked,
     };
     api.storage.local.set({ inkpour_settings: prefs }, () => {
       const el = document.getElementById('saveStatus');

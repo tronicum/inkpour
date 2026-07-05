@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Meta AI</title></head>
+<body>
+  <!--
+    Simulates Meta AI's DOM structure (meta.ai).
+    Uses data-message-author attributes for stable role detection.
+    Experimental — selectors may need updating if Meta AI changes its DOM.
+  -->
+
+  <!-- User message -->
+  <div class="message-container" data-message-author="human">
+    <div class="message-text">
+      <p>What are the three laws of robotics? 🤖</p>
+    </div>
+  </div>
+
+  <!-- AI message -->
+  <div class="message-container" data-message-author="assistant">
+    <div class="message-text">
+      <p>Isaac Asimov's <strong>Three Laws of Robotics</strong> are:</p>
+      <ol>
+        <li>A robot may not injure a human being, or through inaction, allow a human being to come to harm.</li>
+        <li>A robot must obey orders given to it by human beings, except where such orders would conflict with the First Law.</li>
+        <li>A robot must protect its own existence, as long as such protection does not conflict with the First or Second Law.</li>
+      </ol>
+      <p>These were first introduced in his 1942 short story <em>Runaround</em>.</p>
+    </div>
+  </div>
+
+  <!-- Second user message -->
+  <div class="message-container" data-message-author="human">
+    <div class="message-text">
+      <p>Did Asimov add a fourth law later?</p>
+    </div>
+  </div>
+
+  <!-- Second AI message -->
+  <div class="message-container" data-message-author="assistant">
+    <div class="message-text">
+      <p>Yes — Asimov introduced a <strong>Zeroth Law</strong> in his 1985 novel <em>Robots and Empire</em>:</p>
+      <blockquote>A robot may not harm humanity, or, by inaction, allow humanity to come to harm.</blockquote>
+      <p>This law supersedes all three original laws. The robot Daneel Olivaw is central to its development in the story.</p>
+    </div>
+  </div>
+</body>
+</html>

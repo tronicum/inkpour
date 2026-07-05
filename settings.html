@@ -200,6 +200,7 @@
         <option value="md">Markdown (.md)</option>
         <option value="pdf">PDF</option>
         <option value="html">HTML</option>
+        <option value="json">JSON</option>
       </select>
     </div>
 
@@ -229,6 +230,17 @@
       </div>
       <label class="toggle">
         <input type="checkbox" id="yamlFrontMatter" />
+        <div class="toggle-track"></div>
+      </label>
+    </div>
+
+    <div class="field">
+      <div class="field-label">
+        <strong>Generate table of contents</strong>
+        <span>Prepend a clickable TOC for chats with more than 4 messages</span>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="generateTOC" />
         <div class="toggle-track"></div>
       </label>
     </div>

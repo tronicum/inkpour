@@ -12,17 +12,48 @@
   const pdfBtn      = document.getElementById('pdfBtn');
   const htmlBtn     = document.getElementById('htmlBtn');
   const copyBtn     = document.getElementById('copyBtn');
+  const copyHtmlBtn = document.getElementById('copyHtmlBtn');
+  const jsonBtn     = document.getElementById('jsonBtn');
   const settingsBtn = document.getElementById('settingsBtn');
   const status      = document.getElementById('status');
+  const lastExportEl = document.getElementById('last-export');
+
+  // ─── Load user settings ───────────────────────────────────────────────────
+
+  const SETTING_DEFAULTS = {
+    defaultFormat:    'md',
+    yamlFrontMatter:  false,
+    generateTOC:      false,
+    filenameTemplate: '{platform}-{title}',
+  };
+  let userSettings = { ...SETTING_DEFAULTS };
+
+  api.storage.local.get('inkpour_settings', (result) => {
+    userSettings = Object.assign({}, SETTING_DEFAULTS, result?.inkpour_settings ?? {});
+    // Highlight default format button
+    const btnMap = { md: mdBtn, pdf: pdfBtn, html: htmlBtn, json: jsonBtn };
+    const defaultBtn = btnMap[userSettings.defaultFormat];
+    if (defaultBtn) defaultBtn.classList.add('default-format');
+  });
 
   // ─── Chip highlighting — detect current platform on popup open ───────────
 
   const CHIP_HOSTS = {
-    'ChatGPT':    ['chatgpt.com', 'chat.openai.com'],
-    'Claude':     ['claude.ai'],
-    'Gemini':     ['gemini.google.com'],
-    'AI Studio':  ['aistudio.google.com'],
-    'Copilot':    ['copilot.microsoft.com'],
+    'ChatGPT':     ['chatgpt.com', 'chat.openai.com'],
+    'Claude':      ['claude.ai'],
+    'Gemini':      ['gemini.google.com'],
+    'AI Studio':   ['aistudio.google.com'],
+    'Copilot':     ['copilot.microsoft.com', 'copilot.com'],
+    'Grok':        ['grok.com'],
+    'Perplexity':  ['perplexity.ai'],
+    'DeepSeek':    ['chat.deepseek.com'],
+    'Meta AI':     ['meta.ai'],
+    'Mistral':     ['chat.mistral.ai'],
+    'HuggingChat': ['huggingface.co'],
+    'Poe':         ['poe.com'],
+    'Phind':       ['phind.com'],
+    'NotebookLM':  ['notebooklm.google.com'],
+    'Kagi':        ['kagi.com'],
   };
 
   (async () => {
@@ -45,6 +76,43 @@
     }
   })();
 
+  // ─── Last export hint ─────────────────────────────────────────────────────
+  // Show the most recent successful export as a subtle footer hint.
+
+  (async () => {
+    try {
+      const result = await api.storage.local.get('inkpour_last_export');
+      const last = result?.inkpour_last_export;
+      if (!last || !lastExportEl) return;
+      const when = formatRelativeTime(last.exportedAt);
+      const fmt  = last.format ? ` · ${last.format.toUpperCase()}` : '';
+      lastExportEl.textContent = `Last: ${last.platform} · ${last.messageCount} msgs${fmt} · ${when}`;
+    } catch {
+      // storage unavailable — ignore
+    }
+  })();
+
+  // ─── Message count peek ───────────────────────────────────────────────────
+  // Silently extract on popup open to show "Ready · N messages" before user clicks.
+  // Runs after chip detection so the active chip is visible while we load.
+
+  (async () => {
+    try {
+      const [tab] = await api.tabs.query({ active: true, currentWindow: true });
+      if (!tab?.id) return;
+      const response = await api.tabs.sendMessage(tab.id, { action: 'extract' });
+      if (response?.messages?.length) {
+        const n    = response.messages.length;
+        const words = response.messages
+          .map(m => m.content.trim().split(/\s+/).length)
+          .reduce((a, b) => a + b, 0);
+        setStatus(`Ready · ${n} message${n !== 1 ? 's' : ''} · ~${words.toLocaleString()} words`);
+      }
+    } catch {
+      // Not a supported page or content script not ready — stay silent
+    }
+  })();
+
   // ─── Settings ────────────────────────────────────────────────────────────
 
   settingsBtn.addEventListener('click', () => {
@@ -62,11 +130,12 @@
     setLoading(mdBtn, true);
     try {
       const data = await extractFromPage();
-      const md   = buildMarkdown(data.messages, data.title, data.site);
-      downloadFile(md, `${data.filename}.md`, 'text/markdown;charset=utf-8');
+      const md   = buildMarkdown(data.messages, data.title, data.site, userSettings);
+      downloadFile(md, buildFilename(userSettings.filenameTemplate, data.platform, data.filename) + '.md', 'text/markdown;charset=utf-8');
       setStatus('✓ Saved — check your Downloads folder', 'success');
+      saveLastExport('md', data);
     } catch (err) {
-      setStatus(err.message, 'error');
+      setStatus(err.message, err.streaming ? 'warning' : 'error');
     } finally {
       setLoading(mdBtn, false);
     }
@@ -82,8 +151,9 @@
       const bodyContent = buildPrintBodyHTML(data.messages, data.title, data.site);
       localStorage.setItem('inkpour_print', bodyContent);
       await api.tabs.create({ url: api.runtime.getURL('print.html') });
+      saveLastExport('pdf', data);
     } catch (err) {
-      setStatus(err.message, 'error');
+      setStatus(err.message, err.streaming ? 'warning' : 'error');
       setLoading(pdfBtn, false);
     }
   });
@@ -97,10 +167,11 @@
       const data        = await extractFromPage();
       const bodyContent = buildPrintBodyHTML(data.messages, data.title, data.site);
       const fullHTML    = buildStandaloneHTML(bodyContent, data.title);
-      downloadFile(fullHTML, `${data.filename}.html`, 'text/html;charset=utf-8');
+      downloadFile(fullHTML, buildFilename(userSettings.filenameTemplate, data.platform, data.filename) + '.html', 'text/html;charset=utf-8');
       setStatus('✓ Saved — check your Downloads folder', 'success');
+      saveLastExport('html', data);
     } catch (err) {
-      setStatus(err.message, 'error');
+      setStatus(err.message, err.streaming ? 'warning' : 'error');
     } finally {
       setLoading(htmlBtn, false);
     }
@@ -113,13 +184,51 @@
     setLoading(copyBtn, true);
     try {
       const data = await extractFromPage();
-      const md   = buildMarkdown(data.messages, data.title, data.site);
+      const md   = buildMarkdown(data.messages, data.title, data.site, userSettings);
       await navigator.clipboard.writeText(md);
-      setStatus('✓ Copied to clipboard', 'success');
+      setStatus('✓ Markdown copied to clipboard', 'success');
+      saveLastExport('copy-md', data);
     } catch (err) {
-      setStatus(err.message, 'error');
+      setStatus(err.message, err.streaming ? 'warning' : 'error');
     } finally {
       setLoading(copyBtn, false);
+    }
+  });
+
+  // ─── Copy as HTML ─────────────────────────────────────────────────────────
+
+  copyHtmlBtn.addEventListener('click', async () => {
+    clearStatus();
+    setLoading(copyHtmlBtn, true);
+    try {
+      const data        = await extractFromPage();
+      const bodyContent = buildPrintBodyHTML(data.messages, data.title, data.site);
+      const fullHTML    = buildStandaloneHTML(bodyContent, data.title);
+      await navigator.clipboard.writeText(fullHTML);
+      setStatus('✓ HTML copied — paste into any editor', 'success');
+      saveLastExport('copy-html', data);
+    } catch (err) {
+      setStatus(err.message, err.streaming ? 'warning' : 'error');
+    } finally {
+      setLoading(copyHtmlBtn, false);
+    }
+  });
+
+  // ─── JSON export ─────────────────────────────────────────────────────────
+
+  jsonBtn.addEventListener('click', async () => {
+    clearStatus();
+    setLoading(jsonBtn, true);
+    try {
+      const data = await extractFromPage();
+      const json  = buildJSON(data.messages, data.title, data.site, data.platform);
+      downloadFile(json, buildFilename(userSettings.filenameTemplate, data.platform, data.filename) + '.json', 'application/json;charset=utf-8');
+      setStatus('✓ Saved — check your Downloads folder', 'success');
+      saveLastExport('json', data);
+    } catch (err) {
+      setStatus(err.message, err.streaming ? 'warning' : 'error');
+    } finally {
+      setLoading(jsonBtn, false);
     }
   });
 
@@ -137,11 +246,12 @@
     try {
       response = await api.tabs.sendMessage(tab.id, { action: 'extract' });
     } catch {
-      throw new Error('Navigate to a supported AI chat page and make sure the conversation has loaded.');
+      throw new Error('Refresh the chat tab, then try again. (Content script not running — tab was open before the extension loaded.)');
     }
 
-    if (!response)         throw new Error('No response from page. Try refreshing the tab.');
-    if (response.error)    throw new Error(response.error);
+    if (!response)              throw new Error('No response from page. Try refreshing the tab.');
+    if (response.streaming)     throw Object.assign(new Error(response.error), { streaming: true });
+    if (response.error)         throw new Error(response.error);
     if (!response.messages?.length) throw new Error('No messages found.');
 
     return response; // { messages, title, site, filename }
@@ -149,14 +259,80 @@
 
   // ─── Markdown builder ─────────────────────────────────────────────────────
 
-  function buildMarkdown(messages, title, site) {
-    const date = new Date().toISOString().replace('T', ' ').slice(0, 19);
-    let md = `# ${title}\n\n`;
-    md += `> Exported from **${site}** on ${date}\n\n---\n\n`;
+  function buildMarkdown(messages, title, site, opts = {}) {
+    const date     = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    const isoDate  = new Date().toISOString();
+    let md = '';
+
+    if (opts.yamlFrontMatter) {
+      const safeTitle = title.replace(/"/g, '\\"');
+      const wordCount = messages
+        .map(m => m.content.trim().split(/\s+/).filter(Boolean).length)
+        .reduce((a, b) => a + b, 0);
+      md += `---\ntitle: "${safeTitle}"\nplatform: ${site}\nmessages: ${messages.length}\nwords: ${wordCount}\ndate: ${isoDate}\nurl: ${location?.href ?? ''}\nexporter: inkpour\n---\n\n`;
+    }
+
+    const wordCount = messages
+      .map(m => m.content.trim().split(/\s+/).filter(Boolean).length)
+      .reduce((a, b) => a + b, 0);
+
+    md += `# ${title}\n\n`;
+    md += `> Exported from **${site}** on ${date} · ${messages.length} messages · ~${wordCount.toLocaleString()} words\n\n---\n\n`;
+
+    // Optional table of contents for longer chats
+    if (opts.generateTOC && messages.length > 4) {
+      const counters = {};
+      md += `## Contents\n\n`;
+      for (const { role } of messages) {
+        counters[role] = (counters[role] || 0) + 1;
+        const n      = counters[role];
+        const anchor = `${role.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${n}`;
+        md += `- [${role} (${n})](#${anchor})\n`;
+      }
+      md += '\n---\n\n';
+    }
+
+    // Message sections — numbered when TOC is on so anchors are unique
+    const counters = {};
     for (const { role, content } of messages) {
-      md += `## ${role}\n\n${content.trim()}\n\n---\n\n`;
+      counters[role] = (counters[role] || 0) + 1;
+      const heading = opts.generateTOC
+        ? `## ${role} (${counters[role]})`
+        : `## ${role}`;
+      md += `${heading}\n\n${content.trim()}\n\n---\n\n`;
     }
     return md;
+  }
+
+  // ─── Filename builder ─────────────────────────────────────────────────────
+
+  /**
+   * Expands a filename template like "{platform}-{title}" into an actual filename slug.
+   * Supported tokens: {platform}, {title}, {date}
+   */
+  function buildFilename(template, platform, titleSlug) {
+    const date = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    return (template || '{platform}-{title}')
+      .replace(/\{platform\}/g, platform || 'chat')
+      .replace(/\{title\}/g,    titleSlug || 'export')
+      .replace(/\{date\}/g,     date)
+      .replace(/[^a-z0-9_\-]+/gi, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 100) || 'inkpour-export';
+  }
+
+  // ─── JSON builder ────────────────────────────────────────────────────────
+
+  function buildJSON(messages, title, site, platform) {
+    return JSON.stringify({
+      exporter:  'inkpour',
+      version:   1,
+      title,
+      platform,
+      site,
+      exportedAt: new Date().toISOString(),
+      messages: messages.map(({ role, content }) => ({ role, content })),
+    }, null, 2);
   }
 
   // ─── PDF body builder ─────────────────────────────────────────────────────
@@ -332,6 +508,49 @@ ${bodyContent}
 </body>
 </html>`;
   }
+
+  // ─── Last-export persistence ──────────────────────────────────────────────
+
+  /**
+   * Persists a compact record of the most recent successful export to storage.
+   * Displayed on the next popup open as a subtle hint ("Last: claude · 24 msgs · 2h ago").
+   */
+  function saveLastExport(format, data) {
+    const wordCount = data.messages
+      .map(m => m.content.trim().split(/\s+/).filter(Boolean).length)
+      .reduce((a, b) => a + b, 0);
+    api.storage.local.set({
+      inkpour_last_export: {
+        title:        data.title,
+        platform:     data.platform,
+        messageCount: data.messages.length,
+        wordCount,
+        format,
+        exportedAt:   new Date().toISOString(),
+      },
+    });
+    // Update the last-export hint live so it's correct if user keeps popup open
+    if (lastExportEl) {
+      lastExportEl.textContent =
+        `Last: ${data.platform} · ${data.messages.length} msgs · ${format.toUpperCase()} · just now`;
+    }
+  }
+
+  /**
+   * Returns a human-friendly relative time string ("just now", "5m ago", "2h ago", "3d ago").
+   */
+  function formatRelativeTime(isoString) {
+    const diff    = Date.now() - new Date(isoString).getTime();
+    const minutes = Math.floor(diff / 60_000);
+    if (minutes < 1)  return 'just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24)   return `${hours}h ago`;
+    const days  = Math.floor(hours / 24);
+    return `${days}d ago`;
+  }
+
+  // ─── Status helpers ───────────────────────────────────────────────────────
 
   function setStatus(message, type) {
     status.textContent = message;

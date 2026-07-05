@@ -2,17 +2,29 @@
   "manifest_version": 3,
   "name": "Inkpour",
   "version": "0.1.0",
-  "description": "Export AI chat conversations (ChatGPT, Claude, Gemini, Copilot) to Markdown, PDF and more.",
+  "description": "Export AI chat conversations (ChatGPT, Claude, Gemini, Copilot, and more) to Markdown, PDF, HTML or JSON.",
 
-  "permissions": ["activeTab", "tabs", "storage", "downloads"],
+  "permissions": ["activeTab", "tabs", "storage", "downloads", "clipboardWrite", "contextMenus"],
 
   "host_permissions": [
     "*://chat.openai.com/*",
     "*://chatgpt.com/*",
     "*://claude.ai/*",
     "*://copilot.microsoft.com/*",
+    "*://www.copilot.com/*",
+    "*://copilot.com/*",
     "*://gemini.google.com/*",
-    "*://aistudio.google.com/*"
+    "*://aistudio.google.com/*",
+    "*://grok.com/*",
+    "*://perplexity.ai/*",
+    "*://chat.deepseek.com/*",
+    "*://meta.ai/*",
+    "*://chat.mistral.ai/*",
+    "*://huggingface.co/chat*",
+    "*://poe.com/*",
+    "*://www.phind.com/*",
+    "*://notebooklm.google.com/*",
+    "*://kagi.com/*"
   ],
 
   "background": {
@@ -28,6 +40,14 @@
     "copy-markdown": {
       "suggested_key": { "default": "Alt+Shift+C", "mac": "Alt+Shift+C" },
       "description": "Copy current chat as Markdown to clipboard"
+    },
+    "copy-html": {
+      "suggested_key": { "default": "Alt+Shift+H", "mac": "Alt+Shift+H" },
+      "description": "Copy current chat as standalone HTML to clipboard"
+    },
+    "export-json": {
+      "suggested_key": { "default": "Alt+Shift+J", "mac": "Alt+Shift+J" },
+      "description": "Export current chat to JSON"
     }
   },
 
@@ -40,8 +60,10 @@
     "default_popup": "popup.html",
     "default_title": "Inkpour",
     "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
       "48": "icons/icon-48.png",
-      "96": "icons/icon-96.png"
+      "128": "icons/icon-128.png"
     }
   },
 
@@ -52,8 +74,20 @@
         "*://chatgpt.com/*",
         "*://claude.ai/*",
         "*://copilot.microsoft.com/*",
+        "*://www.copilot.com/*",
+        "*://copilot.com/*",
         "*://gemini.google.com/*",
-        "*://aistudio.google.com/*"
+        "*://aistudio.google.com/*",
+        "*://grok.com/*",
+        "*://perplexity.ai/*",
+        "*://chat.deepseek.com/*",
+        "*://meta.ai/*",
+        "*://chat.mistral.ai/*",
+        "*://huggingface.co/chat*",
+        "*://poe.com/*",
+        "*://www.phind.com/*",
+        "*://notebooklm.google.com/*",
+        "*://kagi.com/*"
       ],
       "js": ["src/content.js"],
       "run_at": "document_idle"
@@ -68,7 +102,9 @@
   ],
 
   "icons": {
-    "48": "icons/icon-48.png",
-    "96": "icons/icon-96.png"
+    "16":  "icons/icon-16.png",
+    "32":  "icons/icon-32.png",
+    "48":  "icons/icon-48.png",
+    "128": "icons/icon-128.png"
   }
 }

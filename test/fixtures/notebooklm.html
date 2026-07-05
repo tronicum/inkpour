@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>My Research Notes - NotebookLM</title></head>
+<body>
+  <!--
+    Simulates NotebookLM's DOM structure (notebooklm.google.com, as of 2026).
+    NotebookLM renders a chat "Ask a question" sidebar panel.
+    Experimental — selectors may need updating if Google changes the DOM.
+  -->
+
+  <!-- User question -->
+  <div data-message-role="user">
+    <p>What are the main themes in the uploaded documents? 📚</p>
+  </div>
+
+  <!-- NotebookLM AI response -->
+  <div data-message-role="assistant">
+    <p>Based on your uploaded sources, I identified <strong>three main themes</strong>:</p>
+    <ol>
+      <li><strong>Climate adaptation</strong> — both sources discuss regional strategies for resilience</li>
+      <li><strong>Policy frameworks</strong> — legislative approaches and international agreements</li>
+      <li><strong>Economic impact</strong> — cost-benefit analyses of mitigation vs. adaptation</li>
+    </ol>
+    <p>These themes appear consistently across all three uploaded PDFs.</p>
+  </div>
+
+  <!-- Second user question -->
+  <div data-message-role="user">
+    <p>Can you summarize the policy recommendations from source 2?</p>
+  </div>
+
+  <!-- Second NotebookLM response -->
+  <div data-message-role="assistant">
+    <p>Source 2 recommends a <strong>three-pronged policy approach</strong>:</p>
+    <ul>
+      <li>Carbon pricing at <em>$85 per tonne</em> by 2030</li>
+      <li>Mandatory corporate disclosure of climate risk</li>
+      <li>Green infrastructure investment of 2% of GDP annually</li>
+    </ul>
+    <pre><code class="language-text">Recommended timeline:
+  2025-2027: Pilot carbon pricing schemes
+  2028-2030: National rollout at $85/tonne
+  2031+:     International harmonisation</code></pre>
+    <p>The authors note that without coordinated international action, domestic measures alone achieve only <em>40% of required reductions</em>.</p>
+  </div>
+</body>
+</html>

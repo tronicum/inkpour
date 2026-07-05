@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>DeepSeek Chat</title></head>
+<body>
+  <!--
+    Simulates DeepSeek's DOM structure (chat.deepseek.com, as of 2026).
+    Messages use data-role attributes on container divs.
+    Experimental — selectors may need updating if DeepSeek changes its DOM.
+  -->
+
+  <!-- User message -->
+  <div class="message" data-role="user">
+    <div class="message-content">
+      <p>Explain the difference between TCP and UDP 🌐</p>
+    </div>
+  </div>
+
+  <!-- AI message -->
+  <div class="message" data-role="assistant">
+    <div class="message-content">
+      <p><strong>TCP (Transmission Control Protocol)</strong> and <strong>UDP (User Datagram Protocol)</strong> are the two main transport layer protocols.</p>
+      <table>
+        <thead>
+          <tr><th>Feature</th><th>TCP</th><th>UDP</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Connection</td><td>Connection-oriented</td><td>Connectionless</td></tr>
+          <tr><td>Reliability</td><td>Guaranteed delivery</td><td>Best-effort</td></tr>
+          <tr><td>Speed</td><td>Slower (overhead)</td><td>Faster (no handshake)</td></tr>
+          <tr><td>Use cases</td><td>HTTP, FTP, SSH</td><td>DNS, video streaming</td></tr>
+        </tbody>
+      </table>
+      <pre><code class="language-python">import socket
+
+# TCP example
+tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+tcp.connect(('example.com', 80))
+
+# UDP example
+udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+udp.sendto(b'hello', ('8.8.8.8', 53))</code></pre>
+    </div>
+  </div>
+
+  <!-- Second user message -->
+  <div class="message" data-role="user">
+    <div class="message-content">
+      <p>When should I use UDP over TCP?</p>
+    </div>
+  </div>
+
+  <!-- Second AI message -->
+  <div class="message" data-role="assistant">
+    <div class="message-content">
+      <p>Choose UDP when:</p>
+      <ul>
+        <li><em>Low latency matters more than reliability</em> — live video, gaming, VoIP</li>
+        <li><em>Loss is tolerable</em> — a dropped frame in video is better than delay</li>
+        <li><em>Broadcast/multicast</em> — sending to multiple hosts simultaneously</li>
+        <li><em>Simple request-response</em> — DNS lookups (fast, one packet each way)</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

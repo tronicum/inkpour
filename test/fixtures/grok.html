@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Grok Test Fixture - Grok</title></head>
+<body>
+  <!--
+    Simulates Grok's DOM structure (grok.com, as of 2026).
+    Message containers: div[id^="response-"]
+    User messages have class "items-end" (Tailwind flex alignment).
+    AI responses contain div.response-content-markdown.
+    Reference: revivalstack/ai-chat-exporter (MIT)
+  -->
+
+  <!-- User turn: items-end class marks it as user -->
+  <div id="response-1" class="flex flex-col items-end">
+    <div class="response-content-markdown">
+      <p>What is the speed of light? ⚡</p>
+    </div>
+  </div>
+
+  <!-- Grok AI turn: no items-end -->
+  <div id="response-2" class="flex flex-col">
+    <div class="response-content-markdown">
+      <p>The speed of light in a vacuum is approximately <strong>299,792,458 metres per second</strong> (roughly 300,000 km/s).</p>
+      <p>Key facts:</p>
+      <ul>
+        <li>Denoted as <em>c</em> in physics</li>
+        <li>Exact by definition since 1983</li>
+        <li>Nothing with mass can reach or exceed it</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- User follow-up -->
+  <div id="response-3" class="flex flex-col items-end">
+    <div class="response-content-markdown">
+      <p>Show me the formula for relativistic mass increase.</p>
+    </div>
+  </div>
+
+  <!-- Grok AI response with code block -->
+  <div id="response-4" class="flex flex-col">
+    <div class="response-content-markdown">
+      <p>The relativistic mass formula is:</p>
+      <pre><code class="language-python">import math
+
+def relativistic_mass(rest_mass, velocity):
+    c = 299_792_458  # m/s
+    gamma = 1 / math.sqrt(1 - (velocity / c) ** 2)
+    return rest_mass * gamma</code></pre>
+    </div>
+  </div>
+</body>
+</html>

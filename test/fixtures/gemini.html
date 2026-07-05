@@ -2,35 +2,52 @@
 <html lang="en">
 <head><meta charset="UTF-8"><title>Gemini — Test Fixture</title></head>
 <body>
-  <!-- Simulates Gemini's custom element structure -->
+  <!--
+    Simulates Gemini's real DOM structure (as of 2026).
+    user-query contains a "You said" label div + div.query-content for the actual text.
+    model-response contains a "Gemini said" label div + <message-content> for the actual response.
+    The extractor should target div.query-content and message-content, skipping the labels.
+  -->
 
   <user-query>
-    <p>What makes a good unit test? ✅</p>
+    <div class="role-label">You said</div>
+    <div class="query-content">
+      <p>What makes a good unit test? ✅</p>
+    </div>
   </user-query>
 
   <model-response>
-    <p>A good unit test is <strong>fast</strong>, <strong>isolated</strong>, and <strong>deterministic</strong>.</p>
-    <p>Key properties:</p>
-    <ul>
-      <li><em>Fast</em> — runs in milliseconds, no I/O or network</li>
-      <li><em>Isolated</em> — tests one thing, no shared state</li>
-      <li><em>Readable</em> — clearly expresses intent (Arrange / Act / Assert)</li>
-      <li><em>Reliable</em> — same result every run, no flakiness</li>
-    </ul>
+    <div class="role-label">Gemini said</div>
+    <message-content>
+      <p>A good unit test is <strong>fast</strong>, <strong>isolated</strong>, and <strong>deterministic</strong>.</p>
+      <p>Key properties:</p>
+      <ul>
+        <li><em>Fast</em> — runs in milliseconds, no I/O or network</li>
+        <li><em>Isolated</em> — tests one thing, no shared state</li>
+        <li><em>Readable</em> — clearly expresses intent (Arrange / Act / Assert)</li>
+        <li><em>Reliable</em> — same result every run, no flakiness</li>
+      </ul>
+    </message-content>
   </model-response>
 
   <user-query>
-    <p>Give me a bad example 😬</p>
+    <div class="role-label">You said</div>
+    <div class="query-content">
+      <p>Give me a bad example 😬</p>
+    </div>
   </user-query>
 
   <model-response>
-    <pre><code class="language-javascript">// Bad: tests multiple things, relies on external state
+    <div class="role-label">Gemini said</div>
+    <message-content>
+      <pre><code class="language-javascript">// Bad: tests multiple things, relies on external state
 test('user', async () => {
   const user = await db.find(1);         // network dep
   expect(user.name).toBe('Alice');       // test 1
   expect(user.email).toContain('@'));    // test 2
   expect(sendWelcomeEmail(user)).toBe(true); // side effect
 });</code></pre>
+    </message-content>
   </model-response>
 </body>
 </html>
