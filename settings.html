@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inkpour — Settings</title>
+  <style>
+    :root {
+      --bg:       #ffffff;
+      --surface:  #f4f4f5;
+      --text:     #18181b;
+      --subtext:  #71717a;
+      --accent:   #5b5bd6;
+      --border:   #e4e4e7;
+      --success:  #16a34a;
+      --radius:   10px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:      #18181b;
+        --surface: #27272a;
+        --text:    #fafafa;
+        --subtext: #a1a1aa;
+        --accent:  #818cf8;
+        --border:  #3f3f46;
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+      padding: 2rem;
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 2rem;
+    }
+    .logo {
+      width: 40px; height: 40px;
+      background: var(--accent);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 15px; font-weight: 700;
+      letter-spacing: -1px; flex-shrink: 0;
+    }
+    .header h1 { font-size: 18px; font-weight: 700; }
+    .header p  { font-size: 12px; color: var(--subtext); margin-top: 1px; }
+
+    /* ── Browser badge ── */
+    .browser-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      margin-bottom: 1.75rem;
+    }
+    .browser-icon { font-size: 22px; line-height: 1; }
+    .browser-info { flex: 1; }
+    .browser-info strong { display: block; font-size: 13px; }
+    .browser-info span   { font-size: 11px; color: var(--subtext); }
+    .badge {
+      font-size: 11px; font-weight: 600;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 20px;
+      padding: 2px 10px;
+    }
+
+    /* ── Section ── */
+    section { margin-bottom: 1.75rem; }
+    section h2 {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--subtext);
+      margin-bottom: 10px;
+    }
+
+    /* ── Field ── */
+    .field {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--border);
+      gap: 12px;
+    }
+    .field:last-child { border-bottom: none; }
+    .field-label { flex: 1; }
+    .field-label strong { display: block; font-size: 13px; font-weight: 600; }
+    .field-label span   { font-size: 11px; color: var(--subtext); }
+
+    select, input[type="text"] {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      min-width: 140px;
+    }
+    select:focus, input[type="text"]:focus {
+      border-color: var(--accent);
+    }
+
+    /* ── Toggle ── */
+    .toggle {
+      position: relative;
+      width: 40px; height: 22px;
+      flex-shrink: 0;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-track {
+      position: absolute; inset: 0;
+      background: var(--border);
+      border-radius: 99px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .toggle-track::after {
+      content: '';
+      position: absolute;
+      left: 3px; top: 3px;
+      width: 16px; height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    .toggle input:checked + .toggle-track { background: var(--accent); }
+    .toggle input:checked + .toggle-track::after { transform: translateX(18px); }
+
+    /* ── Save button ── */
+    .save-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 0.5rem;
+    }
+    .btn-save {
+      padding: 9px 22px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn-save:hover { opacity: 0.88; }
+    #saveStatus { font-size: 12px; color: var(--success); }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">ip</div>
+    <div>
+      <h1>Inkpour Settings</h1>
+      <p>Preferences are saved locally in your browser</p>
+    </div>
+  </div>
+
+  <!-- Detected browser -->
+  <div class="browser-row">
+    <div class="browser-icon" id="browserIcon">🌐</div>
+    <div class="browser-info">
+      <strong id="browserName">Detecting…</strong>
+      <span id="browserNote"></span>
+    </div>
+    <div class="badge" id="browserBadge">Auto-detected</div>
+  </div>
+
+  <!-- Export defaults -->
+  <section>
+    <h2>Export</h2>
+
+    <div class="field">
+      <div class="field-label">
+        <strong>Default format</strong>
+        <span>Which button gets keyboard focus first</span>
+      </div>
+      <select id="defaultFormat">
+        <option value="md">Markdown (.md)</option>
+        <option value="pdf">PDF</option>
+        <option value="html">HTML</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <div class="field-label">
+        <strong>Filename template</strong>
+        <span>Tokens: {platform} {title} {date}</span>
+      </div>
+      <input type="text" id="filenameTemplate" value="{platform}-{title}" style="min-width:160px" />
+    </div>
+
+    <div class="field">
+      <div class="field-label">
+        <strong>PDF auto-print</strong>
+        <span>Open print dialog automatically after PDF tab loads</span>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="pdfAutoPrint" checked />
+        <div class="toggle-track"></div>
+      </label>
+    </div>
+
+    <div class="field">
+      <div class="field-label">
+        <strong>Include YAML front matter</strong>
+        <span>Adds title, date, platform, URL to top of .md files</span>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="yamlFrontMatter" />
+        <div class="toggle-track"></div>
+      </label>
+    </div>
+  </section>
+
+  <div class="save-row">
+    <button class="btn-save" id="saveBtn">Save</button>
+    <span id="saveStatus"></span>
+  </div>
+
+  <script src="settings.js"></script>
+</body>
+</html>

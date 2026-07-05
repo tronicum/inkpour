@@ -49,6 +49,7 @@
       align-items: center;
       gap: 11px;
       margin-bottom: 14px;
+      position: relative;
     }
     .logo {
       width: 36px;
@@ -76,6 +77,29 @@
       margin-top: 1px;
     }
 
+    /* ── Settings button ── */
+    .settings-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: none;
+      border: none;
+      padding: 4px;
+      cursor: pointer;
+      color: var(--subtext);
+      border-radius: 6px;
+      line-height: 0;
+      transition: color 0.15s, background 0.15s;
+    }
+    .settings-btn:hover {
+      color: var(--text);
+      background: var(--surface);
+    }
+    .settings-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
     /* ── Divider ── */
     hr {
       border: none;
@@ -99,35 +123,56 @@
       padding: 2px 9px;
     }
 
-    /* ── Export button ── */
+    /* ── Export section ── */
+    .export-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--subtext);
+      margin-bottom: 8px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 7px;
+    }
+
     .btn {
-      width: 100%;
-      padding: 10px;
-      background: var(--accent);
-      color: var(--accent-text);
-      border: none;
+      flex: 1;
+      padding: 9px 6px;
       border-radius: var(--radius);
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.15s, opacity 0.15s;
+      transition: background 0.15s, color 0.15s, opacity 0.15s;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 7px;
+      gap: 5px;
+      background: transparent;
+      color: var(--accent);
+      border: 1.5px solid var(--accent);
+      white-space: nowrap;
     }
-    .btn:hover:not(:disabled) { background: var(--accent-hover); }
-    .btn:disabled { opacity: 0.55; cursor: default; }
+    .btn:hover:not(:disabled) {
+      background: var(--accent);
+      color: var(--accent-text);
+    }
+    .btn:disabled { opacity: 0.45; cursor: default; }
+
     .btn .spinner {
-      width: 14px;
-      height: 14px;
-      border: 2px solid rgba(255,255,255,0.35);
-      border-top-color: var(--accent-text);
+      width: 12px;
+      height: 12px;
+      border: 2px solid currentColor;
+      border-top-color: transparent;
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
       display: none;
+      flex-shrink: 0;
     }
     .btn.loading .spinner { display: block; }
+    .btn.loading span { display: none; }
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -146,11 +191,17 @@
 </head>
 <body>
   <div class="header">
-    <div class="logo">M↓</div>
+    <div class="logo">ip</div>
     <div class="header-text">
       <h1>Inkpour</h1>
-      <p>Export AI chats as .md files</p>
+      <p>Export AI chats to Markdown, PDF &amp; HTML</p>
     </div>
+    <button class="settings-btn" id="settingsBtn" title="Settings" aria-label="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    </button>
   </div>
 
   <hr />
@@ -163,10 +214,21 @@
     <span class="chip">Copilot</span>
   </div>
 
-  <button class="btn" id="exportBtn">
-    <div class="spinner"></div>
-    <span>Export to Markdown</span>
-  </button>
+  <p class="export-label">Export as</p>
+  <div class="btn-group">
+    <button class="btn" id="mdBtn">
+      <div class="spinner"></div>
+      <span>Markdown</span>
+    </button>
+    <button class="btn" id="pdfBtn">
+      <div class="spinner"></div>
+      <span>PDF</span>
+    </button>
+    <button class="btn" id="htmlBtn">
+      <div class="spinner"></div>
+      <span>HTML</span>
+    </button>
+  </div>
 
   <div id="status"></div>
 

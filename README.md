@@ -1,8 +1,10 @@
 # 🐟 Inkpour
 
-**Export your AI chat conversations to Markdown, PDF, and more — directly from your browser.**
+**Export your AI chat conversations to Markdown, PDF, and HTML — directly from your browser.**
 
-Inkpour is a lightweight Firefox WebExtension (Manifest V3) that lets you save conversations from the AI tools you use every day into clean, portable documents. One click, no accounts, no servers — everything happens locally in your browser.
+Inkpour is a lightweight Firefox WebExtension (Manifest V3) that saves conversations from the AI tools you use every day into clean, portable documents. One click, no accounts, no servers — everything happens locally in your browser.
+
+> **Status:** Early development. Works well for Markdown and PDF export. Actively adding features — see [Roadmap](#roadmap).
 
 ---
 
@@ -20,22 +22,62 @@ Inkpour is a lightweight Firefox WebExtension (Manifest V3) that lets you save c
 
 ## Features
 
-- Export conversations to clean **Markdown** (`.md`)
-- Preserves headings, bold, italic, code blocks, lists, and tables
-- Dark and light mode popup UI
-- No data leaves your machine
-- No accounts, no telemetry, no backend
+- Export conversations to **Markdown** (`.md`), **PDF**, or self-contained **HTML**
+- Preserves headings, bold, italic, inline code, fenced code blocks, tables, lists, and emojis
+- PDF export opens a clean, ad-free print preview — no Google UI, no clutter
+- HTML export is a single self-contained file, openable in any browser
+- Dark and light mode popup UI, adapts to your system preference
+- No data leaves your machine — no accounts, no telemetry, no backend
 
 ---
 
-## Installation (local / development)
+## Try it now (Firefox, Chrome, Edge, Brave — no account needed)
 
-1. Clone this repo
-2. Open Firefox and navigate to `about:debugging`
-3. Click **This Firefox** → **Load Temporary Add-on**
-4. Select `manifest.json` from the `inkpour/` folder
-5. Open any supported chat page with a conversation loaded
-6. Click the Inkpour icon in your toolbar and hit **Export**
+You can load Inkpour as a temporary extension directly in Firefox in about 30 seconds.
+
+### Step 1 — Get the files
+
+```bash
+git clone https://github.com/tronicum/inkpour.git
+cd inkpour
+```
+
+Or download the ZIP from the green **Code** button on this page and unzip it.
+
+### Step 2 — Load in your browser
+
+**Firefox**
+1. Go to **`about:debugging`** in the address bar
+2. Click **This Firefox** → **Load Temporary Add-on…**
+3. Select **`manifest.json`** from the cloned folder
+
+> Temporary add-ons are removed on restart. Reload via `about:debugging` → **This Firefox** → **Reload**.
+
+**Chrome / Edge / Brave**
+1. Go to **`chrome://extensions`** (or `edge://extensions`)
+2. Enable **Developer mode** (toggle, top right)
+3. Click **Load unpacked** and select the cloned folder
+
+> Chrome keeps unpacked extensions across restarts as long as Developer mode stays on.
+
+### Step 3 — Export a chat
+
+1. Open any supported AI chat page with a conversation loaded
+2. Click the Inkpour icon in your toolbar
+3. Choose **Markdown**, **PDF**, or **HTML**
+   - Markdown and HTML download immediately to your Downloads folder
+   - PDF opens a clean preview tab and triggers the print dialog — choose **Save to PDF** in the printer list
+
+### Troubleshooting
+
+**"Navigate to a supported AI chat page…" error**
+The content script wasn't injected. Refresh the chat tab after loading the extension, then try again.
+
+**PDF tab shows "Loading conversation…"**
+The extension wasn't fully reloaded. Go to `about:debugging` → Reload Inkpour, refresh the chat tab, then export again.
+
+**No messages found**
+Scroll through the full conversation so it's loaded in the DOM, then export.
 
 ---
 
@@ -43,39 +85,60 @@ Inkpour is a lightweight Firefox WebExtension (Manifest V3) that lets you save c
 
 ```
 inkpour/
-├── manifest.json       ← MV3 extension manifest
-├── popup.html          ← Toolbar popup UI
-├── popup.js            ← Export trigger + download logic
-├── src/
-│   └── content.js      ← HTML → Markdown parser + site extractors
-└── icons/
-    ├── icon-48.png
-    └── icon-96.png
+├── manifest.json          ← MV3 extension manifest
+├── popup.html             ← Toolbar popup UI
+├── popup.js               ← Export trigger, download logic, MD/HTML/PDF builders
+├── print.html             ← Clean print preview page (PDF flow)
+├── print.js               ← Reads localStorage, renders, triggers window.print()
+├── icons/
+│   ├── icon-48.png
+│   └── icon-96.png
+└── src/
+    ├── content.js         ← Injected into chat pages — extracts messages
+    ├── extractors/        ← Per-site DOM scrapers (reference implementations)
+    │   ├── chatgpt.js
+    │   ├── claude.js
+    │   ├── gemini.js
+    │   ├── aistudio.js    ← Async edit-mode extraction (Trifall technique)
+    │   ├── copilot.js
+    │   └── index.js
+    ├── exporters/         ← Output format logic
+    │   ├── markdown.js    ← HTML → Markdown converter
+    │   ├── pdf.js
+    │   └── json.js
+    └── browser/           ← Browser capability abstraction layer
+        ├── index.js
+        ├── firefox.js
+        └── safari.js
 ```
 
 ---
 
 ## Roadmap
 
-- [ ] PDF export
-- [ ] YAML front matter + table of contents
-- [ ] In-page export button (injected next to share button)
-- [ ] Improved AI Studio extraction
-- [ ] Gemini (gemini.google.com) selector improvements
+- [x] Markdown export
+- [x] PDF export (clean print preview, ad-free)
+- [x] HTML export (self-contained file)
+- [ ] YAML front matter (title, date, platform, URL)
+- [ ] Table of contents for long conversations
+- [ ] In-page export button injected next to share button
+- [ ] Improved AI Studio extraction (Trifall edit-mode approach)
+- [ ] Gemini selector improvements
+- [ ] Google Search AI mode support
 - [ ] Safari / iOS support via Xcode Web Extension converter
-- [ ] Keyboard shortcut (Alt+M)
+- [ ] Keyboard shortcut
 
 ---
 
 ## Standing on the shoulders of giants
 
-Inkpour would not exist without the excellent open source work that came before it. A sincere thank you to:
+Inkpour would not exist without the excellent open source work that came before it.
 
 ### [Trifall/chat-export](https://github.com/Trifall/chat-export)
-A beautifully built TypeScript WebExtension that exports conversations from ChatGPT, Claude, and Gemini (AI Studio) to Markdown, XML, JSON, and HTML. The AI Studio edit-mode extraction approach in particular is clever engineering — opening the edit button to read raw `data-value` from the textarea rather than scraping rendered HTML. Trifall's work is a reference implementation we deeply respect. Licensed under **MIT**.
+A beautifully built TypeScript WebExtension that exports conversations from ChatGPT, Claude, and Gemini (AI Studio) to Markdown, XML, JSON, and HTML. The AI Studio edit-mode extraction approach is particularly clever — opening the edit button to read the raw `data-value` from the textarea rather than scraping rendered HTML. A reference implementation we deeply respect. Licensed **MIT**.
 
 ### [revivalstack/ai-chat-exporter](https://github.com/revivalstack/ai-chat-exporter)
-A feature-rich Tampermonkey userscript by Mic Mejia supporting ChatGPT, Claude, Copilot, Gemini, and Grok, with YAML front matter, table of contents, keyboard shortcuts, and selective export. The most complete tool in the space, actively maintained. A real inspiration for where Inkpour is heading. Licensed under **MIT**.
+A feature-rich Tampermonkey userscript by Mic Mejia supporting ChatGPT, Claude, Copilot, Gemini, and Grok, with YAML front matter, table of contents, keyboard shortcuts, and selective export. The most complete tool in this space, actively maintained. A real inspiration for where Inkpour is heading. Licensed **MIT**.
 
 ---
 
@@ -91,4 +154,4 @@ See [LICENSE](./LICENSE) for full details.
 
 ## Contributing
 
-Pull requests welcome. Open an issue first for anything non-trivial.
+Pull requests welcome. Open an issue first for anything non-trivial. See [planning.md](../planning.md) for the current direction.

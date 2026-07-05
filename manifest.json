@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "Export AI chat conversations (ChatGPT, Claude, Gemini, Copilot) to Markdown, PDF and more.",
 
-  "permissions": ["activeTab"],
+  "permissions": ["activeTab", "tabs", "storage"],
 
   "host_permissions": [
     "*://chat.openai.com/*",
@@ -14,6 +14,11 @@
     "*://gemini.google.com/*",
     "*://aistudio.google.com/*"
   ],
+
+  "options_ui": {
+    "page": "settings.html",
+    "open_in_tab": true
+  },
 
   "action": {
     "default_popup": "popup.html",
@@ -36,6 +41,13 @@
       ],
       "js": ["src/content.js"],
       "run_at": "document_idle"
+    }
+  ],
+
+  "web_accessible_resources": [
+    {
+      "resources": ["print.html"],
+      "matches": ["<all_urls>"]
     }
   ],
 

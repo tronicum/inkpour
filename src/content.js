@@ -1,11 +1,16 @@
 /**
- * content.js — Chat to Markdown
- * Extracts messages from AI chat pages and converts them to Markdown.
+ * content.js — Inkpour
+ * Extracts messages from AI chat pages as structured data.
+ * Responds to { action: 'extract' } with { messages, title, site, filename }.
  * Supports: ChatGPT, Claude, Gemini, Google AI Studio, Copilot
  */
 
 (function () {
   'use strict';
+
+  // Normalise browser API: Firefox uses `browser`, Chrome/Edge/Brave use `chrome`.
+  // Chrome 120+ added `browser` natively; this covers older versions too.
+  const api = (typeof browser !== 'undefined') ? browser : chrome;
 
   // ─── HTML → Markdown ──────────────────────────────────────────────────────
 
@@ -22,7 +27,6 @@
 
     const tag = node.tagName.toLowerCase();
 
-    // Skip non-content elements entirely
     if (['script', 'style', 'svg', 'button', 'nav', 'header', 'footer'].includes(tag)) {
       return '';
     }
@@ -60,7 +64,6 @@
       }
 
       case 'code': {
-        // Inline code — pre > code is handled by the 'pre' case
         if (node.closest('pre')) return node.textContent;
         return `\`${node.textContent}\``;
       }
@@ -91,7 +94,7 @@
       case 'img': {
         const alt = node.getAttribute('alt') || '';
         const src = node.getAttribute('src') || '';
-        return `![${alt}](${src})`;
+        return alt ? `![${alt}](${src})` : '';
       }
 
       case 'table': return convertTable(node);
@@ -105,16 +108,12 @@
     return Array.from(listEl.children)
       .filter(el => el.tagName.toLowerCase() === 'li')
       .map((li, i) => {
-        // Separate nested lists from inline content
         const nested = li.querySelector('ul, ol');
-        const bullet = ordered ? `${i + 1}.` : '*';
-
-        // Collect direct (non-list) content
+        const bullet  = ordered ? `${i + 1}.` : '*';
         const inlineNodes = Array.from(li.childNodes).filter(
           n => !(n.nodeType === Node.ELEMENT_NODE && ['ul', 'ol'].includes(n.tagName.toLowerCase()))
         );
         const inlineText = inlineNodes.map(convertNode).join('').trim();
-
         let result = `${indent}${bullet} ${inlineText}`;
         if (nested) {
           result += '\n' + convertList(nested, nested.tagName.toLowerCase() === 'ol', depth + 1);
@@ -127,20 +126,16 @@
   function convertTable(table) {
     const rows = Array.from(table.querySelectorAll('tr'));
     if (!rows.length) return '';
-
-    const toRow = (tr) =>
+    const toRow = tr =>
       Array.from(tr.querySelectorAll('th, td')).map(c => convertNode(c).replace(/\|/g, '\\|').trim());
-
     const header = toRow(rows[0]);
-    const sep = header.map(() => '---');
-    const body = rows.slice(1).map(toRow);
-
-    const lines = [
+    const sep    = header.map(() => '---');
+    const body   = rows.slice(1).map(toRow);
+    return `\n\n${[
       `| ${header.join(' | ')} |`,
       `| ${sep.join(' | ')} |`,
       ...body.map(r => `| ${r.join(' | ')} |`),
-    ];
-    return `\n\n${lines.join('\n')}\n\n`;
+    ].join('\n')}\n\n`;
   }
 
   // ─── Site detection ───────────────────────────────────────────────────────
@@ -148,35 +143,16 @@
   function detectSite() {
     const host = location.hostname;
     if (host.includes('chatgpt.com') || host.includes('chat.openai.com')) return 'chatgpt';
-    if (host.includes('claude.ai')) return 'claude';
-    if (host.includes('copilot.microsoft.com')) return 'copilot';
-    if (host.includes('gemini.google.com')) return 'gemini';
-    if (host.includes('aistudio.google.com')) return 'aistudio';
+    if (host.includes('claude.ai'))                                         return 'claude';
+    if (host.includes('copilot.microsoft.com'))                             return 'copilot';
+    if (host.includes('gemini.google.com'))                                 return 'gemini';
+    if (host.includes('aistudio.google.com'))                               return 'aistudio';
     return 'generic';
   }
 
   // ─── Per-site extractors ──────────────────────────────────────────────────
 
-  function extractMessages() {
-    const site = detectSite();
-    let messages = [];
-
-    switch (site) {
-      case 'chatgpt':  messages = extractChatGPT(); break;
-      case 'claude':   messages = extractClaude();   break;
-      case 'copilot':  messages = extractCopilot();  break;
-      case 'gemini':   messages = extractGemini();   break;
-      case 'aistudio': messages = extractAIStudio(); break;
-      default:         messages = extractGeneric();  break;
-    }
-
-    // Last-resort fallback
-    if (!messages.length) messages = extractGeneric();
-
-    return messages;
-  }
-
-  /** Sort two DOM elements by their document order */
+  /** Sort two { el } objects by DOM order */
   function sortByDOMOrder(a, b) {
     const pos = a.el.compareDocumentPosition(b.el);
     return (pos & Node.DOCUMENT_POSITION_FOLLOWING) ? -1 : 1;
@@ -185,10 +161,10 @@
   // ChatGPT / OpenAI
   function extractChatGPT() {
     const turns = document.querySelectorAll('[data-message-author-role]');
+    if (!turns.length) return null;
     return Array.from(turns).map(turn => {
-      const role = turn.getAttribute('data-message-author-role');
-      const label = role === 'user' ? 'You' : 'ChatGPT';
-      // Prefer the rendered markdown container
+      const role     = turn.getAttribute('data-message-author-role');
+      const label    = role === 'user' ? 'You' : 'ChatGPT';
       const contentEl = turn.querySelector('.markdown, [class*="prose"], .text-message') ?? turn;
       return { role: label, content: htmlToMarkdown(contentEl) };
     }).filter(m => m.content);
@@ -198,78 +174,113 @@
   function extractClaude() {
     const userEls = Array.from(document.querySelectorAll('[data-testid="user-message"]'))
       .map(el => ({ el, role: 'You' }));
+    const assistantEls = Array.from(document.querySelectorAll(
+      '.font-claude-message, [data-testid="assistant-message"], [class*="AssistantResponse"], .prose'
+    )).map(el => ({ el, role: 'Claude' }));
 
-    // Claude response containers (multiple class selectors for robustness)
-    const assistantEls = Array.from(
-      document.querySelectorAll(
-        '.font-claude-message, [data-testid="assistant-message"], ' +
-        '[class*="AssistantResponse"], .prose'
-      )
-    ).map(el => ({ el, role: 'Claude' }));
-
-    return [...userEls, ...assistantEls]
-      .sort(sortByDOMOrder)
-      .map(({ el, role }) => ({ role, content: htmlToMarkdown(el) }))
-      .filter(m => m.content);
+    const combined = [...userEls, ...assistantEls].sort(sortByDOMOrder);
+    if (!combined.length) return null;
+    return combined.map(({ el, role }) => ({ role, content: htmlToMarkdown(el) }))
+                   .filter(m => m.content);
   }
 
   // Microsoft Copilot
   function extractCopilot() {
-    // Copilot uses cib-chat-turn web components
     const turnEls = document.querySelectorAll('cib-chat-turn');
     if (turnEls.length) {
       return Array.from(turnEls).map(turn => {
         const source = turn.getAttribute('source') ?? '';
-        const role = source === 'user' ? 'You' : 'Copilot';
+        const role   = source === 'user' ? 'You' : 'Copilot';
         return { role, content: htmlToMarkdown(turn) };
       }).filter(m => m.content);
     }
 
-    // Fallback selectors
     const userEls = Array.from(document.querySelectorAll('[data-testid="user-message"], .user-message'))
       .map(el => ({ el, role: 'You' }));
-    const botEls = Array.from(document.querySelectorAll('[data-testid="bot-message"], .bot-message'))
+    const botEls  = Array.from(document.querySelectorAll('[data-testid="bot-message"], .bot-message'))
       .map(el => ({ el, role: 'Copilot' }));
+    const combined = [...userEls, ...botEls].sort(sortByDOMOrder);
+    return combined.length
+      ? combined.map(({ el, role }) => ({ role, content: htmlToMarkdown(el) })).filter(m => m.content)
+      : null;
+  }
 
-    return [...userEls, ...botEls]
+  // Google Gemini (gemini.google.com)
+  function extractGemini() {
+    const userEls  = Array.from(document.querySelectorAll('user-query')).map(el => ({ el, role: 'You' }));
+    const modelEls = Array.from(document.querySelectorAll('model-response')).map(el => ({ el, role: 'Gemini' }));
+    if (!userEls.length && !modelEls.length) return null;
+    return [...userEls, ...modelEls]
       .sort(sortByDOMOrder)
       .map(({ el, role }) => ({ role, content: htmlToMarkdown(el) }))
       .filter(m => m.content);
   }
 
-  // Google Gemini
-  function extractGemini() {
-    // Gemini uses custom elements: <user-query> and <model-response>
-    const userEls = Array.from(document.querySelectorAll('user-query'))
-      .map(el => ({ el, role: 'You' }));
-    const modelEls = Array.from(document.querySelectorAll('model-response'))
-      .map(el => ({ el, role: 'Gemini' }));
+  // Google AI Studio — async (uses edit-mode to get raw prompt text)
+  async function extractAIStudio() {
+    const turns = document.querySelectorAll('ms-chat-turn');
+    if (!turns.length) return null;
 
-    if (userEls.length || modelEls.length) {
-      return [...userEls, ...modelEls]
-        .sort(sortByDOMOrder)
-        .map(({ el, role }) => ({ role, content: htmlToMarkdown(el) }))
-        .filter(m => m.content);
+    const messages = [];
+
+    for (const turn of turns) {
+      // Role detection: container class or presence of edit button
+      const container = turn.querySelector('.chat-turn-container, .turn-container, [class*="chat-turn"]');
+      const hasEditBtn = !!turn.querySelector('.toggle-edit-button, [aria-label*="Edit message" i]');
+      const isUser = hasEditBtn ||
+                     container?.classList.contains('user-turn') ||
+                     container?.classList.contains('user');
+
+      if (isUser) {
+        // Attempt edit-mode extraction for raw text
+        const editBtn = turn.querySelector('.toggle-edit-button, [aria-label*="Edit message" i]');
+        if (editBtn) {
+          editBtn.click();
+
+          const rawText = await new Promise(resolve => {
+            const deadline = Date.now() + 2500;
+            const poll = () => {
+              // The textarea appears somewhere in the document (not necessarily inside turn)
+              const ta = document.querySelector('ms-autosize-textarea[data-value]') ||
+                         turn.querySelector('ms-autosize-textarea[data-value]');
+              if (ta) {
+                resolve(ta.getAttribute('data-value') || ta.value || '');
+              } else if (Date.now() > deadline) {
+                resolve('');
+              } else {
+                requestAnimationFrame(poll);
+              }
+            };
+            poll();
+          });
+
+          // Exit edit mode — try the "Stop editing" button first, then Escape
+          const stopBtn = document.querySelector('[aria-label*="stop editing" i], .stop-editing-button');
+          if (stopBtn) {
+            stopBtn.click();
+          } else {
+            document.dispatchEvent(new KeyboardEvent('keydown', {
+              key: 'Escape', bubbles: true, cancelable: true,
+            }));
+          }
+
+          // Brief pause so the DOM can settle before processing the next turn
+          await new Promise(r => setTimeout(r, 120));
+
+          if (rawText.trim()) {
+            messages.push({ role: 'You', content: rawText.trim() });
+            continue;
+          }
+        }
+      }
+
+      // AI response turn (or user fallback if edit-mode failed)
+      const role    = isUser ? 'You' : 'Gemini';
+      const content = htmlToMarkdown(turn);
+      if (content) messages.push({ role, content });
     }
 
-    return extractGeneric();
-  }
-
-  // Google AI Studio
-  function extractAIStudio() {
-    // AI Studio uses ms-chat-turn or .turn containers
-    const turns = document.querySelectorAll('ms-chat-turn, .turn, [class*="ChatTurn"]');
-    if (turns.length) {
-      return Array.from(turns).map(turn => {
-        const isUser =
-          turn.getAttribute('role') === 'user' ||
-          turn.classList.contains('user') ||
-          !!turn.querySelector('[class*="user"], .query');
-        const role = isUser ? 'You' : 'Gemini';
-        return { role, content: htmlToMarkdown(turn) };
-      }).filter(m => m.content);
-    }
-    return extractGeneric();
+    return messages.length ? messages : null;
   }
 
   // Generic best-effort fallback
@@ -292,49 +303,45 @@
     return [];
   }
 
-  // ─── Build Markdown document ──────────────────────────────────────────────
+  // ─── Main extraction dispatcher ───────────────────────────────────────────
 
-  function buildMarkdown(messages) {
-    const title = document.title.replace(/[<>:"/\\|?*\n]/g, ' ').trim() || 'Chat Export';
-    const date = new Date().toISOString().replace('T', ' ').slice(0, 19);
-    const site = location.hostname;
+  async function extractMessages() {
+    const site = detectSite();
+    let messages = null;
 
-    let md = `# ${title}\n\n`;
-    md += `> Exported from **${site}** on ${date}\n\n`;
-    md += `---\n\n`;
-
-    for (const { role, content } of messages) {
-      md += `## ${role}\n\n${content}\n\n---\n\n`;
+    switch (site) {
+      case 'chatgpt':  messages = extractChatGPT();          break;
+      case 'claude':   messages = extractClaude();            break;
+      case 'copilot':  messages = extractCopilot();           break;
+      case 'gemini':   messages = extractGemini();            break;
+      case 'aistudio': messages = await extractAIStudio();    break;
+      default:         break;
     }
 
-    return md;
+    // Last-resort fallback
+    if (!messages || !messages.length) messages = extractGeneric();
+    return messages;
   }
 
   // ─── Message listener ─────────────────────────────────────────────────────
 
-  browser.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
-    if (msg.action !== 'exportMarkdown') return;
+  api.runtime.onMessage.addListener((msg) => {
+    if (msg.action !== 'extract') return;
 
-    try {
-      const messages = extractMessages();
-
+    // Return a Promise — Firefox waits for it and sends the resolved value back
+    return extractMessages().then(messages => {
       if (!messages.length) {
-        sendResponse({
-          error: 'No messages found. Make sure a chat is open and fully loaded.',
-        });
-        return;
+        return { error: 'No messages found. Make sure a chat is open and fully loaded.' };
       }
 
-      const markdown = buildMarkdown(messages);
-      const slug = (document.title || 'chat')
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .slice(0, 60);
+      const rawTitle = document.title.replace(/[<>:"/\\|?*\n]/g, ' ').trim() || 'Chat Export';
+      const slug = rawTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
+      const site = location.hostname;
 
-      sendResponse({ markdown, filename: `${slug}.md` });
-    } catch (err) {
-      sendResponse({ error: `Extraction failed: ${err.message}` });
-    }
+      return { messages, title: rawTitle, site, filename: slug };
+    }).catch(err => {
+      return { error: `Extraction failed: ${err.message}` };
+    });
   });
 
 })();
