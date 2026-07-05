@@ -12,11 +12,18 @@
 'use strict';
 
 const { JSDOM } = require('jsdom');
+const vm   = require('vm');
 const fs   = require('fs');
 const path = require('path');
 
 const CONTENT_JS   = fs.readFileSync(path.resolve(__dirname, '../src/content.js'), 'utf8');
 const FIXTURES_DIR = path.resolve(__dirname, 'fixtures');
+
+// ─── Load shared utils into the Node global scope ───────────────────────────
+// src/utils.js declares functions at global scope (for importScripts compat).
+// Running it in the current vm context makes them available here too.
+const UTILS_JS = fs.readFileSync(path.resolve(__dirname, '../src/utils.js'), 'utf8');
+vm.runInThisContext(UTILS_JS);
 
 // ─── Mini test framework ────────────────────────────────────────────────────
 
@@ -488,25 +495,52 @@ async function main() {
     });
   });
 
+  // ── buildMarkdown (from src/utils.js) ────────────────────────────────────
+  await suite('buildMarkdown', async () => {
+    const msgs = [
+      { role: 'You', content: 'Hello there' },
+      { role: 'Claude', content: 'Hi! How can I help?' },
+    ];
+
+    await test('contains title heading', () => {
+      const md = buildMarkdown(msgs, 'My Chat', 'claude');
+      assert(md.includes('# My Chat'), `missing title. Got: ${md.slice(0, 100)}`);
+    });
+
+    await test('contains preamble with platform', () => {
+      const md = buildMarkdown(msgs, 'My Chat', 'claude');
+      assert(md.includes('**claude**'), `missing platform. Got: ${md.slice(0, 200)}`);
+    });
+
+    await test('YAML front matter includes source_url when provided', () => {
+      const md = buildMarkdown(msgs, 'Chat', 'chatgpt', { yamlFrontMatter: true }, 'https://chatgpt.com/c/abc');
+      assert(md.startsWith('---\n'), 'missing YAML opening');
+      assert(md.includes('source_url: "https://chatgpt.com/c/abc"'), 'missing source_url');
+    });
+
+    await test('Obsidian tags appear in YAML when enabled', () => {
+      const md = buildMarkdown(msgs, 'Chat', 'claude', { yamlFrontMatter: true, obsidianTags: true });
+      assert(md.includes('tags: [ai-chat, claude]'), `missing tags. Got: ${md.slice(0, 300)}`);
+    });
+
+    await test('TOC generated for chats > 4 messages', () => {
+      const longMsgs = Array.from({ length: 6 }, (_, i) => ({
+        role: i % 2 === 0 ? 'You' : 'Claude',
+        content: `Message ${i}`,
+      }));
+      const md = buildMarkdown(longMsgs, 'Long Chat', 'claude', { generateTOC: true });
+      assert(md.includes('## Contents'), `missing TOC. Got: ${md.slice(0, 300)}`);
+    });
+
+    await test('source URL appears in preamble blockquote', () => {
+      const md = buildMarkdown(msgs, 'Chat', 'claude', {}, 'https://claude.ai/chat/xyz');
+      assert(md.includes('[source](https://claude.ai/chat/xyz)'), 'missing source link in preamble');
+    });
+  });
+
   // ── filename tokens ────────────────────────────────────────────────────────
   await suite('buildFilename tokens', async () => {
-    // Mirrors popup.js / background.js — keep in sync
-    function buildFilename(template, platform, titleSlug, sourceUrl = '') {
-      const now  = new Date();
-      const date = now.toISOString().slice(0, 10);
-      const time = now.toISOString().slice(11, 16).replace(':', '-');
-      let hostname = '';
-      try { hostname = sourceUrl ? new URL(sourceUrl).hostname : ''; } catch { /* ignore */ }
-      return (template || '{platform}-{title}')
-        .replace(/\{platform\}/g, platform || 'chat')
-        .replace(/\{title\}/g,    titleSlug || 'export')
-        .replace(/\{date\}/g,     date)
-        .replace(/\{time\}/g,     time)
-        .replace(/\{url\}/g,      hostname || platform || 'chat')
-        .replace(/[^a-z0-9_\-]+/gi, '-')
-        .replace(/^-+|-+$/g, '')
-        .slice(0, 100) || 'inkpour-export';
-    }
+    // Uses buildFilename from src/utils.js (loaded above via vm.runInThisContext)
 
     await test('{time} expands to HH-MM', () => {
       const fn = buildFilename('{date}T{time}', 'claude', 'chat');
@@ -537,61 +571,8 @@ async function main() {
 
   // ── ZIP builder ───────────────────────────────────────────────────────────
   await suite('ZIP builder', async () => {
-    // Inline the same CRC32 + buildZip logic as popup.js / background.js
-    const CRC32 = (() => {
-      const t = new Uint32Array(256);
-      for (let i = 0; i < 256; i++) {
-        let c = i;
-        for (let j = 0; j < 8; j++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
-        t[i] = c;
-      }
-      return t;
-    })();
-    const crc32 = (bytes) => {
-      let c = 0xFFFFFFFF;
-      for (const b of bytes) c = CRC32[(c ^ b) & 0xFF] ^ (c >>> 8);
-      return (c ^ 0xFFFFFFFF) >>> 0;
-    };
-    function buildZip(files) {
-      const enc = new TextEncoder();
-      const now = new Date();
-      const dosDate = ((now.getFullYear()-1980)<<9)|((now.getMonth()+1)<<5)|now.getDate();
-      const dosTime = (now.getHours()<<11)|(now.getMinutes()<<5)|Math.floor(now.getSeconds()/2);
-      const w16 = (v,o,b) => new DataView(b).setUint16(o,v,true);
-      const w32 = (v,o,b) => new DataView(b).setUint32(o,v,true);
-      const entries = files.map(f => ({ name: enc.encode(f.name), data: enc.encode(f.content) }));
-      entries.forEach(e => { e.crc = crc32(e.data); });
-      const parts = [], offsets = [];
-      let pos = 0;
-      for (const e of entries) {
-        offsets.push(pos);
-        const lhBuf = new ArrayBuffer(30+e.name.length), lh = new Uint8Array(lhBuf);
-        w32(0x04034b50,0,lhBuf); w16(20,4,lhBuf); w16(0,6,lhBuf);
-        w16(0,8,lhBuf); w16(dosTime,10,lhBuf); w16(dosDate,12,lhBuf);
-        w32(e.crc,14,lhBuf); w32(e.data.length,18,lhBuf); w32(e.data.length,22,lhBuf);
-        w16(e.name.length,26,lhBuf); w16(0,28,lhBuf); lh.set(e.name,30);
-        parts.push(lh, e.data); pos += lh.length + e.data.length;
-      }
-      const cdStart = pos;
-      for (let i=0;i<entries.length;i++) {
-        const e=entries[i], cdBuf=new ArrayBuffer(46+e.name.length), cd=new Uint8Array(cdBuf);
-        w32(0x02014b50,0,cdBuf); w16(20,4,cdBuf); w16(20,6,cdBuf);
-        w16(0,8,cdBuf); w16(0,10,cdBuf); w16(dosTime,12,cdBuf); w16(dosDate,14,cdBuf);
-        w32(e.crc,16,cdBuf); w32(e.data.length,20,cdBuf); w32(e.data.length,24,cdBuf);
-        w16(e.name.length,28,cdBuf); w16(0,30,cdBuf); w16(0,32,cdBuf);
-        w16(0,34,cdBuf); w16(0,36,cdBuf); w32(0,38,cdBuf); w32(offsets[i],42,cdBuf);
-        cd.set(e.name,46); parts.push(cd); pos+=cd.length;
-      }
-      const cdSize = pos-cdStart, eocdBuf = new ArrayBuffer(22);
-      w32(0x06054b50,0,eocdBuf); w16(0,4,eocdBuf); w16(0,6,eocdBuf);
-      w16(entries.length,8,eocdBuf); w16(entries.length,10,eocdBuf);
-      w32(cdSize,12,eocdBuf); w32(cdStart,16,eocdBuf); w16(0,20,eocdBuf);
-      parts.push(new Uint8Array(eocdBuf));
-      const total = parts.reduce((s,p)=>s+p.length,0);
-      const zip = new Uint8Array(total); let off=0;
-      for (const p of parts) { zip.set(p,off); off+=p.length; }
-      return zip;
-    }
+    // Uses buildZip, _crc32, uint8ToBase64 from src/utils.js (loaded above)
+    const crc32 = _crc32; // alias for test readability
 
     await test('ZIP starts with local file header signature', () => {
       const zip = buildZip([{ name: 'hello.txt', content: 'Hello, World!' }]);
@@ -630,15 +611,7 @@ async function main() {
     });
 
     await test('uint8ToBase64 produces valid base64 for large arrays', () => {
-      // Chunked btoa approach (mirrors background.js)
-      function uint8ToBase64(bytes) {
-        let result = '';
-        const CHUNK = 8190;
-        for (let i = 0; i < bytes.length; i += CHUNK) {
-          result += btoa(String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK)));
-        }
-        return result;
-      }
+      // Uses uint8ToBase64 from src/utils.js
       // 100 000 bytes — well above the ~65536 spread stack limit
       const large = new Uint8Array(100_000).fill(65); // all 'A' bytes
       let b64;
