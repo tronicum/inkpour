@@ -523,6 +523,21 @@ async function main() {
       assert(md.includes('tags: [ai-chat, claude]'), `missing tags. Got: ${md.slice(0, 300)}`);
     });
 
+    await test('gistExtraTags merged into YAML tags', () => {
+      const md = buildMarkdown(msgs, 'Chat', 'chatgpt', { yamlFrontMatter: true, obsidianTags: true, gistExtraTags: 'work, project-x' });
+      assert(md.includes('tags: [ai-chat, chatgpt, work, project-x]'), `extra tags not merged. Got: ${md.slice(0, 300)}`);
+    });
+
+    await test('gistExtraTags work without obsidianTags (Gist-forced mode)', () => {
+      const md = buildMarkdown(msgs, 'Chat', 'claude', { yamlFrontMatter: true, obsidianTags: false, gistExtraTags: 'research' });
+      assert(md.includes('tags: [research]'), `extra-only tags missing. Got: ${md.slice(0, 300)}`);
+    });
+
+    await test('no tags line when both obsidianTags=false and gistExtraTags is empty', () => {
+      const md = buildMarkdown(msgs, 'Chat', 'claude', { yamlFrontMatter: true, obsidianTags: false });
+      assert(!md.includes('tags:'), `unexpected tags in YAML. Got: ${md.slice(0, 300)}`);
+    });
+
     await test('TOC generated for chats > 4 messages', () => {
       const longMsgs = Array.from({ length: 6 }, (_, i) => ({
         role: i % 2 === 0 ? 'You' : 'Claude',

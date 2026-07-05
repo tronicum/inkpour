@@ -53,6 +53,7 @@
     obsidianTags:       false, // add tags: [ai-chat, {platform}] to YAML
     githubToken:           '',
     gistPublic:            false,
+    gistTags:              '', // comma-separated extra tags for Gist YAML (e.g. "work, project-x")
     webhookUrl:            '',
     webhookIncludeContent: false,
   };
@@ -532,7 +533,15 @@
       const data  = await extractFromPage();
       const msgs  = getSelectedMessages(data.messages);
       const notes = getExportNotes();
-      const md    = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, userSettings, data.sourceUrl);
+      // Gist exports always include YAML front matter with searchable tags so the
+      // user can find them later via GitHub search (user:you "ai-chat" etc.).
+      const gistSettings = {
+        ...userSettings,
+        yamlFrontMatter: true,
+        obsidianTags:    true,
+        gistExtraTags:   userSettings.gistTags || '',
+      };
+      const md    = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, gistSettings, data.sourceUrl);
       const slug  = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length);
       const filename = slug + '.md';
 

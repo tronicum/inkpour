@@ -291,6 +291,14 @@
 
     <div class="field">
       <div class="field-label">
+        <strong>Gist tags</strong>
+        <span>Extra tags added to the YAML header of every Gist export, comma-separated. Search your Gists later on GitHub with <code>user:you "tag"</code>. The tags <code>ai-chat</code> and the platform name are always included automatically.</span>
+      </div>
+      <input type="text" id="gistTags" placeholder="work, project-x, research" style="min-width:220px;" />
+    </div>
+
+    <div class="field">
+      <div class="field-label">
         <strong>Webhook URL</strong>
         <span>After each export, Inkpour sends a POST request here with export metadata (title, platform, format, word count). Works with n8n, Zapier, Make.com, or any HTTP endpoint.</span>
       </div>

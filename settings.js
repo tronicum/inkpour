@@ -44,6 +44,7 @@
     obsidianTags:      false,
     githubToken:          '',
     gistPublic:           false,
+    gistTags:             '',
     webhookUrl:           '',
     webhookIncludeContent: false,
   };
@@ -59,6 +60,7 @@
     document.getElementById('obsidianTags').checked     = prefs.obsidianTags;
     document.getElementById('githubToken').value             = prefs.githubToken;
     document.getElementById('gistPublic').value              = String(prefs.gistPublic);
+    document.getElementById('gistTags').value                = prefs.gistTags || '';
     document.getElementById('webhookUrl').value              = prefs.webhookUrl;
     document.getElementById('webhookIncludeContent').checked = prefs.webhookIncludeContent;
   });
@@ -76,6 +78,7 @@
       obsidianTags:      document.getElementById('obsidianTags').checked,
       githubToken:           document.getElementById('githubToken').value.trim(),
       gistPublic:            document.getElementById('gistPublic').value === 'true',
+      gistTags:              document.getElementById('gistTags').value.trim(),
       webhookUrl:            document.getElementById('webhookUrl').value.trim(),
       webhookIncludeContent: document.getElementById('webhookIncludeContent').checked,
     };

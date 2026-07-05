@@ -188,8 +188,14 @@ function buildMarkdown(messages, title, site, opts = {}, sourceUrl = '') {
 
   if (opts.yamlFrontMatter) {
     const safeTitle = title.replace(/"/g, '\\"');
-    const urlLine  = sourceUrl ? `\nsource_url: "${sourceUrl}"` : '';
-    const tagsLine = opts.obsidianTags ? `\ntags: [ai-chat, ${site}]` : '';
+    const urlLine   = sourceUrl ? `\nsource_url: "${sourceUrl}"` : '';
+    // Base tags: always present when obsidianTags is on.
+    // opts.gistExtraTags: comma-separated custom tags added on Gist exports (always
+    // forces [ai-chat, platform] in addition to any user-defined extras).
+    const baseTags = opts.obsidianTags ? ['ai-chat', site] : [];
+    const extra    = (opts.gistExtraTags || '').split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+    const allTags  = [...new Set([...baseTags, ...extra])];
+    const tagsLine = allTags.length ? `\ntags: [${allTags.join(', ')}]` : '';
     md += `---\ntitle: "${safeTitle}"\nplatform: ${site}\nmessages: ${messages.length}\nwords: ${wordCount}\nreading_time_min: ${readingMin}\ndate: ${isoDate}${urlLine}${tagsLine}\nexporter: inkpour\n---\n\n`;
   }
 
