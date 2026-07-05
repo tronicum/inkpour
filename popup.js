@@ -25,6 +25,11 @@
 
   // ─── Load user settings ───────────────────────────────────────────────────
 
+  // ─── Extraction cache ─────────────────────────────────────────────────────
+  // Populated by the eager peek on popup open. All export buttons reuse this
+  // so the DOM is only crawled once per popup session.
+  let cachedData = null;
+
   const SETTING_DEFAULTS = {
     defaultFormat:      'md',
     yamlFrontMatter:    false,
@@ -106,36 +111,58 @@
   })();
 
   // ─── Message count peek ───────────────────────────────────────────────────
-  // Silently extract on popup open to show "Ready · N messages" before user clicks.
-  // Runs after chip detection so the active chip is visible while we load.
+  // Eagerly extract on popup open, cache the result, show chat stats.
+  // All export buttons reuse cachedData — no duplicate DOM crawl per popup session.
 
-  (async () => {
+  function updatePeekStatus(data) {
+    const msgs  = data.messages;
+    const n     = msgs.length;
+    const words = countWords(msgs);
+    const userCount  = msgs.filter(m => m.role === 'user').length;
+    const aiCount    = msgs.filter(m => m.role !== 'user').length;
+    const codeBlocks = msgs.reduce((sum, m) => {
+      const matches = m.content.match(/```[\s\S]*?```/g);
+      return sum + (matches ? matches.length : 0);
+    }, 0);
+    const roleNote = ` · ${userCount}u/${aiCount}a`;
+    const codeNote = codeBlocks > 0 ? ` · ${codeBlocks} code block${codeBlocks !== 1 ? 's' : ''}` : '';
+    setStatus(`Ready · ${n} message${n !== 1 ? 's' : ''}${roleNote} · ~${words.toLocaleString()} words${codeNote}`);
+  }
+
+  async function runPeek() {
     try {
       const [tab] = await api.tabs.query({ active: true, currentWindow: true });
       if (!tab?.id) return;
+      setStatus('Extracting…');
       const response = await api.tabs.sendMessage(tab.id, { action: 'extract' });
+      if (response?.error && !response.streaming) {
+        setStatus(response.error, 'error');
+        return;
+      }
+      if (response?.streaming) {
+        setStatus('AI is still generating — export after it finishes', 'warning');
+        return;
+      }
       if (response?.messages?.length) {
-        const msgs  = response.messages;
-        const n     = msgs.length;
-        const words = msgs
-          .map(m => m.content.trim().split(/\s+/).length)
-          .reduce((a, b) => a + b, 0);
-        // Role breakdown
-        const userCount = msgs.filter(m => m.role === 'user').length;
-        const aiCount   = msgs.filter(m => m.role !== 'user').length;
-        // Code block count — count ``` fences in all content
-        const codeBlocks = msgs.reduce((sum, m) => {
-          const matches = m.content.match(/```[\s\S]*?```/g);
-          return sum + (matches ? matches.length : 0);
-        }, 0);
-        const roleNote  = ` · ${userCount}u/${aiCount}a`;
-        const codeNote  = codeBlocks > 0 ? ` · ${codeBlocks} code block${codeBlocks !== 1 ? 's' : ''}` : '';
-        setStatus(`Ready · ${n} message${n !== 1 ? 's' : ''}${roleNote} · ~${words.toLocaleString()} words${codeNote}`);
+        response.sourceUrl = tab.url || '';
+        cachedData = response;
+        updatePeekStatus(response);
+      } else {
+        clearStatus();
       }
     } catch {
       // Not a supported page or content script not ready — stay silent
+      clearStatus();
     }
-  })();
+  }
+
+  // Status bar acts as a "Refresh" button — click to re-extract
+  status?.addEventListener('click', async () => {
+    cachedData = null;
+    await runPeek();
+  });
+
+  runPeek();
 
   // ─── Settings ────────────────────────────────────────────────────────────
 
@@ -342,6 +369,9 @@
   // ─── Shared extraction helper ─────────────────────────────────────────────
 
   async function extractFromPage() {
+    // Return cached extraction if available (populated by eager peek on open)
+    if (cachedData) return cachedData;
+
     let tab;
     try {
       [tab] = await api.tabs.query({ active: true, currentWindow: true });
@@ -366,6 +396,7 @@
 
     // Attach the source tab URL so exports can include it
     response.sourceUrl = tab.url || '';
+    cachedData = response;
     return response; // { messages, title, site, filename, sourceUrl }
   }
 

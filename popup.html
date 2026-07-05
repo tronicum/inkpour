@@ -205,7 +205,10 @@
       min-height: 16px;
       color: var(--subtext);
       line-height: 1.4;
+      cursor: default;
     }
+    #status:not(:empty) { cursor: pointer; }
+    #status:not(:empty):hover { opacity: 0.75; }
     #status.success  { color: var(--success); }
     #status.error    { color: var(--error); }
     #status.warning  { color: #d97706; }
