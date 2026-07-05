@@ -205,7 +205,9 @@ async function doGistUpload(tab, settings, response, sourceUrl, filename) {
     api.runtime.openOptionsPage();
     return;
   }
-  const md = buildMarkdown(response.messages, response.title, response.site, settings, sourceUrl);
+  // Gist exports always carry YAML front matter + base tags for GitHub search.
+  const gistSettings = { ...settings, yamlFrontMatter: true, obsidianTags: true, gistExtraTags: settings.gistTags || '' };
+  const md = buildMarkdown(response.messages, response.title, response.site, gistSettings, sourceUrl);
   const gistFilename = filename + '.md';
   let res;
   try {
