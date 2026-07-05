@@ -247,7 +247,7 @@
     <div class="logo">ip</div>
     <div class="header-text">
       <h1>Inkpour</h1>
-      <p>Export AI chats · MD, PDF, HTML, JSON</p>
+      <p>Export AI chats · MD, PDF, HTML, JSON, ZIP</p>
     </div>
     <button class="settings-btn" id="settingsBtn" title="Settings" aria-label="Settings">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -301,9 +301,13 @@
       <div class="spinner"></div>
       <span>Copy MD</span>
     </button>
-    <button class="btn copy-btn" id="copyHtmlBtn" title="Copy standalone HTML to clipboard">
+    <button class="btn copy-btn" id="copyHtmlBtn" title="Copy standalone HTML to clipboard (Alt+Shift+H)">
       <div class="spinner"></div>
       <span>Copy HTML</span>
+    </button>
+    <button class="btn copy-btn" id="zipBtn" title="Export ZIP with chat.md + extracted code files (Alt+Shift+Z)">
+      <div class="spinner"></div>
+      <span>ZIP</span>
     </button>
   </div>
 

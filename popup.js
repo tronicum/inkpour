@@ -14,6 +14,7 @@
   const copyBtn     = document.getElementById('copyBtn');
   const copyHtmlBtn = document.getElementById('copyHtmlBtn');
   const jsonBtn     = document.getElementById('jsonBtn');
+  const zipBtn      = document.getElementById('zipBtn');
   const settingsBtn  = document.getElementById('settingsBtn');
   const historyBtn   = document.getElementById('historyBtn');
   const settingsBtn2 = document.getElementById('settingsBtn2');
@@ -236,6 +237,37 @@
       setStatus(err.message, err.streaming ? 'warning' : 'error');
     } finally {
       setLoading(jsonBtn, false);
+    }
+  });
+
+  // ─── ZIP export ──────────────────────────────────────────────────────────
+
+  zipBtn?.addEventListener('click', async () => {
+    clearStatus();
+    setLoading(zipBtn, true);
+    try {
+      const data = await extractFromPage();
+      const { files, codeCount } = buildZipExport(
+        data.messages, data.title, data.site, userSettings, data.sourceUrl
+      );
+      const zipBytes = buildZip(files);
+      const blob     = new Blob([zipBytes], { type: 'application/zip' });
+      const url      = URL.createObjectURL(blob);
+      const a        = Object.assign(document.createElement('a'), {
+        href:     url,
+        download: buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl) + '.zip',
+      });
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      const note = codeCount > 0 ? ` + ${codeCount} code file${codeCount !== 1 ? 's' : ''}` : '';
+      setStatus(`✓ ZIP saved — chat.md${note}`, 'success');
+      saveLastExport('zip', data, ''); // content not stored (binary)
+    } catch (err) {
+      setStatus(err.message, err.streaming ? 'warning' : 'error');
+    } finally {
+      setLoading(zipBtn, false);
     }
   });
 
@@ -583,6 +615,139 @@ ${bodyContent}
     if (hours < 24)   return `${hours}h ago`;
     const days  = Math.floor(hours / 24);
     return `${days}d ago`;
+  }
+
+  // ─── ZIP builder (pure JS, no external deps) ─────────────────────────────
+
+  // CRC32 lookup table (computed once)
+  const _CRC32 = (() => {
+    const t = new Uint32Array(256);
+    for (let i = 0; i < 256; i++) {
+      let c = i;
+      for (let j = 0; j < 8; j++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      t[i] = c;
+    }
+    return t;
+  })();
+
+  function _crc32(bytes) {
+    let c = 0xFFFFFFFF;
+    for (const b of bytes) c = _CRC32[(c ^ b) & 0xFF] ^ (c >>> 8);
+    return (c ^ 0xFFFFFFFF) >>> 0;
+  }
+
+  function _dosDateTime() {
+    const n = new Date();
+    return {
+      dosDate: ((n.getFullYear() - 1980) << 9) | ((n.getMonth() + 1) << 5) | n.getDate(),
+      dosTime: (n.getHours() << 11) | (n.getMinutes() << 5) | Math.floor(n.getSeconds() / 2),
+    };
+  }
+
+  /**
+   * Build a PKZIP-compatible ZIP archive (method 0 = STORED, no compression).
+   * @param {Array<{name:string, content:string}>} files
+   * @returns {Uint8Array}
+   */
+  function buildZip(files) {
+    const enc = new TextEncoder();
+    const { dosDate, dosTime } = _dosDateTime();
+    const w16 = (v, o, b) => new DataView(b).setUint16(o, v, true);
+    const w32 = (v, o, b) => new DataView(b).setUint32(o, v, true);
+
+    const entries = files.map(f => {
+      const name    = enc.encode(f.name);
+      const data    = enc.encode(f.content);
+      const crc     = _crc32(data);
+      return { name, data, crc };
+    });
+
+    const parts   = [];
+    const offsets = [];
+    let pos = 0;
+
+    // Local headers + file data
+    for (const e of entries) {
+      offsets.push(pos);
+      const lhBuf = new ArrayBuffer(30 + e.name.length);
+      const lh    = new Uint8Array(lhBuf);
+      w32(0x04034b50, 0, lhBuf); w16(20, 4, lhBuf); w16(0, 6, lhBuf);
+      w16(0, 8, lhBuf); w16(dosTime, 10, lhBuf); w16(dosDate, 12, lhBuf);
+      w32(e.crc, 14, lhBuf); w32(e.data.length, 18, lhBuf); w32(e.data.length, 22, lhBuf);
+      w16(e.name.length, 26, lhBuf); w16(0, 28, lhBuf);
+      lh.set(e.name, 30);
+      parts.push(lh, e.data);
+      pos += lh.length + e.data.length;
+    }
+
+    const cdStart = pos;
+
+    // Central directory
+    for (let i = 0; i < entries.length; i++) {
+      const e   = entries[i];
+      const cdBuf = new ArrayBuffer(46 + e.name.length);
+      const cd    = new Uint8Array(cdBuf);
+      w32(0x02014b50, 0, cdBuf); w16(20, 4, cdBuf); w16(20, 6, cdBuf);
+      w16(0, 8, cdBuf); w16(0, 10, cdBuf); w16(dosTime, 12, cdBuf); w16(dosDate, 14, cdBuf);
+      w32(e.crc, 16, cdBuf); w32(e.data.length, 20, cdBuf); w32(e.data.length, 24, cdBuf);
+      w16(e.name.length, 28, cdBuf); w16(0, 30, cdBuf); w16(0, 32, cdBuf);
+      w16(0, 34, cdBuf); w16(0, 36, cdBuf); w32(0, 38, cdBuf);
+      w32(offsets[i], 42, cdBuf);
+      cd.set(e.name, 46);
+      parts.push(cd);
+      pos += cd.length;
+    }
+
+    const cdSize = pos - cdStart;
+
+    // End of central directory
+    const eocdBuf = new ArrayBuffer(22);
+    w32(0x06054b50, 0, eocdBuf); w16(0, 4, eocdBuf); w16(0, 6, eocdBuf);
+    w16(entries.length, 8, eocdBuf); w16(entries.length, 10, eocdBuf);
+    w32(cdSize, 12, eocdBuf); w32(cdStart, 16, eocdBuf); w16(0, 20, eocdBuf);
+    parts.push(new Uint8Array(eocdBuf));
+
+    const total = parts.reduce((s, p) => s + p.length, 0);
+    const zip   = new Uint8Array(total);
+    let off = 0;
+    for (const p of parts) { zip.set(p, off); off += p.length; }
+    return zip;
+  }
+
+  // ─── Code-block extraction ────────────────────────────────────────────────
+
+  const _CODE_EXT = {
+    python: 'py', py: 'py', javascript: 'js', js: 'js', typescript: 'ts', ts: 'ts',
+    jsx: 'jsx', tsx: 'tsx', bash: 'sh', shell: 'sh', sh: 'sh', zsh: 'sh',
+    rust: 'rs', rs: 'rs', go: 'go', java: 'java', kotlin: 'kt', swift: 'swift',
+    cpp: 'cpp', 'c++': 'cpp', c: 'c', css: 'css', scss: 'scss', sass: 'sass',
+    html: 'html', xml: 'xml', svg: 'svg', sql: 'sql', json: 'json',
+    yaml: 'yml', yml: 'yml', toml: 'toml', markdown: 'md', md: 'md',
+    r: 'r', ruby: 'rb', rb: 'rb', php: 'php', cs: 'cs', csharp: 'cs',
+  };
+
+  function buildZipExport(messages, title, site, opts, sourceUrl) {
+    const md    = buildMarkdown(messages, title, site, opts, sourceUrl);
+    const files = [{ name: 'chat.md', content: md }];
+
+    const counters  = {};
+    const codeBlockRe = /```(\w*)\n([\s\S]*?)```/g;
+
+    for (const { content } of messages) {
+      let m;
+      // Reset lastIndex between messages
+      codeBlockRe.lastIndex = 0;
+      while ((m = codeBlockRe.exec(content)) !== null) {
+        const lang = (m[1] || '').toLowerCase();
+        const code = m[2].trimEnd();
+        if (!code) continue;
+        const ext = _CODE_EXT[lang] || 'txt';
+        counters[ext] = (counters[ext] || 0) + 1;
+        files.push({ name: `snippet-${counters[ext]}.${ext}`, content: code + '\n' });
+      }
+    }
+
+    return { files, codeCount: files.length - 1 };
   }
 
   // ─── Status helpers ───────────────────────────────────────────────────────

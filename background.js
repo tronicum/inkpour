@@ -127,6 +127,15 @@ api.commands.onCommand.addListener(async (command) => {
     const url  = 'data:application/json;charset=utf-8,' + encodeURIComponent(json);
     api.downloads.download({ url, filename: filename + '.json', saveAs: false });
   }
+
+  if (command === 'export-zip') {
+    const { files } = buildZipExport(response.messages, response.title, response.site, settings, sourceUrl);
+    const zipBytes  = buildZip(files);
+    // base64-encode for data: URL (no createObjectURL in SW)
+    const b64  = btoa(String.fromCharCode(...zipBytes));
+    const url  = 'data:application/zip;base64,' + b64;
+    api.downloads.download({ url, filename: filename + '.zip', saveAs: false });
+  }
 });
 
 // ─── Markdown builder (mirrors popup.js — keep in sync) ──────────────────
@@ -298,4 +307,118 @@ function buildFilename(template, platform, titleSlug, sourceUrl = '') {
     .replace(/[^a-z0-9_\-]+/gi, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 100) || 'inkpour-export';
+}
+
+// ─── ZIP builder (mirrors popup.js — keep in sync) ───────────────────────
+
+const _CRC32_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let i = 0; i < 256; i++) {
+    let c = i;
+    for (let j = 0; j < 8; j++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    t[i] = c;
+  }
+  return t;
+})();
+
+function _crc32(bytes) {
+  let c = 0xFFFFFFFF;
+  for (const b of bytes) c = _CRC32_TABLE[(c ^ b) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+
+function _dosDateTime() {
+  const n = new Date();
+  return {
+    dosDate: ((n.getFullYear() - 1980) << 9) | ((n.getMonth() + 1) << 5) | n.getDate(),
+    dosTime: (n.getHours() << 11) | (n.getMinutes() << 5) | Math.floor(n.getSeconds() / 2),
+  };
+}
+
+function buildZip(files) {
+  const enc = new TextEncoder();
+  const { dosDate, dosTime } = _dosDateTime();
+  const w16 = (v, o, b) => new DataView(b).setUint16(o, v, true);
+  const w32 = (v, o, b) => new DataView(b).setUint32(o, v, true);
+
+  const entries = files.map(f => {
+    const name = enc.encode(f.name);
+    const data = enc.encode(f.content);
+    return { name, data, crc: _crc32(data) };
+  });
+
+  const parts = [], offsets = [];
+  let pos = 0;
+
+  for (const e of entries) {
+    offsets.push(pos);
+    const lhBuf = new ArrayBuffer(30 + e.name.length);
+    const lh    = new Uint8Array(lhBuf);
+    w32(0x04034b50, 0, lhBuf); w16(20, 4, lhBuf); w16(0, 6, lhBuf);
+    w16(0, 8, lhBuf); w16(dosTime, 10, lhBuf); w16(dosDate, 12, lhBuf);
+    w32(e.crc, 14, lhBuf); w32(e.data.length, 18, lhBuf); w32(e.data.length, 22, lhBuf);
+    w16(e.name.length, 26, lhBuf); w16(0, 28, lhBuf);
+    lh.set(e.name, 30);
+    parts.push(lh, e.data);
+    pos += lh.length + e.data.length;
+  }
+
+  const cdStart = pos;
+  for (let i = 0; i < entries.length; i++) {
+    const e     = entries[i];
+    const cdBuf = new ArrayBuffer(46 + e.name.length);
+    const cd    = new Uint8Array(cdBuf);
+    w32(0x02014b50, 0, cdBuf); w16(20, 4, cdBuf); w16(20, 6, cdBuf);
+    w16(0, 8, cdBuf); w16(0, 10, cdBuf); w16(dosTime, 12, cdBuf); w16(dosDate, 14, cdBuf);
+    w32(e.crc, 16, cdBuf); w32(e.data.length, 20, cdBuf); w32(e.data.length, 24, cdBuf);
+    w16(e.name.length, 28, cdBuf); w16(0, 30, cdBuf); w16(0, 32, cdBuf);
+    w16(0, 34, cdBuf); w16(0, 36, cdBuf); w32(0, 38, cdBuf);
+    w32(offsets[i], 42, cdBuf);
+    cd.set(e.name, 46);
+    parts.push(cd);
+    pos += cd.length;
+  }
+
+  const cdSize = pos - cdStart;
+  const eocdBuf = new ArrayBuffer(22);
+  w32(0x06054b50, 0, eocdBuf); w16(0, 4, eocdBuf); w16(0, 6, eocdBuf);
+  w16(entries.length, 8, eocdBuf); w16(entries.length, 10, eocdBuf);
+  w32(cdSize, 12, eocdBuf); w32(cdStart, 16, eocdBuf); w16(0, 20, eocdBuf);
+  parts.push(new Uint8Array(eocdBuf));
+
+  const total = parts.reduce((s, p) => s + p.length, 0);
+  const zip   = new Uint8Array(total);
+  let off = 0;
+  for (const p of parts) { zip.set(p, off); off += p.length; }
+  return zip;
+}
+
+const _CODE_EXT = {
+  python: 'py', py: 'py', javascript: 'js', js: 'js', typescript: 'ts', ts: 'ts',
+  jsx: 'jsx', tsx: 'tsx', bash: 'sh', shell: 'sh', sh: 'sh', zsh: 'sh',
+  rust: 'rs', rs: 'rs', go: 'go', java: 'java', kotlin: 'kt', swift: 'swift',
+  cpp: 'cpp', 'c++': 'cpp', c: 'c', css: 'css', scss: 'scss', sass: 'sass',
+  html: 'html', xml: 'xml', svg: 'svg', sql: 'sql', json: 'json',
+  yaml: 'yml', yml: 'yml', toml: 'toml', markdown: 'md', md: 'md',
+  r: 'r', ruby: 'rb', rb: 'rb', php: 'php', cs: 'cs', csharp: 'cs',
+};
+
+function buildZipExport(messages, title, site, opts, sourceUrl) {
+  const md       = buildMarkdown(messages, title, site, opts, sourceUrl);
+  const files    = [{ name: 'chat.md', content: md }];
+  const counters = {};
+  const re       = /```(\w*)\n([\s\S]*?)```/g;
+  for (const { content } of messages) {
+    re.lastIndex = 0;
+    let m;
+    while ((m = re.exec(content)) !== null) {
+      const lang = (m[1] || '').toLowerCase();
+      const code = m[2].trimEnd();
+      if (!code) continue;
+      const ext = _CODE_EXT[lang] || 'txt';
+      counters[ext] = (counters[ext] || 0) + 1;
+      files.push({ name: `snippet-${counters[ext]}.${ext}`, content: code + '\n' });
+    }
+  }
+  return { files, codeCount: files.length - 1 };
 }

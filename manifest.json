@@ -52,6 +52,10 @@
     "export-json": {
       "suggested_key": { "default": "Alt+Shift+J", "mac": "Alt+Shift+J" },
       "description": "Export current chat to JSON"
+    },
+    "export-zip": {
+      "suggested_key": { "default": "Alt+Shift+Z", "mac": "Alt+Shift+Z" },
+      "description": "Export current chat as ZIP (chat.md + code files)"
     }
   },
 

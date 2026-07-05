@@ -535,6 +535,101 @@ async function main() {
     });
   });
 
+  // ── ZIP builder ───────────────────────────────────────────────────────────
+  await suite('ZIP builder', async () => {
+    // Inline the same CRC32 + buildZip logic as popup.js / background.js
+    const CRC32 = (() => {
+      const t = new Uint32Array(256);
+      for (let i = 0; i < 256; i++) {
+        let c = i;
+        for (let j = 0; j < 8; j++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+        t[i] = c;
+      }
+      return t;
+    })();
+    const crc32 = (bytes) => {
+      let c = 0xFFFFFFFF;
+      for (const b of bytes) c = CRC32[(c ^ b) & 0xFF] ^ (c >>> 8);
+      return (c ^ 0xFFFFFFFF) >>> 0;
+    };
+    function buildZip(files) {
+      const enc = new TextEncoder();
+      const now = new Date();
+      const dosDate = ((now.getFullYear()-1980)<<9)|((now.getMonth()+1)<<5)|now.getDate();
+      const dosTime = (now.getHours()<<11)|(now.getMinutes()<<5)|Math.floor(now.getSeconds()/2);
+      const w16 = (v,o,b) => new DataView(b).setUint16(o,v,true);
+      const w32 = (v,o,b) => new DataView(b).setUint32(o,v,true);
+      const entries = files.map(f => ({ name: enc.encode(f.name), data: enc.encode(f.content) }));
+      entries.forEach(e => { e.crc = crc32(e.data); });
+      const parts = [], offsets = [];
+      let pos = 0;
+      for (const e of entries) {
+        offsets.push(pos);
+        const lhBuf = new ArrayBuffer(30+e.name.length), lh = new Uint8Array(lhBuf);
+        w32(0x04034b50,0,lhBuf); w16(20,4,lhBuf); w16(0,6,lhBuf);
+        w16(0,8,lhBuf); w16(dosTime,10,lhBuf); w16(dosDate,12,lhBuf);
+        w32(e.crc,14,lhBuf); w32(e.data.length,18,lhBuf); w32(e.data.length,22,lhBuf);
+        w16(e.name.length,26,lhBuf); w16(0,28,lhBuf); lh.set(e.name,30);
+        parts.push(lh, e.data); pos += lh.length + e.data.length;
+      }
+      const cdStart = pos;
+      for (let i=0;i<entries.length;i++) {
+        const e=entries[i], cdBuf=new ArrayBuffer(46+e.name.length), cd=new Uint8Array(cdBuf);
+        w32(0x02014b50,0,cdBuf); w16(20,4,cdBuf); w16(20,6,cdBuf);
+        w16(0,8,cdBuf); w16(0,10,cdBuf); w16(dosTime,12,cdBuf); w16(dosDate,14,cdBuf);
+        w32(e.crc,16,cdBuf); w32(e.data.length,20,cdBuf); w32(e.data.length,24,cdBuf);
+        w16(e.name.length,28,cdBuf); w16(0,30,cdBuf); w16(0,32,cdBuf);
+        w16(0,34,cdBuf); w16(0,36,cdBuf); w32(0,38,cdBuf); w32(offsets[i],42,cdBuf);
+        cd.set(e.name,46); parts.push(cd); pos+=cd.length;
+      }
+      const cdSize = pos-cdStart, eocdBuf = new ArrayBuffer(22);
+      w32(0x06054b50,0,eocdBuf); w16(0,4,eocdBuf); w16(0,6,eocdBuf);
+      w16(entries.length,8,eocdBuf); w16(entries.length,10,eocdBuf);
+      w32(cdSize,12,eocdBuf); w32(cdStart,16,eocdBuf); w16(0,20,eocdBuf);
+      parts.push(new Uint8Array(eocdBuf));
+      const total = parts.reduce((s,p)=>s+p.length,0);
+      const zip = new Uint8Array(total); let off=0;
+      for (const p of parts) { zip.set(p,off); off+=p.length; }
+      return zip;
+    }
+
+    await test('ZIP starts with local file header signature', () => {
+      const zip = buildZip([{ name: 'hello.txt', content: 'Hello, World!' }]);
+      const view = new DataView(zip.buffer);
+      // PK\x03\x04 = 0x04034b50
+      assert(view.getUint32(0, true) === 0x04034b50, 'missing local file header sig');
+    });
+
+    await test('ZIP ends with end-of-central-directory signature', () => {
+      const zip  = buildZip([{ name: 'a.txt', content: 'abc' }]);
+      const view = new DataView(zip.buffer);
+      // PK\x05\x06 at last 22 bytes
+      assert(view.getUint32(zip.length - 22, true) === 0x06054b50, 'missing EOCD sig');
+    });
+
+    await test('CRC32 is deterministic and non-zero', () => {
+      const enc = new TextEncoder();
+      const a = crc32(enc.encode('Hello, World!'));
+      const b = crc32(enc.encode('Hello, World!'));
+      assert(a === b, 'CRC32 not deterministic');
+      assert(a !== 0, 'CRC32 should not be zero');
+      // Different input must differ
+      const c = crc32(enc.encode('hello, world!'));
+      assert(a !== c, 'CRC32 collision on different inputs');
+    });
+
+    await test('multi-file ZIP has correct file count in EOCD', () => {
+      const zip  = buildZip([
+        { name: 'a.md',  content: '# Hello' },
+        { name: 'b.py',  content: 'print("hi")' },
+        { name: 'c.js',  content: 'console.log("hi")' },
+      ]);
+      const view = new DataView(zip.buffer);
+      const count = view.getUint16(zip.length - 22 + 8, true); // total entries
+      assert(count === 3, `expected 3 entries, got ${count}`);
+    });
+  });
+
   // ─── Results ───────────────────────────────────────────────────────────────
   console.log('\n' + '─'.repeat(50));
   console.log(`Results: ${passed} passed, ${failed} failed`);
