@@ -98,7 +98,27 @@ async function extractFromFixture(fixtureName, hostname = '') {
   const listener = listeners[0];
   if (!listener) throw new Error('No onMessage listener registered by content.js');
 
-  return listener({ action: 'extract' });
+  // The listener uses sendResponse callback + return true for Chrome MV3 compat.
+  // We wrap it in a Promise so tests can await the result as before.
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const sendResponse = (response) => {
+      if (!settled) { settled = true; resolve(response); }
+    };
+    try {
+      const ret = listener({ action: 'extract' }, {}, sendResponse);
+      // If the listener returned false / undefined (sync path), resolve immediately
+      // with whatever was passed to sendResponse (already resolved above), or
+      // resolve with undefined after a tick to let synchronous sendResponse run.
+      if (ret !== true) {
+        setTimeout(() => { if (!settled) { settled = true; resolve(undefined); } }, 100);
+      }
+    } catch (err) {
+      if (!settled) reject(err);
+    }
+    // Safety timeout
+    setTimeout(() => { if (!settled) { settled = true; resolve({ error: 'timeout' }); } }, 3000);
+  });
 }
 
 // ─── Test suites ────────────────────────────────────────────────────────────
@@ -890,6 +910,33 @@ async function main() {
     assert(text.includes('[Content_Types].xml'), 'missing content types');
     assert(text.includes('word/document.xml'),   'missing document part');
     assert(text.includes('word/styles.xml'),      'missing styles part');
+  });
+
+  // ─── notesBlockMD ─────────────────────────────────────────────────────────
+  await test('notesBlockMD returns empty string for empty input', () => {
+    assert(notesBlockMD('') === '', 'empty string should return empty');
+    assert(notesBlockMD('   ') === '', 'whitespace-only should return empty');
+    assert(notesBlockMD(null) === '', 'null should return empty');
+  });
+
+  await test('notesBlockMD wraps single line in blockquote', () => {
+    const result = notesBlockMD('My note here');
+    assert(result === '> My note here\n\n', `unexpected: ${JSON.stringify(result)}`);
+  });
+
+  await test('notesBlockMD wraps multi-line notes in blockquote lines', () => {
+    const result = notesBlockMD('Line one\nLine two\nLine three');
+    assert(result.includes('> Line one'), 'first line missing');
+    assert(result.includes('> Line two'), 'second line missing');
+    assert(result.includes('> Line three'), 'third line missing');
+    assert(result.endsWith('\n\n'), 'should end with double newline');
+  });
+
+  await test('notesBlockMD output prepends cleanly to markdown', () => {
+    const msgs = [{ role: 'You', content: 'hello' }];
+    const md   = notesBlockMD('My context note') + buildMarkdown(msgs, 'Chat', 'claude', {});
+    assert(md.startsWith('> My context note'), 'notes should precede markdown content');
+    assert(md.includes('# You'), 'markdown content should follow notes');
   });
 
   // ─── Results ───────────────────────────────────────────────────────────────
