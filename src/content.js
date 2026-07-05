@@ -1152,6 +1152,15 @@
       return !!document.querySelector('.chat-assistant .dot');
     }
 
+    // Venice.ai: Chakra spinner or aria-busy on the assistant container
+    if (site === 'venice') {
+      return !!(
+        document.querySelector('.assistant [aria-busy="true"]') ||
+        document.querySelector('[class*="chakra-spinner"]') ||
+        document.querySelector('.assistant-content [class*="loading"], .assistant-content [class*="thinking"]')
+      );
+    }
+
     // Generic fallback: look for any visible "Stop generating" button
     const stopBtns = document.querySelectorAll(
       'button[aria-label*="stop" i], button[title*="stop" i], ' +
@@ -1359,6 +1368,9 @@
     <button class="menu-btn" id="inkpour-copy">
       <span class="icon">⎘</span> Copy MD
     </button>
+    <button class="menu-btn" id="inkpour-docx">
+      <span class="icon">📄</span> Export DOCX
+    </button>
     <button class="menu-btn" id="inkpour-pdf">
       <span class="icon">🖨</span> Export PDF
     </button>
@@ -1372,14 +1384,15 @@
 
     document.body.appendChild(root);
 
-    const fab    = shadow.getElementById('inkpour-fab');
-    const menu   = shadow.getElementById('inkpour-menu');
-    const mdBtn  = shadow.getElementById('inkpour-md');
-    const cpBtn  = shadow.getElementById('inkpour-copy');
-    const pdfBtn = shadow.getElementById('inkpour-pdf');
-    const zipBtn = shadow.getElementById('inkpour-zip');
-    const status = shadow.getElementById('inkpour-status');
-    const allBtns = [mdBtn, cpBtn, pdfBtn, zipBtn];
+    const fab     = shadow.getElementById('inkpour-fab');
+    const menu    = shadow.getElementById('inkpour-menu');
+    const mdBtn   = shadow.getElementById('inkpour-md');
+    const cpBtn   = shadow.getElementById('inkpour-copy');
+    const docxBtn = shadow.getElementById('inkpour-docx');
+    const pdfBtn  = shadow.getElementById('inkpour-pdf');
+    const zipBtn  = shadow.getElementById('inkpour-zip');
+    const status  = shadow.getElementById('inkpour-status');
+    const allBtns = [mdBtn, cpBtn, docxBtn, pdfBtn, zipBtn];
 
     // Toggle menu
     fab.addEventListener('click', (e) => {
@@ -1450,6 +1463,7 @@
 
     mdBtn.addEventListener('click', () => runExport('md'));
     cpBtn.addEventListener('click', () => runExport('copy'));
+    docxBtn.addEventListener('click', () => runBgExport('docx'));
     pdfBtn.addEventListener('click', () => runBgExport('pdf'));
     zipBtn.addEventListener('click', () => runBgExport('zip'));
   }
