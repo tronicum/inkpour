@@ -933,6 +933,40 @@ ${contentLinkRels}
     <w:rPr><w:b/><w:sz w:val="24"/><w:szCs w:val="24"/><w:color w:val="52525B"/></w:rPr>
   </w:style>
 
+  <w:style w:type="paragraph" w:styleId="Heading4">
+    <w:name w:val="heading 4"/>
+    <w:basedOn w:val="Normal"/>
+    <w:pPr><w:spacing w:before="120" w:after="40"/></w:pPr>
+    <w:rPr><w:b/><w:i/><w:sz w:val="22"/><w:szCs w:val="22"/><w:color w:val="71717A"/></w:rPr>
+  </w:style>
+
+  <w:style w:type="paragraph" w:styleId="Heading5">
+    <w:name w:val="heading 5"/>
+    <w:basedOn w:val="Normal"/>
+    <w:pPr><w:spacing w:before="100" w:after="40"/></w:pPr>
+    <w:rPr><w:b/><w:sz w:val="20"/><w:szCs w:val="20"/><w:color w:val="71717A"/></w:rPr>
+  </w:style>
+
+  <w:style w:type="paragraph" w:styleId="Heading6">
+    <w:name w:val="heading 6"/>
+    <w:basedOn w:val="Normal"/>
+    <w:pPr><w:spacing w:before="80" w:after="40"/></w:pPr>
+    <w:rPr><w:b/><w:sz w:val="18"/><w:szCs w:val="18"/><w:color w:val="A1A1AA"/></w:rPr>
+  </w:style>
+
+  <w:style w:type="paragraph" w:styleId="IntenseQuote">
+    <w:name w:val="Intense Quote"/>
+    <w:basedOn w:val="Normal"/>
+    <w:pPr>
+      <w:ind w:left="720" w:right="720"/>
+      <w:spacing w:before="80" w:after="80"/>
+      <w:pBdr>
+        <w:left w:val="single" w:sz="6" w:space="4" w:color="D4D4D8"/>
+      </w:pBdr>
+    </w:pPr>
+    <w:rPr><w:i/><w:color w:val="6B7280"/></w:rPr>
+  </w:style>
+
 </w:styles>`;
 
   const document = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
