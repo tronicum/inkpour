@@ -1,13 +1,14 @@
-# 🐟 Inkpour
+# 🖋 Inkpour
 
 [![Beta](https://img.shields.io/badge/status-beta-orange?style=flat-square)](https://github.com/tronicum/inkpour)
 [![CI](https://img.shields.io/github/actions/workflow/status/tronicum/inkpour/ci.yml?branch=dev&style=flat-square&label=CI)](https://github.com/tronicum/inkpour/actions/workflows/ci.yml)
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL%20v3-blue?style=flat-square)](./LICENSE)
 [![MV3](https://img.shields.io/badge/Manifest-V3-5b5bd6?style=flat-square)](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json)
+[![Tests](https://img.shields.io/badge/tests-64%20passed-16a34a?style=flat-square)](./test/run-jsdom.js)
 
-**Export your AI chat conversations to Markdown, PDF, and HTML — directly from your browser.**
+**Export AI chat conversations to Markdown, PDF, HTML, or JSON — one click, no accounts, no servers.**
 
-Inkpour is a lightweight WebExtension (Manifest V3) that saves conversations from the AI tools you use every day into clean, portable documents. One click, no accounts, no servers — everything happens locally in your browser.
+Inkpour is a lightweight WebExtension (Manifest V3) that works in Firefox, Chrome, Edge, and Brave. Everything happens locally in your browser.
 
 ---
 
@@ -15,165 +16,137 @@ Inkpour is a lightweight WebExtension (Manifest V3) that saves conversations fro
 
 | Platform | URL | Status |
 |---|---|---|
-| ChatGPT | chatgpt.com / chat.openai.com | ✅ Full support |
-| Claude | claude.ai | ✅ Full support |
-| Google Gemini | gemini.google.com | ✅ Full support |
-| Google AI Studio | aistudio.google.com | ✅ Full support |
-| Microsoft Copilot | copilot.microsoft.com / copilot.com | ✅ Full support |
-| Grok | grok.com | ✅ Full support |
+| ChatGPT | chatgpt.com / chat.openai.com | ✅ Full |
+| Claude | claude.ai | ✅ Full |
+| Google Gemini | gemini.google.com | ✅ Full |
+| Google AI Studio | aistudio.google.com | ✅ Full |
+| Microsoft Copilot | copilot.microsoft.com / copilot.com | ✅ Full |
+| Grok | grok.com | ✅ Full |
 | Perplexity | perplexity.ai | 🧪 Experimental |
 | DeepSeek | chat.deepseek.com | 🧪 Experimental |
+| Meta AI | meta.ai | 🧪 Experimental |
+| Mistral Le Chat | chat.mistral.ai | 🧪 Experimental |
+| HuggingChat | huggingface.co/chat | 🧪 Experimental |
+| Poe | poe.com | 🧪 Experimental |
+| Phind | phind.com | 🧪 Experimental |
+| NotebookLM | notebooklm.google.com | 🧪 Experimental |
+| Kagi Assistant | kagi.com | 🧪 Experimental |
+
+Experimental = selectors verified against fixture HTML; real-page accuracy needs ongoing maintenance as sites update their DOM.
 
 ---
 
 ## Features
 
-- Export conversations to **Markdown** (`.md`), **PDF**, or self-contained **HTML**
-- **Copy to clipboard** — one click or `Alt+Shift+C` to copy Markdown directly
-- **Keyboard shortcuts** — `Alt+Shift+M` to export, `Alt+Shift+C` to copy (no popup needed)
-- Preserves headings, bold, italic, inline code, fenced code blocks, tables, lists, and emojis
-- PDF export opens a clean, ad-free print preview — no Google UI, no clutter
-- HTML export is a single self-contained file, openable in any browser
-- Dark and light mode throughout — popup, PDF preview, and HTML export all follow system preference
-- Active platform chip highlights which site you're on when you open the popup
-- No data leaves your machine — no accounts, no telemetry, no backend
+### Export formats
+- **Markdown** (`.md`) — clean GFM with optional YAML front matter and table of contents
+- **PDF** — opens a clean, ad-free print-preview tab and triggers the browser print dialog
+- **HTML** — fully self-contained single file with dark/light mode, no external dependencies
+- **JSON** — structured `{ exporter, version, title, platform, exportedAt, messages[] }`
+
+### Clipboard
+- **Copy MD** (`Alt+Shift+C`) — Markdown to clipboard instantly
+- **Copy HTML** (`Alt+Shift+H`) — full standalone HTML to clipboard (paste into Notion, Confluence, email)
+
+### Keyboard shortcuts (no popup needed)
+| Shortcut | Action |
+|---|---|
+| `Alt+Shift+M` | Export Markdown |
+| `Alt+Shift+C` | Copy Markdown |
+| `Alt+Shift+H` | Copy HTML |
+| `Alt+Shift+J` | Export JSON |
+
+### Right-click context menu
+Right-click any supported page → **Export with Inkpour** → MD / Copy / JSON.
+
+### Markdown quality
+Faithfully converts the full rich-text DOM:
+- Headings, bold, italic, strikethrough, inline code, fenced code blocks with language tags
+- Tables (GFM pipe format), nested lists, blockquotes
+- `<details>/<summary>` → collapsible blockquote (preserves Claude's extended thinking blocks)
+- KaTeX / MathJax → `$…$` / `$$…$$` LaTeX math
+- Citation superscripts (`<a><sup>1</sup></a>`) → `[^1]` footnotes with a **Sources:** section (Perplexity)
+- Figure + figcaption → `![alt](src)\n*caption*`
+
+### Filename templates
+Tokens: `{platform}`, `{title}`, `{date}` (YYYY-MM-DD), `{time}` (HH-MM). Default: `{platform}-{title}`.
+
+### UX details
+- Platform chips in popup highlight the current site
+- Message-count peek on open: "Ready · 12 messages · ~1,800 words"
+- Last-export hint: "Last: claude · 12 msgs · MD · 2h ago"
+- Streaming guard: warns if the AI is still generating instead of exporting an incomplete response
+- Auto-scroll: triggers lazy-loading of older messages on ChatGPT, Gemini, and AI Studio before extraction
+- In-page floating button (Shadow DOM, dark-mode aware) — export without opening the popup
+
+### Settings
+- Default format preference
+- Filename template
+- YAML front matter (title, platform, date, URL, word count)
+- Table of contents for long chats
 
 ---
 
-## Try it now (Firefox, Chrome, Edge, Brave — no account needed)
-
-You can load Inkpour as a temporary extension directly in Firefox in about 30 seconds.
-
-### Step 1 — Get the files
+## Quick start (Firefox)
 
 ```bash
 git clone https://github.com/tronicum/inkpour.git
-cd inkpour
 ```
 
-Or download the ZIP from the green **Code** button on this page and unzip it.
+1. Open **`about:debugging`** → **This Firefox** → **Load Temporary Add-on…**
+2. Select **`manifest.json`** from the cloned folder
+3. Open any supported AI chat, click the Inkpour icon
 
-### Step 2 — Load in your browser
-
-**Firefox**
-1. Go to **`about:debugging`** in the address bar
-2. Click **This Firefox** → **Load Temporary Add-on…**
-3. Select **`manifest.json`** from the cloned folder
-
-> Temporary add-ons are removed on restart. Reload via `about:debugging` → **This Firefox** → **Reload**.
-
-**Chrome / Edge / Brave**
-1. Go to **`chrome://extensions`** (or `edge://extensions`)
-2. Enable **Developer mode** (toggle, top right)
-3. Click **Load unpacked** and select the cloned folder
-
-> Chrome keeps unpacked extensions across restarts as long as Developer mode stays on.
-
-### Step 3 — Export a chat
-
-1. Open any supported AI chat page with a conversation loaded
-2. Click the Inkpour icon in your toolbar
-3. Choose **MD**, **PDF**, **HTML**, or **Copy**
-   - **MD** and **HTML** download immediately to your Downloads folder
-   - **PDF** opens a clean preview tab and triggers the print dialog — choose **Save to PDF**
-   - **Copy** puts the Markdown on your clipboard instantly
-4. Or skip the popup entirely with keyboard shortcuts: `Alt+Shift+M` (export MD) / `Alt+Shift+C` (copy)
+**Chrome / Edge / Brave:** `chrome://extensions` → **Developer mode** → **Load unpacked** → select the folder.
 
 ### Troubleshooting
 
-**"Navigate to a supported AI chat page…" error**
-The content script wasn't injected. Refresh the chat tab after loading the extension, then try again.
-
-**PDF tab shows "Loading conversation…"**
-The extension wasn't fully reloaded. Go to `about:debugging` → Reload Inkpour, refresh the chat tab, then export again.
-
-**No messages found**
-Scroll through the full conversation so it's loaded in the DOM, then export.
+| Symptom | Fix |
+|---|---|
+| "Content script not running" error | Refresh the chat tab after loading the extension |
+| PDF tab shows "Loading…" | Reload the extension in `about:debugging`, refresh chat tab |
+| No messages found | Scroll through the full conversation to trigger lazy-loading |
+| Streaming warning | Wait for the AI to finish generating, then export |
 
 ---
 
-## Project structure
+## Development
+
+```bash
+npm test          # Run 64 JSDOM-based extraction tests (no browser needed)
+```
+
+### Project structure
 
 ```
 inkpour/
-├── manifest.json          ← MV3 extension manifest
-├── popup.html             ← Toolbar popup UI
-├── popup.js               ← Export trigger, download logic, MD/HTML/PDF builders
-├── print.html             ← Clean print preview page (PDF flow)
-├── print.js               ← Reads localStorage, renders, triggers window.print()
-├── icons/
-│   ├── icon-48.png
-│   └── icon-96.png
-└── src/
-    ├── content.js         ← Injected into chat pages — extracts messages
-    ├── extractors/        ← Per-site DOM scrapers (reference implementations)
-    │   ├── chatgpt.js
-    │   ├── claude.js
-    │   ├── gemini.js
-    │   ├── aistudio.js    ← Async edit-mode extraction (Trifall technique)
-    │   ├── copilot.js
-    │   └── index.js
-    ├── exporters/         ← Output format logic
-    │   ├── markdown.js    ← HTML → Markdown converter
-    │   ├── pdf.js
-    │   └── json.js
-    └── browser/           ← Browser capability abstraction layer
-        ├── index.js
-        ├── firefox.js
-        └── safari.js
+├── manifest.json          MV3 manifest (15 host_permissions, 4 commands)
+├── popup.html / popup.js  Popup UI + export logic
+├── background.js          Service worker: keyboard shortcuts + context menus
+├── settings.html / .js    Options page
+├── print.html / print.js  PDF print-preview tab
+├── icons/                 16 / 32 / 48 / 128 px PNGs
+├── src/
+│   └── content.js         Extraction, htmlToMarkdown, in-page button (~1100 lines)
+└── test/
+    ├── run-jsdom.js        JSDOM test harness (64 tests)
+    └── fixtures/           15 HTML fixtures — one per platform
 ```
 
----
-
-## Roadmap
-
-- [x] Markdown export
-- [x] PDF export (clean print preview, ad-free)
-- [x] HTML export (self-contained file)
-- [x] Markdown export
-- [x] PDF export (clean print preview, ad-free)
-- [x] HTML export (self-contained file)
-- [x] Copy to clipboard (popup button + Alt+Shift+C)
-- [x] Keyboard shortcuts (Alt+Shift+M export, Alt+Shift+C copy)
-- [x] Platform chip highlighting in popup
-- [x] Dark mode PDF preview and HTML export
-- [x] YAML front matter (opt-in via Settings)
-- [x] Default format preference (via Settings)
-- [x] Grok support
-- [x] Perplexity support (experimental)
-- [x] DeepSeek support (experimental)
-- [x] Strip "You said" / "Gemini said" UI labels from Gemini exports
-- [x] Title suffix cleanup (strips "- ChatGPT", "- Claude", etc.)
-- [ ] Table of contents for long conversations
-- [ ] In-page export button injected next to share button
-- [ ] Improved AI Studio extraction (Trifall edit-mode approach)
-- [ ] Google Search AI mode support
-- [ ] Safari / iOS support via Xcode Web Extension converter
+See [planning.md](./planning.md) for architecture decisions and next steps.
 
 ---
 
 ## Standing on the shoulders of giants
 
-Inkpour would not exist without the excellent open source work that came before it.
-
 ### [Trifall/chat-export](https://github.com/Trifall/chat-export)
-A beautifully built TypeScript WebExtension that exports conversations from ChatGPT, Claude, and Gemini (AI Studio) to Markdown, XML, JSON, and HTML. The AI Studio edit-mode extraction approach is particularly clever — opening the edit button to read the raw `data-value` from the textarea rather than scraping rendered HTML. A reference implementation we deeply respect. Licensed **MIT**.
+TypeScript WebExtension for ChatGPT, Claude, and Gemini. The AI Studio edit-mode extraction approach (opening the edit button to read raw `data-value`) came from here. Licensed **MIT**.
 
 ### [revivalstack/ai-chat-exporter](https://github.com/revivalstack/ai-chat-exporter)
-A feature-rich Tampermonkey userscript by Mic Mejia supporting ChatGPT, Claude, Copilot, Gemini, and Grok, with YAML front matter, table of contents, keyboard shortcuts, and selective export. The most complete tool in this space, actively maintained. A real inspiration for where Inkpour is heading. Licensed **MIT**.
+Feature-rich Tampermonkey userscript covering ChatGPT, Claude, Copilot, Gemini, and Grok with YAML front matter, TOC, keyboard shortcuts, and selective export. Licensed **MIT**.
 
 ---
 
 ## License
 
-Inkpour is released under the **GNU Affero General Public License v3.0 (AGPL-3.0)**.
-
-Portions derived from [chat-export by Trifall](https://github.com/Trifall/chat-export) are used under the MIT License — the original copyright notice is retained in the LICENSE file.
-
-See [LICENSE](./LICENSE) for full details.
-
----
-
-## Contributing
-
-Pull requests welcome. Open an issue first for anything non-trivial. See [planning.md](../planning.md) for the current direction.
+AGPL-3.0. Portions derived from [chat-export by Trifall](https://github.com/Trifall/chat-export) (MIT) — original copyright retained in LICENSE.
