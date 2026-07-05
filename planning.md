@@ -154,7 +154,7 @@ inkpour/
 ├── supported-sites.json    Machine-readable platform list
 ├── icons/                  16/32/48/128px PNGs
 └── test/
-    ├── run-jsdom.js        JSDOM test harness (134 tests, 0 failures)
+    ├── run-jsdom.js        JSDOM test harness (149 tests, 0 failures)
     └── fixtures/           17 HTML fixtures (one per platform)
 ```
 
