@@ -4,7 +4,7 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/tronicum/inkpour/ci.yml?branch=dev&style=flat-square&label=CI)](https://github.com/tronicum/inkpour/actions/workflows/ci.yml)
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL%20v3-blue?style=flat-square)](./LICENSE)
 [![MV3](https://img.shields.io/badge/Manifest-V3-5b5bd6?style=flat-square)](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json)
-[![Tests](https://img.shields.io/badge/tests-149%20passed-16a34a?style=flat-square)](./test/run-jsdom.js)
+[![Tests](https://img.shields.io/badge/tests-159%20passed-16a34a?style=flat-square)](./test/run-jsdom.js)
 
 **Export AI chat conversations to Markdown, PDF, HTML, JSON, or ZIP — one click, no accounts, no servers.**
 
@@ -144,7 +144,7 @@ git clone https://github.com/tronicum/inkpour.git
 ## Development
 
 ```bash
-npm test          # Run 149 JSDOM-based extraction and builder tests (no browser needed)
+npm test          # Run 159 JSDOM-based extraction and builder tests (no browser needed)
 ```
 
 ### Project structure
@@ -162,8 +162,8 @@ inkpour/
 │   ├── content.js          Extraction, htmlToMarkdown, in-page button, toasts
 │   └── utils.js            Shared builders: buildMarkdown, buildFilename, buildZip, …
 └── test/
-    ├── run-jsdom.js         JSDOM test harness (126 tests, 0 failures)
-    └── fixtures/            16 HTML fixtures — one per platform
+    ├── run-jsdom.js         JSDOM test harness (159 tests, 0 failures)
+    └── fixtures/            18 HTML fixtures — one per platform
 ```
 
 See [planning.md](./planning.md) for architecture decisions and next steps.

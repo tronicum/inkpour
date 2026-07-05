@@ -43,8 +43,13 @@ function mdToHTML(md) {
   // 5. Horizontal rule
   md = md.replace(/^---$/gm, '<hr>');
 
-  // 6. Blockquotes
-  md = md.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
+  // 6. Blockquotes — group consecutive "> " lines into one <blockquote>
+  md = md.replace(/((?:^> .+$\n?)+)/gm, match => {
+    const inner = match.trim().split('\n')
+      .map(l => l.replace(/^> /, '').trim())
+      .join('<br>');
+    return `<blockquote>${inner}</blockquote>\n`;
+  });
 
   // 6.5. Markdown tables  (| col | col | with separator row)
   md = md.replace(/((?:^\|.+\|[ \t]*$\n?)+)/gm, match => {
