@@ -1434,49 +1434,51 @@
 
   // ─── Message listener ─────────────────────────────────────────────────────
 
-  api.runtime.onMessage.addListener((msg) => {
-    // In-page toast — triggered from background.js after keyboard shortcut actions
+  // Chrome requires the sendResponse + return true pattern for async handlers.
+  // Returning a Promise works in Firefox but is unreliable in Chrome MV3.
+  api.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     if (msg.action === 'showToast') {
       showToast(msg.text, msg.variant);
-      return Promise.resolve({ ok: true });
+      sendResponse({ ok: true });
+      return;
     }
 
-    // Clipboard write — delegated here from background.js (service workers
-    // don't have clipboard access; content scripts in active tabs do)
     if (msg.action === 'copyToClipboard') {
-      return navigator.clipboard.writeText(msg.text)
-        .then(() => ({ ok: true }))
-        .catch(err => ({ error: err.message }));
+      navigator.clipboard.writeText(msg.text)
+        .then(() => sendResponse({ ok: true }))
+        .catch(err => sendResponse({ error: err.message }));
+      return true; // async
     }
 
     if (msg.action !== 'extract') return;
 
-    // Warn if the AI is still generating — export now would be incomplete
     if (isStreaming()) {
-      return Promise.resolve({
+      sendResponse({
         error: 'The AI is still generating. Wait for it to finish, then export.',
         streaming: true,
       });
+      return;
     }
 
-    return extractMessages().then(messages => {
+    extractMessages().then(messages => {
       if (!messages.length) {
-        return { error: 'No messages found. Make sure a chat is open and fully loaded.' };
+        sendResponse({ error: 'No messages found. Make sure a chat is open and fully loaded.' });
+        return;
       }
-
       const cleanTitle = smartenTitle(getCleanTitle(), messages);
       const slug = cleanTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
-
-      return {
+      sendResponse({
         messages,
         title:    cleanTitle,
         site:     location.hostname,
-        platform: detectSite(),   // clean slug: 'chatgpt', 'claude', etc.
-        filename: slug,           // title-based slug for use in filename templates
-      };
+        platform: detectSite(),
+        filename: slug,
+      });
     }).catch(err => {
-      return { error: `Extraction failed: ${err.message}` };
+      sendResponse({ error: `Extraction failed: ${err.message}` });
     });
+
+    return true; // keep message channel open for async response
   });
 
 })();
