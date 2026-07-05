@@ -217,6 +217,39 @@
       color: var(--text);
     }
 
+    /* ── Stats bar ── */
+    .stats-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+    .stat-pill {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 16px;
+      flex: 1;
+      min-width: 100px;
+    }
+    .stat-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+    }
+    .stat-label {
+      font-size: 10px;
+      color: var(--subtext);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 3px;
+      white-space: nowrap;
+    }
+
     /* ── Footer ── */
     footer {
       margin-top: 2rem;
@@ -234,6 +267,25 @@
     <div class="header-text">
       <h1>Export History</h1>
       <p>Last 20 exports — stored locally, never uploaded</p>
+    </div>
+  </div>
+
+  <div class="stats-bar" id="statsBar" hidden>
+    <div class="stat-pill">
+      <span class="stat-value" id="statExports">—</span>
+      <span class="stat-label">Exports</span>
+    </div>
+    <div class="stat-pill">
+      <span class="stat-value" id="statWords">—</span>
+      <span class="stat-label">Total words</span>
+    </div>
+    <div class="stat-pill">
+      <span class="stat-value" id="statPlatform">—</span>
+      <span class="stat-label">Top platform</span>
+    </div>
+    <div class="stat-pill">
+      <span class="stat-value" id="statFormat">—</span>
+      <span class="stat-label">Top format</span>
     </div>
   </div>
 

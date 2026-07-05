@@ -1,6 +1,6 @@
 # Inkpour — Planning & Architecture Notes
 
-Last updated: 2026-07-05 (Tasks 1–29 complete)
+Last updated: 2026-07-05 (Tasks 1–32 complete)
 
 ## What it is
 
@@ -51,15 +51,18 @@ Default: `{platform}-{title}`
 ### Optional Markdown features (settings page)
 - YAML front matter (title, platform, messages, words, date, source_url, exporter)
 - Table of contents (for chats > 4 messages, with numbered headings for unique GFM anchors)
+- Obsidian tags: `tags: [ai-chat, {platform}]` appended to YAML front matter when enabled
+- Downloads subfolder: all exports (MD/JSON/ZIP) prepend a user-configured path (e.g. `AI Chats/`)
 
 ### Export history
 - Last 20 exports stored in `storage.local` (rolling array)
 - `history.html` page: searchable list with platform icons, color-coded format badges, re-download + copy buttons
+- Stats bar: total exports, total words, top platform, top format (computed from stored entries)
 - Accessible from popup footer or keyboard
 
 ### Popup UX
 - Platform chips (active highlighting when on a supported site)
-- Message-count peek on open: "Ready · N messages · ~N words"
+- Message-count peek on open: "Ready · N messages · Xu/Ya · ~N words · Z code blocks"
 - Last-export hint: "Last: claude · 12 msgs · MD · 2h ago" (persisted in `storage.local`)
 - Status classes: success (green) / error (red) / warning (amber, used for streaming guard)
 - Source URL included in markdown preamble blockquote when available
@@ -160,8 +163,8 @@ inkpour/
 - NotebookLM source citation extraction (inline `[1]` refs to uploaded docs)
 - i18n: `_locales/en/messages.json` groundwork
 - Kagi selector verification against real kagi.com/assistant
-- Chunked btoa() for large ZIP exports in service worker
-- In-page button: add ZIP / PDF format options to the expanded menu
-- Obsidian vault path setting → export directly there via Downloads API
+- Obsidian vault path setting → export directly there via Downloads API (subfolder is now wired)
 - GitHub Gist upload (with user-configured token)
 - Streaming progress: show "Extracting…" while auto-scroll runs
+- Lifetime stats storage: persist cumulative stats beyond 20-entry rolling window
+- Shared `src/utils.js`: deduplicate `buildMarkdown`/`buildFilename`/`buildJSON`/`buildZip` from popup.js and background.js (needs dynamic import or build step)

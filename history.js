@@ -188,6 +188,43 @@
     }
   }
 
+  // ─── Stats ─────────────────────────────────────────────────────────────────
+
+  function renderStats(entries) {
+    const statsBar = document.getElementById('statsBar');
+    if (!statsBar || entries.length === 0) {
+      if (statsBar) statsBar.hidden = true;
+      return;
+    }
+    statsBar.hidden = false;
+
+    // Total exports
+    document.getElementById('statExports').textContent = entries.length;
+
+    // Total words
+    const totalWords = entries.reduce((sum, e) => sum + (e.wordCount || 0), 0);
+    document.getElementById('statWords').textContent =
+      totalWords > 0 ? '~' + totalWords.toLocaleString() : '—';
+
+    // Top platform
+    const platFreq = {};
+    for (const e of entries) {
+      if (e.platform) platFreq[e.platform] = (platFreq[e.platform] || 0) + 1;
+    }
+    const topPlat = Object.entries(platFreq).sort((a, b) => b[1] - a[1])[0];
+    document.getElementById('statPlatform').textContent = topPlat ? topPlat[0] : '—';
+
+    // Top format
+    const fmtFreq = {};
+    for (const e of entries) {
+      const f = e.format || 'unknown';
+      fmtFreq[f] = (fmtFreq[f] || 0) + 1;
+    }
+    const topFmt = Object.entries(fmtFreq).sort((a, b) => b[1] - a[1])[0];
+    const fmtDisplay = topFmt ? (FORMAT_LABEL[topFmt[0]] ?? topFmt[0].toUpperCase()) : '—';
+    document.getElementById('statFormat').textContent = fmtDisplay;
+  }
+
   // ─── Load and display ──────────────────────────────────────────────────────
 
   async function loadHistory() {
@@ -195,6 +232,7 @@
     allEntries = result?.inkpour_history ?? [];
 
     clearBtn.disabled = allEntries.length === 0;
+    renderStats(allEntries);
     applyFilter(searchBox?.value ?? '');
   }
 
@@ -213,6 +251,7 @@
     countLabel.textContent = 'No exports yet';
     clearBtn.disabled = true;
     if (searchBox) searchBox.value = '';
+    renderStats([]);
   });
 
   // ─── Init ──────────────────────────────────────────────────────────────────
