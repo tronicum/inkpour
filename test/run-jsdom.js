@@ -628,6 +628,25 @@ async function main() {
       const count = view.getUint16(zip.length - 22 + 8, true); // total entries
       assert(count === 3, `expected 3 entries, got ${count}`);
     });
+
+    await test('uint8ToBase64 produces valid base64 for large arrays', () => {
+      // Chunked btoa approach (mirrors background.js)
+      function uint8ToBase64(bytes) {
+        let result = '';
+        const CHUNK = 8190;
+        for (let i = 0; i < bytes.length; i += CHUNK) {
+          result += btoa(String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK)));
+        }
+        return result;
+      }
+      // 100 000 bytes — well above the ~65536 spread stack limit
+      const large = new Uint8Array(100_000).fill(65); // all 'A' bytes
+      let b64;
+      try { b64 = uint8ToBase64(large); } catch (e) { assert(false, 'uint8ToBase64 threw: ' + e.message); }
+      assert(b64.length > 0, 'base64 output is empty');
+      // Valid base64 characters only (A-Z a-z 0-9 + / =)
+      assert(/^[A-Za-z0-9+/=]+$/.test(b64), 'invalid base64 chars in output');
+    });
   });
 
   // ─── Results ───────────────────────────────────────────────────────────────

@@ -1023,6 +1023,12 @@
     <button class="menu-btn" id="inkpour-copy">
       <span class="icon">⎘</span> Copy MD
     </button>
+    <button class="menu-btn" id="inkpour-pdf">
+      <span class="icon">🖨</span> Export PDF
+    </button>
+    <button class="menu-btn" id="inkpour-zip">
+      <span class="icon">📦</span> Export ZIP
+    </button>
     <div class="status-msg" id="inkpour-status"></div>
   </div>
   <button class="fab" id="inkpour-fab" title="Inkpour — Export this chat">ip</button>
@@ -1034,7 +1040,10 @@
     const menu   = shadow.getElementById('inkpour-menu');
     const mdBtn  = shadow.getElementById('inkpour-md');
     const cpBtn  = shadow.getElementById('inkpour-copy');
+    const pdfBtn = shadow.getElementById('inkpour-pdf');
+    const zipBtn = shadow.getElementById('inkpour-zip');
     const status = shadow.getElementById('inkpour-status');
+    const allBtns = [mdBtn, cpBtn, pdfBtn, zipBtn];
 
     // Toggle menu
     fab.addEventListener('click', (e) => {
@@ -1060,9 +1069,11 @@
       status.className   = 'status-msg' + (type ? ` ${type}` : '');
     }
 
+    function disableAll() { allBtns.forEach(b => { b.disabled = true; }); }
+    function enableAll()  { allBtns.forEach(b => { b.disabled = false; }); }
+
     async function runExport(action) {
-      mdBtn.disabled = true;
-      cpBtn.disabled = true;
+      disableAll();
       setStatus('Extracting…', '');
       try {
         const messages = await extractMessages();
@@ -1083,13 +1094,28 @@
       } catch (err) {
         setStatus('✗ ' + err.message.slice(0, 50), 'err');
       } finally {
-        mdBtn.disabled = false;
-        cpBtn.disabled = false;
+        enableAll();
+      }
+    }
+
+    // PDF and ZIP require the background service worker (can't open tabs / build ZIP here)
+    async function runBgExport(format) {
+      disableAll();
+      setStatus('Exporting…', '');
+      try {
+        await api.runtime.sendMessage({ action: 'inPageExport', format });
+        setStatus(`✓ ${format.toUpperCase()} export started`, 'ok');
+      } catch (err) {
+        setStatus('✗ ' + (err.message || 'Export failed').slice(0, 50), 'err');
+      } finally {
+        enableAll();
       }
     }
 
     mdBtn.addEventListener('click', () => runExport('md'));
     cpBtn.addEventListener('click', () => runExport('copy'));
+    pdfBtn.addEventListener('click', () => runBgExport('pdf'));
+    zipBtn.addEventListener('click', () => runBgExport('zip'));
   }
 
   // ─── SPA navigation: reinject button on URL change ────────────────────────

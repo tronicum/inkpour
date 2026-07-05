@@ -282,11 +282,14 @@
     }
 
     let response;
+    // Show progress hint — auto-scroll can take up to 4 s on long chats
+    setStatus('Extracting messages…');
     try {
       response = await api.tabs.sendMessage(tab.id, { action: 'extract' });
     } catch {
       throw new Error('Refresh the chat tab, then try again. (Content script not running — tab was open before the extension loaded.)');
     }
+    clearStatus();
 
     if (!response)              throw new Error('No response from page. Try refreshing the tab.');
     if (response.streaming)     throw Object.assign(new Error(response.error), { streaming: true });

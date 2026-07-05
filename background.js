@@ -5,6 +5,45 @@
 
 const api = (typeof browser !== 'undefined') ? browser : chrome;
 
+// ─── In-page button export requests ──────────────────────────────────────
+// Content script sends { action: 'inPageExport', format: 'pdf'|'zip' }
+// Background handles it so the SW can download files / open tabs.
+
+api.runtime.onMessage.addListener((message, sender) => {
+  if (message.action !== 'inPageExport' || !sender.tab?.id) return;
+
+  (async () => {
+    const tabId = sender.tab.id;
+    let response;
+    try {
+      response = await api.tabs.sendMessage(tabId, { action: 'extract' });
+    } catch { return; }
+    if (!response?.messages?.length) return;
+
+    const stored   = await api.storage.local.get('inkpour_settings');
+    const settings = Object.assign(
+      { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}' },
+      stored?.inkpour_settings ?? {}
+    );
+    const sourceUrl = sender.tab.url || '';
+    const filename  = buildFilename(settings.filenameTemplate, response.platform, response.filename, sourceUrl);
+
+    if (message.format === 'pdf') {
+      const bodyContent = buildPrintBodyHTML(response.messages, response.title, response.site);
+      await api.storage.local.set({ inkpour_print_pending: bodyContent });
+      api.tabs.create({ url: api.runtime.getURL('print.html') });
+    }
+
+    if (message.format === 'zip') {
+      const { files } = buildZipExport(response.messages, response.title, response.site, settings, sourceUrl);
+      const zipBytes  = buildZip(files);
+      const b64  = uint8ToBase64(zipBytes);
+      const url  = 'data:application/zip;base64,' + b64;
+      api.downloads.download({ url, filename: filename + '.zip', saveAs: false });
+    }
+  })();
+});
+
 // ─── Context menu setup ───────────────────────────────────────────────────
 
 api.runtime.onInstalled.addListener(() => {
@@ -80,7 +119,7 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId === 'inkpour-zip') {
     const { files } = buildZipExport(response.messages, response.title, response.site, settings, sourceUrl);
     const zipBytes  = buildZip(files);
-    const b64  = btoa(String.fromCharCode(...zipBytes));
+    const b64  = uint8ToBase64(zipBytes);
     const url  = 'data:application/zip;base64,' + b64;
     api.downloads.download({ url, filename: filename + '.zip', saveAs: false });
   }
@@ -146,7 +185,7 @@ api.commands.onCommand.addListener(async (command) => {
     const { files } = buildZipExport(response.messages, response.title, response.site, settings, sourceUrl);
     const zipBytes  = buildZip(files);
     // base64-encode for data: URL (no createObjectURL in SW)
-    const b64  = btoa(String.fromCharCode(...zipBytes));
+    const b64  = uint8ToBase64(zipBytes);
     const url  = 'data:application/zip;base64,' + b64;
     api.downloads.download({ url, filename: filename + '.zip', saveAs: false });
   }
@@ -321,6 +360,22 @@ function buildFilename(template, platform, titleSlug, sourceUrl = '') {
     .replace(/[^a-z0-9_\-]+/gi, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 100) || 'inkpour-export';
+}
+
+// ─── Base64 helper (chunked to avoid spread stack limit) ─────────────────
+
+/**
+ * Convert a Uint8Array to a base64 string without hitting the JS spread
+ * argument limit (~65536). Chunks must be multiples of 3 bytes so that
+ * btoa() never inserts padding in the middle of the output.
+ */
+function uint8ToBase64(bytes) {
+  let result = '';
+  const CHUNK = 8190; // 8190 = 3 × 2730 → always a clean base64 boundary
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    result += btoa(String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK)));
+  }
+  return result;
 }
 
 // ─── ZIP builder (mirrors popup.js — keep in sync) ───────────────────────
