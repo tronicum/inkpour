@@ -19,10 +19,13 @@
   const settingsBtn  = document.getElementById('settingsBtn');
   const historyBtn   = document.getElementById('historyBtn');
   const settingsBtn2 = document.getElementById('settingsBtn2');
-  const status       = document.getElementById('status');
-  const titleInput   = document.getElementById('titleInput');
-  const gistLinkEl   = document.getElementById('gist-link');
-  const lastExportEl = document.getElementById('last-export');
+  const status        = document.getElementById('status');
+  const titleInput    = document.getElementById('titleInput');
+  const notesToggle   = document.getElementById('notesToggle');
+  const notesSection  = document.getElementById('notes-section');
+  const notesInput    = document.getElementById('notesInput');
+  const gistLinkEl    = document.getElementById('gist-link');
+  const lastExportEl  = document.getElementById('last-export');
 
   // ─── Load user settings ───────────────────────────────────────────────────
 
@@ -143,6 +146,28 @@
     titleInput.hidden = true;
   }
 
+  /** Show the notes toggle button (appears after extraction). */
+  function showNotesToggle() {
+    if (!notesToggle) return;
+    notesToggle.style.display = 'block';
+    notesToggle.hidden = false;
+  }
+
+  /** Return user-entered notes (empty string if none). */
+  function getExportNotes() {
+    return (notesInput?.value || '').trim();
+  }
+
+  // Wire the toggle
+  notesToggle?.addEventListener('click', () => {
+    const open = notesSection && !notesSection.hidden;
+    if (notesSection) {
+      notesSection.hidden = !open ? false : true;
+      notesSection.style.display = !open ? 'block' : 'none';
+    }
+    if (notesToggle) notesToggle.textContent = !open ? '− Hide notes' : '+ Add notes';
+  });
+
   /** Return user-edited title if the field is visible, otherwise the original. */
   function getEffectiveTitle(originalTitle) {
     if (titleInput && !titleInput.hidden && titleInput.value.trim()) {
@@ -171,6 +196,7 @@
         cachedData = response;
         updatePeekStatus(response);
         showTitleInput(response.title);
+        showNotesToggle();
       } else {
         clearStatus();
       }
@@ -209,7 +235,8 @@
     setLoading(mdBtn, true);
     try {
       const data = await extractFromPage();
-      const md   = buildMarkdown(data.messages, data.title, data.site, userSettings, data.sourceUrl);
+      const notes = getExportNotes();
+      const md   = notesBlockMD(notes) + buildMarkdown(data.messages, data.title, data.site, userSettings, data.sourceUrl);
       downloadFile(md, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(data.messages)) + '.md', 'text/markdown;charset=utf-8');
       setStatus('✓ Saved — check your Downloads folder', 'success');
       saveLastExport('md', data, md);
@@ -262,8 +289,9 @@
     clearStatus();
     setLoading(copyBtn, true);
     try {
-      const data = await extractFromPage();
-      const md   = buildMarkdown(data.messages, data.title, data.site, userSettings, data.sourceUrl);
+      const data  = await extractFromPage();
+      const notes = getExportNotes();
+      const md    = notesBlockMD(notes) + buildMarkdown(data.messages, data.title, data.site, userSettings, data.sourceUrl);
       await navigator.clipboard.writeText(md);
       setStatus('✓ Markdown copied to clipboard', 'success');
       saveLastExport('copy-md', data, md);
@@ -298,8 +326,17 @@
     clearStatus();
     setLoading(jsonBtn, true);
     try {
-      const data = await extractFromPage();
-      const json  = buildJSON(data.messages, data.title, data.site, data.platform);
+      const data  = await extractFromPage();
+      const notes = getExportNotes();
+      let json = buildJSON(data.messages, data.title, data.site, data.platform);
+      // Inject notes field after the top-level exportedAt key if present
+      if (notes) {
+        try {
+          const obj = JSON.parse(json);
+          obj.notes = notes;
+          json = JSON.stringify(obj, null, 2);
+        } catch { /* leave json as-is if parse fails */ }
+      }
       downloadFile(json, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(data.messages)) + '.json', 'application/json;charset=utf-8');
       setStatus('✓ Saved — check your Downloads folder', 'success');
       saveLastExport('json', data, json);
@@ -352,9 +389,10 @@
     clearStatus();
     setLoading(gistBtn, true);
     try {
-      const data = await extractFromPage();
-      const md   = buildMarkdown(data.messages, data.title, data.site, userSettings, data.sourceUrl);
-      const slug = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(data.messages));
+      const data  = await extractFromPage();
+      const notes = getExportNotes();
+      const md    = notesBlockMD(notes) + buildMarkdown(data.messages, data.title, data.site, userSettings, data.sourceUrl);
+      const slug  = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(data.messages));
       const filename = slug + '.md';
 
       setStatus('Uploading to GitHub Gist…');
@@ -447,6 +485,17 @@
   /** Approximate word count across all messages. */
   function countWords(messages) {
     return messages.reduce((sum, m) => sum + m.content.trim().split(/\s+/).filter(Boolean).length, 0);
+  }
+
+  /**
+   * Wrap user notes as a Markdown blockquote block.
+   * Multi-line notes get each line prefixed with "> ".
+   * Returns an empty string when there are no notes.
+   */
+  function notesBlockMD(notes) {
+    if (!notes) return '';
+    const lines = notes.split('\n').map(l => `> ${l}`).join('\n');
+    return `> **Notes**\n${lines}\n\n`;
   }
 
   function withSubfolder(filename) {
