@@ -706,3 +706,12 @@ ${body}
     { name: 'word/document.xml',            content: document     },
   ]);
 }
+
+// ─── Personal notes block ─────────────────────────────────────────────────────
+// Returns a Markdown blockquote block to prepend to exports when the user has
+// typed notes in the popup. Returns an empty string if notes is empty.
+function notesBlockMD(notes) {
+  if (!notes || !notes.trim()) return '';
+  const lines = notes.trim().split('\n').map(l => `> ${l}`).join('\n');
+  return `${lines}\n\n`;
+}
