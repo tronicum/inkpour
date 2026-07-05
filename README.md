@@ -4,7 +4,7 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/tronicum/inkpour/ci.yml?branch=dev&style=flat-square&label=CI)](https://github.com/tronicum/inkpour/actions/workflows/ci.yml)
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL%20v3-blue?style=flat-square)](./LICENSE)
 [![MV3](https://img.shields.io/badge/Manifest-V3-5b5bd6?style=flat-square)](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json)
-[![Tests](https://img.shields.io/badge/tests-77%20passed-16a34a?style=flat-square)](./test/run-jsdom.js)
+[![Tests](https://img.shields.io/badge/tests-93%20passed-16a34a?style=flat-square)](./test/run-jsdom.js)
 
 **Export AI chat conversations to Markdown, PDF, HTML, JSON, or ZIP — one click, no accounts, no servers.**
 
@@ -58,42 +58,55 @@ Experimental = selectors verified against fixture HTML; real-page accuracy needs
 | `Alt+Shift+H` | Copy HTML |
 | `Alt+Shift+J` | Export JSON |
 | `Alt+Shift+Z` | Export ZIP |
+| `Alt+Shift+G` | Upload to GitHub Gist |
 
 ### Right-click context menu
-Right-click any supported page → **Export with Inkpour** → MD / Copy / JSON / ZIP.
+Right-click any supported page → **Export with Inkpour** → MD / Copy / JSON / ZIP / Upload to Gist.
 
 ### Export history
-Click **⏱ History** in the popup footer to see the last 20 exports. Filter by title or platform, re-download, or copy any previous export.
+Click **⏱ History** in the popup footer to see the last 20 exports. Filter by title or platform, re-download, or copy any previous export. **Star** any export to pin it permanently — starred exports survive "Clear all" and are stored separately.
+
+### Integrations
+- **GitHub Gist** — add a Personal Access Token (gist scope) in Settings to unlock the "Gist ↑" popup button and `Alt+Shift+G` shortcut. Created Gists open in a new tab.
+- **Webhook** — POST export metadata to any URL after each export (n8n, Zapier, Make.com, custom endpoints). Toggle "Include content" to send the full exported text.
 
 ### Markdown quality
 Faithfully converts the full rich-text DOM:
 - Headings, bold, italic, strikethrough, inline code, fenced code blocks with language tags
 - Tables (GFM pipe format, numeric columns right-aligned automatically)
-- Nested lists, blockquotes, `<hr>`
+- Nested lists (arbitrary depth), blockquotes, `<hr>`
 - `<details>/<summary>` → collapsible blockquote (preserves Claude's extended thinking blocks)
 - KaTeX / MathJax → `$…$` / `$$…$$` LaTeX math
 - Citation superscripts (`<a><sup>1</sup></a>`) → `[^1]` footnotes with a **Sources:** section (Perplexity)
+- `<mark>` → **bold**, `<kbd>` → `code`, `<abbr title="…">` → word (definition)
 - Figure + figcaption → `![alt](src)\n*caption*`
 - Images: `data:` URIs noted as `[embedded image]`, ephemeral `blob:` URLs noted as `[blob image — not persistent]`
 
 ### Filename templates
-Tokens: `{platform}`, `{title}`, `{date}` (YYYY-MM-DD), `{time}` (HH-MM), `{url}` (page hostname).
+Tokens: `{platform}`, `{title}`, `{date}` (YYYY-MM-DD), `{time}` (HH-MM), `{url}` (page hostname), `{words}` (approximate word count).
 Default: `{platform}-{title}`.
 
 ### UX details
 - Platform chips in popup highlight the current site
-- Message-count peek on open: "Ready · 12 messages · ~1,800 words"
+- Eager extraction on popup open — cached result reused for all buttons, no duplicate DOM crawl
+- Click the status bar to re-extract (useful after AI finishes generating)
+- Message-count peek on open: "Ready · 12 messages · 4u/8a · ~1,800 words · 3 code blocks"
 - Last-export hint: "Last: claude · 12 msgs · MD · 2h ago"
 - Source URL included in markdown preamble (and in YAML front matter when enabled)
 - Streaming guard: warns if the AI is still generating instead of exporting an incomplete response
 - Auto-scroll: triggers lazy-loading of older messages on ChatGPT, Gemini, and AI Studio before extraction
 - In-page floating button (Shadow DOM, dark-mode aware) — export without opening the popup
+- In-page toast notifications for keyboard shortcut feedback
 
 ### Settings
 - Default format preference (MD / PDF / HTML / JSON / ZIP)
-- Filename template with `{url}` support
+- Filename template with `{url}`, `{words}` support
 - YAML front matter (title, platform, date, source_url, word count)
+- Obsidian tags in YAML front matter (`tags: [ai-chat, {platform}]`)
 - Table of contents for long chats
+- Downloads subfolder (downloads into a named subdirectory)
+- GitHub token + Gist visibility (secret / public)
+- Webhook URL + include-content toggle
 
 ---
 
@@ -123,24 +136,25 @@ git clone https://github.com/tronicum/inkpour.git
 ## Development
 
 ```bash
-npm test          # Run 77 JSDOM-based extraction tests (no browser needed)
+npm test          # Run 93 JSDOM-based extraction tests (no browser needed)
 ```
 
 ### Project structure
 
 ```
 inkpour/
-├── manifest.json           MV3 manifest (15 host_permissions, 6 commands)
-├── popup.html / popup.js   Popup UI: MD/PDF/HTML/JSON/ZIP + Copy MD/HTML buttons
-├── background.js           Service worker: keyboard shortcuts + context menus + ZIP builder
-├── settings.html / .js     Options page (format, filename, YAML, TOC)
+├── manifest.json           MV3 manifest (15 host_permissions, 7 commands)
+├── popup.html / popup.js   Popup UI: MD/PDF/HTML/JSON/ZIP + Copy MD/HTML + Gist
+├── background.js           Service worker: keyboard shortcuts + context menus + webhook
+├── settings.html / .js     Options page (format, filename, YAML, TOC, subfolder, Gist, webhook)
 ├── print.html / print.js   PDF print-preview tab
-├── history.html / .js      Export history page with search and re-download
+├── history.html / .js      Export history with search, re-download, star/pin
 ├── icons/                  16 / 32 / 48 / 128 px PNGs
 ├── src/
-│   └── content.js          Extraction, htmlToMarkdown, in-page button
+│   ├── content.js          Extraction, htmlToMarkdown, in-page button, toasts
+│   └── utils.js            Shared builders: buildMarkdown, buildFilename, buildZip, …
 └── test/
-    ├── run-jsdom.js         JSDOM test harness (70 tests, 0 failures)
+    ├── run-jsdom.js         JSDOM test harness (93 tests, 0 failures)
     └── fixtures/            15 HTML fixtures — one per platform
 ```
 
