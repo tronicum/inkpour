@@ -491,7 +491,6 @@ function _wHRule() {
  */
 function _wCodeBlock(text, _lang) {
   const lines  = text.split('\n');
-  const shd    = '<w:shd w:val="clear" w:color="auto" w:fill="F3F4F6"/>';
   const font   = '<w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New"/>';
   const sz     = '<w:sz w:val="18"/><w:szCs w:val="18"/>';
   const rPrXml = `<w:rPr>${font}${sz}</w:rPr>`;
@@ -502,7 +501,9 @@ function _wCodeBlock(text, _lang) {
     if (i < lines.length - 1) runs += `<w:r><w:br/></w:r>`;
   });
 
-  const pPr = `<w:pPr><w:pStyle w:val="InkpourCode"/>${shd}<w:spacing w:before="40" w:after="40"/><w:ind w:left="360"/></w:pPr>`;
+  // PreformattedText is a standard OOXML built-in style — Word, Pages, and
+  // LibreOffice all render it as monospace without needing a custom definition.
+  const pPr = `<w:pPr><w:pStyle w:val="PreformattedText"/><w:spacing w:before="40" w:after="40"/></w:pPr>`;
   return `<w:p>${pPr}${runs}</w:p>`;
 }
 
@@ -544,8 +545,9 @@ function _mdToOOXML(content) {
     if (/^-{3,}$/.test(raw.trim())) { out.push(_wHRule()); continue; }
 
     // ── Blockquote ──
+    // IntenseQuote is a standard OOXML built-in — renders as indented italic in Word/Pages.
     if (/^> /.test(raw)) {
-      out.push(_wPara(_mdInlineToRuns(raw.slice(2)), 'InkpourQuote'));
+      out.push(_wPara(_mdInlineToRuns(raw.slice(2)), 'IntenseQuote'));
       continue;
     }
 
@@ -681,29 +683,6 @@ function buildDocx(messages, title, site, opts = {}, sourceUrl = '') {
     <w:rPr><w:b/><w:sz w:val="24"/><w:szCs w:val="24"/><w:color w:val="52525B"/></w:rPr>
   </w:style>
 
-  <w:style w:type="paragraph" w:styleId="InkpourCode">
-    <w:name w:val="InkpourCode"/>
-    <w:basedOn w:val="Normal"/>
-    <w:pPr>
-      <w:shd w:val="clear" w:color="auto" w:fill="F3F4F6"/>
-      <w:spacing w:before="60" w:after="60"/>
-      <w:ind w:left="360"/>
-    </w:pPr>
-    <w:rPr>
-      <w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New"/>
-      <w:sz w:val="18"/><w:szCs w:val="18"/>
-    </w:rPr>
-  </w:style>
-
-  <w:style w:type="paragraph" w:styleId="InkpourQuote">
-    <w:name w:val="InkpourQuote"/>
-    <w:basedOn w:val="Normal"/>
-    <w:pPr>
-      <w:ind w:left="480"/>
-      <w:pBdr><w:left w:val="single" w:sz="6" w:space="12" w:color="A1A1AA"/></w:pBdr>
-    </w:pPr>
-    <w:rPr><w:i/><w:color w:val="71717A"/></w:rPr>
-  </w:style>
 </w:styles>`;
 
   const document = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
