@@ -29,6 +29,7 @@ jobs:
       - name: Check JS syntax
         run: |
           FILES=(
+            background.js
             popup.js
             print.js
             settings.js
