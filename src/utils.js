@@ -45,6 +45,20 @@ function mdToHTML(md) {
   // 6. Blockquotes
   md = md.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
 
+  // 6.5. Markdown tables  (| col | col | with separator row)
+  md = md.replace(/((?:^\|.+\|[ \t]*$\n?)+)/gm, match => {
+    const lines    = match.trim().split('\n');
+    const dataRows = lines.filter(l => !/^\|[\s\-:|]+\|/.test(l));
+    if (dataRows.length < 1) return match;
+    const [hdr, ...body] = dataRows;
+    const ths = hdr.split('|').slice(1, -1).map(c => `<th>${c.trim()}</th>`).join('');
+    const trs = body.map(row => {
+      const tds = row.split('|').slice(1, -1).map(c => `<td>${c.trim()}</td>`).join('');
+      return `<tr>${tds}</tr>`;
+    }).join('');
+    return `<table><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`;
+  });
+
   // 7. Lists — group consecutive list lines
   md = md.replace(/((?:^\* .+$\n?)+)/gm, match => {
     const items = match.trim().split('\n')
@@ -444,6 +458,42 @@ function _xmlEsc(s) {
 }
 
 /**
+ * Strip HTML tags and unescape HTML entities — used when converting HTML text
+ * nodes into plain strings for OOXML runs.
+ */
+function _htmlDecodeText(s) {
+  return s
+    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;/g,  '&')
+    .replace(/&lt;/g,   '<')
+    .replace(/&gt;/g,   '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g,  "'");
+}
+
+/**
+ * Parse HTML inline markup (output of mdToHTML) into OOXML <w:r> elements.
+ * Handles: <strong>, <em>, <code>, <del>, <strong><em>, plain text nodes.
+ */
+function _htmlInlineToRuns(html) {
+  const TOKEN = /<strong><em>([\s\S]*?)<\/em><\/strong>|<strong>([\s\S]*?)<\/strong>|<em>([\s\S]*?)<\/em>|<code>([\s\S]*?)<\/code>|<del>([\s\S]*?)<\/del>/g;
+  let result = '';
+  let last   = 0;
+  let m;
+  while ((m = TOKEN.exec(html)) !== null) {
+    if (m.index > last) result += _wRun(_htmlDecodeText(html.slice(last, m.index)));
+    if      (m[1]) result += _wRun(_htmlDecodeText(m[1]), { bold: true, italic: true });
+    else if (m[2]) result += _wRun(_htmlDecodeText(m[2]), { bold: true });
+    else if (m[3]) result += _wRun(_htmlDecodeText(m[3]), { italic: true });
+    else if (m[4]) result += _wRun(_htmlDecodeText(m[4]), { code: true });
+    else if (m[5]) result += _wRun(_htmlDecodeText(m[5]), { strike: true });
+    last = m.index + m[0].length;
+  }
+  if (last < html.length) result += _wRun(_htmlDecodeText(html.slice(last)));
+  return result || _wRun('');
+}
+
+/**
  * Parse a line of markdown inline syntax into OOXML <w:r> elements.
  * Handles: ***bold+italic***, **bold**, *italic*, `code`, ~~strike~~, [text](url)
  */
@@ -486,11 +536,12 @@ function _wRun(text, props = {}) {
 }
 
 /**
- * Build a <w:p> paragraph with optional style and inner run XML.
+ * Build a <w:p> paragraph with optional style, extra pPr XML, and background fill.
  */
-function _wPara(runs, style = '', extraPPr = '') {
-  const ppr = (style || extraPPr)
-    ? `<w:pPr>${style ? `<w:pStyle w:val="${style}"/>` : ''}${extraPPr}</w:pPr>`
+function _wPara(runs, style = '', extraPPr = '', fill = '') {
+  const shdXml = fill ? `<w:shd w:val="clear" w:color="auto" w:fill="${fill}"/>` : '';
+  const ppr = (style || extraPPr || shdXml)
+    ? `<w:pPr>${style ? `<w:pStyle w:val="${style}"/>` : ''}${extraPPr}${shdXml}</w:pPr>`
     : '';
   return `<w:p>${ppr}${runs}</w:p>`;
 }
@@ -503,10 +554,11 @@ function _wHRule() {
 }
 
 /**
- * Code block: one paragraph per line, monospaced, light-gray background.
+ * Code block: one paragraph per line, monospaced, dark background.
  * Lines are joined with <w:br/> inside a single paragraph for compactness.
+ * @param {string} fill  optional parent message background (ignored — code always uses its own bg)
  */
-function _wCodeBlock(text, _lang) {
+function _wCodeBlock(text, _lang, _fill = '') {
   const lines  = text.split('\n');
   const font   = '<w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New"/>';
   const sz     = '<w:sz w:val="18"/><w:szCs w:val="18"/>';
@@ -522,6 +574,158 @@ function _wCodeBlock(text, _lang) {
   // LibreOffice all render it as monospace without needing a custom definition.
   const pPr = `<w:pPr><w:pStyle w:val="PreformattedText"/><w:spacing w:before="40" w:after="40"/></w:pPr>`;
   return `<w:p>${pPr}${runs}</w:p>`;
+}
+
+/**
+ * Build a native OOXML table from parsed HTML <table> markup.
+ * @param {string} tableHtml  raw <table>...</table> HTML string
+ * @param {string} fill       parent message background fill hex (for data cell bg)
+ */
+function _wTable(tableHtml, fill = '') {
+  // Parse all rows (thead + tbody)
+  const rows = [];
+  const trRe = /<tr>([\s\S]*?)<\/tr>/g;
+  let m;
+  while ((m = trRe.exec(tableHtml)) !== null) {
+    const cells = [];
+    const tdRe = /<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/g;
+    let cm;
+    while ((cm = tdRe.exec(m[1])) !== null) cells.push(cm[1]);
+    if (cells.length) rows.push(cells);
+  }
+  if (!rows.length) return '';
+
+  const numCols  = Math.max(...rows.map(r => r.length));
+  const colWidth = Math.floor(9026 / numCols); // A4 content width in twips
+
+  const borderAttrs = 'w:val="single" w:sz="4" w:space="0" w:color="D4D4D8"';
+  const tblPr = `<w:tblPr><w:tblW w:w="9026" w:type="dxa"/><w:tblBorders><w:top ${borderAttrs}/><w:left ${borderAttrs}/><w:bottom ${borderAttrs}/><w:right ${borderAttrs}/><w:insideH ${borderAttrs}/><w:insideV ${borderAttrs}/></w:tblBorders></w:tblPr>`;
+  const tblGrid = `<w:tblGrid>${Array(numCols).fill(`<w:gridCol w:w="${colWidth}"/>`).join('')}</w:tblGrid>`;
+
+  const rowsXml = rows.map((cells, ri) => {
+    const isHeader = ri === 0;
+    const cellFill = isHeader ? 'E4E4E7' : (fill || 'FFFFFF');
+    const cellsXml = cells.map(content => {
+      const tcPr = `<w:tcPr><w:tcW w:w="${colWidth}" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="${cellFill}"/><w:tcMar><w:top w:w="60" w:type="dxa"/><w:left w:w="80" w:type="dxa"/><w:bottom w:w="60" w:type="dxa"/><w:right w:w="80" w:type="dxa"/></w:tcMar></w:tcPr>`;
+      const runs = isHeader
+        ? _wRun(_htmlDecodeText(content), { bold: true })
+        : _htmlInlineToRuns(content);
+      const para = `<w:p><w:pPr><w:spacing w:before="0" w:after="0"/></w:pPr>${runs}</w:p>`;
+      return `<w:tc>${tcPr}${para}</w:tc>`;
+    }).join('');
+    return `<w:tr>${cellsXml}</w:tr>`;
+  }).join('');
+
+  return `<w:tbl>${tblPr}${tblGrid}${rowsXml}</w:tbl>`;
+}
+
+/**
+ * Convert HTML (output of mdToHTML) to OOXML paragraph/table elements.
+ * Handles: h1-h6, p, ul, ol, pre>code, blockquote, table, hr.
+ * @param {string} html   HTML from mdToHTML()
+ * @param {string} fill   hex fill for message background shading (no #)
+ */
+function _htmlToOOXML(html, fill = '') {
+  const out = [];
+
+  // Tokenise into block-level chunks
+  const BLOCK = /(<table[\s\S]*?<\/table>|<pre><code[^>]*>[\s\S]*?<\/code><\/pre>|<ul>[\s\S]*?<\/ul>|<ol>[\s\S]*?<\/ol>|<h[1-6]>[\s\S]*?<\/h[1-6]>|<blockquote>[\s\S]*?<\/blockquote>|<hr>|<p>[\s\S]*?<\/p>)/g;
+  let last = 0, m;
+  const tokens = [];
+  while ((m = BLOCK.exec(html)) !== null) {
+    const between = html.slice(last, m.index).trim();
+    if (between) tokens.push({ raw: between, block: false });
+    tokens.push({ raw: m[0], block: true });
+    last = BLOCK.lastIndex;
+  }
+  const tail = html.slice(last).trim();
+  if (tail) tokens.push({ raw: tail, block: false });
+
+  for (const { raw } of tokens) {
+    // ── Table ──
+    if (/^<table/.test(raw)) {
+      out.push(_wTable(raw, fill));
+      continue;
+    }
+
+    // ── Code block ──
+    const pre = raw.match(/^<pre><code[^>]*>([\s\S]*?)<\/code><\/pre>$/);
+    if (pre) {
+      const code = _htmlDecodeText(pre[1]);
+      out.push(_wCodeBlock(code, '', fill));
+      continue;
+    }
+
+    // ── Unordered list ──
+    if (/^<ul>/.test(raw)) {
+      for (const [, c] of raw.matchAll(/<li>([\s\S]*?)<\/li>/g)) {
+        out.push(_wPara(_wRun('• ') + _htmlInlineToRuns(c), '', '<w:ind w:left="440" w:hanging="280"/>', fill));
+      }
+      continue;
+    }
+
+    // ── Ordered list ──
+    if (/^<ol>/.test(raw)) {
+      let idx = 1;
+      for (const [, c] of raw.matchAll(/<li>([\s\S]*?)<\/li>/g)) {
+        out.push(_wPara(_wRun(`${idx++}. `) + _htmlInlineToRuns(c), '', '<w:ind w:left="440" w:hanging="280"/>', fill));
+      }
+      continue;
+    }
+
+    // ── Headings ──
+    const hm = raw.match(/^<h([1-6])>([\s\S]*?)<\/h\1>$/);
+    if (hm) {
+      const styleMap = ['', 'Heading1', 'Heading2', 'Heading3', 'Heading4', 'Heading5', 'Heading6'];
+      out.push(_wPara(_htmlInlineToRuns(hm[2]), styleMap[+hm[1]] || 'Heading3', '', fill));
+      continue;
+    }
+
+    // ── Blockquote ──
+    const bq = raw.match(/^<blockquote>([\s\S]*?)<\/blockquote>$/);
+    if (bq) {
+      out.push(_wPara(_htmlInlineToRuns(bq[1]), 'IntenseQuote', '', ''));
+      continue;
+    }
+
+    // ── HR ──
+    if (raw === '<hr>') { out.push(_wHRule()); continue; }
+
+    // ── Paragraph ──
+    const pm = raw.match(/^<p>([\s\S]*?)<\/p>$/);
+    if (pm) {
+      const lines = pm[1].split(/<br>/);
+      if (lines.length === 1) {
+        out.push(_wPara(_htmlInlineToRuns(pm[1]), '', '', fill));
+      } else {
+        let runs = '';
+        lines.forEach((line, i) => {
+          runs += _htmlInlineToRuns(line);
+          if (i < lines.length - 1) runs += '<w:r><w:br/></w:r>';
+        });
+        out.push(_wPara(runs, '', '', fill));
+      }
+      continue;
+    }
+
+    // ── Fallback: plain text ──
+    const plain = _htmlDecodeText(raw).trim();
+    if (plain) out.push(_wPara(_wRun(plain), '', '', fill));
+  }
+
+  return out.join('\n');
+}
+
+/**
+ * Colored role label paragraph — small caps label with left-border accent + fill.
+ */
+function _wMsgLabel(role, accentColor, fill) {
+  const bdr  = `<w:pBdr><w:left w:val="single" w:sz="18" w:space="4" w:color="${accentColor}"/></w:pBdr>`;
+  const shd  = `<w:shd w:val="clear" w:color="auto" w:fill="${fill}"/>`;
+  const spc  = `<w:spacing w:before="160" w:after="0"/>`;
+  const pPr  = `<w:pPr>${bdr}${shd}${spc}</w:pPr>`;
+  const rPr  = `<w:rPr><w:b/><w:smallCaps/><w:sz w:val="16"/><w:szCs w:val="16"/><w:color w:val="${accentColor}"/></w:rPr>`;
+  return `<w:p>${pPr}<w:r>${rPr}<w:t>${_xmlEsc(role)}</w:t></w:r></w:p>`;
 }
 
 /**
@@ -629,14 +833,21 @@ function buildDocx(messages, title, site, opts = {}, sourceUrl = '') {
   // Metadata
   body += _wPara(_wRun(metaText, { italic: true, color: '71717A' }), '', '<w:spacing w:after="240"/>');
 
-  // Messages
+  // Messages — colored blocks: user=indigo, AI=green
   for (const { role, content } of messages) {
-    body += _wHRule();
-    // Role heading
-    body += _wPara(_wRun(role), 'Heading2');
-    // Content
-    body += _mdToOOXML(content.trim());
-    body += _wPara('', '', '<w:spacing w:after="120"/>'); // trailing spacer
+    const isUser    = role.toLowerCase() === 'you';
+    const accent    = isUser ? '5B5BD6' : '16A34A';
+    const bgFill    = isUser ? 'EEF2FF' : 'F0FDF4';
+
+    // Colored role label with left-border accent
+    body += _wMsgLabel(role, accent, bgFill);
+
+    // Content: MD → HTML → OOXML with background shading
+    const html = mdToHTML(content.trim());
+    body += _htmlToOOXML(html, bgFill);
+
+    // Trailing spacer (no fill — returns to white)
+    body += _wPara('', '', '<w:spacing w:before="0" w:after="200"/>');
   }
 
   // Section properties (A4 page)
