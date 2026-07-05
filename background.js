@@ -314,3 +314,52 @@ api.commands.onCommand.addListener(async (command) => {
   if (fmt) doWebhook(settings, fmt, response, wordCount);
 });
 
+// ─── Action badge — show "ON" on supported AI chat pages ──────────────────
+
+const SUPPORTED_HOSTS = [
+  'chatgpt.com', 'chat.openai.com',
+  'claude.ai',
+  'gemini.google.com', 'aistudio.google.com',
+  'copilot.microsoft.com', 'copilot.com', 'www.copilot.com',
+  'grok.com',
+  'perplexity.ai',
+  'chat.deepseek.com',
+  'meta.ai',
+  'chat.mistral.ai',
+  'huggingface.co',
+  'poe.com',
+  'phind.com',
+  'notebooklm.google.com',
+  'kagi.com',
+];
+
+function updateBadge(tabId, url) {
+  if (!api.action?.setBadgeText) return; // not available in all browsers/contexts
+  let isSupported = false;
+  try {
+    const hostname = new URL(url).hostname;
+    isSupported = SUPPORTED_HOSTS.some(h => hostname === h || hostname.endsWith('.' + h));
+  } catch { /* not a real URL */ }
+
+  if (isSupported) {
+    api.action.setBadgeText({ text: 'ON', tabId });
+    api.action.setBadgeBackgroundColor({ color: '#16a34a', tabId }); // green
+  } else {
+    api.action.setBadgeText({ text: '', tabId });
+  }
+}
+
+// Update badge when a tab finishes loading
+api.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (changeInfo.status === 'complete' && tab.url) {
+    updateBadge(tabId, tab.url);
+  }
+});
+
+// Update badge when user switches tabs
+api.tabs.onActivated.addListener(async ({ tabId }) => {
+  try {
+    const tab = await api.tabs.get(tabId);
+    if (tab?.url) updateBadge(tabId, tab.url);
+  } catch { /* tab may be gone */ }
+});
