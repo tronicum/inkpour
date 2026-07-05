@@ -26,6 +26,7 @@
   const notesInput    = document.getElementById('notesInput');
   const gistLinkEl    = document.getElementById('gist-link');
   const lastExportEl  = document.getElementById('last-export');
+  const newMsgsHint   = document.getElementById('new-msgs-hint');
   const selectToggle  = document.getElementById('selectToggle');
   const selectSection = document.getElementById('select-section');
   const selectCount   = document.getElementById('selectCount');
@@ -270,6 +271,7 @@
       if (!tab?.id) return;
       setStatus('Extracting…');
       hideTitleInput();
+      if (newMsgsHint) { newMsgsHint.hidden = true; newMsgsHint.style.display = 'none'; }
       const response = await api.tabs.sendMessage(tab.id, { action: 'extract' });
       if (response?.error && !response.streaming) {
         setStatus(response.error, 'error');
@@ -287,6 +289,7 @@
         showNotesToggle();
         showSelectToggle();
         buildMessageSelector(response.messages);
+        checkNewMessagesSince(tab.url, response.messages.length);
       } else {
         clearStatus();
       }
@@ -636,6 +639,7 @@
       title:        data.title,
       platform:     data.platform,
       slug:         data.filename,
+      sourceUrl:    data.sourceUrl || '',
       format,
       messageCount: data.messages.length,
       wordCount,
@@ -687,6 +691,35 @@
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ source: 'inkpour', ...payload }),
     }).catch(() => {}); // best-effort
+  }
+
+  /**
+   * Compare the current extraction against history entries for the same URL.
+   * If a prior export exists for this URL, show how many messages are new.
+   *
+   * @param {string} currentUrl   - tab.url of the active page
+   * @param {number} currentCount - message count from the fresh extraction
+   */
+  async function checkNewMessagesSince(currentUrl, currentCount) {
+    if (!newMsgsHint || !currentUrl) return;
+    try {
+      const result  = await api.storage.local.get('inkpour_history');
+      const history = result?.inkpour_history ?? [];
+      // Find the most recent entry whose sourceUrl matches the current page
+      const prev = history.find(e => e.sourceUrl && e.sourceUrl === currentUrl);
+      if (!prev || prev.messageCount >= currentCount) {
+        newMsgsHint.hidden = true;
+        newMsgsHint.style.display = 'none';
+        return;
+      }
+      const diff = currentCount - prev.messageCount;
+      const when = formatRelativeTime(prev.exportedAt);
+      newMsgsHint.textContent = `+${diff} new message${diff !== 1 ? 's' : ''} since exported ${when}`;
+      newMsgsHint.hidden = false;
+      newMsgsHint.style.display = 'block';
+    } catch {
+      // storage unavailable — ignore
+    }
   }
 
   /**
