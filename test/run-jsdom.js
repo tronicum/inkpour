@@ -284,22 +284,34 @@ async function main() {
   });
 
   // ── HuggingChat ───────────────────────────────────────────────────────────
+  // Fixture matches actual chat-ui ChatMessage.svelte (July 2026):
+  //   user turns:     [data-message-type="user"]
+  //   assistant turns:[data-message-role="assistant"] > .prose
   await suite('HuggingChat extraction (experimental)', async () => {
     const result = await extractFromFixture('huggingchat.html', 'huggingface.co');
 
-    await test('extracts 4 messages via data-message-role', () => {
+    await test('extracts 4 messages via data-message-type / data-message-role', () => {
       assert(result.messages.length === 4, `got ${result.messages.length}`);
     });
-    await test('user vs HuggingChat roles', () => {
+    await test('user vs HuggingChat roles alternate correctly', () => {
       assert(result.messages[0].role === 'You',         `role[0]=${result.messages[0].role}`);
       assert(result.messages[1].role === 'HuggingChat', `role[1]=${result.messages[1].role}`);
+      assert(result.messages[2].role === 'You',         `role[2]=${result.messages[2].role}`);
+      assert(result.messages[3].role === 'HuggingChat', `role[3]=${result.messages[3].role}`);
     });
-    await test('preserves 🖥️ emoji', () => {
-      assert(result.messages[0].content.includes('🖥️'), 'missing 🖥️');
+    await test('captures user plain-text content', () => {
+      assert(result.messages[0].content.includes('machine learning'), 'missing user message text');
     });
-    await test('converts bash code block', () => {
+    await test('converts AI bold to markdown', () => {
+      assert(result.messages[1].content.includes('**Machine learning**'), 'missing bold');
+    });
+    await test('converts AI code block with language tag', () => {
       const all = result.messages.map(m => m.content).join('');
-      assert(all.includes('```bash'), 'missing ```bash');
+      assert(all.includes('```python'), 'missing ```python fence');
+      assert(all.includes('LinearRegression'), 'missing code content');
+    });
+    await test('returns platform=huggingchat', () => {
+      assert(result.platform === 'huggingchat', `platform=${result.platform}`);
     });
   });
 
@@ -937,6 +949,38 @@ async function main() {
     const md   = notesBlockMD('My context note') + buildMarkdown(msgs, 'Chat', 'claude', {});
     assert(md.startsWith('> My context note'), 'notes should precede markdown content');
     assert(md.includes('# You'), 'markdown content should follow notes');
+  });
+
+  // ─── Z.ai extraction ──────────────────────────────────────────────────────
+  await suite('Z.ai extraction', async () => {
+    let result;
+    before: { result = await extractFromFixture('zai.html', 'chat.z.ai'); }
+
+    await test('extracts 4 messages', () => {
+      assert(result.messages.length === 4, `got ${result.messages?.length}`);
+    });
+    await test('alternates You / Z.ai roles', () => {
+      assert(result.messages[0].role === 'You',  `role[0]=${result.messages[0].role}`);
+      assert(result.messages[1].role === 'Z.ai', `role[1]=${result.messages[1].role}`);
+      assert(result.messages[2].role === 'You',  `role[2]=${result.messages[2].role}`);
+      assert(result.messages[3].role === 'Z.ai', `role[3]=${result.messages[3].role}`);
+    });
+    await test('captures user message text', () => {
+      assert(result.messages[0].content.includes('quantum computing'), 'missing user message text');
+    });
+    await test('converts AI bold to markdown', () => {
+      assert(result.messages[1].content.includes('**Quantum computing**'), 'missing bold');
+    });
+    await test('converts AI list items', () => {
+      assert(result.messages[1].content.includes('Qubits'), 'missing list item');
+    });
+    await test('converts AI code block with language', () => {
+      assert(result.messages[1].content.includes('```python'), 'missing code fence');
+      assert(result.messages[1].content.includes('QuantumCircuit'), 'missing code content');
+    });
+    await test('returns platform=zai', () => {
+      assert(result.platform === 'zai', `platform=${result.platform}`);
+    });
   });
 
   // ─── Results ───────────────────────────────────────────────────────────────
