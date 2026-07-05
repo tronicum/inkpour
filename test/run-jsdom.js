@@ -924,6 +924,36 @@ async function main() {
     assert(text.includes('word/styles.xml'),      'missing styles part');
   });
 
+  await test('buildDocx user message has indigo shading', () => {
+    const msgs = [{ role: 'You', content: 'hello' }];
+    const text  = new TextDecoder().decode(buildDocx(msgs, 'T', 'claude'));
+    assert(text.includes('EEF2FF'), 'user message should have indigo fill');
+    assert(text.includes('5B5BD6'), 'user accent color missing');
+  });
+
+  await test('buildDocx assistant message has green shading', () => {
+    const msgs = [{ role: 'Claude', content: 'hello' }];
+    const text  = new TextDecoder().decode(buildDocx(msgs, 'T', 'claude'));
+    assert(text.includes('F0FDF4'), 'assistant message should have green fill');
+    assert(text.includes('16A34A'), 'assistant accent color missing');
+  });
+
+  await test('buildDocx renders native OOXML table from markdown table', () => {
+    const msgs = [{ role: 'Claude', content: '| Name | Age |\n|------|-----|\n| Alice | 30 |\n| Bob | 25 |' }];
+    const text  = new TextDecoder().decode(buildDocx(msgs, 'T', 'claude'));
+    assert(text.includes('<w:tbl>'),  'no OOXML table found');
+    assert(text.includes('Alice'),    'table content missing');
+    assert(text.includes('<w:tc>'),   'no table cells found');
+    assert(text.includes('E4E4E7'),   'header row shading missing');
+  });
+
+  await test('buildDocx renders list items with indent', () => {
+    const msgs = [{ role: 'Claude', content: '* item one\n* item two' }];
+    const text  = new TextDecoder().decode(buildDocx(msgs, 'T', 'claude'));
+    assert(text.includes('item one'), 'list item missing');
+    assert(text.includes('w:ind'),    'list indent missing');
+  });
+
   // ─── notesBlockMD ─────────────────────────────────────────────────────────
   await test('notesBlockMD returns empty string for empty input', () => {
     assert(notesBlockMD('') === '', 'empty string should return empty');
