@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>What is the Turing Test? - Venice.ai</title>
+</head>
+<body>
+  <!-- Venice.ai (venice.ai) — Chakra UI + react-virtuoso chat UI
+       AI turns:   .assistant > .assistant-content > .prose
+       User turns: identified by [class*="userMessage"] or fallback chakra-stack scan -->
+
+  <div class="minds-chat-scroll-root css-xyz">
+    <div class="chakra-stack css-abc">
+
+      <!-- Turn 1: user -->
+      <div class="userMessage css-123">
+        <p>What is the Turing Test?</p>
+      </div>
+
+      <!-- Turn 2: AI -->
+      <div class="assistant css-456">
+        <div class="assistant-content css-789">
+          <div class="prose">
+            <p>The <strong>Turing Test</strong>, proposed by Alan Turing in 1950, is a measure of a machine's ability
+            to exhibit intelligent behaviour indistinguishable from that of a human.</p>
+            <h3>How it works</h3>
+            <ul>
+              <li>A human <em>interrogator</em> communicates via text with both a human and a machine</li>
+              <li>If the interrogator cannot reliably tell which is which, the machine is said to have passed</li>
+            </ul>
+            <pre><code class="language-python">def turing_test(interrogator, candidate):
+    """Returns True if the candidate fools the interrogator."""
+    responses = candidate.respond(interrogator.questions())
+    return not interrogator.can_identify(responses)
+</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Turn 3: user -->
+      <div class="userMessage css-123">
+        <p>Has any AI actually passed it?</p>
+      </div>
+
+      <!-- Turn 4: AI -->
+      <div class="assistant css-456">
+        <div class="assistant-content css-789">
+          <div class="prose">
+            <p>In 2014, a chatbot named <strong>Eugene Goostman</strong> was claimed by some to have passed a
+            Turing Test variant at an event organized by the University of Reading — though this claim is
+            widely disputed by researchers who note the test conditions were lenient.</p>
+            <p>Modern LLMs like GPT-4 and Claude routinely fool humans in short exchanges, but most AI
+            researchers consider the original Turing Test an <em>insufficient benchmark</em> for general
+            intelligence.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

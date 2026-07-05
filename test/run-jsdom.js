@@ -1038,6 +1038,41 @@ async function main() {
     });
   });
 
+  // ─── Venice.ai extraction ─────────────────────────────────────────────────
+  await suite('Venice.ai extraction', async () => {
+    let result;
+    before: { result = await extractFromFixture('venice.html', 'venice.ai'); }
+
+    await test('extracts 4 messages', () => {
+      assert(result.messages.length === 4, `got ${result.messages?.length}`);
+    });
+    await test('alternates You / Venice roles', () => {
+      assert(result.messages[0].role === 'You',    `role[0]=${result.messages[0].role}`);
+      assert(result.messages[1].role === 'Venice', `role[1]=${result.messages[1].role}`);
+      assert(result.messages[2].role === 'You',    `role[2]=${result.messages[2].role}`);
+      assert(result.messages[3].role === 'Venice', `role[3]=${result.messages[3].role}`);
+    });
+    await test('captures user message text', () => {
+      assert(result.messages[0].content.includes('Turing Test'), 'user text missing');
+    });
+    await test('converts AI bold to markdown', () => {
+      assert(result.messages[1].content.includes('**Turing Test**'), 'bold missing');
+    });
+    await test('converts AI heading', () => {
+      assert(result.messages[1].content.includes('### How it works'), 'heading missing');
+    });
+    await test('converts AI list items', () => {
+      assert(result.messages[1].content.includes('interrogator'), 'list item missing');
+    });
+    await test('converts AI code block', () => {
+      assert(result.messages[1].content.includes('```python'), 'code fence missing');
+      assert(result.messages[1].content.includes('turing_test'), 'code content missing');
+    });
+    await test('returns platform=venice', () => {
+      assert(result.platform === 'venice', `platform=${result.platform}`);
+    });
+  });
+
   // ─── Results ───────────────────────────────────────────────────────────────
   console.log('\n' + '─'.repeat(50));
   console.log(`Results: ${passed} passed, ${failed} failed`);
