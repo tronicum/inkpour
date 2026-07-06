@@ -195,10 +195,28 @@
 
   // ─── Filter and render ─────────────────────────────────────────────────────
 
+  // Fuzzy-match: every character of needle must appear in haystack in order.
+  // Scores: consecutive matches and prefix matches rank higher.
+  function fuzzyMatch(haystack, needle) {
+    if (!needle) return true;
+    let hi = 0;
+    for (let ni = 0; ni < needle.length; ni++) {
+      const found = haystack.indexOf(needle[ni], hi);
+      if (found === -1) return false;
+      hi = found + 1;
+    }
+    return true;
+  }
+
   function matchesQuery(entry, q) {
-    return entry.title.toLowerCase().includes(q) ||
-           (entry.platform || '').toLowerCase().includes(q) ||
-           (entry.format || '').toLowerCase().includes(q);
+    if (!q) return true;
+    const fields = [
+      (entry.title   || '').toLowerCase(),
+      (entry.platform|| '').toLowerCase(),
+      (entry.format  || '').toLowerCase(),
+    ];
+    // Substring match first (fast path), fall back to fuzzy
+    return fields.some(f => f.includes(q)) || fields.some(f => fuzzyMatch(f, q));
   }
 
   function renderSection(label, entries, inStarredSection) {
