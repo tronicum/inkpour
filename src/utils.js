@@ -6,6 +6,36 @@
  * Do NOT add anything that depends on DOM, localStorage, or extension APIs here.
  */
 
+// ─── URL cleaning ─────────────────────────────────────────────────────────────
+// Strips UTM, Google Ads, and other common tracking parameters from URLs so
+// the exported source link is clean and human-readable.
+
+const TRACKING_PARAMS = new Set([
+  // UTM
+  'utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id',
+  // Google Ads
+  'gclid','gbraid','wbraid','gad_source','gad_campaignid',
+  'c_id','c_agid','c_crid','c_kwid','c_ims','c_pms','c_nw','c_dvc',
+  // Facebook / Meta
+  'fbclid','fb_action_ids','fb_action_types','fb_source','fb_ref',
+  // Microsoft / Bing
+  'msclkid',
+  // Other
+  'igshid','mc_cid','mc_eid','_openstat','yclid','zanpid','dclid',
+  'ref','referrer','source','medium','campaign',
+]);
+
+function cleanUrl(rawUrl) {
+  if (!rawUrl) return '';
+  let url;
+  try { url = new URL(rawUrl); } catch { return rawUrl; }
+  for (const key of [...url.searchParams.keys()]) {
+    if (TRACKING_PARAMS.has(key.toLowerCase())) url.searchParams.delete(key);
+  }
+  // Remove trailing ? if no params remain
+  return url.toString().replace(/\?$/, '');
+}
+
 // ─── HTML escaping ────────────────────────────────────────────────────────────
 
 function esc(s) {
@@ -267,7 +297,7 @@ function buildMarkdown(messages, title, site, opts = {}, sourceUrl = '') {
 
   if (opts.yamlFrontMatter) {
     const safeTitle = title.replace(/"/g, '\\"');
-    const urlLine   = sourceUrl ? `\nsource_url: "${sourceUrl}"` : '';
+    const urlLine   = sourceUrl ? `\nsource_url: "${cleanUrl(sourceUrl)}"` : '';
     // Base tags: always present when obsidianTags is on.
     // opts.gistExtraTags: comma-separated custom tags added on Gist exports (always
     // forces [ai-chat, platform] in addition to any user-defined extras).
@@ -279,7 +309,7 @@ function buildMarkdown(messages, title, site, opts = {}, sourceUrl = '') {
   }
 
   md += `# ${title}\n\n`;
-  const srcNote = sourceUrl ? ` · [source](${sourceUrl})` : '';
+  const srcNote = sourceUrl ? ` · [source](${cleanUrl(sourceUrl)})` : '';
   md += `> Exported from **${site}** on ${date} · ${messages.length} messages · ~${wordCount.toLocaleString()} words · ~${readingMin} min read${srcNote}\n\n---\n\n`;
 
   if (opts.generateTOC && messages.length > 4) {
@@ -877,7 +907,7 @@ function buildDocx(messages, title, site, opts = {}, sourceUrl = '') {
   const wordCount = messages
     .map(m => m.content.trim().split(/\s+/).filter(Boolean).length)
     .reduce((a, b) => a + b, 0);
-  const srcNote  = sourceUrl ? ` · ${sourceUrl}` : '';
+  const srcNote  = sourceUrl ? ` · ${cleanUrl(sourceUrl)}` : '';
   const metaText = `Exported from ${site} on ${date} · ${messages.length} messages · ~${wordCount.toLocaleString()} words${srcNote}`;
 
   // ── Body paragraphs ──────────────────────────────────────────────────────

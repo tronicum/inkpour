@@ -1380,6 +1380,52 @@ async function main() {
     });
   });
 
+  // ─── cleanUrl — tracking param stripping ─────────────────────────────────
+  console.log('\ncleanUrl — tracking param stripping');
+
+  await test('strips utm_* params', () => {
+    const raw = 'https://chatgpt.com/?utm_source=google&utm_medium=cpc&utm_campaign=test';
+    assert(cleanUrl(raw) === 'https://chatgpt.com/', `got: ${cleanUrl(raw)}`);
+  });
+
+  await test('strips gclid and gbraid (Google Ads)', () => {
+    const raw = 'https://chatgpt.com/?gclid=ABC123&gbraid=XYZ';
+    assert(cleanUrl(raw) === 'https://chatgpt.com/', `got: ${cleanUrl(raw)}`);
+  });
+
+  await test('strips fbclid (Facebook)', () => {
+    const raw = 'https://claude.ai/chat/123?fbclid=IwAR0abc';
+    assert(cleanUrl(raw) === 'https://claude.ai/chat/123', `got: ${cleanUrl(raw)}`);
+  });
+
+  await test('strips msclkid (Microsoft)', () => {
+    const raw = 'https://copilot.microsoft.com/?msclkid=abc123';
+    assert(cleanUrl(raw) === 'https://copilot.microsoft.com/', `got: ${cleanUrl(raw)}`);
+  });
+
+  await test('preserves non-tracking params', () => {
+    const raw = 'https://example.com/chat?id=42&model=gpt4';
+    assert(cleanUrl(raw) === 'https://example.com/chat?id=42&model=gpt4', `got: ${cleanUrl(raw)}`);
+  });
+
+  await test('strips mixed tracking + real params', () => {
+    const raw = 'https://example.com/?id=42&utm_source=email&model=x';
+    assert(cleanUrl(raw) === 'https://example.com/?id=42&model=x', `got: ${cleanUrl(raw)}`);
+  });
+
+  await test('returns empty string for empty input', () => {
+    assert(cleanUrl('') === '', 'expected empty string');
+  });
+
+  await test('returns original string for invalid URL', () => {
+    assert(cleanUrl('not-a-url') === 'not-a-url', 'expected passthrough');
+  });
+
+  await test('full ChatGPT ad URL strips to bare origin', () => {
+    const raw = 'https://chatgpt.com/?utm_source=google&utm_medium=paid_search&utm_campaign=GOOG_C_SEM&gclid=EAIaIQ&gbraid=0AAAAA&gad_source=1&gad_campaignid=123&c_id=456&c_agid=789';
+    assert(cleanUrl(raw) === 'https://chatgpt.com/', `got: ${cleanUrl(raw)}`);
+  });
+
   // ─── Results ───────────────────────────────────────────────────────────────
   console.log('\n' + '─'.repeat(50));
   console.log(`Results: ${passed} passed, ${failed} failed`);
