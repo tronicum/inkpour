@@ -8,6 +8,22 @@ importScripts('src/utils.js');
 
 const api = (typeof browser !== 'undefined') ? browser : chrome;
 
+// ─── Safari downloads polyfill ────────────────────────────────────────────
+// Safari does not implement browser.downloads — fall back to injecting a
+// temporary <a download> click into the active tab via the content script.
+const hasBrowserDownloads = !!(api.downloads && api.downloads.download);
+
+function safeDownload(tabId, url, filename) {
+  if (hasBrowserDownloads) {
+    api.downloads.download({ url, filename, saveAs: false });
+  } else {
+    // Safari path: ask content script to do the <a download> trick
+    api.tabs.sendMessage(tabId, { action: 'safariDownload', url, filename });
+    // Clean up object URL after a delay (content script may need a moment)
+    setTimeout(() => { try { URL.revokeObjectURL(url); } catch (_) {} }, 5000);
+  }
+}
+
 // ─── Downloads subfolder helper ───────────────────────────────────────────
 function withSubfolder(settings, filename) {
   const sub = (settings.downloadSubfolder || '').trim().replace(/\/+$/, '');
@@ -49,20 +65,20 @@ api.runtime.onMessage.addListener((message, sender) => {
       const zipBytes  = buildZip(files);
       const b64  = uint8ToBase64(zipBytes);
       const url  = 'data:application/zip;base64,' + b64;
-      api.downloads.download({ url, filename: withSubfolder(settings, filename + '.zip'), saveAs: false });
+      safeDownload(tabId, url, withSubfolder(settings, filename + '.zip'));
     }
 
     if (message.format === 'docx') {
       const docxBytes = buildDocx(response.messages, response.title, response.site, settings, sourceUrl);
       const b64  = uint8ToBase64(docxBytes);
       const url  = 'data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,' + b64;
-      api.downloads.download({ url, filename: withSubfolder(settings, filename + '.docx'), saveAs: false });
+      safeDownload(tabId, url, withSubfolder(settings, filename + '.docx'));
     }
 
     if (message.format === 'html') {
       const html = buildStandaloneHTML(response.messages, response.title, response.site);
       const url  = 'data:text/html;charset=utf-8,' + encodeURIComponent(html);
-      api.downloads.download({ url, filename: withSubfolder(settings, filename + '.html'), saveAs: false });
+      safeDownload(tabId, url, withSubfolder(settings, filename + '.html'));
     }
   })();
 });
@@ -138,7 +154,7 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId === 'inkpour-md') {
     const md  = buildMarkdown(response.messages, response.title, response.site, settings, sourceUrl);
     const url = 'data:text/markdown;charset=utf-8,' + encodeURIComponent(md);
-    api.downloads.download({ url, filename: withSubfolder(settings, filename + '.md'), saveAs: false });
+    safeDownload(tab.id, url, withSubfolder(settings, filename + '.md'));
   }
 
   if (info.menuItemId === 'inkpour-copy') {
@@ -149,7 +165,7 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId === 'inkpour-json') {
     const json = buildJSON(response.messages, response.title, response.site, response.platform);
     const url  = 'data:application/json;charset=utf-8,' + encodeURIComponent(json);
-    api.downloads.download({ url, filename: withSubfolder(settings, filename + '.json'), saveAs: false });
+    safeDownload(tab.id, url, withSubfolder(settings, filename + '.json'));
   }
 
   if (info.menuItemId === 'inkpour-zip') {
@@ -157,14 +173,14 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
     const zipBytes  = buildZip(files);
     const b64  = uint8ToBase64(zipBytes);
     const url  = 'data:application/zip;base64,' + b64;
-    api.downloads.download({ url, filename: withSubfolder(settings, filename + '.zip'), saveAs: false });
+    safeDownload(tab.id, url, withSubfolder(settings, filename + '.zip'));
   }
 
   if (info.menuItemId === 'inkpour-docx') {
     const docxBytes = buildDocx(response.messages, response.title, response.site, settings, sourceUrl);
     const b64  = uint8ToBase64(docxBytes);
     const url  = 'data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,' + b64;
-    api.downloads.download({ url, filename: withSubfolder(settings, filename + '.docx'), saveAs: false });
+    safeDownload(tab.id, url, withSubfolder(settings, filename + '.docx'));
   }
 
   if (info.menuItemId === 'inkpour-gist') {
@@ -287,7 +303,7 @@ api.commands.onCommand.addListener(async (command) => {
   if (command === 'export-markdown') {
     const md  = buildMarkdown(response.messages, response.title, response.site, settings, sourceUrl);
     const url = 'data:text/markdown;charset=utf-8,' + encodeURIComponent(md);
-    api.downloads.download({ url, filename: withSubfolder(settings, filename + '.md'), saveAs: false });
+    safeDownload(tab.id, url, withSubfolder(settings, filename + '.md'));
   }
 
   if (command === 'export-pdf') {
@@ -312,7 +328,7 @@ api.commands.onCommand.addListener(async (command) => {
   if (command === 'export-json') {
     const json = buildJSON(response.messages, response.title, response.site, response.platform);
     const url  = 'data:application/json;charset=utf-8,' + encodeURIComponent(json);
-    api.downloads.download({ url, filename: withSubfolder(settings, filename + '.json'), saveAs: false });
+    safeDownload(tab.id, url, withSubfolder(settings, filename + '.json'));
   }
 
   if (command === 'export-zip') {
@@ -321,14 +337,14 @@ api.commands.onCommand.addListener(async (command) => {
     // base64-encode for data: URL (no createObjectURL in SW)
     const b64  = uint8ToBase64(zipBytes);
     const url  = 'data:application/zip;base64,' + b64;
-    api.downloads.download({ url, filename: withSubfolder(settings, filename + '.zip'), saveAs: false });
+    safeDownload(tab.id, url, withSubfolder(settings, filename + '.zip'));
   }
 
   if (command === 'export-docx') {
     const docxBytes = buildDocx(response.messages, response.title, response.site, settings, sourceUrl);
     const b64  = uint8ToBase64(docxBytes);
     const url  = 'data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,' + b64;
-    api.downloads.download({ url, filename: withSubfolder(settings, filename + '.docx'), saveAs: false });
+    safeDownload(tab.id, url, withSubfolder(settings, filename + '.docx'));
   }
 
   if (command === 'upload-gist') {

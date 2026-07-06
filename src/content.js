@@ -1744,6 +1744,24 @@
       return true; // async
     }
 
+    // Safari downloads polyfill: background SW sends data URL + filename here
+    // when browser.downloads API is unavailable (Safari).
+    if (msg.action === 'safariDownload') {
+      try {
+        const a = Object.assign(document.createElement('a'), {
+          href:     msg.url,
+          download: msg.filename,
+        });
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        sendResponse({ ok: true });
+      } catch (err) {
+        sendResponse({ error: err.message });
+      }
+      return;
+    }
+
     if (msg.action !== 'extract') return;
 
     if (isStreaming()) {
