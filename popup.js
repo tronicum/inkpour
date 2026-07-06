@@ -17,6 +17,7 @@
   const docxBtn     = document.getElementById('docxBtn');
   const zipBtn      = document.getElementById('zipBtn');
   const gistBtn     = document.getElementById('gistBtn');
+  const allBtn      = document.getElementById('allBtn');
   const settingsBtn  = document.getElementById('settingsBtn');
   const historyBtn   = document.getElementById('historyBtn');
   const settingsBtn2 = document.getElementById('settingsBtn2');
@@ -520,6 +521,57 @@
       setStatus(err.message, err.streaming ? 'warning' : 'error');
     } finally {
       setLoading(zipBtn, false);
+    }
+  });
+
+  // ─── Export All (MD + DOCX + ZIP) ────────────────────────────────────────
+
+  allBtn?.addEventListener('click', async () => {
+    clearStatus();
+    setLoading(allBtn, true);
+    try {
+      const data  = await extractFromPage();
+      const msgs  = getSelectedMessages(data.messages);
+      const notes = getExportNotes();
+      const slug  = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length);
+
+      // Build MD
+      const md = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, userSettings, data.sourceUrl);
+      downloadFile(md, slug + '.md', 'text/markdown;charset=utf-8');
+
+      // Build DOCX
+      const docxBytes = buildDocx(msgs, data.title, data.site, userSettings, data.sourceUrl);
+      const docxBlob  = new Blob([docxBytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+      const docxUrl   = URL.createObjectURL(docxBlob);
+      const docxA     = Object.assign(document.createElement('a'), {
+        href:     docxUrl,
+        download: withSubfolder(slug + '.docx'),
+      });
+      document.body.appendChild(docxA);
+      docxA.click();
+      document.body.removeChild(docxA);
+      setTimeout(() => URL.revokeObjectURL(docxUrl), 1000);
+
+      // Build ZIP
+      const { files } = buildZipExport(msgs, data.title, data.site, userSettings, data.sourceUrl);
+      const zipBytes  = buildZip(files);
+      const zipBlob   = new Blob([zipBytes], { type: 'application/zip' });
+      const zipUrl    = URL.createObjectURL(zipBlob);
+      const zipA      = Object.assign(document.createElement('a'), {
+        href:     zipUrl,
+        download: withSubfolder(slug + '.zip'),
+      });
+      document.body.appendChild(zipA);
+      zipA.click();
+      document.body.removeChild(zipA);
+      setTimeout(() => URL.revokeObjectURL(zipUrl), 1000);
+
+      setStatus('✓ MD + DOCX + ZIP saved', 'success');
+      saveLastExport('all', { ...data, messages: msgs }, '');
+    } catch (err) {
+      setStatus(err.message, err.streaming ? 'warning' : 'error');
+    } finally {
+      setLoading(allBtn, false);
     }
   });
 

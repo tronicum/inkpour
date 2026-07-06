@@ -38,6 +38,7 @@ function mdToHTML(md) {
   md = md.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   md = md.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
   md = md.replace(/~~(.+?)~~/g, '<del>$1</del>');
+  md = md.replace(/\+\+(.+?)\+\+/g, '<u>$1</u>');
   md = md.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
 
   // 5. Horizontal rule
@@ -533,7 +534,7 @@ function _htmlDecodeText(s) {
  * Hyperlinks are registered in _docxLinkMap so buildDocx can emit relationship entries.
  */
 function _htmlInlineToRuns(html) {
-  const TOKEN = /<strong><em>([\s\S]*?)<\/em><\/strong>|<strong>([\s\S]*?)<\/strong>|<em>([\s\S]*?)<\/em>|<code>([\s\S]*?)<\/code>|<del>([\s\S]*?)<\/del>|<a\s+href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g;
+  const TOKEN = /<strong><em>([\s\S]*?)<\/em><\/strong>|<strong>([\s\S]*?)<\/strong>|<em>([\s\S]*?)<\/em>|<code>([\s\S]*?)<\/code>|<del>([\s\S]*?)<\/del>|<u>([\s\S]*?)<\/u>|<a\s+href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g;
   let result = '';
   let last   = 0;
   let m;
@@ -544,10 +545,11 @@ function _htmlInlineToRuns(html) {
     else if (m[3]) result += _wRun(_htmlDecodeText(m[3]), { italic: true });
     else if (m[4]) result += _wRun(_htmlDecodeText(m[4]), { code: true });
     else if (m[5]) result += _wRun(_htmlDecodeText(m[5]), { strike: true });
-    else if (m[6] !== undefined) {
+    else if (m[6]) result += _wRun(_htmlDecodeText(m[6]), { underline: true });
+    else if (m[7] !== undefined) {
       // Hyperlink — register URL, emit <w:hyperlink>
-      const href = m[6];
-      const text = _htmlDecodeText(m[7] || href);
+      const href = m[7];
+      const text = _htmlDecodeText(m[8] || href);
       const rId  = _docxLinkRId(href);
       const rPr  = `<w:rPr><w:color w:val="5B5BD6"/><w:u w:val="single"/></w:rPr>`;
       result += `<w:hyperlink r:id="${rId}"><w:r>${rPr}<w:t xml:space="preserve">${_xmlEsc(text)}</w:t></w:r></w:hyperlink>`;
@@ -597,10 +599,19 @@ function _mdInlineToRuns(text) {
  */
 function _wRun(text, props = {}) {
   const rpr = [];
-  if (props.bold)   rpr.push('<w:b/>');
-  if (props.italic) rpr.push('<w:i/>');
-  if (props.strike) rpr.push('<w:strike/>');
-  if (props.color)  rpr.push(`<w:color w:val="${props.color}"/>`);
+  if (props.bold)      rpr.push('<w:b/>');
+  if (props.italic)    rpr.push('<w:i/>');
+  if (props.strike)    rpr.push('<w:strike/>');
+  if (props.underline) rpr.push('<w:u w:val="single"/>');
+  if (props.color)     rpr.push(`<w:color w:val="${props.color}"/>`);
+  if (props.font) {
+    const f = props.font;
+    rpr.push(`<w:rFonts w:ascii="${f}" w:hAnsi="${f}" w:cs="${f}"/>`);
+  }
+  if (props.size) {
+    const s = props.size * 2; // half-points
+    rpr.push(`<w:sz w:val="${s}"/><w:szCs w:val="${s}"/>`);
+  }
   if (props.code) {
     rpr.push('<w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New"/>');
     rpr.push('<w:sz w:val="18"/><w:szCs w:val="18"/>');
@@ -633,7 +644,7 @@ function _wHRule() {
  * Lines are joined with <w:br/> inside a single paragraph for compactness.
  * @param {string} fill  optional parent message background (ignored — code always uses its own bg)
  */
-function _wCodeBlock(text, _lang, _fill = '') {
+function _wCodeBlock(text, lang = '', _fill = '') {
   const lines  = text.split('\n');
   const font   = '<w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New"/>';
   const sz     = '<w:sz w:val="18"/><w:szCs w:val="18"/>';
@@ -648,7 +659,14 @@ function _wCodeBlock(text, _lang, _fill = '') {
   // PreformattedText is a standard OOXML built-in style — Word, Pages, and
   // LibreOffice all render it as monospace without needing a custom definition.
   const pPr = `<w:pPr><w:pStyle w:val="PreformattedText"/><w:spacing w:before="40" w:after="40"/></w:pPr>`;
-  return `<w:p>${pPr}${runs}</w:p>`;
+  const codePara = `<w:p>${pPr}${runs}</w:p>`;
+
+  if (lang) {
+    const labelPPr = `<w:pPr><w:pStyle w:val="PreformattedText"/><w:spacing w:before="80" w:after="0"/></w:pPr>`;
+    const labelPara = `<w:p>${labelPPr}${_wRun(lang, { color: '9CA3AF', size: 16, font: 'Courier New' })}</w:p>`;
+    return labelPara + codePara;
+  }
+  return codePara;
 }
 
 /**
@@ -744,10 +762,12 @@ function _htmlToOOXML(html, fill = '') {
     }
 
     // ── Code block ──
-    const pre = raw.match(/^<pre><code[^>]*>([\s\S]*?)<\/code><\/pre>$/);
+    const pre = raw.match(/^<pre><code([^>]*)>([\s\S]*?)<\/code><\/pre>$/);
     if (pre) {
-      const code = _htmlDecodeText(pre[1]);
-      out.push(_wCodeBlock(code, '', fill));
+      const langM = pre[1].match(/class="(?:lang(?:uage)?-)([^"\s]+)"/);
+      const lang  = langM ? langM[1] : '';
+      const code  = _htmlDecodeText(pre[2]);
+      out.push(_wCodeBlock(code, lang, fill));
       continue;
     }
 
