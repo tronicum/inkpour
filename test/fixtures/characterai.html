@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat with Aria - Character.AI</title>
+</head>
+<body>
+  <!-- Character.AI (character.ai) — React SPA
+       Primary selector: [data-author-name] — extractor grabs el.querySelector('p') ?? el
+       User turns:  data-author-name="User"
+       AI turns:    data-author-name="<character name>" -->
+
+  <div class="chat-feed">
+
+    <!-- Turn 1: user -->
+    <div data-author-name="User">
+      <p>Can you help me with creative writing? I want to write a short story.</p>
+    </div>
+
+    <!-- Turn 2: AI — all content in single <p> so querySelector('p') captures everything -->
+    <div data-author-name="Aria">
+      <p>Of course! Great storytelling rests on a few <strong>key pillars</strong>:
+      <em>Character</em> (give your protagonist a clear desire and flaw),
+      <em>Conflict</em> (something must stand between them and their goal), and
+      <em>Stakes</em> (the reader needs to care about the outcome).
+      What genre or setting did you have in mind?</p>
+    </div>
+
+    <!-- Turn 3: user -->
+    <div data-author-name="User">
+      <p>I was thinking a mystery set in a lighthouse. The detective is afraid of water.</p>
+    </div>
+
+    <!-- Turn 4: AI -->
+    <div data-author-name="Aria">
+      <p>That's a wonderful setup! The irony of a <strong>hydrophobic detective</strong> trapped on a
+      lighthouse island creates built-in tension. You could open <em>in medias res</em> — your detective
+      arriving by boat, knuckles white on the railing, before a body is even discovered.</p>
+    </div>
+
+  </div>
+</body>
+</html>

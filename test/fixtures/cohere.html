@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Command R+ Chat - Cohere Coral</title>
+</head>
+<body>
+  <!-- Cohere Coral (coral.cohere.com) — React SPA
+       User turns:  [data-testid="user-message"]
+       AI turns:    [data-testid="assistant-message"] -->
+
+  <div class="chat-root">
+
+    <!-- Turn 1: user -->
+    <div data-testid="user-message">
+      <p>What are vector databases and why are they used in AI applications?</p>
+    </div>
+
+    <!-- Turn 2: AI -->
+    <div data-testid="assistant-message">
+      <p>A <strong>vector database</strong> stores data as high-dimensional numerical vectors (embeddings)
+      and enables extremely fast similarity search — finding the closest vectors to a query vector.</p>
+      <h3>Why they matter for AI</h3>
+      <p>Large language models convert text into embedding vectors. A vector database lets you search
+      millions of documents by semantic meaning rather than exact keyword match, which powers features
+      like RAG (Retrieval-Augmented Generation).</p>
+      <pre><code class="language-python">import cohere
+import numpy as np
+
+co = cohere.Client('YOUR_API_KEY')
+embeddings = co.embed(texts=['Vector databases are fast'], model='embed-english-v3.0')
+vec = np.array(embeddings.embeddings[0])
+print(f'Embedding dimension: {vec.shape[0]}')
+</code></pre>
+    </div>
+
+    <!-- Turn 3: user -->
+    <div data-testid="user-message">
+      <p>Which vector databases are most popular right now?</p>
+    </div>
+
+    <!-- Turn 4: AI -->
+    <div data-testid="assistant-message">
+      <p>The most widely adopted options are <strong>Pinecone</strong> (managed cloud service),
+      <strong>Weaviate</strong> (open-source, GraphQL API), <strong>Qdrant</strong> (Rust-based,
+      very fast), and <strong>pgvector</strong> (Postgres extension for teams already on PostgreSQL).
+      For local/embedded use, <strong>ChromaDB</strong> and <strong>FAISS</strong> (by Meta) are
+      popular in prototyping and research settings.</p>
+    </div>
+
+  </div>
+</body>
+</html>
