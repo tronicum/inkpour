@@ -1172,6 +1172,17 @@ async function main() {
     assert(html.includes('This is a quote'), 'blockquote text missing');
   });
 
+  await test('mdToHTML renders nested list with inner <ul>', () => {
+    const html = mdToHTML('* top item\n  * sub item a\n  * sub item b\n* another top');
+    assert(html.includes('<ul>'), 'outer <ul> missing');
+    // nested ul should appear inside the outer structure
+    const ulCount = (html.match(/<ul>/g) || []).length;
+    assert(ulCount >= 2, `expected nested <ul>, got ${ulCount} <ul> tags`);
+    assert(html.includes('sub item a'), 'nested item a missing');
+    assert(html.includes('sub item b'), 'nested item b missing');
+    assert(html.includes('another top'), 'second top item missing');
+  });
+
   await test('mdToHTML renders ordered list as <ol>', () => {
     const html = mdToHTML('1. First\n2. Second\n3. Third');
     assert(html.includes('<ol>') || html.includes('<ol '), 'no <ol> in output');

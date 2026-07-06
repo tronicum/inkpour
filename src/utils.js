@@ -78,16 +78,40 @@ function mdToHTML(md) {
     return `<ul class="task-list">${items}</ul>`;
   });
 
-  // 7b. Regular lists — group consecutive list lines
-  md = md.replace(/((?:^\* .+$\n?)+)/gm, match => {
-    const items = match.trim().split('\n')
-      .map(l => `<li>${l.replace(/^\* /, '')}</li>`).join('');
-    return `<ul>${items}</ul>`;
-  });
-  md = md.replace(/((?:^\d+\. .+$\n?)+)/gm, match => {
-    const items = match.trim().split('\n')
-      .map(l => `<li>${l.replace(/^\d+\. /, '')}</li>`).join('');
-    return `<ol>${items}</ol>`;
+  // 7b. Regular lists — group consecutive list lines (supports nested indentation)
+  md = md.replace(/((?:^[ \t]*(?:\*|-|\d+\.) .+$\n?)+)/gm, match => {
+    const lines = match.trimEnd().split('\n');
+    // Stack: [{depth, ol, html}] — depth=-1 is root sentinel
+    const stack = [{ depth: -1, ol: false, html: '' }];
+    const top = () => stack[stack.length - 1];
+    for (const line of lines) {
+      const indent = (line.match(/^([ \t]*)/) || ['', ''])[1].length;
+      const olM  = line.match(/^[ \t]*(\d+)\. (.*)/);
+      const ulM  = line.match(/^[ \t]*[\*\-] (.*)/);
+      if (!olM && !ulM) continue;
+      const isOl  = !!olM;
+      const text  = olM ? olM[2] : ulM[1];
+      const depth = Math.floor(indent / 2); // 2-space or 4-space indent
+      // Pop deeper levels
+      while (stack.length > 1 && top().depth >= depth) {
+        const closed = stack.pop();
+        top().html += `<${closed.ol ? 'ol' : 'ul'}>${closed.html}</${closed.ol ? 'ol' : 'ul'}>`;
+      }
+      // Push new level if needed
+      if (top().depth < depth) {
+        stack.push({ depth, ol: isOl, html: '' });
+      }
+      top().html += `<li>${text}</li>`;
+    }
+    // Collapse remaining stack
+    while (stack.length > 1) {
+      const closed = stack.pop();
+      top().html += `<${closed.ol ? 'ol' : 'ul'}>${closed.html}</${closed.ol ? 'ol' : 'ul'}>`;
+    }
+    const root = top();
+    // Determine root tag from first real line
+    const firstOl = /^[ \t]*\d+\./.test(lines[0]);
+    return `<${firstOl ? 'ol' : 'ul'}>${root.html}</${firstOl ? 'ol' : 'ul'}>`;
   });
 
   // 8. Paragraphs — split on blank lines, wrap plain text chunks
