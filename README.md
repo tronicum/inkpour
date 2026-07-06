@@ -1,10 +1,10 @@
 # 🖋 Inkpour
 
-[![Beta](https://img.shields.io/badge/status-beta-orange?style=flat-square)](https://github.com/tronicum/inkpour)
+[![v0.4.2](https://img.shields.io/badge/version-0.4.2-5b5bd6?style=flat-square)](https://github.com/tronicum/inkpour)
 [![CI](https://img.shields.io/github/actions/workflow/status/tronicum/inkpour/ci.yml?branch=dev&style=flat-square&label=CI)](https://github.com/tronicum/inkpour/actions/workflows/ci.yml)
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL%20v3-blue?style=flat-square)](./LICENSE)
 [![MV3](https://img.shields.io/badge/Manifest-V3-5b5bd6?style=flat-square)](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json)
-[![Tests](https://img.shields.io/badge/tests-189%20passed-16a34a?style=flat-square)](./test/run-jsdom.js)
+[![Tests](https://img.shields.io/badge/tests-198%20passed-16a34a?style=flat-square)](./test/run-jsdom.js)
 
 **Export AI chat conversations to Markdown, PDF, HTML, JSON, DOCX, or ZIP — one click, no accounts, no servers.**
 
