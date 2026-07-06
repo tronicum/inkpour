@@ -198,6 +198,22 @@
     #status.error    { color: var(--error); }
     #status.warning  { color: #d97706; }
 
+    /* ── Export All button ── */
+    .all-group {
+      margin-top: 8px;
+    }
+    .all-group .btn {
+      background: var(--accent);
+      color: var(--accent-text);
+      border-color: var(--accent);
+      font-size: 13px;
+    }
+    .all-group .btn:hover:not(:disabled) {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+      color: var(--accent-text);
+    }
+
     /* ── Gist link ── */
     #gist-link {
       margin-top: 5px;
@@ -336,6 +352,13 @@
     <button class="btn copy-btn" id="gistBtn" title="Upload Markdown to GitHub Gist" hidden>
       <div class="spinner"></div>
       <span>Gist ↑</span>
+    </button>
+  </div>
+
+  <div class="btn-group all-group">
+    <button class="btn" id="allBtn" title="Export MD + DOCX + ZIP simultaneously">
+      <div class="spinner"></div>
+      <span>⬇ Export All (MD + DOCX + ZIP)</span>
     </button>
   </div>
 
