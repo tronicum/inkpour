@@ -92,6 +92,10 @@
     'Kagi':           ['kagi.com'],
     'Z.ai':           ['chat.z.ai'],
     'Venice':         ['venice.ai'],
+    'Chatbot Arena':  ['lmarena.ai', 'chat.lmsys.org'],
+    'Character.AI':   ['character.ai', 'www.character.ai'],
+    'Cohere Coral':   ['coral.cohere.com'],
+    'Pi':             ['pi.ai'],
   };
 
   // Flat set of all supported hostnames — used to distinguish "wrong site" from

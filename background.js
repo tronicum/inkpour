@@ -374,6 +374,10 @@ const SUPPORTED_HOSTS = [
   'kagi.com',
   'chat.z.ai',
   'venice.ai',
+  'lmarena.ai', 'chat.lmsys.org',
+  'character.ai', 'www.character.ai',
+  'coral.cohere.com',
+  'pi.ai',
 ];
 
 function updateBadge(tabId, url) {

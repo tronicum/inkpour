@@ -32,6 +32,12 @@
     "*://kagi.com/*",
     "*://chat.z.ai/*",
     "*://venice.ai/*",
+    "*://lmarena.ai/*",
+    "*://chat.lmsys.org/*",
+    "*://character.ai/*",
+    "*://www.character.ai/*",
+    "*://coral.cohere.com/*",
+    "*://pi.ai/*",
     "*://api.github.com/*"
   ],
 
@@ -113,7 +119,13 @@
         "*://notebooklm.google.com/*",
         "*://kagi.com/*",
         "*://chat.z.ai/*",
-        "*://venice.ai/*"
+        "*://venice.ai/*",
+        "*://lmarena.ai/*",
+        "*://chat.lmsys.org/*",
+        "*://character.ai/*",
+        "*://www.character.ai/*",
+        "*://coral.cohere.com/*",
+        "*://pi.ai/*"
       ],
       "js": ["src/content.js"],
       "run_at": "document_idle"
