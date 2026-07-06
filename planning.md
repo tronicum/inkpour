@@ -1,6 +1,6 @@
 # Inkpour — Planning & Architecture Notes
 
-Last updated: 2026-07-05 (Tasks 1–47 complete)
+Last updated: 2026-07-06 (Tasks 1–50 complete)
 
 ## What it is
 
@@ -112,7 +112,7 @@ Code blocks extracted from all messages → individual files (`snippet-1.py`, `s
 
 ---
 
-## Platform support (20 platforms)
+## Platform support (24 platforms)
 
 | Platform | Status | Extractor strategy |
 |---|---|---|
@@ -135,6 +135,10 @@ Code blocks extracted from all messages → individual files (`snippet-1.py`, `s
 | Kagi Assistant | 🧪 Experimental | `[data-role]` / class patterns |
 | Z.ai (Zhipu GLM) | 🧪 Experimental | `.chat-user` / `.chat-assistant #response-content-container` |
 | Venice.ai | 🧪 Experimental | `.assistant-content .prose` / `[class*="userMessage"]`; chakra-stack fallback |
+| Chatbot Arena (LMArena) | 🧪 Experimental | `[data-testid="user-message"]` / `[data-testid="bot-message"]`; Gradio UI |
+| Character.AI | 🧪 Experimental | `[data-author-name]` (primary); `[class*="UserMessage"]` / `[class*="CharacterMessage"]` fallback |
+| Cohere Coral | 🧪 Experimental | `[data-testid="user-message"]` / `[data-testid="assistant-message"]` |
+| Pi.AI | 🧪 Experimental | `[data-role="human"]` / `[data-role="pi"]` |
 
 ---
 
@@ -142,20 +146,21 @@ Code blocks extracted from all messages → individual files (`snippet-1.py`, `s
 
 ```
 inkpour/
-├── manifest.json           MV3, 21 host_permissions, 8 commands
+├── manifest.json           MV3, 28 host_permissions, 8 commands
 ├── src/content.js          Extraction + htmlToMarkdown + in-page button (~1500 lines)
 ├── src/utils.js            Shared builders: buildMarkdown, buildDocx, buildZip, mdToHTML, …
-├── popup.html / popup.js   Export buttons (MD/PDF/HTML/JSON/ZIP/DOCX + Copy MD/HTML + Gist)
+├── popup.html / popup.js   Export buttons (MD/PDF/HTML/JSON/ZIP/DOCX + Export All + Copy MD/HTML + Gist)
 ├── background.js           Service worker: shortcuts + context menu + download handler
 ├── settings.html / .js     Options page (defaultFormat, YAML, TOC, filenameTemplate, Gist, webhook)
 ├── print.html / print.js   PDF print tab (reads localStorage OR storage.local)
-├── history.html / .js      Export history page (search, re-download, copy, star, clear)
+├── history.html / .js      Export history page (fuzzy search, re-download, copy, star, clear)
+├── safari/                 Safari Web Extension scaffold → xcrun safari-web-extension-converter → Xcode → App Store
 ├── PRIVACY.md              Privacy policy for store submission
-├── supported-sites.json    Machine-readable platform list
+├── supported-sites.json    Machine-readable platform list (24 entries)
 ├── icons/                  16/32/48/128px PNGs
 └── test/
-    ├── run-jsdom.js        JSDOM test harness (159 tests, 0 failures)
-    └── fixtures/           17 HTML fixtures (one per platform)
+    ├── run-jsdom.js        JSDOM test harness (189 tests, 0 failures)
+    └── fixtures/           19 HTML fixtures (one per platform)
 ```
 
 ### Key design decisions
@@ -170,7 +175,7 @@ inkpour/
 
 **`window.__inkpourTestHostname`**: test escape hatch so `detectSite()` routes correctly in JSDOM.
 
-**JSDOM test harness** (`test/run-jsdom.js`): 134 tests, 0 failures. `npm test` runs this.
+**JSDOM test harness** (`test/run-jsdom.js`): 189 tests, 0 failures. `npm test` runs this.
 
 **print.js dual-source**: popup sets `localStorage.inkpour_print` (synchronous); background SW sets `storage.local.inkpour_print_pending` (async). `print.js` checks localStorage first.
 
@@ -184,14 +189,15 @@ inkpour/
 - AI Studio extraction is fragile (edit-mode clicks may misfire on complex prompts)
 - Footnote `[^N]` numbers restart per-message — could conflict in multi-turn Perplexity exports
 - Context menu appears on all pages (MV3 limitation without exact `documentUrlPatterns`)
-- Safari support possible via `xcrun safari-web-extension-converter` → Xcode → App Store
+- Selectors for new experimental platforms (lmarena, characterai, cohere, piai) need verification against live pages
 
 ## Next ideas
+- Submit to Firefox Add-ons (AMO) and Chrome Web Store
+- Safari App Store submission: run `xcrun safari-web-extension-converter` on the extension, open `safari/Inkpour-Safari/` in Xcode, sign with Apple Developer account — scaffold in `safari/`
 - NotebookLM source citation extraction (inline `[1]` refs to uploaded docs)
 - i18n: `_locales/en/messages.json` groundwork
 - Kagi / Groq selector verification against real pages
 - Obsidian vault path setting → export directly there via Downloads API
 - Streaming progress: show "Extracting…" while auto-scroll runs
 - Lifetime stats storage: persist cumulative stats beyond 20-entry rolling window
-- HTML in-page button option (route through background.js like DOCX/PDF/ZIP)
-- `{msgcount}` filename token
+- `{msgcount}` filename token (implementation complete, may already be wired)

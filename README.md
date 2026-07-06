@@ -4,9 +4,9 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/tronicum/inkpour/ci.yml?branch=dev&style=flat-square&label=CI)](https://github.com/tronicum/inkpour/actions/workflows/ci.yml)
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL%20v3-blue?style=flat-square)](./LICENSE)
 [![MV3](https://img.shields.io/badge/Manifest-V3-5b5bd6?style=flat-square)](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json)
-[![Tests](https://img.shields.io/badge/tests-159%20passed-16a34a?style=flat-square)](./test/run-jsdom.js)
+[![Tests](https://img.shields.io/badge/tests-189%20passed-16a34a?style=flat-square)](./test/run-jsdom.js)
 
-**Export AI chat conversations to Markdown, PDF, HTML, JSON, or ZIP — one click, no accounts, no servers.**
+**Export AI chat conversations to Markdown, PDF, HTML, JSON, DOCX, or ZIP — one click, no accounts, no servers.**
 
 Inkpour is a lightweight WebExtension (Manifest V3) that works in Firefox, Chrome, Edge, and Brave. Everything happens locally in your browser.
 
@@ -35,6 +35,10 @@ Inkpour is a lightweight WebExtension (Manifest V3) that works in Firefox, Chrom
 | Kagi Assistant | kagi.com | 🧪 Experimental |
 | Z.ai (Zhipu GLM) | chat.z.ai | 🧪 Experimental |
 | Venice.ai | venice.ai | 🧪 Experimental |
+| Chatbot Arena (LMArena) | lmarena.ai / chat.lmsys.org | 🧪 Experimental |
+| Character.AI | character.ai | 🧪 Experimental |
+| Cohere Coral | coral.cohere.com | 🧪 Experimental |
+| Pi.AI | pi.ai | 🧪 Experimental |
 
 Experimental = selectors verified against fixture HTML; real-page accuracy needs ongoing maintenance as sites update their DOM.
 
@@ -44,11 +48,12 @@ Experimental = selectors verified against fixture HTML; real-page accuracy needs
 
 ### Export formats
 - **Markdown** (`.md`) — clean GFM with optional YAML front matter and table of contents
-- **Word** (`.docx`) — rich OOXML: colored message blocks (indigo/green), native tables, embedded hyperlinks, task-list checkboxes, code blocks, attribution footer — no server, no dependency
+- **Word** (`.docx`) — rich OOXML: colored message blocks (indigo/green), native tables, embedded hyperlinks, task-list checkboxes, code blocks with language labels, headings h1–h6, blockquotes (IntenseQuote style), attribution footer — pure-JS, no server, no dependency
 - **PDF** — opens a clean, ad-free print-preview tab and triggers the browser print dialog
 - **HTML** — fully self-contained single file with dark/light mode, no external dependencies
 - **JSON** — structured `{ exporter, version, title, platform, exportedAt, messages[] }`
 - **ZIP** — `chat.md` + every code block extracted as its own file (`snippet-1.py`, `snippet-2.js`, …)
+- **Export All** — popup button that simultaneously saves MD + DOCX + ZIP in one click
 
 ### Clipboard
 - **Copy MD** (`Alt+Shift+C`) — Markdown to clipboard instantly
@@ -69,7 +74,7 @@ Copy HTML, JSON, and ZIP are available via the popup and right-click menu. Chrom
 Right-click any supported page → **Export with Inkpour** → MD / Copy / JSON / ZIP / Upload to Gist.
 
 ### Export history
-Click **⏱ History** in the popup footer to see the last 20 exports. Filter by title or platform, re-download, or copy any previous export. **Star** any export to pin it permanently — starred exports survive "Clear all" and are stored separately.
+Click **⏱ History** in the popup footer to see the last 20 exports. Filter by title, platform, or format with **fuzzy search** (character-by-character ordered match — type `cpdf` to find "claude pdf"), re-download, or copy any previous export. **Star** any export to pin it permanently — starred exports survive "Clear all" and are stored separately.
 
 ### Integrations
 - **GitHub Gist** — add a Personal Access Token (gist scope) in Settings to unlock the "Gist ↑" popup button and `Alt+Shift+G` shortcut. Created Gists open in a new tab.
@@ -104,7 +109,7 @@ Default: `{platform}-{title}`.
 - Selective export: click "☑ Select messages" to open a scrollable checkbox list — export only the turns you want. Quick-select buttons: All, None, User only, AI only
 - Streaming guard: warns if the AI is still generating instead of exporting an incomplete response
 - Auto-scroll: triggers lazy-loading of older messages on ChatGPT, Gemini, and AI Studio before extraction
-- In-page floating button (Shadow DOM, dark-mode aware) — MD / Copy MD / HTML / DOCX / PDF / ZIP without opening the popup
+- In-page floating button (Shadow DOM, dark-mode aware) — MD / Copy MD / HTML / DOCX / PDF / ZIP without opening the popup (`Alt+Shift+D` exports DOCX directly)
 - In-page toast notifications for keyboard shortcut feedback
 
 ### Settings
@@ -152,19 +157,20 @@ npm test          # Run 159 JSDOM-based extraction and builder tests (no browser
 
 ```
 inkpour/
-├── manifest.json           MV3 manifest (21 host_permissions, 7 commands)
-├── popup.html / popup.js   Popup UI: MD/PDF/HTML/JSON/ZIP + Copy MD/HTML + Gist
+├── manifest.json           MV3 manifest (28 host_permissions, 8 commands)
+├── popup.html / popup.js   Popup UI: MD/PDF/HTML/JSON/ZIP/DOCX + Export All + Copy MD/HTML + Gist
 ├── background.js           Service worker: keyboard shortcuts + context menus + webhook
 ├── settings.html / .js     Options page (format, filename, YAML, TOC, subfolder, Gist, webhook)
 ├── print.html / print.js   PDF print-preview tab
-├── history.html / .js      Export history with search, re-download, star/pin
+├── history.html / .js      Export history with fuzzy search, re-download, star/pin
+├── safari/                 Safari Web Extension scaffold (Xcode project + App Store assets)
 ├── icons/                  16 / 32 / 48 / 128 px PNGs
 ├── src/
 │   ├── content.js          Extraction, htmlToMarkdown, in-page button, toasts
-│   └── utils.js            Shared builders: buildMarkdown, buildFilename, buildZip, …
+│   └── utils.js            Shared builders: buildMarkdown, buildDocx, buildFilename, buildZip, …
 └── test/
-    ├── run-jsdom.js         JSDOM test harness (159 tests, 0 failures)
-    └── fixtures/            18 HTML fixtures — one per platform
+    ├── run-jsdom.js         JSDOM test harness (189 tests, 0 failures)
+    └── fixtures/            19 HTML fixtures — one per platform
 ```
 
 See [planning.md](./planning.md) for architecture decisions and next steps.
