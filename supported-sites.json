@@ -126,6 +126,34 @@
       "hosts": ["venice.ai"],
       "status": "experimental",
       "notes": "Chakra UI + react-virtuoso. AI turns in .assistant > .assistant-content > .prose, user turns by class patterns with chakra-stack fallback."
+    },
+    {
+      "name": "Lmsys Chatbot Arena",
+      "id": "lmarena",
+      "hosts": ["lmarena.ai", "chat.lmsys.org"],
+      "status": "experimental",
+      "notes": "Gradio-based multi-model comparison UI. Extracts first model column. User messages from [data-testid='user-message'], AI from [data-testid='bot-message'] with .user/.bot class fallbacks."
+    },
+    {
+      "name": "Character.AI",
+      "id": "characterai",
+      "hosts": ["character.ai", "www.character.ai"],
+      "status": "experimental",
+      "notes": "React SPA with obfuscated classes. Stable extraction via data-author-name attribute; fallback to UserMessage/CharacterMessage class patterns."
+    },
+    {
+      "name": "Cohere Coral",
+      "id": "cohere",
+      "hosts": ["coral.cohere.com"],
+      "status": "experimental",
+      "notes": "Command R+ / Coral chat interface. User messages from [data-testid='user-message'], AI from [data-testid='assistant-message'] with userMessage/assistantMessage class fallbacks."
+    },
+    {
+      "name": "Pi.ai",
+      "id": "piai",
+      "hosts": ["pi.ai"],
+      "status": "experimental",
+      "notes": "SPA with human/pi role division. Primary extraction via data-role attributes; fallback to div[class*='human'] and div[class*='pi'] class patterns."
     }
   ]
 }

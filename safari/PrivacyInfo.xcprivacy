@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  PrivacyInfo.xcprivacy — Apple Privacy Manifest for Inkpour Safari Extension
+  https://developer.apple.com/documentation/bundleresources/privacy_manifest_files
+
+  Inkpour:
+  - Makes no external network requests of its own (user-configured GitHub Gist uploads
+    and webhooks are initiated by the user and involve only their own data and tokens).
+  - Accesses no privacy-sensitive device APIs (location, camera, microphone, contacts,
+    health, motion, etc.).
+  - Stores export history and settings in browser extension storage (chrome.storage.local),
+    which is scoped to the extension and not accessible to other apps.
+  - Does not collect, transmit, or share any user data.
+
+  All arrays below are empty because Inkpour does not use any of the covered APIs
+  or collect any of the listed data types.
+-->
+<plist version="1.0">
+<dict>
+    <!--
+      NSPrivacyTracking: Inkpour does not track users or link data across apps/websites.
+    -->
+    <key>NSPrivacyTracking</key>
+    <false/>
+
+    <!--
+      NSPrivacyTrackingDomains: No domains used for tracking.
+    -->
+    <key>NSPrivacyTrackingDomains</key>
+    <array/>
+
+    <!--
+      NSPrivacyCollectedDataTypes: Inkpour collects no data.
+      The list of possible values is at:
+      https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_data_use_in_privacy_manifests
+    -->
+    <key>NSPrivacyCollectedDataTypes</key>
+    <array/>
+
+    <!--
+      NSPrivacyAccessedAPITypes: Inkpour does not call any of the privacy-sensitive
+      APIs that require a declared reason (file timestamp APIs, system boot time,
+      disk space APIs, active keyboard APIs, user defaults APIs).
+
+      The extension uses chrome.storage.local for its own settings — this is a
+      browser API, not one of the NSPrivacyAccessedAPIType categories. No entry
+      is required.
+    -->
+    <key>NSPrivacyAccessedAPITypes</key>
+    <array/>
+</dict>
+</plist>

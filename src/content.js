@@ -318,6 +318,10 @@
     if (host.includes('notebooklm.google.com'))                             return 'notebooklm';
     if (host.includes('kagi.com'))                                          return 'kagi';
     if (host.includes('venice.ai'))                                         return 'venice';
+    if (host.includes('lmarena.ai') || host.includes('chat.lmsys.org'))     return 'lmarena';
+    if (host.includes('character.ai'))                                       return 'characterai';
+    if (host.includes('coral.cohere.com'))                                   return 'cohere';
+    if (host.includes('pi.ai'))                                              return 'piai';
     return 'generic';
   }
 
@@ -930,6 +934,150 @@
       .filter(m => m.content);
   }
 
+  // Lmsys Chatbot Arena (lmarena.ai, chat.lmsys.org) — experimental
+  // Gradio-based multi-model comparison UI. We extract the first model column only.
+  function extractLmarena() {
+    // Primary: Gradio data-testid attributes
+    const userEls = Array.from(document.querySelectorAll(
+      '[data-testid="user-message"] > p, [data-testid="user-message"]'
+    )).map(el => ({ el, role: 'You' }));
+
+    const aiEls = Array.from(document.querySelectorAll(
+      '[data-testid="bot-message"] .prose, [data-testid="bot-message"]'
+    )).map(el => ({ el, role: 'Chatbot Arena' }));
+
+    if (userEls.length || aiEls.length) {
+      return [...userEls, ...aiEls]
+        .sort(sortByDOMOrder)
+        .map(({ el, role }) => ({ role, content: htmlToMarkdown(el) }))
+        .filter(m => m.content);
+    }
+
+    // Secondary: Gradio .user/.bot class pattern; grab first model column
+    const userClassEls = Array.from(document.querySelectorAll('.user > p, .user'))
+      .map(el => ({ el, role: 'You' }));
+    const botClassEls = Array.from(document.querySelectorAll('.bot > p, .bot'))
+      .map(el => ({ el, role: 'Chatbot Arena' }));
+
+    // Deduplicate: arena shows two model columns — keep only first occurrence per DOM position
+    const seenPositions = new Set();
+    const deduped = [...userClassEls, ...botClassEls]
+      .sort(sortByDOMOrder)
+      .filter(({ el }) => {
+        const key = el.getBoundingClientRect().top.toFixed(0);
+        if (seenPositions.has(key)) return false;
+        seenPositions.add(key);
+        return true;
+      });
+
+    // Fallback: generic message containers
+    if (!deduped.length) {
+      const fallbackUser = Array.from(document.querySelectorAll('div.message.user'))
+        .map(el => ({ el, role: 'You' }));
+      const fallbackBot = Array.from(document.querySelectorAll('div.message.bot'))
+        .map(el => ({ el, role: 'Chatbot Arena' }));
+      const combined = [...fallbackUser, ...fallbackBot].sort(sortByDOMOrder);
+      return combined.length
+        ? combined.map(({ el, role }) => ({ role, content: htmlToMarkdown(el) })).filter(m => m.content)
+        : null;
+    }
+
+    return deduped.map(({ el, role }) => ({ role, content: htmlToMarkdown(el) })).filter(m => m.content);
+  }
+
+  // Character.AI (character.ai) — experimental
+  // React-based SPA; class names are obfuscated but data-author-name is stable.
+  function extractCharacterAI() {
+    // Primary: data-author-name attribute (most stable)
+    const byAuthor = document.querySelectorAll('[data-author-name]');
+    if (byAuthor.length) {
+      return Array.from(byAuthor).map(el => {
+        const author = el.getAttribute('data-author-name') || '';
+        const isUser = author.toLowerCase() === 'user' || author.toLowerCase() === 'you';
+        // Try to get the character name from the first AI message
+        const role = isUser ? 'You' : (author || 'Character.AI');
+        const p = el.querySelector('p') ?? el;
+        return { role, content: htmlToMarkdown(p) };
+      }).filter(m => m.content);
+    }
+
+    // Secondary: obfuscated class-name patterns
+    const userEls = Array.from(document.querySelectorAll(
+      'div[class*="UserMessage"] p, div[class*="UserMessage"]'
+    )).map(el => ({ el, role: 'You' }));
+
+    const aiEls = Array.from(document.querySelectorAll(
+      'div[class*="CharacterMessage"] p, div[class*="CharacterMessage"], ' +
+      '[class*="character-response"]'
+    )).map(el => ({ el, role: 'Character.AI' }));
+
+    if (!userEls.length && !aiEls.length) return null;
+    return [...userEls, ...aiEls]
+      .sort(sortByDOMOrder)
+      .map(({ el, role }) => ({ role, content: htmlToMarkdown(el) }))
+      .filter(m => m.content);
+  }
+
+  // Cohere Coral / Command R+ chat (coral.cohere.com) — experimental
+  function extractCohere() {
+    // Primary: data-testid attributes
+    const userEls = Array.from(document.querySelectorAll('[data-testid="user-message"]'))
+      .map(el => ({ el, role: 'You' }));
+    const aiEls = Array.from(document.querySelectorAll('[data-testid="assistant-message"]'))
+      .map(el => ({ el, role: 'Cohere' }));
+
+    if (userEls.length || aiEls.length) {
+      return [...userEls, ...aiEls]
+        .sort(sortByDOMOrder)
+        .map(({ el, role }) => ({ role, content: htmlToMarkdown(el) }))
+        .filter(m => m.content);
+    }
+
+    // Secondary: class-name patterns
+    const fallbackUser = Array.from(document.querySelectorAll(
+      'div[class*="userMessage"], div[class*="user-message"]'
+    )).map(el => ({ el, role: 'You' }));
+
+    const fallbackAI = Array.from(document.querySelectorAll(
+      'div[class*="assistantMessage"] .prose, div[class*="assistantMessage"], ' +
+      'div[class*="assistant-message"]'
+    )).map(el => ({ el, role: 'Cohere' }));
+
+    if (!fallbackUser.length && !fallbackAI.length) return null;
+    return [...fallbackUser, ...fallbackAI]
+      .sort(sortByDOMOrder)
+      .map(({ el, role }) => ({ role, content: htmlToMarkdown(el) }))
+      .filter(m => m.content);
+  }
+
+  // Pi.ai (pi.ai) — experimental
+  // SPA with human/pi role indicators; uses data-role or class-name patterns.
+  function extractPiAI() {
+    // Primary: data-role attributes
+    const byRole = document.querySelectorAll('[data-role="human"], [data-role="pi"]');
+    if (byRole.length) {
+      return Array.from(byRole).map(el => {
+        const role = el.getAttribute('data-role') === 'human' ? 'You' : 'Pi';
+        return { role, content: htmlToMarkdown(el) };
+      }).filter(m => m.content);
+    }
+
+    // Secondary: class-name patterns
+    const userEls = Array.from(document.querySelectorAll(
+      'div[class*="human"] p, div[class*="human"]'
+    )).map(el => ({ el, role: 'You' }));
+
+    const aiEls = Array.from(document.querySelectorAll(
+      'div[class*="pi"] p, div[class*="pi"]'
+    )).map(el => ({ el, role: 'Pi' }));
+
+    if (!userEls.length && !aiEls.length) return null;
+    return [...userEls, ...aiEls]
+      .sort(sortByDOMOrder)
+      .map(({ el, role }) => ({ role, content: htmlToMarkdown(el) }))
+      .filter(m => m.content);
+  }
+
   // Z.ai (chat.z.ai) — Zhipu AI / GLM-5, Svelte-based chat UI
   // Selectors confirmed by live DOM inspection:
   //   .chat-user    — user turn wrapper (plain text in whitespace-pre-wrap div)
@@ -1161,6 +1309,38 @@
       );
     }
 
+    // Lmsys Chatbot Arena: Gradio shows aria-busy on the bot message or a loading spinner
+    if (site === 'lmarena') {
+      return !!(
+        document.querySelector('[data-testid="bot-message"][aria-busy="true"]') ||
+        document.querySelector('.loading, [class*="loading-spinner"]')
+      );
+    }
+
+    // Character.AI: loading indicator while generating
+    if (site === 'characterai') {
+      return !!(
+        document.querySelector('[class*="CharacterMessage"] [class*="loading"]') ||
+        document.querySelector('[aria-busy="true"]')
+      );
+    }
+
+    // Cohere Coral: aria-busy or loading spinner
+    if (site === 'cohere') {
+      return !!(
+        document.querySelector('[data-testid="assistant-message"][aria-busy="true"]') ||
+        document.querySelector('[class*="loading-spinner"], [class*="loadingSpinner"]')
+      );
+    }
+
+    // Pi.ai: loading indicator while generating
+    if (site === 'piai') {
+      return !!(
+        document.querySelector('[data-role="pi"][aria-busy="true"]') ||
+        document.querySelector('[class*="pi"] [class*="loading"], [class*="typing-indicator"]')
+      );
+    }
+
     // Generic fallback: look for any visible "Stop generating" button
     const stopBtns = document.querySelectorAll(
       'button[aria-label*="stop" i], button[title*="stop" i], ' +
@@ -1200,6 +1380,10 @@
       case 'notebooklm':  messages = extractNotebookLM();        break;
       case 'kagi':        messages = extractKagi();              break;
       case 'venice':      messages = extractVenice();            break;
+      case 'lmarena':     messages = extractLmarena();           break;
+      case 'characterai': messages = extractCharacterAI();       break;
+      case 'cohere':      messages = extractCohere();            break;
+      case 'piai':        messages = extractPiAI();              break;
       case 'googlesearch': messages = extractGoogleAISearch();   break;
       default:            break;
     }
