@@ -163,7 +163,7 @@ inkpour/
 ├── settings.html / .js     Options page (format, filename, YAML, TOC, subfolder, Gist, webhook)
 ├── print.html / print.js   PDF print-preview tab
 ├── history.html / .js      Export history with fuzzy search, re-download, star/pin
-├── safari/                 Safari Web Extension scaffold (Xcode project + App Store assets)
+├── safari/                 Safari Web Extension build guide + scaffold
 ├── icons/                  16 / 32 / 48 / 128 px PNGs
 ├── src/
 │   ├── content.js          Extraction, htmlToMarkdown, in-page button, toasts
