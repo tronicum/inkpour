@@ -124,17 +124,23 @@ Default: `{platform}-{title}`.
 
 ---
 
-## Quick start (Firefox)
+## Supported browsers
+
+| Browser | Load unpacked |
+|---|---|
+| Firefox | `about:debugging` → This Firefox → Load Temporary Add-on… → select `manifest.json` |
+| Chrome | `chrome://extensions` → Developer mode → Load unpacked → select folder |
+| Edge | `edge://extensions` → Developer mode → Load unpacked → select folder |
+| Brave | `brave://extensions` → Developer mode → Load unpacked → select folder |
+| Safari | See [`safari/XCODE_GUIDE.md`](./safari/XCODE_GUIDE.md) |
+
+## Quick start
 
 ```bash
 git clone https://github.com/tronicum/inkpour.git
 ```
 
-1. Open **`about:debugging`** → **This Firefox** → **Load Temporary Add-on…**
-2. Select **`manifest.json`** from the cloned folder
-3. Open any supported AI chat, click the Inkpour icon
-
-**Chrome / Edge / Brave:** `chrome://extensions` → **Developer mode** → **Load unpacked** → select the folder.
+Then follow the row for your browser above.
 
 ### Troubleshooting
 
