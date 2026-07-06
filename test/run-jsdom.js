@@ -1252,6 +1252,134 @@ async function main() {
     assert(text.includes('Inkpour'), 'attribution text missing from docx');
   });
 
+  // ─── Lmarena extraction ───────────────────────────────────────────────────
+  await suite('Lmarena extraction', async () => {
+    let result;
+    before: { result = await extractFromFixture('lmarena.html', 'lmarena.ai'); }
+
+    await test('extracts 4 messages', () => {
+      assert(result.messages.length === 4, `got ${result.messages?.length}`);
+    });
+    await test('alternates You / Chatbot Arena roles', () => {
+      assert(result.messages[0].role === 'You',           `role[0]=${result.messages[0].role}`);
+      assert(result.messages[1].role === 'Chatbot Arena', `role[1]=${result.messages[1].role}`);
+      assert(result.messages[2].role === 'You',           `role[2]=${result.messages[2].role}`);
+      assert(result.messages[3].role === 'Chatbot Arena', `role[3]=${result.messages[3].role}`);
+    });
+    await test('captures user message text', () => {
+      assert(result.messages[0].content.includes('reinforcement learning'), 'user text missing');
+    });
+    await test('converts AI bold to markdown', () => {
+      assert(result.messages[1].content.includes('**Reinforcement learning'), 'bold missing');
+    });
+    await test('converts AI heading', () => {
+      assert(result.messages[1].content.includes('### Core concepts'), 'heading missing');
+    });
+    await test('converts AI list items', () => {
+      assert(result.messages[1].content.includes('Agent'), 'list item missing');
+    });
+    await test('converts AI code block', () => {
+      assert(result.messages[1].content.includes('```python'), 'code fence missing');
+      assert(result.messages[1].content.includes('CartPole'), 'code content missing');
+    });
+    await test('returns platform=lmarena', () => {
+      assert(result.platform === 'lmarena', `platform=${result.platform}`);
+    });
+  });
+
+  // ─── Character.AI extraction ──────────────────────────────────────────────
+  await suite('Character.AI extraction', async () => {
+    let result;
+    before: { result = await extractFromFixture('characterai.html', 'character.ai'); }
+
+    await test('extracts 4 messages', () => {
+      assert(result.messages.length === 4, `got ${result.messages?.length}`);
+    });
+    await test('user role is You', () => {
+      assert(result.messages[0].role === 'You', `role[0]=${result.messages[0].role}`);
+    });
+    await test('AI role matches character name', () => {
+      assert(result.messages[1].role === 'Aria', `role[1]=${result.messages[1].role}`);
+    });
+    await test('alternates You / Aria roles', () => {
+      assert(result.messages[2].role === 'You',  `role[2]=${result.messages[2].role}`);
+      assert(result.messages[3].role === 'Aria', `role[3]=${result.messages[3].role}`);
+    });
+    await test('captures user message text', () => {
+      assert(result.messages[0].content.includes('creative writing'), 'user text missing');
+    });
+    await test('converts AI bold to markdown', () => {
+      assert(result.messages[1].content.includes('**key pillars**'), 'bold missing');
+    });
+    await test('converts AI italic to markdown', () => {
+      const c = result.messages[1].content;
+      assert(c.includes('*Character*') || c.includes('_Character_'), 'italic missing');
+    });
+    await test('returns platform=characterai', () => {
+      assert(result.platform === 'characterai', `platform=${result.platform}`);
+    });
+  });
+
+  // ─── Cohere extraction ────────────────────────────────────────────────────
+  await suite('Cohere extraction', async () => {
+    let result;
+    before: { result = await extractFromFixture('cohere.html', 'coral.cohere.com'); }
+
+    await test('extracts 4 messages', () => {
+      assert(result.messages.length === 4, `got ${result.messages?.length}`);
+    });
+    await test('alternates You / Cohere roles', () => {
+      assert(result.messages[0].role === 'You',    `role[0]=${result.messages[0].role}`);
+      assert(result.messages[1].role === 'Cohere', `role[1]=${result.messages[1].role}`);
+      assert(result.messages[2].role === 'You',    `role[2]=${result.messages[2].role}`);
+      assert(result.messages[3].role === 'Cohere', `role[3]=${result.messages[3].role}`);
+    });
+    await test('captures user message text', () => {
+      assert(result.messages[0].content.includes('vector database'), 'user text missing');
+    });
+    await test('converts AI bold to markdown', () => {
+      assert(result.messages[1].content.includes('**vector database**'), 'bold missing');
+    });
+    await test('converts AI heading', () => {
+      assert(result.messages[1].content.includes('### Why they matter'), 'heading missing');
+    });
+    await test('converts AI code block', () => {
+      assert(result.messages[1].content.includes('```python'), 'code fence missing');
+      assert(result.messages[1].content.includes('cohere'), 'code content missing');
+    });
+    await test('returns platform=cohere', () => {
+      assert(result.platform === 'cohere', `platform=${result.platform}`);
+    });
+  });
+
+  // ─── Pi.AI extraction ─────────────────────────────────────────────────────
+  await suite('Pi.AI extraction', async () => {
+    let result;
+    before: { result = await extractFromFixture('piai.html', 'pi.ai'); }
+
+    await test('extracts 4 messages', () => {
+      assert(result.messages.length === 4, `got ${result.messages?.length}`);
+    });
+    await test('alternates You / Pi roles', () => {
+      assert(result.messages[0].role === 'You', `role[0]=${result.messages[0].role}`);
+      assert(result.messages[1].role === 'Pi',  `role[1]=${result.messages[1].role}`);
+      assert(result.messages[2].role === 'You', `role[2]=${result.messages[2].role}`);
+      assert(result.messages[3].role === 'Pi',  `role[3]=${result.messages[3].role}`);
+    });
+    await test('captures user message text', () => {
+      assert(result.messages[0].content.includes('motivation'), 'user text missing');
+    });
+    await test('converts AI bold to markdown', () => {
+      assert(result.messages[1].content.includes('**Shrink the habit**'), 'bold missing');
+    });
+    await test('converts AI list items', () => {
+      assert(result.messages[1].content.includes('consistency'), 'list content missing');
+    });
+    await test('returns platform=piai', () => {
+      assert(result.platform === 'piai', `platform=${result.platform}`);
+    });
+  });
+
   // ─── Results ───────────────────────────────────────────────────────────────
   console.log('\n' + '─'.repeat(50));
   console.log(`Results: ${passed} passed, ${failed} failed`);

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>What is reinforcement learning? - LMSYS Chatbot Arena</title>
+</head>
+<body>
+  <!-- LMArena / Chatbot Arena (lmarena.ai, chat.lmsys.org) — Gradio-based
+       User turns:   [data-testid="user-message"]  (plain text, no <p> child so > p branch is skipped)
+       AI turns:     [data-testid="bot-message"]    (content direct, no .prose wrapper so only bot-message matches) -->
+
+  <div class="chat-container">
+
+    <!-- Turn 1: user — no <p> child so only [data-testid="user-message"] matches -->
+    <div data-testid="user-message">What is reinforcement learning?</div>
+
+    <!-- Turn 2: AI — no .prose wrapper so only [data-testid="bot-message"] matches -->
+    <div data-testid="bot-message">
+      <p><strong>Reinforcement learning (RL)</strong> is a type of machine learning where an agent learns
+      to make decisions by interacting with an environment to maximise cumulative reward.</p>
+      <h3>Core concepts</h3>
+      <ul>
+        <li><strong>Agent</strong> — the learner or decision-maker</li>
+        <li><strong>Environment</strong> — what the agent interacts with</li>
+        <li><strong>Reward</strong> — the feedback signal guiding learning</li>
+      </ul>
+      <pre><code class="language-python">import gymnasium as gym
+
+env = gym.make('CartPole-v1')
+obs, _ = env.reset()
+for _ in range(1000):
+    action = env.action_space.sample()
+    obs, reward, done, _, _ = env.step(action)
+    if done:
+        obs, _ = env.reset()
+</code></pre>
+    </div>
+
+    <!-- Turn 3: user -->
+    <div data-testid="user-message">How does it differ from supervised learning?</div>
+
+    <!-- Turn 4: AI -->
+    <div data-testid="bot-message">
+      <p>In <strong>supervised learning</strong> the model trains on labelled examples where the correct
+      answer is provided upfront. In reinforcement learning there are no labels — the agent discovers
+      good behaviour through trial and error guided by reward signals.</p>
+    </div>
+
+  </div>
+</body>
+</html>
