@@ -41,6 +41,7 @@
     yamlFrontMatter:  false,
     generateTOC:      false,
     downloadSubfolder: '',
+    obsidianVault:     '',
     obsidianTags:      false,
     githubToken:          '',
     gistPublic:           false,
@@ -57,6 +58,7 @@
     document.getElementById('yamlFrontMatter').checked  = prefs.yamlFrontMatter;
     document.getElementById('generateTOC').checked      = prefs.generateTOC;
     document.getElementById('downloadSubfolder').value  = prefs.downloadSubfolder;
+    document.getElementById('obsidianVault').value      = prefs.obsidianVault || '';
     document.getElementById('obsidianTags').checked     = prefs.obsidianTags;
     document.getElementById('githubToken').value             = prefs.githubToken;
     document.getElementById('gistPublic').value              = String(prefs.gistPublic);
@@ -75,6 +77,7 @@
       yamlFrontMatter:  document.getElementById('yamlFrontMatter').checked,
       generateTOC:      document.getElementById('generateTOC').checked,
       downloadSubfolder: document.getElementById('downloadSubfolder').value.trim(),
+      obsidianVault:     document.getElementById('obsidianVault').value.trim(),
       obsidianTags:      document.getElementById('obsidianTags').checked,
       githubToken:           document.getElementById('githubToken').value.trim(),
       gistPublic:            document.getElementById('gistPublic').value === 'true',

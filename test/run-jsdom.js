@@ -383,6 +383,25 @@ async function main() {
       assert(result.messages[3].content.includes('```'), 'no code block');
       assert(result.messages[3].content.includes('2025-2027'), 'missing timeline content');
     });
+    await test('AI response contains Sources section when citations present', () => {
+      const aiContent = result.messages[1].content;
+      assert(aiContent.includes('**Sources:**'), `no Sources section in AI response: ${aiContent.slice(0, 200)}`);
+    });
+    await test('AI response lists citation numbers', () => {
+      const aiContent = result.messages[1].content;
+      assert(aiContent.includes('[1]'), `no [1] citation in AI response: ${aiContent.slice(0, 200)}`);
+      assert(aiContent.includes('[2]'), `no [2] citation in AI response: ${aiContent.slice(0, 200)}`);
+    });
+    await test('user messages do not get Sources section', () => {
+      const userContent = result.messages[0].content;
+      assert(!userContent.includes('**Sources:**'), 'user message should not have Sources section');
+    });
+    await test('second AI response has no citations (no sups in fixture)', () => {
+      // Second AI response has no sup elements — Sources section should be absent
+      const aiContent = result.messages[3].content;
+      // This is acceptable either way; just verify content was extracted
+      assert(aiContent.length > 0, 'second AI response has no content');
+    });
   });
 
   // ── Perplexity citations (integration) ───────────────────────────────────

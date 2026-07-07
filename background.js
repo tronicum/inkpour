@@ -25,8 +25,9 @@ function safeDownload(tabId, url, filename) {
 }
 
 // ─── Downloads subfolder helper ───────────────────────────────────────────
+// obsidianVault takes precedence over downloadSubfolder when set.
 function withSubfolder(settings, filename) {
-  const sub = (settings.downloadSubfolder || '').trim().replace(/\/+$/, '');
+  const sub = ((settings.obsidianVault || settings.downloadSubfolder || '')).trim().replace(/\/+$/, '');
   return sub ? sub + '/' + filename : filename;
 }
 
@@ -47,7 +48,7 @@ api.runtime.onMessage.addListener((message, sender) => {
 
     const stored   = await api.storage.local.get('inkpour_settings');
     const settings = Object.assign(
-      { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}', downloadSubfolder: '', obsidianTags: false },
+      { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}', downloadSubfolder: '', obsidianVault: '', obsidianTags: false },
       stored?.inkpour_settings ?? {}
     );
     const sourceUrl = sender.tab.url || '';
@@ -144,7 +145,7 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
 
   const stored   = await api.storage.local.get('inkpour_settings');
   const settings = Object.assign(
-    { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}', downloadSubfolder: '', obsidianTags: false },
+    { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}', downloadSubfolder: '', obsidianVault: '', obsidianTags: false },
     stored?.inkpour_settings ?? {}
   );
   const sourceUrl = tab?.url || '';
@@ -292,7 +293,7 @@ api.commands.onCommand.addListener(async (command) => {
   // Load user settings so keyboard shortcuts respect all preferences
   const stored   = await api.storage.local.get('inkpour_settings');
   const settings = Object.assign(
-    { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}', downloadSubfolder: '', obsidianTags: false },
+    { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}', downloadSubfolder: '', obsidianVault: '', obsidianTags: false },
     stored?.inkpour_settings ?? {}
   );
 

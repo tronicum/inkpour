@@ -668,14 +668,25 @@
     let response;
     // Show progress hint — auto-scroll can take up to 4 s on long chats
     setStatus('Extracting messages…');
+    let scrollPollInterval = null;
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.session) {
+      scrollPollInterval = setInterval(async () => {
+        try {
+          const data = await chrome.storage.session.get(['inkpourScrolling', 'inkpourScrollMsg']);
+          if (data.inkpourScrolling) setStatus(data.inkpourScrollMsg || 'Loading older messages…', 'info');
+        } catch (_) {}
+      }, 600);
+    }
     try {
       response = await api.tabs.sendMessage(tab.id, { action: 'extract' });
     } catch {
+      if (scrollPollInterval) { clearInterval(scrollPollInterval); scrollPollInterval = null; }
       if (!isSupportedHost(tab?.url || '')) {
         throw new Error('Not a supported AI chat page. Open Inkpour on ChatGPT, Claude, Gemini, Google Search, or another supported platform.');
       }
       throw new Error('Refresh the chat tab, then try again. (Content script not running — tab was open before the extension loaded.)');
     }
+    if (scrollPollInterval) { clearInterval(scrollPollInterval); scrollPollInterval = null; }
     clearStatus();
 
     if (!response)              throw new Error('No response from page. Try refreshing the tab.');
