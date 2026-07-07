@@ -829,6 +829,40 @@
   // NotebookLM renders a "chat" panel where you ask questions and get responses
   // grounded in your uploaded sources. The panel is a sidebar, not a full-page chat.
   function extractNotebookLM() {
+    /**
+     * Extract citation superscripts from a NotebookLM AI response element.
+     * Looks for <sup data-source-index="N">, <sup><a>, or [class*="citation"] elements.
+     * Returns a deduplicated sorted array of source numbers (1-based).
+     */
+    function extractCitations(el) {
+      const sups = el.querySelectorAll('sup[data-source-index], sup > a, [class*="citation"]');
+      if (!sups.length) return [];
+      const nums = new Set();
+      sups.forEach(sup => {
+        // data-source-index is 0-based; display as 1-based
+        const idx = sup.getAttribute('data-source-index');
+        if (idx !== null) {
+          nums.add(Number(idx) + 1);
+        } else {
+          // Try to extract a number from the text content
+          const n = parseInt(sup.textContent.trim(), 10);
+          if (!isNaN(n) && n > 0) nums.add(n);
+        }
+      });
+      return [...nums].sort((a, b) => a - b);
+    }
+
+    function buildContentWithCitations(el, isUser) {
+      let content = htmlToMarkdown(el);
+      if (!isUser) {
+        const citations = extractCitations(el);
+        if (citations.length) {
+          content += '\n\n**Sources:** ' + citations.map(n => `[${n}]`).join(' ');
+        }
+      }
+      return content;
+    }
+
     // Primary: chat message containers with role data attributes
     const byRole = document.querySelectorAll('[data-message-role], [class*="ChatMessage"]');
     if (byRole.length) {
@@ -836,7 +870,7 @@
         const role = el.getAttribute('data-message-role') ||
                      (el.className.toLowerCase().includes('user') ? 'user' : 'assistant');
         const isUser = role === 'user' || role === 'human';
-        return { role: isUser ? 'You' : 'NotebookLM', content: htmlToMarkdown(el) };
+        return { role: isUser ? 'You' : 'NotebookLM', content: buildContentWithCitations(el, isUser) };
       }).filter(m => m.content);
     }
 
@@ -855,7 +889,10 @@
     if (!userEls.length && !aiEls.length) return null;
     return [...userEls, ...aiEls]
       .sort(sortByDOMOrder)
-      .map(({ el, role }) => ({ role, content: htmlToMarkdown(el) }))
+      .map(({ el, role }) => {
+        const isUser = role === 'You';
+        return { role, content: buildContentWithCitations(el, isUser) };
+      })
       .filter(m => m.content);
   }
 
@@ -1232,6 +1269,8 @@
       // Bail if the container doesn't support scrolling (e.g. test environment)
       if (typeof container.scrollTo !== 'function') return;
 
+      try { await (chrome || browser).storage.session.set({ inkpourScrolling: true, inkpourScrollMsg: 'Loading older messages…' }); } catch (_) {}
+
       container.scrollTo({ top: 0, behavior: 'smooth' });
 
       // Wait until scrollHeight is stable (no new nodes loaded) or 4 s max
@@ -1246,11 +1285,14 @@
           } else {
             stableCount = 0;
             prevHeight  = h;
+            try { (chrome || browser).storage.session.set({ inkpourScrolling: true, inkpourScrollMsg: 'Loading older messages…' }); } catch (_) {}
             container.scrollTo({ top: 0, behavior: 'smooth' }); // keep scrolling as content loads
           }
         }, 350);
         setTimeout(() => { clearInterval(check); resolve(); }, 4000);
       });
+
+      try { await (chrome || browser).storage.session.set({ inkpourScrolling: false, inkpourScrollMsg: '' }); } catch (_) {}
 
       // Restore scroll position so the user still sees the bottom of the chat
       container.scrollTo({ top: container.scrollHeight, behavior: 'instant' });
