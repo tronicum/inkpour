@@ -1155,15 +1155,42 @@
 
     if (isAIMode) {
       // AI Mode: multi-turn conversational interface.
-      // Google uses various selectors; try the most specific first.
-      const userEls = document.querySelectorAll(
-        '[data-turn-query], [jsname="IWGqac"], .user-query-text, [aria-label*="Your question"]'
-      );
-      const aiEls = document.querySelectorAll(
-        '[data-turn-response], [jsname="rfDRyf"], .ai-response-container, [aria-label*="AI response"]'
-      );
+      // Verified against live DOM (Firefox + Chrome, July 2026): each turn
+      // (query + answer together) is wrapped in a [jsname="RH7zg"] container.
+      // The query is a [role="heading"][jsname="eFVkfb"] element made of a
+      // visually-hidden "You said:" label (.iMqumd) + the actual query text.
+      // jsname attributes are Google's internal event-binding hooks and are
+      // far more stable across deploys than the obfuscated CSS class names.
+      const turns = document.querySelectorAll('[jsname="RH7zg"]');
+      if (turns.length) {
+        turns.forEach(turn => {
+          const clone = turn.cloneNode(true);
+          // Strip decorative/duplicate a11y-hidden content (e.g. stacked
+          // "Copy" / "Copied" / "Edit" button-state labels).
+          clone.querySelectorAll('[aria-hidden="true"]').forEach(n => n.remove());
 
-      if (userEls.length || aiEls.length) {
+          const heading = clone.querySelector('[role="heading"][jsname="eFVkfb"]');
+          let q = '';
+          if (heading) {
+            q = heading.textContent.replace(/^You said:\s*/i, '').trim();
+            heading.remove();
+          }
+          if (q) messages.push({ role: 'You', content: q });
+
+          const answer = htmlToMarkdown(clone).trim();
+          if (answer) messages.push({ role: 'Gemini', content: answer });
+        });
+      }
+
+      // Fallback: older/speculative selectors, kept in case Google changes
+      // the DOM again and the primary selectors above stop matching.
+      if (!messages.length) {
+        const userEls = document.querySelectorAll(
+          '[data-turn-query], [jsname="IWGqac"], .user-query-text, [aria-label*="Your question"]'
+        );
+        const aiEls = document.querySelectorAll(
+          '[data-turn-response], [jsname="rfDRyf"], .ai-response-container, [aria-label*="AI response"]'
+        );
         const maxTurns = Math.max(userEls.length, aiEls.length);
         for (let i = 0; i < maxTurns; i++) {
           if (userEls[i]) {
@@ -1177,10 +1204,10 @@
         }
       }
 
-      // Fallback: look for any message-like containers inside the AI Mode UI
+      // Last-resort fallback: any message-like containers inside the AI Mode UI
       if (!messages.length) {
-        const turns = document.querySelectorAll('[data-q], [data-message-role], [class*="conversation-turn"]');
-        turns.forEach(el => {
+        const genericTurns = document.querySelectorAll('[data-q], [data-message-role], [class*="conversation-turn"]');
+        genericTurns.forEach(el => {
           const role = el.getAttribute('data-message-role') || el.getAttribute('data-q') ? 'You' : 'Gemini';
           const c = htmlToMarkdown(el).trim();
           if (c) messages.push({ role, content: c });

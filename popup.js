@@ -38,6 +38,12 @@
   const selectUserBtn = document.getElementById('selectUser');
   const selectAIBtn   = document.getElementById('selectAI');
 
+  // ── Version tag (footer) ──────────────────────────────────────────────
+  const versionEl = document.getElementById('versionTag');
+  if (versionEl) {
+    try { versionEl.textContent = 'v' + api.runtime.getManifest().version; } catch (_) {}
+  }
+
   // ─── Load user settings ───────────────────────────────────────────────────
 
   // ─── Extraction cache ─────────────────────────────────────────────────────
