@@ -212,7 +212,7 @@
       row.innerHTML = `
         <input type="checkbox" data-idx="${i}" checked>
         <span class="msg-role ${isUser ? 'user' : 'ai'}">${esc(msg.role.slice(0, 6))}</span>
-        <span class="msg-preview">${esc(preview)}</span>`;
+        <span class="msg-preview">${esc(preview)}</span>`; // safe: all user content passed through esc()
       row.querySelector('input').addEventListener('change', updateSelectCount);
       msgCheckboxes.appendChild(row);
     });
@@ -628,7 +628,13 @@
       const gist = await res.json();
       setStatus('✓ Gist created', 'success');
       if (gistLinkEl) {
-        gistLinkEl.innerHTML = `<a href="${gist.html_url}" target="_blank" rel="noopener">${gist.html_url}</a>`;
+        const a = document.createElement('a');
+        a.href = gist.html_url;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.textContent = gist.html_url;
+        gistLinkEl.textContent = '';
+        gistLinkEl.appendChild(a);
       }
       saveLastExport('gist', { ...data, messages: msgs }, md, { gistUrl: gist.html_url });
     } catch (err) {
