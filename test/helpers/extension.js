@@ -10,6 +10,8 @@
 
 const { test: base, expect, chromium } = require('@playwright/test');
 const path = require('path');
+const os   = require('os');
+const fs   = require('fs');
 
 const EXTENSION_PATH = path.resolve(__dirname, '../..');
 
@@ -18,8 +20,9 @@ exports.expect = expect;
 exports.test = base.extend({
   // Persistent browser context with the extension loaded
   context: async ({}, use) => {
-    const context = await chromium.launchPersistentContext('', {
-      // headless=new supports extensions in Chrome 112+
+    const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'inkpour-pw-'));
+    const context = await chromium.launchPersistentContext(userDataDir, {
+      // headless=new supports extensions in Chromium 112+
       headless: true,
       args: [
         '--headless=new',
