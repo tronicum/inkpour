@@ -3,6 +3,12 @@
 
   const api = (typeof browser !== 'undefined') ? browser : chrome;
 
+  // ─── Version tag ──────────────────────────────────────────────────────────
+  const versionEl = document.getElementById('versionTag');
+  if (versionEl) {
+    try { versionEl.textContent = 'v' + api.runtime.getManifest().version; } catch (_) {}
+  }
+
   // ─── Browser detection ────────────────────────────────────────────────────
 
   const BROWSER_META = {

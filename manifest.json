@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Inkpour",
-  "version": "0.4.23.4",
+  "version": "0.4.24.0",
   "description": "Export AI chat conversations (ChatGPT, Claude, Gemini, Copilot, and more) to Markdown, PDF, HTML, DOCX or ZIP.",
   "homepage_url": "https://github.com/tronicum/inkpour",
   "author": "tronicum",
@@ -71,7 +71,6 @@
       "description": "Export current chat to PDF"
     },
     "upload-gist": {
-      "suggested_key": { "default": "Alt+Shift+G", "mac": "Alt+Shift+G" },
       "description": "Upload current chat to GitHub Gist"
     },
     "copy-html": {
