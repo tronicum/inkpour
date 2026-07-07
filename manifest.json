@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Inkpour",
-  "version": "0.4.23.2",
+  "version": "0.4.23.3",
   "description": "Export AI chat conversations (ChatGPT, Claude, Gemini, Copilot, and more) to Markdown, PDF, HTML, DOCX or ZIP.",
   "homepage_url": "https://github.com/tronicum/inkpour",
   "author": "tronicum",
@@ -11,7 +11,7 @@
       "id": "inkpour@tronicum",
       "strict_min_version": "109.0",
       "data_collection_permissions": {
-        "required": [],
+        "required": ["none"],
         "optional": []
       }
     }
