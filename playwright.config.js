@@ -23,7 +23,7 @@ module.exports = defineConfig({
           `--disable-extensions-except=${extensionPath}`,
           `--load-extension=${extensionPath}`,
         ],
-        channel: 'chrome',
+        // No channel:'chrome' — use Playwright's bundled Chromium (works in CI without a real Chrome install)
       },
     },
 
