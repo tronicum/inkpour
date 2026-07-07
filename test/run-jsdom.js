@@ -1426,6 +1426,66 @@ async function main() {
     assert(cleanUrl(raw) === 'https://chatgpt.com/', `got: ${cleanUrl(raw)}`);
   });
 
+  // ─── Firefox AMO manifest validation ─────────────────────────────────────
+  console.log('\nFirefox AMO manifest validation');
+
+  const MANIFEST = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../manifest.json'), 'utf8'));
+  const VALID_DATA_COLLECTION = new Set([
+    'none','authenticationInfo','bookmarksInfo','browsingActivity',
+    'financialAndPaymentInfo','healthInfo','locationInfo','personalCommunications',
+    'personallyIdentifyingInfo','searchTerms','websiteActivity','websiteContent',
+  ]);
+  const VALID_VERSION = /^\d+(\.\d+){0,3}$/;
+
+  await test('manifest_version is 3', () => {
+    assert(MANIFEST.manifest_version === 3, `got ${MANIFEST.manifest_version}`);
+  });
+
+  await test('version format is valid (up to 4 dot-separated numbers)', () => {
+    assert(VALID_VERSION.test(MANIFEST.version), `got "${MANIFEST.version}"`);
+  });
+
+  await test('gecko.id is present and non-empty', () => {
+    const id = MANIFEST.browser_specific_settings?.gecko?.id;
+    assert(typeof id === 'string' && id.length > 0, 'gecko.id missing or empty');
+  });
+
+  await test('gecko.id matches email-style or GUID format', () => {
+    const id = MANIFEST.browser_specific_settings?.gecko?.id ?? '';
+    const emailStyle = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+$/.test(id);
+    const guid = /^\{[0-9a-fA-F-]{36}\}$/.test(id);
+    assert(emailStyle || guid, `gecko.id "${id}" is not a valid AMO ID`);
+  });
+
+  await test('data_collection_permissions.required has at least 1 item', () => {
+    const req = MANIFEST.browser_specific_settings?.gecko?.data_collection_permissions?.required;
+    assert(Array.isArray(req) && req.length >= 1, `required is ${JSON.stringify(req)}`);
+  });
+
+  await test('data_collection_permissions.required contains only valid values', () => {
+    const req = MANIFEST.browser_specific_settings?.gecko?.data_collection_permissions?.required ?? [];
+    const invalid = req.filter(v => !VALID_DATA_COLLECTION.has(v));
+    assert(invalid.length === 0, `invalid values: ${JSON.stringify(invalid)}`);
+  });
+
+  await test('data_collection_permissions.optional contains only valid values', () => {
+    const opt = MANIFEST.browser_specific_settings?.gecko?.data_collection_permissions?.optional ?? [];
+    const invalid = opt.filter(v => !VALID_DATA_COLLECTION.has(v));
+    assert(invalid.length === 0, `invalid values: ${JSON.stringify(invalid)}`);
+  });
+
+  await test('permissions array is present', () => {
+    assert(Array.isArray(MANIFEST.permissions), 'permissions missing');
+  });
+
+  await test('action.default_popup is present', () => {
+    assert(typeof MANIFEST.action?.default_popup === 'string', 'action.default_popup missing');
+  });
+
+  await test('content_scripts has at least one entry', () => {
+    assert(Array.isArray(MANIFEST.content_scripts) && MANIFEST.content_scripts.length > 0, 'no content_scripts');
+  });
+
   // ─── Results ───────────────────────────────────────────────────────────────
   console.log('\n' + '─'.repeat(50));
   console.log(`Results: ${passed} passed, ${failed} failed`);

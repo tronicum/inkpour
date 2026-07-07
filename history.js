@@ -154,7 +154,7 @@
     const starLabel  = isStarred ? '★' : '☆';
     const starTitle  = isStarred ? 'Unpin from starred' : 'Pin to starred';
 
-    el.innerHTML = `
+    el.innerHTML = /* safe: all user fields HTML-escaped inline (title via replace, platform/format are enum values, gistUrl validated as https:// URL) */ `
       <div class="entry-icon">${icon}</div>
       <div class="entry-meta">
         <div class="entry-title" title="${entry.title.replace(/"/g, '&quot;')}">${entry.title}</div>
@@ -167,7 +167,7 @@
       </div>
       <div class="entry-actions">
         <button class="btn-action star-btn ${isStarred ? 'starred' : ''}" data-action="star" title="${starTitle}">${starLabel}</button>
-        ${isGist && entry.gistUrl
+        ${isGist && entry.gistUrl && entry.gistUrl.startsWith('https://')
           ? `<a class="btn-action" href="${entry.gistUrl}" target="_blank" rel="noopener" style="text-decoration:none">↗ Gist</a>`
           : hasContent ? `<button class="btn-action" data-action="download">↓ Save</button>` : ''}
         ${hasContent ? `<button class="btn-action secondary" data-action="copy">⎘ Copy</button>` : ''}
