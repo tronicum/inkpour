@@ -616,12 +616,17 @@
 
   // Perplexity (perplexity.ai) — experimental
   function extractPerplexity() {
-    // User queries: [data-testid="query-text"] or .break-words.whitespace-pre-line
-    // querySelectorAll de-dupes, so matching both classes+attribute on the same element is fine
-    const userEls = Array.from(document.querySelectorAll(
-      '[data-testid="query-text"], .break-words.whitespace-pre-line, ' +
-      'div[class*="UserQuery"] p, div[class*="userQuery"] p'
-    )).map(el => ({ el, role: 'You' }));
+    // User queries: verified live DOM (July 2026) uses a Tailwind "group/query"
+    // marker class — [class*="group/query"] — on the query bubble itself.
+    // Older guessed selectors kept as fallback in case Perplexity A/B-tests UI.
+    let userEls = Array.from(document.querySelectorAll('[class*="group/query"]'))
+      .map(el => ({ el, role: 'You' }));
+    if (!userEls.length) {
+      userEls = Array.from(document.querySelectorAll(
+        '[data-testid="query-text"], .break-words.whitespace-pre-line, ' +
+        'div[class*="UserQuery"] p, div[class*="userQuery"] p'
+      )).map(el => ({ el, role: 'You' }));
+    }
 
     // AI answers: select the answer CONTAINER and extract from its .prose child if present.
     // Avoids double-counting (outer container + inner .prose are different DOM nodes).
@@ -697,9 +702,24 @@
       .filter(m => m.content);
   }
 
-  // Mistral Le Chat (chat.mistral.ai) — experimental
+  // Mistral Le Chat (chat.mistral.ai, now rebranded "Vibe") — experimental
   function extractMistral() {
-    // Mistral's Next.js UI uses role-labelled containers
+    // Verified live DOM (July 2026): each turn is a [class*="group/message"]
+    // wrapper. Assistant turns contain a [data-testid="text-message-part"]
+    // node; user turns don't have that testid but their bubble carries a
+    // right-aligned [class*="ms-auto"] wrapper instead.
+    const groups = Array.from(document.querySelectorAll('[class*="group/message"]'));
+    if (groups.length) {
+      const messages = groups.map(g => {
+        const textPart = g.querySelector('[data-testid="text-message-part"]');
+        if (textPart) return { role: 'Mistral', content: htmlToMarkdown(textPart) };
+        const bubble = g.querySelector('[class*="ms-auto"]') ?? g;
+        return { role: 'You', content: htmlToMarkdown(bubble) };
+      }).filter(m => m.content);
+      if (messages.length) return messages;
+    }
+
+    // Fallback: older guessed selectors, kept in case the UI changes again.
     const userEls = Array.from(document.querySelectorAll(
       '[data-role="user"], [class*="human"], [class*="Human"], ' +
       'div[class*="UserTurn"], div[class*="user-turn"], ' +
@@ -929,24 +949,49 @@
   }
 
   // Venice.ai (venice.ai) — Chakra UI + react-virtuoso
-  // DOM confirmed July 2026:
-  //   All turns live inside .chakra-stack (react-virtuoso scroll root)
-  //   AI turns:   .assistant > .assistant-content > .prose
-  //   User turns: direct children of chakra-stack that are NOT .assistant
-  //               (bare div/p with no assistant class)
+  // Re-verified live DOM (July 2026): user turns and assistant turns actually
+  // live in two DISJOINT subtrees (user turn under
+  // [data-testid="virtuoso-item-list"], assistant turn under a separate
+  // .chakra-stack), so DOM-position sorting across them is unreliable —
+  // interleave by index instead. Also, an un-scoped ".assistant-content
+  // .prose" matches a second, unrelated user-echo widget, so the AI selector
+  // must require a ".assistant" ancestor specifically.
   function extractVenice() {
-    // Prefer explicit AI containers
-    const aiEls = Array.from(document.querySelectorAll('.assistant-content .prose, .assistant .prose'))
+    const userEls = Array.from(document.querySelectorAll(
+      '[data-testid="virtuoso-item-list"] a[role="link"]'
+    )).map(el => ({ el, role: 'You' }));
+
+    const aiEls = Array.from(document.querySelectorAll('.assistant .assistant-content .prose'))
       .map(el => ({ el, role: 'Venice' }));
 
-    // User messages: elements marked with aria or class patterns
-    const userEls = Array.from(document.querySelectorAll(
+    if (userEls.length || aiEls.length) {
+      const messages = [];
+      const maxTurns = Math.max(userEls.length, aiEls.length);
+      for (let i = 0; i < maxTurns; i++) {
+        if (userEls[i]) {
+          const c = htmlToMarkdown(userEls[i].el).trim();
+          if (c) messages.push({ role: 'You', content: c });
+        }
+        if (aiEls[i]) {
+          const c = htmlToMarkdown(aiEls[i].el).trim();
+          if (c) messages.push({ role: 'Venice', content: c });
+        }
+      }
+      if (messages.length) return messages;
+    }
+
+    // Fallback: older guessed selectors (unscoped, class-substring based),
+    // kept in case the UI changes again.
+    const aiElsOld = Array.from(document.querySelectorAll('.assistant-content .prose, .assistant .prose'))
+      .map(el => ({ el, role: 'Venice' }));
+
+    const userElsOld = Array.from(document.querySelectorAll(
       '[class*="userMessage"], [class*="user-message"], [class*="UserMessage"], ' +
       '[data-role="user"], [aria-label*="user"], [aria-label*="You"]'
     )).map(el => ({ el, role: 'You' }));
 
     // Fallback: scan the chakra scroll root for alternating blocks
-    if (!aiEls.length && !userEls.length) {
+    if (!aiElsOld.length && !userElsOld.length) {
       const root = document.querySelector('.minds-chat-scroll-root, [class*="chakra-stack"]');
       if (!root) return null;
       const children = Array.from(root.children);
@@ -965,15 +1010,42 @@
                      .filter(m => m.content);
     }
 
-    return [...userEls, ...aiEls]
+    return [...userElsOld, ...aiElsOld]
       .sort(sortByDOMOrder)
       .map(({ el, role }) => ({ role, content: htmlToMarkdown(el) }))
       .filter(m => m.content);
   }
 
   // Lmsys Chatbot Arena (lmarena.ai, chat.lmsys.org) — experimental
-  // Gradio-based multi-model comparison UI. We extract the first model column only.
+  // The site has rebranded to arena.ai and rebuilt on React/Tailwind — it is
+  // NO LONGER a Gradio app, so every selector below this point that assumes
+  // Gradio markup (data-testid="user-message"/"bot-message", .user/.bot) is
+  // dead code for the current UI. Verified live DOM (July 2026): there are
+  // no data-testid/role/aria hooks anywhere in the message area — only
+  // Tailwind utility classes. User turns sit in a row with "justify-end";
+  // the model column headers are plain text spans ("Assistant A"/"B").
+  // NOTE: the bot-side selector below is a best-effort heuristic that could
+  // not be confirmed against a fully-rendered answer (a reCAPTCHA blocked
+  // verification) — re-check if exports come back empty on the AI side.
   function extractLmarena() {
+    const userElsNew = Array.from(document.querySelectorAll('.justify-end .prose'))
+      .map(el => ({ el, role: 'You' }));
+    const colAHeader = Array.from(document.querySelectorAll('span'))
+      .find(s => s.textContent.trim() === 'Assistant A');
+    const colA = colAHeader?.closest('[class*="overflow"], [class*="flex-col"]');
+    const aiElsNew = colA
+      ? Array.from(colA.querySelectorAll('.prose')).filter(el => !el.closest('.justify-end')).map(el => ({ el, role: 'Chatbot Arena' }))
+      : [];
+    if (userElsNew.length || aiElsNew.length) {
+      const messages = [...userElsNew, ...aiElsNew]
+        .sort(sortByDOMOrder)
+        .map(({ el, role }) => ({ role, content: htmlToMarkdown(el) }))
+        .filter(m => m.content);
+      if (messages.length) return messages;
+    }
+
+    // Fallback: Gradio-era selectors, kept only in case an old cached
+    // build is ever served again.
     // Primary: Gradio data-testid attributes
     const userEls = Array.from(document.querySelectorAll(
       '[data-testid="user-message"] > p, [data-testid="user-message"]'
@@ -1023,22 +1095,38 @@
   }
 
   // Character.AI (character.ai) — experimental
-  // React-based SPA; class names are obfuscated but data-author-name is stable.
+  // Verified live DOM (July 2026): data-author-name has been removed entirely.
+  // Messages now use [data-testid="completed-message"] for both roles; the
+  // role is determined by the nearest ancestor's Tailwind alignment class —
+  // "items-end" for the user, "items-start"+"flex-col" for the character.
   function extractCharacterAI() {
-    // Primary: data-author-name attribute (most stable)
+    const msgEls = Array.from(document.querySelectorAll('[data-testid="completed-message"]'));
+    if (msgEls.length) {
+      const messages = msgEls.map(msgEl => {
+        let cur = msgEl, role = null;
+        for (let i = 0; i < 10 && cur; i++) {
+          const cls = (cur.className || '').toString();
+          if (cls.includes('items-end')) { role = 'You'; break; }
+          if (cls.includes('items-start') && cls.includes('flex-col')) { role = 'Character.AI'; break; }
+          cur = cur.parentElement;
+        }
+        return role ? { role, content: htmlToMarkdown(msgEl) } : null;
+      }).filter(Boolean);
+      if (messages.length) return messages;
+    }
+
+    // Fallback: older guessed selectors, kept in case the UI changes again.
     const byAuthor = document.querySelectorAll('[data-author-name]');
     if (byAuthor.length) {
       return Array.from(byAuthor).map(el => {
         const author = el.getAttribute('data-author-name') || '';
         const isUser = author.toLowerCase() === 'user' || author.toLowerCase() === 'you';
-        // Try to get the character name from the first AI message
         const role = isUser ? 'You' : (author || 'Character.AI');
         const p = el.querySelector('p') ?? el;
         return { role, content: htmlToMarkdown(p) };
       }).filter(m => m.content);
     }
 
-    // Secondary: obfuscated class-name patterns
     const userEls = Array.from(document.querySelectorAll(
       'div[class*="UserMessage"] p, div[class*="UserMessage"]'
     )).map(el => ({ el, role: 'You' }));
@@ -1088,9 +1176,33 @@
   }
 
   // Pi.ai (pi.ai) — experimental
-  // SPA with human/pi role indicators; uses data-role or class-name patterns.
+  // Verified live DOM (July 2026): Pi has no data-role/aria attributes at all
+  // on message turns — everything is Tailwind utility classes. Turns live as
+  // siblings inside a div.space-y-6 container; user bubbles carry
+  // "justify-end" (right-aligned), assistant bubbles don't.
   function extractPiAI() {
-    // Primary: data-role attributes
+    const candidates = Array.from(document.querySelectorAll('div.space-y-6'));
+    const turnsContainer = candidates.find(c => {
+      const kids = Array.from(c.children);
+      return kids.some(k => /justify-end/.test(k.className) && k.textContent.trim())
+          && kids.some(k => !/justify-end/.test(k.className) && k.textContent.trim());
+    });
+
+    if (turnsContainer) {
+      const messages = Array.from(turnsContainer.children)
+        .filter(el => el.textContent.trim())
+        .map(turn => {
+          const isUser = /justify-end/.test(turn.className);
+          const contentEl = isUser
+            ? (turn.querySelector('[class*="rounded-10"][class*="bg-sec"]') || turn)
+            : (turn.querySelector(':scope > div:first-child') || turn);
+          return { role: isUser ? 'You' : 'Pi', content: htmlToMarkdown(contentEl) };
+        })
+        .filter(m => m.content);
+      if (messages.length) return messages;
+    }
+
+    // Fallback: older guessed selectors, kept in case the UI changes again.
     const byRole = document.querySelectorAll('[data-role="human"], [data-role="pi"]');
     if (byRole.length) {
       return Array.from(byRole).map(el => {
@@ -1099,7 +1211,6 @@
       }).filter(m => m.content);
     }
 
-    // Secondary: class-name patterns
     const userEls = Array.from(document.querySelectorAll(
       'div[class*="human"] p, div[class*="human"]'
     )).map(el => ({ el, role: 'You' }));
@@ -1766,6 +1877,9 @@
     };
     const c = colors[variant] || colors.info;
 
+    // Static stylesheet only — no interpolation. Per-variant colors and the
+    // (untrusted) toast text are applied below via style/textContent setters
+    // rather than string-built innerHTML.
     shadow.innerHTML = `<style>
       .toast {
         display: inline-flex;
@@ -1773,8 +1887,6 @@
         gap: 7px;
         padding: 9px 16px;
         border-radius: 10px;
-        background: ${c.bg};
-        color: ${c.text};
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
         font-size: 13px;
         font-weight: 600;
@@ -1785,10 +1897,14 @@
         white-space: nowrap;
       }
       .toast.fade { opacity: 0; transform: translateY(8px); }
-    </style>
-    <div class="toast">${text}</div>`;
+    </style>`;
 
-    const toastEl = shadow.querySelector('.toast');
+    const toastEl = document.createElement('div');
+    toastEl.className = 'toast';
+    toastEl.style.background = c.bg;
+    toastEl.style.color = c.text;
+    toastEl.textContent = text;
+    shadow.appendChild(toastEl);
     setTimeout(() => {
       toastEl.classList.add('fade');
       setTimeout(() => document.body.removeChild(host), 450);
