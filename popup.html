@@ -365,6 +365,18 @@
   <div id="status"></div>
   <div id="new-msgs-hint" hidden style="display:none;margin-top:4px;font-size:10.5px;
        text-align:center;color:#d97706;"></div>
+  <div id="incrementalHint" hidden style="display:none;margin-top:6px;padding:7px 9px;
+       border:1px solid var(--accent);border-radius:7px;background:var(--surface);
+       text-align:center;">
+    <span data-role="text" style="font-size:10.5px;color:var(--subtext);"></span>
+    <button class="btn" id="incrementalExportBtn" title="Export only the messages added since your last export"
+      style="margin-top:4px;width:100%;padding:6px 6px;font-size:11.5px;
+             font-weight:600;color:var(--accent-text);background:var(--accent);
+             border:none;border-radius:7px;cursor:pointer;">
+      <div class="spinner"></div>
+      <span>Export new only</span>
+    </button>
+  </div>
   <input id="titleInput" type="text" placeholder="Chat title…" hidden
     style="display:none;width:100%;margin-top:7px;padding:5px 9px;font-size:12px;
            border:1.5px solid var(--accent);border-radius:7px;background:var(--bg);
@@ -410,6 +422,7 @@
   </div>
 
   <script src="src/utils.js"></script>
+  <script src="src/diff.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

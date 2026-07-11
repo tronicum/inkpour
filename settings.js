@@ -46,6 +46,7 @@
     githubToken:          '',
     gistPublic:           false,
     gistTags:             '',
+    scrubSecrets:          true,
     webhookUrl:           '',
     webhookIncludeContent: false,
   };
@@ -63,6 +64,7 @@
     document.getElementById('githubToken').value             = prefs.githubToken;
     document.getElementById('gistPublic').value              = String(prefs.gistPublic);
     document.getElementById('gistTags').value                = prefs.gistTags || '';
+    document.getElementById('scrubSecrets').checked           = prefs.scrubSecrets;
     document.getElementById('webhookUrl').value              = prefs.webhookUrl;
     document.getElementById('webhookIncludeContent').checked = prefs.webhookIncludeContent;
   });
@@ -82,6 +84,7 @@
       githubToken:           document.getElementById('githubToken').value.trim(),
       gistPublic:            document.getElementById('gistPublic').value === 'true',
       gistTags:              document.getElementById('gistTags').value.trim(),
+      scrubSecrets:          document.getElementById('scrubSecrets').checked,
       webhookUrl:            document.getElementById('webhookUrl').value.trim(),
       webhookIncludeContent: document.getElementById('webhookIncludeContent').checked,
     };

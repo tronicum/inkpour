@@ -5,6 +5,8 @@
 
 // ─── Shared utilities (buildMarkdown, buildFilename, buildJSON, buildZip, etc.)
 importScripts('src/utils.js');
+// ─── Secret scrubbing (scanForSecrets, redactSecrets) ─────────────────────
+importScripts('src/redact.js');
 
 const api = (typeof browser !== 'undefined') ? browser : chrome;
 
@@ -48,7 +50,7 @@ api.runtime.onMessage.addListener((message, sender) => {
 
     const stored   = await api.storage.local.get('inkpour_settings');
     const settings = Object.assign(
-      { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}', downloadSubfolder: '', obsidianVault: '', obsidianTags: false },
+      { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}', downloadSubfolder: '', obsidianVault: '', obsidianTags: false, scrubSecrets: true },
       stored?.inkpour_settings ?? {}
     );
     const sourceUrl = sender.tab.url || '';
@@ -145,7 +147,7 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
 
   const stored   = await api.storage.local.get('inkpour_settings');
   const settings = Object.assign(
-    { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}', downloadSubfolder: '', obsidianVault: '', obsidianTags: false },
+    { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}', downloadSubfolder: '', obsidianVault: '', obsidianTags: false, scrubSecrets: true },
     stored?.inkpour_settings ?? {}
   );
   const sourceUrl = tab?.url || '';
@@ -186,7 +188,7 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
 
   if (info.menuItemId === 'inkpour-gist') {
     await doGistUpload(tab, settings, response, sourceUrl, filename);
-    doWebhook(settings, 'gist', response, wordCount);
+    doWebhook(settings, 'gist', response, wordCount, tab.id);
     return;
   }
 
@@ -199,18 +201,37 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
     'inkpour-docx': 'docx',
   };
   const fmt = menuFormatMap[info.menuItemId];
-  if (fmt) doWebhook(settings, fmt, response, wordCount);
+  if (fmt) doWebhook(settings, fmt, response, wordCount, tab.id);
 });
 
 // ─── Webhook helper ───────────────────────────────────────────────────────
 
-function doWebhook(settings, format, response, wordCount) {
+async function doWebhook(settings, format, response, wordCount, tabId) {
   const url = (settings.webhookUrl || '').trim();
   if (!url) return;
+  let title = response.title;
+
+  // Scrub likely secrets from any free-text fields before they leave the
+  // machine. background.js's webhook payload doesn't carry full chat content
+  // today (see below), but the title can be arbitrary text copied from the
+  // page, so it's still worth passing through the scrubber.
+  if (settings.scrubSecrets !== false) {
+    const { cleaned, findings } = redactSecrets(title || '');
+    title = cleaned;
+    if (findings.length > 0 && tabId != null) {
+      const types = [...new Set(findings.map(f => f.type))].join(', ');
+      api.tabs.sendMessage(tabId, {
+        action:  'showToast',
+        text:    `Redacted ${findings.length} item${findings.length === 1 ? '' : 's'} (${types}) before upload.`,
+        variant: 'info',
+      }).catch(() => {});
+    }
+  }
+
   const record = {
     source:       'inkpour',
     id:           Date.now().toString(),
-    title:        response.title,
+    title,
     platform:     response.platform,
     format,
     messageCount: (response.messages || []).length,
@@ -237,8 +258,28 @@ async function doGistUpload(tab, settings, response, sourceUrl, filename) {
   }
   // Gist exports always carry YAML front matter + base tags for GitHub search.
   const gistSettings = { ...settings, yamlFrontMatter: true, obsidianTags: true, gistExtraTags: settings.gistTags || '' };
-  const md = buildMarkdown(response.messages, response.title, response.site, gistSettings, sourceUrl);
+  let md = buildMarkdown(response.messages, response.title, response.site, gistSettings, sourceUrl);
+  let description = response.title;
   const gistFilename = filename + '.md';
+
+  // Scrub likely secrets (API keys, tokens, emails, ...) before the content
+  // leaves the machine, unless the user has explicitly disabled this.
+  if (settings.scrubSecrets !== false) {
+    const bodyResult  = redactSecrets(md);
+    const titleResult = redactSecrets(description);
+    md          = bodyResult.cleaned;
+    description = titleResult.cleaned;
+    const allFindings = [...bodyResult.findings, ...titleResult.findings];
+    if (allFindings.length > 0) {
+      const types = [...new Set(allFindings.map(f => f.type))].join(', ');
+      await api.tabs.sendMessage(tab.id, {
+        action:  'showToast',
+        text:    `Redacted ${allFindings.length} item${allFindings.length === 1 ? '' : 's'} (${types}) before upload.`,
+        variant: 'info',
+      }).catch(() => {});
+    }
+  }
+
   let res;
   try {
     res = await fetch('https://api.github.com/gists', {
@@ -249,7 +290,7 @@ async function doGistUpload(tab, settings, response, sourceUrl, filename) {
         'Content-Type':  'application/json',
       },
       body: JSON.stringify({
-        description: response.title,
+        description,
         public:      settings.gistPublic === true,
         files: { [gistFilename]: { content: md } },
       }),
@@ -293,7 +334,7 @@ api.commands.onCommand.addListener(async (command) => {
   // Load user settings so keyboard shortcuts respect all preferences
   const stored   = await api.storage.local.get('inkpour_settings');
   const settings = Object.assign(
-    { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}', downloadSubfolder: '', obsidianVault: '', obsidianTags: false },
+    { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}', downloadSubfolder: '', obsidianVault: '', obsidianTags: false, scrubSecrets: true },
     stored?.inkpour_settings ?? {}
   );
 
@@ -350,7 +391,7 @@ api.commands.onCommand.addListener(async (command) => {
 
   if (command === 'upload-gist') {
     await doGistUpload(tab, settings, response, sourceUrl, filename);
-    doWebhook(settings, 'gist', response, wordCount);
+    doWebhook(settings, 'gist', response, wordCount, tab.id);
     return; // gist handler already opened a tab + toasted
   }
 
@@ -365,7 +406,7 @@ api.commands.onCommand.addListener(async (command) => {
     'export-zip':      'zip',
   };
   const fmt = formatMap[command];
-  if (fmt) doWebhook(settings, fmt, response, wordCount);
+  if (fmt) doWebhook(settings, fmt, response, wordCount, tab.id);
 });
 
 // ─── Action badge — show "ON" on supported AI chat pages ──────────────────

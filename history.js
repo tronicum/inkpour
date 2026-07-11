@@ -216,7 +216,14 @@
       (entry.format  || '').toLowerCase(),
     ];
     // Substring match first (fast path), fall back to fuzzy
-    return fields.some(f => f.includes(q)) || fields.some(f => fuzzyMatch(f, q));
+    if (fields.some(f => f.includes(q)) || fields.some(f => fuzzyMatch(f, q))) return true;
+
+    // Full-text: also search the saved conversation content itself, not just
+    // metadata. Substring-only (no fuzzy) since content can be long and fuzzy
+    // matching against megabytes of text per entry would be slow and noisy.
+    if (entry.content && entry.content.toLowerCase().includes(q)) return true;
+
+    return false;
   }
 
   function renderSection(label, entries, inStarredSection) {
