@@ -209,17 +209,31 @@
   /** Populate the checkbox list from the current cachedData messages. */
   function buildMessageSelector(messages) {
     if (!msgCheckboxes) return;
-    msgCheckboxes.innerHTML = '';
+    msgCheckboxes.textContent = '';
     messages.forEach((msg, i) => {
       const isUser = msg.role.toLowerCase() === 'you' || msg.role.toLowerCase() === 'user';
       const preview = msg.content.replace(/\s+/g, ' ').slice(0, 72);
       const row = document.createElement('label');
       row.className = 'msg-row';
-      row.innerHTML = `
-        <input type="checkbox" data-idx="${i}" checked>
-        <span class="msg-role ${isUser ? 'user' : 'ai'}">${esc(msg.role.slice(0, 6))}</span>
-        <span class="msg-preview">${esc(preview)}</span>`; // safe: all user content passed through esc()
-      row.querySelector('input').addEventListener('change', updateSelectCount);
+
+      // Built via DOM APIs (not innerHTML) — message content is untrusted
+      // (it comes from third-party chat pages), so it goes through
+      // textContent rather than any HTML string assembly.
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.dataset.idx = String(i);
+      checkbox.checked = true;
+      checkbox.addEventListener('change', updateSelectCount);
+
+      const roleSpan = document.createElement('span');
+      roleSpan.className = `msg-role ${isUser ? 'user' : 'ai'}`;
+      roleSpan.textContent = msg.role.slice(0, 6);
+
+      const previewSpan = document.createElement('span');
+      previewSpan.className = 'msg-preview';
+      previewSpan.textContent = preview;
+
+      row.append(checkbox, roleSpan, previewSpan);
       msgCheckboxes.appendChild(row);
     });
     updateSelectCount();

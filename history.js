@@ -154,24 +154,76 @@
     const starLabel  = isStarred ? '★' : '☆';
     const starTitle  = isStarred ? 'Unpin from starred' : 'Pin to starred';
 
-    el.innerHTML = /* safe: all user fields HTML-escaped inline (title via replace, platform/format are enum values, gistUrl validated as https:// URL) */ `
-      <div class="entry-icon">${icon}</div>
-      <div class="entry-meta">
-        <div class="entry-title" title="${entry.title.replace(/"/g, '&quot;')}">${entry.title}</div>
-        <div class="entry-details">
-          <span class="badge">${entry.platform}</span>
-          <span class="badge ${fmtClass}">${fmtLabel}</span>
-          ${stats ? `<span>${stats}</span>` : ''}
-          <span>${when}</span>
-        </div>
-      </div>
-      <div class="entry-actions">
-        <button class="btn-action star-btn ${isStarred ? 'starred' : ''}" data-action="star" title="${starTitle}">${starLabel}</button>
-        ${isGist && entry.gistUrl && entry.gistUrl.startsWith('https://')
-          ? `<a class="btn-action" href="${entry.gistUrl}" target="_blank" rel="noopener" style="text-decoration:none">↗ Gist</a>`
-          : hasContent ? `<button class="btn-action" data-action="download">↓ Save</button>` : ''}
-        ${hasContent ? `<button class="btn-action secondary" data-action="copy">⎘ Copy</button>` : ''}
-      </div>`;
+    // Built via DOM APIs (not innerHTML) — every user-controlled field goes
+    // through textContent/attribute setters, which auto-escape.
+    const iconEl = document.createElement('div');
+    iconEl.className = 'entry-icon';
+    iconEl.textContent = icon;
+
+    const titleEl = document.createElement('div');
+    titleEl.className = 'entry-title';
+    titleEl.title = entry.title;
+    titleEl.textContent = entry.title;
+
+    const platformBadge = document.createElement('span');
+    platformBadge.className = 'badge';
+    platformBadge.textContent = entry.platform;
+
+    const formatBadge = document.createElement('span');
+    formatBadge.className = `badge ${fmtClass}`;
+    formatBadge.textContent = fmtLabel;
+
+    const detailsEl = document.createElement('div');
+    detailsEl.className = 'entry-details';
+    detailsEl.append(platformBadge, formatBadge);
+    if (stats) {
+      const statsSpan = document.createElement('span');
+      statsSpan.textContent = stats;
+      detailsEl.appendChild(statsSpan);
+    }
+    const whenSpan = document.createElement('span');
+    whenSpan.textContent = when;
+    detailsEl.appendChild(whenSpan);
+
+    const metaEl = document.createElement('div');
+    metaEl.className = 'entry-meta';
+    metaEl.append(titleEl, detailsEl);
+
+    const starBtn = document.createElement('button');
+    starBtn.className = `btn-action star-btn${isStarred ? ' starred' : ''}`;
+    starBtn.dataset.action = 'star';
+    starBtn.title = starTitle;
+    starBtn.textContent = starLabel;
+
+    const actionsEl = document.createElement('div');
+    actionsEl.className = 'entry-actions';
+    actionsEl.appendChild(starBtn);
+
+    if (isGist && entry.gistUrl && entry.gistUrl.startsWith('https://')) {
+      const gistLink = document.createElement('a');
+      gistLink.className = 'btn-action';
+      gistLink.href = entry.gistUrl;
+      gistLink.target = '_blank';
+      gistLink.rel = 'noopener';
+      gistLink.style.textDecoration = 'none';
+      gistLink.textContent = '↗ Gist';
+      actionsEl.appendChild(gistLink);
+    } else if (hasContent) {
+      const downloadBtn = document.createElement('button');
+      downloadBtn.className = 'btn-action';
+      downloadBtn.dataset.action = 'download';
+      downloadBtn.textContent = '↓ Save';
+      actionsEl.appendChild(downloadBtn);
+    }
+    if (hasContent) {
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'btn-action secondary';
+      copyBtn.dataset.action = 'copy';
+      copyBtn.textContent = '⎘ Copy';
+      actionsEl.appendChild(copyBtn);
+    }
+
+    el.append(iconEl, metaEl, actionsEl);
 
     el.querySelector('[data-action="star"]').addEventListener('click', async (e) => {
       e.stopPropagation();
