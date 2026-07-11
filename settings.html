@@ -307,6 +307,17 @@
 
     <div class="field">
       <div class="field-label">
+        <strong>Scrub secrets before upload</strong>
+        <span>Redact likely API keys, tokens & emails before Gist/webhook uploads</span>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="scrubSecrets" checked />
+        <div class="toggle-track"></div>
+      </label>
+    </div>
+
+    <div class="field">
+      <div class="field-label">
         <strong>Webhook URL</strong>
         <span>After each export, Inkpour sends a POST request here with export metadata (title, platform, format, word count). Works with n8n, Zapier, Make.com, or any HTTP endpoint.</span>
       </div>

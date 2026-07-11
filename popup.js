@@ -29,6 +29,8 @@
   const gistLinkEl    = document.getElementById('gist-link');
   const lastExportEl  = document.getElementById('last-export');
   const newMsgsHint   = document.getElementById('new-msgs-hint');
+  const incrementalHint    = document.getElementById('incrementalHint');
+  const incrementalExportBtn = document.getElementById('incrementalExportBtn');
   const selectToggle  = document.getElementById('selectToggle');
   const selectSection = document.getElementById('select-section');
   const selectCount   = document.getElementById('selectCount');
@@ -44,6 +46,11 @@
   // Populated by the eager peek on popup open. All export buttons reuse this
   // so the DOM is only crawled once per popup session.
   let cachedData = null;
+
+  // Most recent history entry matching the current tab's URL, when the
+  // conversation has grown since that export (see checkNewMessagesSince).
+  // Used by the "Export new only" button to know where to slice from.
+  let incrementalPrevEntry = null;
 
   const SETTING_DEFAULTS = {
     defaultFormat:      'md',
@@ -295,6 +302,7 @@
       setStatus('Extracting…');
       hideTitleInput();
       if (newMsgsHint) { newMsgsHint.hidden = true; newMsgsHint.style.display = 'none'; }
+      hideIncrementalHint();
       const response = await api.tabs.sendMessage(tab.id, { action: 'extract' });
       if (response?.error && !response.streaming) {
         setStatus(response.error, 'error');
@@ -707,6 +715,8 @@
   // buildStandaloneHTML, esc, mdToHTML, buildZip, buildZipExport,
   // uint8ToBase64, _CRC32_TABLE, _crc32, _dosDateTime, _CODE_EXT
   // → all provided by src/utils.js (loaded before this script in popup.html)
+  // InkpourDiff.sliceNewMessages → provided by src/diff.js (loaded before
+  // this script in popup.html), used for the "export new only" hint above.
 
   /**
    * Prepend the configured downloads subfolder (if any) to a bare filename.
@@ -836,10 +846,13 @@
       const result  = await api.storage.local.get('inkpour_history');
       const history = result?.inkpour_history ?? [];
       // Find the most recent entry whose sourceUrl matches the current page
+      // (history is stored newest-first, see saveLastExport, so the first
+      // match is the most recent prior export for this conversation).
       const prev = history.find(e => e.sourceUrl && e.sourceUrl === currentUrl);
       if (!prev || prev.messageCount >= currentCount) {
         newMsgsHint.hidden = true;
         newMsgsHint.style.display = 'none';
+        hideIncrementalHint();
         return;
       }
       const diff = currentCount - prev.messageCount;
@@ -847,10 +860,60 @@
       newMsgsHint.textContent = `+${diff} new message${diff !== 1 ? 's' : ''} since exported ${when}`;
       newMsgsHint.hidden = false;
       newMsgsHint.style.display = 'block';
+
+      showIncrementalHint(prev, diff, when);
     } catch {
       // storage unavailable — ignore
     }
   }
+
+  // ─── Incremental ("export new only") hint ─────────────────────────────────
+
+  function hideIncrementalHint() {
+    incrementalPrevEntry = null;
+    if (!incrementalHint) return;
+    incrementalHint.hidden = true;
+    incrementalHint.style.display = 'none';
+  }
+
+  function showIncrementalHint(prevEntry, diff, when) {
+    incrementalPrevEntry = prevEntry;
+    if (!incrementalHint) return;
+    const hintText = incrementalHint.querySelector('[data-role="text"]') || incrementalHint;
+    hintText.textContent = `${diff} new message${diff !== 1 ? 's' : ''} since your last export (${when}) — `;
+    incrementalHint.hidden = false;
+    incrementalHint.style.display = 'block';
+  }
+
+  incrementalExportBtn?.addEventListener('click', async () => {
+    if (!incrementalPrevEntry || !cachedData) return;
+    clearStatus();
+    setLoading(incrementalExportBtn, true);
+    try {
+      const data = cachedData;
+      const newOnly = (typeof InkpourDiff !== 'undefined' ? InkpourDiff : window.InkpourDiff).sliceNewMessages(data.messages, incrementalPrevEntry.messageCount);
+      if (!newOnly.length) {
+        setStatus('No new messages to export.', 'warning');
+        return;
+      }
+      const notes = getExportNotes();
+      const md = notesBlockMD(notes) + buildMarkdown(newOnly, data.title, data.site, userSettings, data.sourceUrl);
+      const slug = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(newOnly), newOnly.length);
+      downloadFile(md, slug + '-continued.md', 'text/markdown;charset=utf-8');
+      setStatus(`✓ Saved ${newOnly.length} new message${newOnly.length !== 1 ? 's' : ''} — check your Downloads folder`, 'success');
+      // Record the checkpoint against the FULL cumulative message count (not
+      // just the new slice) — future incremental diffs compare against this
+      // messageCount, so it must reflect the whole conversation as it stands
+      // now, even though `md`/`content` here is only the incremental export.
+      saveLastExport('md', data, md);
+      hideIncrementalHint();
+      if (newMsgsHint) { newMsgsHint.hidden = true; newMsgsHint.style.display = 'none'; }
+    } catch (err) {
+      setStatus(err.message, err.streaming ? 'warning' : 'error');
+    } finally {
+      setLoading(incrementalExportBtn, false);
+    }
+  });
 
   /**
    * Returns a human-friendly relative time string ("just now", "5m ago", "2h ago", "3d ago").
