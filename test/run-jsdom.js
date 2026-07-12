@@ -1526,6 +1526,88 @@ async function main() {
     assert(Array.isArray(MANIFEST.content_scripts) && MANIFEST.content_scripts.length > 0, 'no content_scripts');
   });
 
+  // ─── i18n manifest/locale consistency ──────────────────────────────────────
+  // Regression coverage for a real bug: release.yml reads manifest.json's
+  // "name" field directly as plain text to build the GitHub release title.
+  // Once i18n wiring replaced that field with "__MSG_extName__", the release
+  // title literally showed the raw placeholder instead of "Inkpour" until
+  // release.yml was taught to resolve it via _locales/en/messages.json.
+  console.log('\ni18n manifest/locale consistency');
+
+  const EN_MESSAGES_PATH = path.resolve(__dirname, '../_locales/en/messages.json');
+  const EN_MESSAGES = JSON.parse(fs.readFileSync(EN_MESSAGES_PATH, 'utf8'));
+  const LOCALES_DIR = path.resolve(__dirname, '../_locales');
+  const ALL_LOCALES = fs.readdirSync(LOCALES_DIR).filter(d =>
+    fs.statSync(path.join(LOCALES_DIR, d)).isDirectory()
+  );
+
+  /** Recursively collect every "__MSG_key__" placeholder found anywhere in an object. */
+  function findMsgPlaceholders(obj, found = new Set()) {
+    if (typeof obj === 'string') {
+      const m = obj.match(/^__MSG_(\w+)__$/);
+      if (m) found.add(m[1]);
+    } else if (Array.isArray(obj)) {
+      obj.forEach(v => findMsgPlaceholders(v, found));
+    } else if (obj && typeof obj === 'object') {
+      Object.values(obj).forEach(v => findMsgPlaceholders(v, found));
+    }
+    return found;
+  }
+
+  const manifestMsgKeys = findMsgPlaceholders(MANIFEST);
+
+  await test('manifest.json has at least one __MSG_x__ placeholder (i18n is wired)', () => {
+    assert(manifestMsgKeys.size > 0, 'no __MSG_x__ placeholders found in manifest.json');
+  });
+
+  await test('default_locale is set to "en"', () => {
+    assert(MANIFEST.default_locale === 'en', `got "${MANIFEST.default_locale}"`);
+  });
+
+  await test('every __MSG_x__ placeholder in manifest.json resolves in _locales/en/messages.json', () => {
+    const missing = [...manifestMsgKeys].filter(key => !EN_MESSAGES[key]?.message);
+    assert(missing.length === 0, `missing/empty keys: ${missing.join(', ')}`);
+  });
+
+  await test('resolving manifest.json "name" (release.yml logic) yields "Inkpour", not the raw placeholder', () => {
+    // Mirrors the exact resolution release.yml performs when building the
+    // GitHub release title from manifest.json outside any browser context.
+    const raw = MANIFEST.name;
+    const m = raw.match(/^__MSG_(\w+)__$/);
+    const resolved = m ? EN_MESSAGES[m[1]]?.message : raw;
+    assert(resolved === 'Inkpour', `resolved to "${resolved}" from raw "${raw}"`);
+  });
+
+  await test('every non-English locale has the exact same key set as en/messages.json', () => {
+    const enKeys = new Set(Object.keys(EN_MESSAGES));
+    const mismatched = [];
+    for (const locale of ALL_LOCALES) {
+      if (locale === 'en') continue;
+      const localeMessages = JSON.parse(
+        fs.readFileSync(path.join(LOCALES_DIR, locale, 'messages.json'), 'utf8')
+      );
+      const localeKeys = new Set(Object.keys(localeMessages));
+      const missing = [...enKeys].filter(k => !localeKeys.has(k));
+      const extra   = [...localeKeys].filter(k => !enKeys.has(k));
+      if (missing.length || extra.length) {
+        mismatched.push(`${locale} (missing: ${missing.length}, extra: ${extra.length})`);
+      }
+    }
+    assert(mismatched.length === 0, `key mismatches: ${mismatched.join('; ')}`);
+  });
+
+  await test('all locale message files are valid, non-empty JSON', () => {
+    for (const locale of ALL_LOCALES) {
+      const file = path.join(LOCALES_DIR, locale, 'messages.json');
+      const parsed = JSON.parse(fs.readFileSync(file, 'utf8'));
+      assert(Object.keys(parsed).length > 0, `${locale}/messages.json has no keys`);
+      for (const [key, entry] of Object.entries(parsed)) {
+        assert(typeof entry?.message === 'string' && entry.message.length > 0,
+          `${locale}/messages.json key "${key}" has an empty message`);
+      }
+    }
+  });
+
   // ─── Results ───────────────────────────────────────────────────────────────
   console.log('\n' + '─'.repeat(50));
   console.log(`Results: ${passed} passed, ${failed} failed`);
