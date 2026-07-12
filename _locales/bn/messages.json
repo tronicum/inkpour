@@ -1,0 +1,857 @@
+{
+  "extName": {
+    "message": "Inkpour",
+    "description": "Extension name shown in browser toolbar and stores"
+  },
+  "extDescription": {
+    "message": "AI চ্যাট কথোপকথন (ChatGPT, Claude, Gemini, Copilot এবং আরও) Markdown, PDF, HTML, DOCX বা ZIP-এ এক্সপোর্ট করুন।",
+    "description": "Extension description shown in browser stores"
+  },
+  "cmdExportMarkdown": {
+    "message": "বর্তমান চ্যাট Markdown-এ এক্সপোর্ট করুন",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyMarkdown": {
+    "message": "বর্তমান চ্যাট Markdown হিসেবে ক্লিপবোর্ডে কপি করুন",
+    "description": "Keyboard command description"
+  },
+  "cmdExportPdf": {
+    "message": "বর্তমান চ্যাট PDF-এ এক্সপোর্ট করুন",
+    "description": "Keyboard command description"
+  },
+  "cmdUploadGist": {
+    "message": "বর্তমান চ্যাট GitHub Gist-এ আপলোড করুন",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyHtml": {
+    "message": "বর্তমান চ্যাট স্বতন্ত্র HTML হিসেবে ক্লিপবোর্ডে কপি করুন",
+    "description": "Keyboard command description"
+  },
+  "cmdExportJson": {
+    "message": "বর্তমান চ্যাট JSON-এ এক্সপোর্ট করুন",
+    "description": "Keyboard command description"
+  },
+  "cmdExportZip": {
+    "message": "বর্তমান চ্যাট ZIP হিসেবে এক্সপোর্ট করুন (chat.md + কোড ফাইল)",
+    "description": "Keyboard command description"
+  },
+  "cmdExportDocx": {
+    "message": "বর্তমান চ্যাট Word ডকুমেন্টে (.docx) এক্সপোর্ট করুন",
+    "description": "Keyboard command description"
+  },
+  "popupTagline": {
+    "message": "AI চ্যাট এক্সপোর্ট করুন · MD, PDF, HTML, JSON, ZIP",
+    "description": "Popup header subtitle"
+  },
+  "popupSettingsTitle": {
+    "message": "সেটিংস",
+    "description": "Settings gear button tooltip/aria-label in popup"
+  },
+  "popupExportAsLabel": {
+    "message": "এভাবে এক্সপোর্ট করুন",
+    "description": "Section label above the export format buttons"
+  },
+  "popupMdBtnTitle": {
+    "message": "Markdown-এ এক্সপোর্ট করুন (Alt+Shift+M)",
+    "description": "MD button tooltip"
+  },
+  "popupPdfBtnTitle": {
+    "message": "PDF-এ এক্সপোর্ট করুন",
+    "description": "PDF button tooltip"
+  },
+  "popupHtmlBtnTitle": {
+    "message": "HTML-এ এক্সপোর্ট করুন",
+    "description": "HTML button tooltip"
+  },
+  "popupJsonBtnTitle": {
+    "message": "JSON-এ এক্সপোর্ট করুন (Alt+Shift+J)",
+    "description": "JSON button tooltip"
+  },
+  "popupDocxBtnTitle": {
+    "message": "Word ডকুমেন্টে (.docx) এক্সপোর্ট করুন",
+    "description": "DOCX button tooltip"
+  },
+  "popupCopyBtnTitle": {
+    "message": "Markdown ক্লিপবোর্ডে কপি করুন (Alt+Shift+C)",
+    "description": "Copy MD button tooltip"
+  },
+  "popupCopyHtmlBtnTitle": {
+    "message": "স্বতন্ত্র HTML ক্লিপবোর্ডে কপি করুন (Alt+Shift+H)",
+    "description": "Copy HTML button tooltip"
+  },
+  "popupZipBtnTitle": {
+    "message": "chat.md + এক্সট্র্যাক্ট করা কোড ফাইল সহ ZIP এক্সপোর্ট করুন (Alt+Shift+Z)",
+    "description": "ZIP button tooltip"
+  },
+  "popupGistBtnTitle": {
+    "message": "Markdown GitHub Gist-এ আপলোড করুন",
+    "description": "Gist button tooltip"
+  },
+  "popupAllBtnTitle": {
+    "message": "একসাথে MD + DOCX + ZIP এক্সপোর্ট করুন",
+    "description": "Export All button tooltip"
+  },
+  "popupBtnMd": {
+    "message": "MD"
+  },
+  "popupBtnPdf": {
+    "message": "PDF"
+  },
+  "popupBtnHtml": {
+    "message": "HTML"
+  },
+  "popupBtnJson": {
+    "message": "JSON"
+  },
+  "popupBtnDocx": {
+    "message": "DOCX"
+  },
+  "popupBtnCopyMd": {
+    "message": "MD কপি করুন"
+  },
+  "popupBtnCopyHtml": {
+    "message": "HTML কপি করুন"
+  },
+  "popupBtnZip": {
+    "message": "ZIP"
+  },
+  "popupBtnGist": {
+    "message": "Gist ↑"
+  },
+  "popupBtnExportAll": {
+    "message": "⬇ সব এক্সপোর্ট করুন (MD + DOCX + ZIP)"
+  },
+  "popupIncrementalBtnTitle": {
+    "message": "শুধু আপনার শেষ এক্সপোর্টের পর যোগ হওয়া বার্তাগুলো এক্সপোর্ট করুন",
+    "description": "Export new only button tooltip"
+  },
+  "popupBtnExportNewOnly": {
+    "message": "শুধু নতুনগুলো এক্সপোর্ট করুন"
+  },
+  "popupTitleInputPlaceholder": {
+    "message": "চ্যাটের শিরোনাম…"
+  },
+  "popupNotesPlaceholder": {
+    "message": "ব্যক্তিগত নোট যোগ করুন — এক্সপোর্টের শুরুতে ব্লককোট হিসেবে যুক্ত হবে…"
+  },
+  "popupNotesToggleAdd": {
+    "message": "+ নোট যোগ করুন"
+  },
+  "popupNotesToggleHide": {
+    "message": "− নোট লুকান"
+  },
+  "popupSelectToggleOpen": {
+    "message": "☑ বার্তা নির্বাচন করুন"
+  },
+  "popupSelectToggleClose": {
+    "message": "✕ নির্বাচক বন্ধ করুন"
+  },
+  "popupSelectAll": {
+    "message": "সব"
+  },
+  "popupSelectNone": {
+    "message": "কোনোটিই না"
+  },
+  "popupSelectUserOnly": {
+    "message": "শুধু ব্যবহারকারী"
+  },
+  "popupSelectAIOnly": {
+    "message": "শুধু AI"
+  },
+  "popupHistoryBtn": {
+    "message": "⏱ ইতিহাস"
+  },
+  "popupSettingsBtn": {
+    "message": "⚙ সেটিংস"
+  },
+  "popupStatusExtracting": {
+    "message": "নিষ্কাশন করা হচ্ছে…"
+  },
+  "popupStatusExtractingMessages": {
+    "message": "বার্তা নিষ্কাশন করা হচ্ছে…"
+  },
+  "popupStatusLoadingOlder": {
+    "message": "পুরনো বার্তা লোড হচ্ছে…"
+  },
+  "popupStatusAiStillGenerating": {
+    "message": "AI এখনও উত্তর তৈরি করছে — শেষ হওয়ার পর এক্সপোর্ট করুন"
+  },
+  "popupStatusSavedCheckDownloads": {
+    "message": "✓ সংরক্ষিত হয়েছে — আপনার Downloads ফোল্ডার দেখুন"
+  },
+  "popupStatusMarkdownCopied": {
+    "message": "✓ Markdown ক্লিপবোর্ডে কপি হয়েছে"
+  },
+  "popupStatusHtmlCopied": {
+    "message": "✓ HTML কপি হয়েছে — যেকোনো এডিটরে পেস্ট করুন"
+  },
+  "popupStatusZipSaved": {
+    "message": "✓ ZIP সংরক্ষিত হয়েছে — chat.md",
+    "description": "Prefix; extra code-file count is appended in JS"
+  },
+  "popupCodeFileOne": {
+    "message": " + $1টি কোড ফাইল",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeFileOther": {
+    "message": " + $1টি কোড ফাইল",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupStatusExportAllSaved": {
+    "message": "✓ MD + DOCX + ZIP সংরক্ষিত হয়েছে"
+  },
+  "popupStatusGistTokenMissing": {
+    "message": "প্রথমে সেটিংসে একটি GitHub টোকেন যোগ করুন।"
+  },
+  "popupStatusGistUploading": {
+    "message": "GitHub Gist-এ আপলোড করা হচ্ছে…"
+  },
+  "popupStatusGistCreated": {
+    "message": "✓ Gist তৈরি হয়েছে"
+  },
+  "popupStatusGistUploadFailed": {
+    "message": "Gist আপলোড ব্যর্থ হয়েছে"
+  },
+  "popupStatusNotSupportedPage": {
+    "message": "এটি একটি সমর্থিত AI চ্যাট পেজ নয়। ChatGPT, Claude, Gemini, Google Search বা অন্য কোনো সমর্থিত প্ল্যাটফর্মে Inkpour খুলুন।"
+  },
+  "popupStatusRefreshTab": {
+    "message": "চ্যাট ট্যাবটি রিফ্রেশ করুন, তারপর আবার চেষ্টা করুন। (কনটেন্ট স্ক্রিপ্ট চলছে না — এক্সটেনশন লোড হওয়ার আগে ট্যাবটি খোলা ছিল।)"
+  },
+  "popupStatusNoResponse": {
+    "message": "পেজ থেকে কোনো সাড়া নেই। ট্যাব রিফ্রেশ করার চেষ্টা করুন।"
+  },
+  "popupStatusNoMessagesFound": {
+    "message": "কোনো বার্তা পাওয়া যায়নি।"
+  },
+  "popupStatusCannotAccessTab": {
+    "message": "বর্তমান ট্যাব অ্যাক্সেস করা যাচ্ছে না।"
+  },
+  "popupStatusNoNewMessages": {
+    "message": "এক্সপোর্ট করার জন্য কোনো নতুন বার্তা নেই।"
+  },
+  "popupMsgCountOne": {
+    "message": "প্রস্তুত · $COUNT$টি বার্তা$ROLES$ · ~$WORDS$ শব্দ · ~$READMIN$ মিনিট পড়ার সময়$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupMsgCountOther": {
+    "message": "প্রস্তুত · $COUNT$টি বার্তা$ROLES$ · ~$WORDS$ শব্দ · ~$READMIN$ মিনিট পড়ার সময়$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupCodeBlockOne": {
+    "message": " · $1টি কোড ব্লক",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeBlockOther": {
+    "message": " · $1টি কোড ব্লক",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupLastExport": {
+    "message": "সর্বশেষ: $PLATFORM$ · $COUNT$ বার্তা$FORMAT$ · $WHEN$",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      },
+      "when": {
+        "content": "$4"
+      }
+    }
+  },
+  "popupLastExportJustNow": {
+    "message": "সর্বশেষ: $PLATFORM$ · $COUNT$ বার্তা · $FORMAT$ · এইমাত্র",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupNewMessageOne": {
+    "message": "+$COUNT$টি নতুন বার্তা $WHEN$ এক্সপোর্ট করার পর থেকে",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupNewMessageOther": {
+    "message": "+$COUNT$টি নতুন বার্তা $WHEN$ এক্সপোর্ট করার পর থেকে",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOne": {
+    "message": "আপনার শেষ এক্সপোর্টের পর থেকে ($WHEN$) $COUNT$টি নতুন বার্তা — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOther": {
+    "message": "আপনার শেষ এক্সপোর্টের পর থেকে ($WHEN$) $COUNT$টি নতুন বার্তা — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupSavedNewMessagesOne": {
+    "message": "✓ $COUNT$টি নতুন বার্তা সংরক্ষিত হয়েছে — আপনার Downloads ফোল্ডার দেখুন",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupSavedNewMessagesOther": {
+    "message": "✓ $COUNT$টি নতুন বার্তা সংরক্ষিত হয়েছে — আপনার Downloads ফোল্ডার দেখুন",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeJustNow": {
+    "message": "এইমাত্র"
+  },
+  "timeMinutesAgo": {
+    "message": "$1 মিনিট আগে",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeHoursAgo": {
+    "message": "$1 ঘণ্টা আগে",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeDaysAgo": {
+    "message": "$1 দিন আগে",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsHeaderTitle": {
+    "message": "Inkpour সেটিংস"
+  },
+  "settingsHeaderSubtitle": {
+    "message": "পছন্দসমূহ আপনার ব্রাউজারে স্থানীয়ভাবে সংরক্ষিত হয়"
+  },
+  "settingsBrowserDetecting": {
+    "message": "শনাক্ত করা হচ্ছে…"
+  },
+  "settingsBrowserBadge": {
+    "message": "স্বয়ংক্রিয়ভাবে শনাক্ত হয়েছে"
+  },
+  "settingsBrowserFirefoxName": {
+    "message": "Firefox"
+  },
+  "settingsBrowserFirefoxNote": {
+    "message": "সম্পূর্ণ সমর্থন — সব এক্সপোর্ট ফরম্যাট"
+  },
+  "settingsBrowserChromeName": {
+    "message": "Chrome / Brave"
+  },
+  "settingsBrowserChromeNote": {
+    "message": "সম্পূর্ণ সমর্থন — সব এক্সপোর্ট ফরম্যাট"
+  },
+  "settingsBrowserEdgeName": {
+    "message": "Microsoft Edge"
+  },
+  "settingsBrowserEdgeNote": {
+    "message": "সম্পূর্ণ সমর্থন — সব এক্সপোর্ট ফরম্যাট"
+  },
+  "settingsBrowserSafariName": {
+    "message": "Safari"
+  },
+  "settingsBrowserSafariNote": {
+    "message": "পরীক্ষামূলক — PDF ভিন্নভাবে আচরণ করতে পারে"
+  },
+  "settingsBrowserUnknownName": {
+    "message": "অজানা ব্রাউজার"
+  },
+  "settingsBrowserUnknownNote": {
+    "message": "কাজ করতে পারে — কিছু ভেঙে গেলে সমস্যা রিপোর্ট করুন"
+  },
+  "settingsSectionExport": {
+    "message": "এক্সপোর্ট"
+  },
+  "settingsSectionIntegrations": {
+    "message": "ইন্টিগ্রেশন"
+  },
+  "settingsDefaultFormatLabel": {
+    "message": "ডিফল্ট ফরম্যাট"
+  },
+  "settingsDefaultFormatDesc": {
+    "message": "কোন বাটন প্রথমে কীবোর্ড ফোকাস পায়"
+  },
+  "settingsFilenameTemplateLabel": {
+    "message": "ফাইলের নাম টেমপ্লেট"
+  },
+  "settingsFilenameTemplateDesc": {
+    "message": "টোকেন: {platform} {title} {date} {time} {url} {words} {msgcount}"
+  },
+  "settingsPdfAutoPrintLabel": {
+    "message": "PDF অটো-প্রিন্ট"
+  },
+  "settingsPdfAutoPrintDesc": {
+    "message": "PDF ট্যাব লোড হওয়ার পর স্বয়ংক্রিয়ভাবে প্রিন্ট ডায়ালগ খুলুন"
+  },
+  "settingsYamlLabel": {
+    "message": "YAML ফ্রন্ট ম্যাটার অন্তর্ভুক্ত করুন"
+  },
+  "settingsYamlDesc": {
+    "message": ".md ফাইলের শুরুতে শিরোনাম, তারিখ, প্ল্যাটফর্ম, URL যোগ করে"
+  },
+  "settingsTocLabel": {
+    "message": "সূচিপত্র তৈরি করুন"
+  },
+  "settingsTocDesc": {
+    "message": "৪টির বেশি বার্তাযুক্ত চ্যাটের জন্য একটি ক্লিকযোগ্য সূচিপত্র যোগ করুন"
+  },
+  "settingsSubfolderLabel": {
+    "message": "Downloads সাবফোল্ডার"
+  },
+  "settingsSubfolderDesc": {
+    "message": "আপনার ডিফল্ট ডাউনলোড ফোল্ডারের মধ্যে ঐচ্ছিক সাব-পাথ (যেমন AI Chats)"
+  },
+  "settingsSubfolderPlaceholder": {
+    "message": "যেমন AI Chats"
+  },
+  "settingsObsidianVaultLabel": {
+    "message": "Obsidian ভল্ট সাবফোল্ডার"
+  },
+  "settingsObsidianVaultDesc": {
+    "message": "সেট করা থাকলে, এক্সপোর্টগুলো Downloads-এর এই সাবফোল্ডারে যাবে — Obsidian ভল্টের জন্য কার্যকর। উপরের সাবফোল্ডার ফিল্ডকে অগ্রাহ্য করে।"
+  },
+  "settingsObsidianTagsLabel": {
+    "message": "YAML-এ Obsidian ট্যাগ"
+  },
+  "settingsObsidianTagsDesc": {
+    "message": "ফ্রন্ট ম্যাটারে tags: [ai-chat, {platform}] যোগ করে (YAML সক্রিয় থাকা আবশ্যক)"
+  },
+  "settingsGithubTokenLabel": {
+    "message": "GitHub টোকেন"
+  },
+  "settingsGithubTokenDesc": {
+    "message": "gist স্কোপ সহ ব্যক্তিগত অ্যাক্সেস টোকেন — পপআপে \"Upload to Gist\" বাটন সক্রিয় করে।"
+  },
+  "settingsGithubTokenLink": {
+    "message": "একটি তৈরি করুন →"
+  },
+  "settingsGistVisibilityLabel": {
+    "message": "Gist দৃশ্যমানতা"
+  },
+  "settingsGistVisibilityDesc": {
+    "message": "সিক্রেট Gist তালিকাভুক্ত হয় না (লিংক থাকলে যে কেউ দেখতে পারে)"
+  },
+  "settingsGistSecretOption": {
+    "message": "সিক্রেট (তালিকাভুক্ত নয়)"
+  },
+  "settingsGistPublicOption": {
+    "message": "পাবলিক"
+  },
+  "settingsGistTagsLabel": {
+    "message": "Gist ট্যাগ"
+  },
+  "settingsGistTagsDesc": {
+    "message": "প্রতিটি Gist এক্সপোর্টের YAML হেডারে যোগ করা অতিরিক্ত ট্যাগ, কমা দিয়ে আলাদা করা। পরে GitHub-এ user:you \"tag\" দিয়ে আপনার Gist খুঁজুন। ai-chat ট্যাগ এবং প্ল্যাটফর্মের নাম সবসময় স্বয়ংক্রিয়ভাবে অন্তর্ভুক্ত হয়।"
+  },
+  "settingsGistTagsPlaceholder": {
+    "message": "কাজ, প্রজেক্ট-x, গবেষণা"
+  },
+  "settingsScrubLabel": {
+    "message": "আপলোডের আগে গোপন তথ্য মুছে ফেলুন"
+  },
+  "settingsScrubDesc": {
+    "message": "Gist/webhook আপলোডের আগে সম্ভাব্য API কী, টোকেন ও ইমেইল লুকান"
+  },
+  "settingsWebhookUrlLabel": {
+    "message": "Webhook URL"
+  },
+  "settingsWebhookUrlDesc": {
+    "message": "প্রতিটি এক্সপোর্টের পর, Inkpour এখানে এক্সপোর্ট মেটাডেটা (শিরোনাম, প্ল্যাটফর্ম, ফরম্যাট, শব্দ সংখ্যা) সহ একটি POST অনুরোধ পাঠায়। n8n, Zapier, Make.com বা যেকোনো HTTP এন্ডপয়েন্টের সাথে কাজ করে।"
+  },
+  "settingsWebhookContentLabel": {
+    "message": "Webhook-এ কনটেন্ট অন্তর্ভুক্ত করুন"
+  },
+  "settingsWebhookContentDesc": {
+    "message": "webhook পেলোডে সম্পূর্ণ এক্সপোর্ট করা টেক্সট পাঠান (দীর্ঘ চ্যাটের জন্য পেলোডের আকার উল্লেখযোগ্যভাবে বাড়ায়)"
+  },
+  "settingsSaveBtn": {
+    "message": "সংরক্ষণ করুন"
+  },
+  "settingsSavedStatus": {
+    "message": "✓ সংরক্ষিত হয়েছে"
+  },
+  "historyHeaderTitle": {
+    "message": "এক্সপোর্ট ইতিহাস"
+  },
+  "historyHeaderSubtitle": {
+    "message": "সর্বশেষ ২০টি এক্সপোর্ট — স্থানীয়ভাবে সংরক্ষিত, কখনও আপলোড করা হয় না"
+  },
+  "historySearchPlaceholder": {
+    "message": "শিরোনাম, প্ল্যাটফর্ম, বা কথোপকথনের কনটেন্ট খুঁজুন…"
+  },
+  "historyClearRecent": {
+    "message": "সাম্প্রতিক মুছুন"
+  },
+  "historyClearAll": {
+    "message": "সব মুছুন"
+  },
+  "historyClearStarred": {
+    "message": "★ মুছুন"
+  },
+  "historyClearRecentTitle": {
+    "message": "সাম্প্রতিক ইতিহাস মুছুন (তারকাচিহ্নিত এক্সপোর্ট রাখা হবে)"
+  },
+  "historyClearAllTitle": {
+    "message": "সব এক্সপোর্ট ইতিহাস মুছুন"
+  },
+  "historyEmptyTitle": {
+    "message": "📭"
+  },
+  "historyEmptyBody": {
+    "message": "এখনও কোনো এক্সপোর্ট নেই। এখানে দেখতে পপআপ থেকে একটি চ্যাট এক্সপোর্ট করুন।"
+  },
+  "historyBackLink": {
+    "message": "← পপআপে ফিরে যান"
+  },
+  "historyStorageNote": {
+    "message": "কনটেন্ট ব্রাউজার এক্সটেনশন স্টোরেজে সংরক্ষিত"
+  },
+  "historyStatExports": {
+    "message": "এক্সপোর্ট"
+  },
+  "historyStatWords": {
+    "message": "মোট শব্দ"
+  },
+  "historyStatPlatform": {
+    "message": "শীর্ষ প্ল্যাটফর্ম"
+  },
+  "historyStatFormat": {
+    "message": "শীর্ষ ফরম্যাট"
+  },
+  "historySectionStarred": {
+    "message": "★ তারকাচিহ্নিত"
+  },
+  "historySectionRecent": {
+    "message": "সাম্প্রতিক"
+  },
+  "historyStarPin": {
+    "message": "তারকাচিহ্নিত হিসেবে পিন করুন"
+  },
+  "historyStarUnpin": {
+    "message": "তারকাচিহ্নিত থেকে আনপিন করুন"
+  },
+  "historyActionSave": {
+    "message": "↓ সংরক্ষণ করুন"
+  },
+  "historyActionCopy": {
+    "message": "⎘ কপি করুন"
+  },
+  "historyActionCopied": {
+    "message": "✓ কপি হয়েছে"
+  },
+  "historyActionGist": {
+    "message": "↗ Gist"
+  },
+  "historyNoExportsYet": {
+    "message": "এখনও কোনো এক্সপোর্ট নেই"
+  },
+  "historyMatchCountOne": {
+    "message": "$2-এর মধ্যে $1টি মিলেছে",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyMatchCountOther": {
+    "message": "$2-এর মধ্যে $1টি মিলেছে",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyFilteredCount": {
+    "message": "$2-এর মধ্যে $1টি এক্সপোর্ট",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyExportCountOne": {
+    "message": "$1টি এক্সপোর্ট",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyExportCountOther": {
+    "message": "$1টি এক্সপোর্ট",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyLifetimeStatsOne": {
+    "message": "সর্বমোট: $1টি এক্সপোর্ট$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyLifetimeStatsOther": {
+    "message": "সর্বমোট: $1টি এক্সপোর্ট$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyConfirmClearRecent": {
+    "message": "সাম্প্রতিক ইতিহাস মুছবেন? তারকাচিহ্নিত এক্সপোর্ট রাখা হবে।"
+  },
+  "historyConfirmClearAll": {
+    "message": "সব এক্সপোর্ট ইতিহাস মুছবেন? এটি পূর্বাবস্থায় ফেরানো যাবে না।"
+  },
+  "historyConfirmClearStarred": {
+    "message": "সব তারকাচিহ্নিত এক্সপোর্ট মুছবেন? এটি পূর্বাবস্থায় ফেরানো যাবে না।"
+  },
+  "printLoading": {
+    "message": "কথোপকথন লোড হচ্ছে…"
+  },
+  "printNoContent": {
+    "message": "Inkpour: কোনো কনটেন্ট পাওয়া যায়নি। আবার এক্সপোর্ট করার চেষ্টা করুন।"
+  },
+  "printGenericErrorPrefix": {
+    "message": "Inkpour ত্রুটি:"
+  },
+  "contentFabTitle": {
+    "message": "Inkpour — এই চ্যাটটি এক্সপোর্ট করুন"
+  },
+  "contentToastRedactedOne": {
+    "message": "আপলোডের আগে $1টি আইটেম ($2) সম্পাদন করা হয়েছে।",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastRedactedOther": {
+    "message": "আপলোডের আগে $1টি আইটেম ($2) সম্পাদন করা হয়েছে।",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastGistFailedNetwork": {
+    "message": "✗ Gist আপলোড ব্যর্থ হয়েছে (নেটওয়ার্ক ত্রুটি)"
+  },
+  "contentToastGistFailed": {
+    "message": "✗ Gist আপলোড ব্যর্থ হয়েছে: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentToastGistCreated": {
+    "message": "✓ Gist তৈরি হয়েছে"
+  },
+  "popupSelectCount": {
+    "message": "$2 এর মধ্যে $1 নির্বাচিত",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupPlatformDetected": {
+    "message": "✓ $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupPlatformCount": {
+    "message": "$1 টি প্ল্যাটফর্ম সমর্থিত",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentMenuExportMd": {
+    "message": "MD এক্সপোর্ট করুন"
+  },
+  "contentMenuCopyMd": {
+    "message": "MD কপি করুন"
+  },
+  "contentMenuExportHtml": {
+    "message": "HTML এক্সপোর্ট করুন"
+  },
+  "contentMenuExportDocx": {
+    "message": "DOCX এক্সপোর্ট করুন"
+  },
+  "contentMenuExportPdf": {
+    "message": "PDF এক্সপোর্ট করুন"
+  },
+  "contentMenuExportZip": {
+    "message": "ZIP এক্সপোর্ট করুন"
+  },
+  "contentStatusSaved": {
+    "message": "✓ সংরক্ষিত হয়েছে!"
+  },
+  "contentStatusCopied": {
+    "message": "✓ কপি হয়েছে!"
+  },
+  "contentStatusExporting": {
+    "message": "এক্সপোর্ট করা হচ্ছে…"
+  },
+  "contentStatusExportStarted": {
+    "message": "✓ $1 এক্সপোর্ট শুরু হয়েছে",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentStatusExportFailed": {
+    "message": "এক্সপোর্ট ব্যর্থ হয়েছে"
+  },
+  "contentNoMessagesFound": {
+    "message": "কোনো বার্তা পাওয়া যায়নি"
+  },
+  "settingsPageTitle": {
+    "message": "Inkpour — সেটিংস"
+  },
+  "settingsFormatOptionMd": {
+    "message": "Markdown (.md)"
+  },
+  "settingsFormatOptionPdf": {
+    "message": "PDF"
+  },
+  "settingsFormatOptionHtml": {
+    "message": "HTML"
+  },
+  "settingsFormatOptionJson": {
+    "message": "JSON"
+  },
+  "settingsFormatOptionZip": {
+    "message": "ZIP (চ্যাট + কোড ফাইল)"
+  }
+}

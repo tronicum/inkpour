@@ -195,7 +195,7 @@ inkpour/
 - Submit to Firefox Add-ons (AMO) and Chrome Web Store
 - Safari App Store submission: run `xcrun safari-web-extension-converter` on the extension, open `safari/Inkpour-Safari/` in Xcode, sign with Apple Developer account — scaffold in `safari/`
 - NotebookLM source citation extraction (inline `[1]` refs to uploaded docs)
-- i18n: `_locales/en/messages.json` groundwork
+- ~~i18n: `_locales/en/messages.json` groundwork~~ — done. 26 locales shipped (en + de, zh_CN, zh_TW, es, hi, ar, pt_BR, ru, ja, fr, id, vi, ko, tr, it, fa, pl, uk, bn, nl, th, pa, sv, cs, el). manifest.json uses `__MSG_x__` + `default_locale`; all HTML pages wired via `src/i18n.js` (`data-i18n*` attributes + `InkpourI18n.applyI18n()`); dynamic JS strings use `api.i18n.getMessage()`. RTL layout (ar/fa) not yet handled — CSS still assumes LTR, worth a follow-up pass if those locales see real usage.
 - Kagi / Groq selector verification against real pages
 - Obsidian vault path setting → export directly there via Downloads API
 - Streaming progress: show "Extracting…" while auto-scroll runs

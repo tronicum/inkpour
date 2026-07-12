@@ -49,15 +49,15 @@
       margin-bottom: 1.5rem;
       padding: 1.1rem 1.25rem;
       border-radius: 8px;
-      border-left: 3px solid transparent;
+      border-inline-start: 3px solid transparent;
     }
     .message.user {
       background: #f0f4ff;
-      border-left-color: #5b5bd6;
+      border-inline-start-color: #5b5bd6;
     }
     .message.assistant {
       background: #f0fdf4;
-      border-left-color: #16a34a;
+      border-inline-start-color: #16a34a;
     }
 
     .role-label {
@@ -87,7 +87,7 @@
     .content p:last-child  { margin-bottom: 0; }
 
     .content ul, .content ol {
-      padding-left: 1.5rem;
+      padding-inline-start: 1.5rem;
       margin: 0.5rem 0;
     }
     .content li { margin: 0.25rem 0; }
@@ -121,7 +121,7 @@
     }
 
     .content blockquote {
-      border-left: 3px solid #d1d5db;
+      border-inline-start: 3px solid #d1d5db;
       margin: 0.6rem 0;
       padding: 0.3rem 0.9rem;
       color: #6b7280;
@@ -144,7 +144,7 @@
       .message.user { background: #1e1e3a; }
       .message.assistant { background: #14291f; }
       .content code { background: rgba(255,255,255,0.1); }
-      .content blockquote { border-left-color: #52525b; color: #a1a1aa; }
+      .content blockquote { border-inline-start-color: #52525b; color: #a1a1aa; }
       .content hr { border-top-color: #3f3f46; }
     }
 
@@ -164,9 +164,10 @@
 </head>
 <body>
   <div id="page">
-    <p style="color:#888;font-style:italic">Loading conversation…</p>
+    <p style="color:#888;font-style:italic" data-i18n="printLoading">Loading conversation…</p>
   </div>
 
+  <script src="src/i18n.js"></script>
   <script src="print.js"></script>
 </body>
 </html>

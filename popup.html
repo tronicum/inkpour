@@ -81,7 +81,7 @@
     .settings-btn {
       position: absolute;
       top: 0;
-      right: 0;
+      inset-inline-end: 0;
       background: none;
       border: none;
       padding: 4px;
@@ -299,9 +299,9 @@
     <div class="logo">ip</div>
     <div class="header-text">
       <h1>Inkpour</h1>
-      <p>Export AI chats · MD, PDF, HTML, JSON, ZIP</p>
+      <p data-i18n="popupTagline">Export AI chats · MD, PDF, HTML, JSON, ZIP</p>
     </div>
-    <button class="settings-btn" id="settingsBtn" title="Settings" aria-label="Settings">
+    <button class="settings-btn" id="settingsBtn" data-i18n-title="popupSettingsTitle" data-i18n-aria-label="popupSettingsTitle" title="Settings" aria-label="Settings">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="3"/>
         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
@@ -313,52 +313,52 @@
 
   <p class="platform-indicator" id="platformIndicator"></p>
 
-  <p class="export-label">Export as</p>
+  <p class="export-label" data-i18n="popupExportAsLabel">Export as</p>
   <div class="btn-group">
-    <button class="btn" id="mdBtn" title="Export to Markdown (Alt+Shift+M)">
+    <button class="btn" id="mdBtn" data-i18n-title="popupMdBtnTitle" title="Export to Markdown (Alt+Shift+M)">
       <div class="spinner"></div>
-      <span>MD</span>
+      <span data-i18n="popupBtnMd">MD</span>
     </button>
-    <button class="btn" id="pdfBtn" title="Export to PDF">
+    <button class="btn" id="pdfBtn" data-i18n-title="popupPdfBtnTitle" title="Export to PDF">
       <div class="spinner"></div>
-      <span>PDF</span>
+      <span data-i18n="popupBtnPdf">PDF</span>
     </button>
-    <button class="btn" id="htmlBtn" title="Export to HTML">
+    <button class="btn" id="htmlBtn" data-i18n-title="popupHtmlBtnTitle" title="Export to HTML">
       <div class="spinner"></div>
-      <span>HTML</span>
+      <span data-i18n="popupBtnHtml">HTML</span>
     </button>
-    <button class="btn" id="jsonBtn" title="Export to JSON (Alt+Shift+J)">
+    <button class="btn" id="jsonBtn" data-i18n-title="popupJsonBtnTitle" title="Export to JSON (Alt+Shift+J)">
       <div class="spinner"></div>
-      <span>JSON</span>
+      <span data-i18n="popupBtnJson">JSON</span>
     </button>
-    <button class="btn" id="docxBtn" title="Export to Word document (.docx)">
+    <button class="btn" id="docxBtn" data-i18n-title="popupDocxBtnTitle" title="Export to Word document (.docx)">
       <div class="spinner"></div>
-      <span>DOCX</span>
+      <span data-i18n="popupBtnDocx">DOCX</span>
     </button>
   </div>
   <div class="btn-group copy-group">
-    <button class="btn copy-btn" id="copyBtn" title="Copy Markdown to clipboard (Alt+Shift+C)">
+    <button class="btn copy-btn" id="copyBtn" data-i18n-title="popupCopyBtnTitle" title="Copy Markdown to clipboard (Alt+Shift+C)">
       <div class="spinner"></div>
-      <span>Copy MD</span>
+      <span data-i18n="popupBtnCopyMd">Copy MD</span>
     </button>
-    <button class="btn copy-btn" id="copyHtmlBtn" title="Copy standalone HTML to clipboard (Alt+Shift+H)">
+    <button class="btn copy-btn" id="copyHtmlBtn" data-i18n-title="popupCopyHtmlBtnTitle" title="Copy standalone HTML to clipboard (Alt+Shift+H)">
       <div class="spinner"></div>
-      <span>Copy HTML</span>
+      <span data-i18n="popupBtnCopyHtml">Copy HTML</span>
     </button>
-    <button class="btn copy-btn" id="zipBtn" title="Export ZIP with chat.md + extracted code files (Alt+Shift+Z)">
+    <button class="btn copy-btn" id="zipBtn" data-i18n-title="popupZipBtnTitle" title="Export ZIP with chat.md + extracted code files (Alt+Shift+Z)">
       <div class="spinner"></div>
-      <span>ZIP</span>
+      <span data-i18n="popupBtnZip">ZIP</span>
     </button>
-    <button class="btn copy-btn" id="gistBtn" title="Upload Markdown to GitHub Gist" hidden>
+    <button class="btn copy-btn" id="gistBtn" data-i18n-title="popupGistBtnTitle" title="Upload Markdown to GitHub Gist" hidden>
       <div class="spinner"></div>
-      <span>Gist ↑</span>
+      <span data-i18n="popupBtnGist">Gist ↑</span>
     </button>
   </div>
 
   <div class="btn-group all-group">
-    <button class="btn" id="allBtn" title="Export MD + DOCX + ZIP simultaneously">
+    <button class="btn" id="allBtn" data-i18n-title="popupAllBtnTitle" title="Export MD + DOCX + ZIP simultaneously">
       <div class="spinner"></div>
-      <span>⬇ Export All (MD + DOCX + ZIP)</span>
+      <span data-i18n="popupBtnExportAll">⬇ Export All (MD + DOCX + ZIP)</span>
     </button>
   </div>
 
@@ -369,44 +369,44 @@
        border:1px solid var(--accent);border-radius:7px;background:var(--surface);
        text-align:center;">
     <span data-role="text" style="font-size:10.5px;color:var(--subtext);"></span>
-    <button class="btn" id="incrementalExportBtn" title="Export only the messages added since your last export"
+    <button class="btn" id="incrementalExportBtn" data-i18n-title="popupIncrementalBtnTitle" title="Export only the messages added since your last export"
       style="margin-top:4px;width:100%;padding:6px 6px;font-size:11.5px;
              font-weight:600;color:var(--accent-text);background:var(--accent);
              border:none;border-radius:7px;cursor:pointer;">
       <div class="spinner"></div>
-      <span>Export new only</span>
+      <span data-i18n="popupBtnExportNewOnly">Export new only</span>
     </button>
   </div>
-  <input id="titleInput" type="text" placeholder="Chat title…" hidden
+  <input id="titleInput" type="text" data-i18n-placeholder="popupTitleInputPlaceholder" placeholder="Chat title…" hidden
     style="display:none;width:100%;margin-top:7px;padding:5px 9px;font-size:12px;
            border:1.5px solid var(--accent);border-radius:7px;background:var(--bg);
            color:var(--text);outline:none;box-sizing:border-box;" />
   <div id="notes-section" hidden style="display:none;margin-top:6px;">
-    <textarea id="notesInput" rows="3" placeholder="Add personal notes — prepended as a blockquote in the export…"
+    <textarea id="notesInput" rows="3" data-i18n-placeholder="popupNotesPlaceholder" placeholder="Add personal notes — prepended as a blockquote in the export…"
       style="width:100%;font-size:11px;padding:6px 9px;border:1px solid var(--border);
              border-radius:7px;background:var(--bg);color:var(--text);outline:none;
              resize:vertical;box-sizing:border-box;font-family:inherit;line-height:1.45;"></textarea>
   </div>
   <button id="notesToggle" hidden
     style="display:none;width:100%;margin-top:5px;font-size:11px;color:var(--subtext);
-           background:none;border:none;cursor:pointer;text-align:left;padding:2px 0;">
+           background:none;border:none;cursor:pointer;text-align:start;padding:2px 0;">
     + Add notes
   </button>
 
   <!-- Selective export -->
   <button id="selectToggle" hidden
     style="display:none;width:100%;margin-top:5px;font-size:11px;color:var(--subtext);
-           background:none;border:none;cursor:pointer;text-align:left;padding:2px 0;">
+           background:none;border:none;cursor:pointer;text-align:start;padding:2px 0;">
     ☑ Select messages
   </button>
   <div id="select-section" hidden style="display:none;margin-top:6px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
       <span style="font-size:10.5px;color:var(--subtext);" id="selectCount"></span>
       <span style="font-size:10.5px;">
-        <button id="selectAll" style="background:none;border:none;cursor:pointer;color:var(--accent);font-size:10.5px;padding:0 3px;">All</button>
-        <button id="selectNone" style="background:none;border:none;cursor:pointer;color:var(--accent);font-size:10.5px;padding:0 3px;">None</button>
-        <button id="selectUser" style="background:none;border:none;cursor:pointer;color:var(--accent);font-size:10.5px;padding:0 3px;">User only</button>
-        <button id="selectAI" style="background:none;border:none;cursor:pointer;color:var(--accent);font-size:10.5px;padding:0 3px;">AI only</button>
+        <button id="selectAll" style="background:none;border:none;cursor:pointer;color:var(--accent);font-size:10.5px;padding:0 3px;" data-i18n="popupSelectAll">All</button>
+        <button id="selectNone" style="background:none;border:none;cursor:pointer;color:var(--accent);font-size:10.5px;padding:0 3px;" data-i18n="popupSelectNone">None</button>
+        <button id="selectUser" style="background:none;border:none;cursor:pointer;color:var(--accent);font-size:10.5px;padding:0 3px;" data-i18n="popupSelectUserOnly">User only</button>
+        <button id="selectAI" style="background:none;border:none;cursor:pointer;color:var(--accent);font-size:10.5px;padding:0 3px;" data-i18n="popupSelectAIOnly">AI only</button>
       </span>
     </div>
     <div id="msgCheckboxes" style="max-height:140px;overflow-y:auto;border:1px solid var(--border);
@@ -417,10 +417,11 @@
   <div id="last-export"></div>
 
   <div class="footer-links">
-    <button class="footer-link" id="historyBtn">⏱ History</button>
-    <button class="footer-link" id="settingsBtn2">⚙ Settings</button>
+    <button class="footer-link" id="historyBtn" data-i18n="popupHistoryBtn">⏱ History</button>
+    <button class="footer-link" id="settingsBtn2" data-i18n="popupSettingsBtn">⚙ Settings</button>
   </div>
 
+  <script src="src/i18n.js"></script>
   <script src="src/utils.js"></script>
   <script src="src/diff.js"></script>
   <script src="popup.js"></script>

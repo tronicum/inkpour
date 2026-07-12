@@ -1,0 +1,857 @@
+{
+  "extName": {
+    "message": "Inkpour",
+    "description": "Extension name shown in browser toolbar and stores"
+  },
+  "extDescription": {
+    "message": "AI चैट बातचीत (ChatGPT, Claude, Gemini, Copilot, और अन्य) को Markdown, PDF, HTML, DOCX या ZIP में एक्सपोर्ट करें।",
+    "description": "Extension description shown in browser stores"
+  },
+  "cmdExportMarkdown": {
+    "message": "मौजूदा चैट को Markdown में एक्सपोर्ट करें",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyMarkdown": {
+    "message": "मौजूदा चैट को Markdown के रूप में क्लिपबोर्ड पर कॉपी करें",
+    "description": "Keyboard command description"
+  },
+  "cmdExportPdf": {
+    "message": "मौजूदा चैट को PDF में एक्सपोर्ट करें",
+    "description": "Keyboard command description"
+  },
+  "cmdUploadGist": {
+    "message": "मौजूदा चैट को GitHub Gist पर अपलोड करें",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyHtml": {
+    "message": "मौजूदा चैट को स्टैंडअलोन HTML के रूप में क्लिपबोर्ड पर कॉपी करें",
+    "description": "Keyboard command description"
+  },
+  "cmdExportJson": {
+    "message": "मौजूदा चैट को JSON में एक्सपोर्ट करें",
+    "description": "Keyboard command description"
+  },
+  "cmdExportZip": {
+    "message": "मौजूदा चैट को ZIP के रूप में एक्सपोर्ट करें (chat.md + कोड फ़ाइलें)",
+    "description": "Keyboard command description"
+  },
+  "cmdExportDocx": {
+    "message": "मौजूदा चैट को Word दस्तावेज़ (.docx) में एक्सपोर्ट करें",
+    "description": "Keyboard command description"
+  },
+  "popupTagline": {
+    "message": "AI चैट एक्सपोर्ट करें · MD, PDF, HTML, JSON, ZIP",
+    "description": "Popup header subtitle"
+  },
+  "popupSettingsTitle": {
+    "message": "सेटिंग्स",
+    "description": "Settings gear button tooltip/aria-label in popup"
+  },
+  "popupExportAsLabel": {
+    "message": "इस रूप में एक्सपोर्ट करें",
+    "description": "Section label above the export format buttons"
+  },
+  "popupMdBtnTitle": {
+    "message": "Markdown में एक्सपोर्ट करें (Alt+Shift+M)",
+    "description": "MD button tooltip"
+  },
+  "popupPdfBtnTitle": {
+    "message": "PDF में एक्सपोर्ट करें",
+    "description": "PDF button tooltip"
+  },
+  "popupHtmlBtnTitle": {
+    "message": "HTML में एक्सपोर्ट करें",
+    "description": "HTML button tooltip"
+  },
+  "popupJsonBtnTitle": {
+    "message": "JSON में एक्सपोर्ट करें (Alt+Shift+J)",
+    "description": "JSON button tooltip"
+  },
+  "popupDocxBtnTitle": {
+    "message": "Word दस्तावेज़ (.docx) में एक्सपोर्ट करें",
+    "description": "DOCX button tooltip"
+  },
+  "popupCopyBtnTitle": {
+    "message": "Markdown क्लिपबोर्ड पर कॉपी करें (Alt+Shift+C)",
+    "description": "Copy MD button tooltip"
+  },
+  "popupCopyHtmlBtnTitle": {
+    "message": "स्टैंडअलोन HTML क्लिपबोर्ड पर कॉपी करें (Alt+Shift+H)",
+    "description": "Copy HTML button tooltip"
+  },
+  "popupZipBtnTitle": {
+    "message": "chat.md + निकाली गई कोड फ़ाइलों के साथ ZIP एक्सपोर्ट करें (Alt+Shift+Z)",
+    "description": "ZIP button tooltip"
+  },
+  "popupGistBtnTitle": {
+    "message": "Markdown को GitHub Gist पर अपलोड करें",
+    "description": "Gist button tooltip"
+  },
+  "popupAllBtnTitle": {
+    "message": "MD + DOCX + ZIP एक साथ एक्सपोर्ट करें",
+    "description": "Export All button tooltip"
+  },
+  "popupBtnMd": {
+    "message": "MD"
+  },
+  "popupBtnPdf": {
+    "message": "PDF"
+  },
+  "popupBtnHtml": {
+    "message": "HTML"
+  },
+  "popupBtnJson": {
+    "message": "JSON"
+  },
+  "popupBtnDocx": {
+    "message": "DOCX"
+  },
+  "popupBtnCopyMd": {
+    "message": "MD कॉपी करें"
+  },
+  "popupBtnCopyHtml": {
+    "message": "HTML कॉपी करें"
+  },
+  "popupBtnZip": {
+    "message": "ZIP"
+  },
+  "popupBtnGist": {
+    "message": "Gist ↑"
+  },
+  "popupBtnExportAll": {
+    "message": "⬇ सभी एक्सपोर्ट करें (MD + DOCX + ZIP)"
+  },
+  "popupIncrementalBtnTitle": {
+    "message": "आपके पिछले एक्सपोर्ट के बाद जोड़े गए संदेशों को ही एक्सपोर्ट करें",
+    "description": "Export new only button tooltip"
+  },
+  "popupBtnExportNewOnly": {
+    "message": "केवल नए एक्सपोर्ट करें"
+  },
+  "popupTitleInputPlaceholder": {
+    "message": "चैट शीर्षक…"
+  },
+  "popupNotesPlaceholder": {
+    "message": "व्यक्तिगत नोट्स जोड़ें — एक्सपोर्ट में ब्लॉककोट के रूप में सबसे ऊपर जोड़े जाएंगे…"
+  },
+  "popupNotesToggleAdd": {
+    "message": "+ नोट्स जोड़ें"
+  },
+  "popupNotesToggleHide": {
+    "message": "− नोट्स छिपाएं"
+  },
+  "popupSelectToggleOpen": {
+    "message": "☑ संदेश चुनें"
+  },
+  "popupSelectToggleClose": {
+    "message": "✕ सेलेक्टर बंद करें"
+  },
+  "popupSelectAll": {
+    "message": "सभी"
+  },
+  "popupSelectNone": {
+    "message": "कोई नहीं"
+  },
+  "popupSelectUserOnly": {
+    "message": "केवल यूज़र"
+  },
+  "popupSelectAIOnly": {
+    "message": "केवल AI"
+  },
+  "popupHistoryBtn": {
+    "message": "⏱ इतिहास"
+  },
+  "popupSettingsBtn": {
+    "message": "⚙ सेटिंग्स"
+  },
+  "popupStatusExtracting": {
+    "message": "निकाला जा रहा है…"
+  },
+  "popupStatusExtractingMessages": {
+    "message": "संदेश निकाले जा रहे हैं…"
+  },
+  "popupStatusLoadingOlder": {
+    "message": "पुराने संदेश लोड हो रहे हैं…"
+  },
+  "popupStatusAiStillGenerating": {
+    "message": "AI अभी भी जवाब बना रहा है — पूरा होने के बाद एक्सपोर्ट करें"
+  },
+  "popupStatusSavedCheckDownloads": {
+    "message": "✓ सेव हो गया — अपना Downloads फ़ोल्डर देखें"
+  },
+  "popupStatusMarkdownCopied": {
+    "message": "✓ Markdown क्लिपबोर्ड पर कॉपी हो गया"
+  },
+  "popupStatusHtmlCopied": {
+    "message": "✓ HTML कॉपी हो गया — किसी भी एडिटर में पेस्ट करें"
+  },
+  "popupStatusZipSaved": {
+    "message": "✓ ZIP सेव हो गया — chat.md",
+    "description": "Prefix; extra code-file count is appended in JS"
+  },
+  "popupCodeFileOne": {
+    "message": " + $1 कोड फ़ाइल",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeFileOther": {
+    "message": " + $1 कोड फ़ाइलें",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupStatusExportAllSaved": {
+    "message": "✓ MD + DOCX + ZIP सेव हो गए"
+  },
+  "popupStatusGistTokenMissing": {
+    "message": "पहले सेटिंग्स में एक GitHub टोकन जोड़ें।"
+  },
+  "popupStatusGistUploading": {
+    "message": "GitHub Gist पर अपलोड हो रहा है…"
+  },
+  "popupStatusGistCreated": {
+    "message": "✓ Gist बन गया"
+  },
+  "popupStatusGistUploadFailed": {
+    "message": "Gist अपलोड विफल रहा"
+  },
+  "popupStatusNotSupportedPage": {
+    "message": "यह समर्थित AI चैट पेज नहीं है। Inkpour को ChatGPT, Claude, Gemini, Google Search, या किसी अन्य समर्थित प्लेटफ़ॉर्म पर खोलें।"
+  },
+  "popupStatusRefreshTab": {
+    "message": "चैट टैब को रीफ़्रेश करें, फिर दोबारा कोशिश करें। (कंटेंट स्क्रिप्ट नहीं चल रही — एक्सटेंशन लोड होने से पहले टैब खुला था।)"
+  },
+  "popupStatusNoResponse": {
+    "message": "पेज से कोई जवाब नहीं मिला। टैब रीफ़्रेश करके देखें।"
+  },
+  "popupStatusNoMessagesFound": {
+    "message": "कोई संदेश नहीं मिला।"
+  },
+  "popupStatusCannotAccessTab": {
+    "message": "मौजूदा टैब तक पहुंच नहीं हो पा रही।"
+  },
+  "popupStatusNoNewMessages": {
+    "message": "एक्सपोर्ट के लिए कोई नया संदेश नहीं है।"
+  },
+  "popupMsgCountOne": {
+    "message": "तैयार · $COUNT$ संदेश$ROLES$ · ~$WORDS$ शब्द · ~$READMIN$ मिनट का पठन$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupMsgCountOther": {
+    "message": "तैयार · $COUNT$ संदेश$ROLES$ · ~$WORDS$ शब्द · ~$READMIN$ मिनट का पठन$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupCodeBlockOne": {
+    "message": " · $1 कोड ब्लॉक",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeBlockOther": {
+    "message": " · $1 कोड ब्लॉक",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupLastExport": {
+    "message": "पिछला: $PLATFORM$ · $COUNT$ संदेश$FORMAT$ · $WHEN$",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      },
+      "when": {
+        "content": "$4"
+      }
+    }
+  },
+  "popupLastExportJustNow": {
+    "message": "पिछला: $PLATFORM$ · $COUNT$ संदेश · $FORMAT$ · अभी-अभी",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupNewMessageOne": {
+    "message": "$WHEN$ को एक्सपोर्ट किए जाने के बाद +$COUNT$ नया संदेश",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupNewMessageOther": {
+    "message": "$WHEN$ को एक्सपोर्ट किए जाने के बाद +$COUNT$ नए संदेश",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOne": {
+    "message": "आपके पिछले एक्सपोर्ट ($WHEN$) के बाद $COUNT$ नया संदेश — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOther": {
+    "message": "आपके पिछले एक्सपोर्ट ($WHEN$) के बाद $COUNT$ नए संदेश — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupSavedNewMessagesOne": {
+    "message": "✓ $COUNT$ नया संदेश सेव हुआ — अपना Downloads फ़ोल्डर देखें",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupSavedNewMessagesOther": {
+    "message": "✓ $COUNT$ नए संदेश सेव हुए — अपना Downloads फ़ोल्डर देखें",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeJustNow": {
+    "message": "अभी-अभी"
+  },
+  "timeMinutesAgo": {
+    "message": "$1 मिनट पहले",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeHoursAgo": {
+    "message": "$1 घंटे पहले",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeDaysAgo": {
+    "message": "$1 दिन पहले",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsHeaderTitle": {
+    "message": "Inkpour सेटिंग्स"
+  },
+  "settingsHeaderSubtitle": {
+    "message": "प्राथमिकताएं आपके ब्राउज़र में लोकल रूप से सेव होती हैं"
+  },
+  "settingsBrowserDetecting": {
+    "message": "पता लगाया जा रहा है…"
+  },
+  "settingsBrowserBadge": {
+    "message": "स्वतः पहचाना गया"
+  },
+  "settingsBrowserFirefoxName": {
+    "message": "Firefox"
+  },
+  "settingsBrowserFirefoxNote": {
+    "message": "पूर्ण समर्थन — सभी एक्सपोर्ट फ़ॉर्मैट"
+  },
+  "settingsBrowserChromeName": {
+    "message": "Chrome / Brave"
+  },
+  "settingsBrowserChromeNote": {
+    "message": "पूर्ण समर्थन — सभी एक्सपोर्ट फ़ॉर्मैट"
+  },
+  "settingsBrowserEdgeName": {
+    "message": "Microsoft Edge"
+  },
+  "settingsBrowserEdgeNote": {
+    "message": "पूर्ण समर्थन — सभी एक्सपोर्ट फ़ॉर्मैट"
+  },
+  "settingsBrowserSafariName": {
+    "message": "Safari"
+  },
+  "settingsBrowserSafariNote": {
+    "message": "प्रायोगिक — PDF अलग तरह से व्यवहार कर सकता है"
+  },
+  "settingsBrowserUnknownName": {
+    "message": "अज्ञात ब्राउज़र"
+  },
+  "settingsBrowserUnknownNote": {
+    "message": "काम कर सकता है — कुछ खराब होने पर समस्या की रिपोर्ट करें"
+  },
+  "settingsSectionExport": {
+    "message": "एक्सपोर्ट"
+  },
+  "settingsSectionIntegrations": {
+    "message": "इंटीग्रेशन"
+  },
+  "settingsDefaultFormatLabel": {
+    "message": "डिफ़ॉल्ट फ़ॉर्मैट"
+  },
+  "settingsDefaultFormatDesc": {
+    "message": "किस बटन को कीबोर्ड फ़ोकस पहले मिलेगा"
+  },
+  "settingsFilenameTemplateLabel": {
+    "message": "फ़ाइल नाम टेम्पलेट"
+  },
+  "settingsFilenameTemplateDesc": {
+    "message": "टोकन: {platform} {title} {date} {time} {url} {words} {msgcount}"
+  },
+  "settingsPdfAutoPrintLabel": {
+    "message": "PDF ऑटो-प्रिंट"
+  },
+  "settingsPdfAutoPrintDesc": {
+    "message": "PDF टैब लोड होने के बाद प्रिंट डायलॉग अपने आप खोलें"
+  },
+  "settingsYamlLabel": {
+    "message": "YAML फ्रंट मैटर शामिल करें"
+  },
+  "settingsYamlDesc": {
+    "message": ".md फ़ाइलों के शीर्ष में शीर्षक, तारीख, प्लेटफ़ॉर्म, URL जोड़ता है"
+  },
+  "settingsTocLabel": {
+    "message": "विषय-सूची (TOC) बनाएं"
+  },
+  "settingsTocDesc": {
+    "message": "4 से अधिक संदेशों वाली चैट के लिए क्लिक करने योग्य TOC सबसे ऊपर जोड़ें"
+  },
+  "settingsSubfolderLabel": {
+    "message": "Downloads सबफ़ोल्डर"
+  },
+  "settingsSubfolderDesc": {
+    "message": "आपके डिफ़ॉल्ट Downloads फ़ोल्डर के भीतर वैकल्पिक सब-पाथ (जैसे AI Chats)"
+  },
+  "settingsSubfolderPlaceholder": {
+    "message": "जैसे AI Chats"
+  },
+  "settingsObsidianVaultLabel": {
+    "message": "Obsidian वॉल्ट सबफ़ोल्डर"
+  },
+  "settingsObsidianVaultDesc": {
+    "message": "सेट करने पर, एक्सपोर्ट Downloads के इस सबफ़ोल्डर में जाएंगे — Obsidian वॉल्ट के लिए उपयोगी। यह ऊपर दिए गए सबफ़ोल्डर फ़ील्ड को ओवरराइड करता है।"
+  },
+  "settingsObsidianTagsLabel": {
+    "message": "YAML में Obsidian टैग"
+  },
+  "settingsObsidianTagsDesc": {
+    "message": "फ्रंट मैटर में tags: [ai-chat, {platform}] जोड़ता है (YAML सक्षम होना ज़रूरी है)"
+  },
+  "settingsGithubTokenLabel": {
+    "message": "GitHub टोकन"
+  },
+  "settingsGithubTokenDesc": {
+    "message": "gist स्कोप वाला पर्सनल एक्सेस टोकन — पॉपअप में \"Upload to Gist\" बटन सक्षम करता है।"
+  },
+  "settingsGithubTokenLink": {
+    "message": "एक बनाएं →"
+  },
+  "settingsGistVisibilityLabel": {
+    "message": "Gist दृश्यता"
+  },
+  "settingsGistVisibilityDesc": {
+    "message": "Secret Gist अनलिस्टेड होते हैं (लिंक रखने वाला कोई भी व्यक्ति देख सकता है)"
+  },
+  "settingsGistSecretOption": {
+    "message": "Secret (अनलिस्टेड)"
+  },
+  "settingsGistPublicOption": {
+    "message": "Public"
+  },
+  "settingsGistTagsLabel": {
+    "message": "Gist टैग"
+  },
+  "settingsGistTagsDesc": {
+    "message": "हर Gist एक्सपोर्ट के YAML हेडर में जोड़े जाने वाले अतिरिक्त टैग, कॉमा से अलग करें। बाद में GitHub पर user:you \"tag\" से अपने Gist खोजें। ai-chat टैग और प्लेटफ़ॉर्म का नाम हमेशा अपने आप शामिल किए जाते हैं।"
+  },
+  "settingsGistTagsPlaceholder": {
+    "message": "work, project-x, research"
+  },
+  "settingsScrubLabel": {
+    "message": "अपलोड से पहले गोपनीय जानकारी हटाएं"
+  },
+  "settingsScrubDesc": {
+    "message": "Gist/webhook अपलोड से पहले संभावित API keys, टोकन और ईमेल छिपाएं"
+  },
+  "settingsWebhookUrlLabel": {
+    "message": "Webhook URL"
+  },
+  "settingsWebhookUrlDesc": {
+    "message": "हर एक्सपोर्ट के बाद, Inkpour यहां एक्सपोर्ट मेटाडेटा (शीर्षक, प्लेटफ़ॉर्म, फ़ॉर्मैट, शब्द संख्या) के साथ एक POST रिक्वेस्ट भेजता है। यह n8n, Zapier, Make.com, या किसी भी HTTP एंडपॉइंट के साथ काम करता है।"
+  },
+  "settingsWebhookContentLabel": {
+    "message": "webhook में कंटेंट शामिल करें"
+  },
+  "settingsWebhookContentDesc": {
+    "message": "webhook पेलोड में पूरा एक्सपोर्ट किया गया टेक्स्ट भेजें (लंबी चैट के लिए पेलोड का आकार काफी बढ़ जाता है)"
+  },
+  "settingsSaveBtn": {
+    "message": "सेव करें"
+  },
+  "settingsSavedStatus": {
+    "message": "✓ सेव हो गया"
+  },
+  "historyHeaderTitle": {
+    "message": "एक्सपोर्ट इतिहास"
+  },
+  "historyHeaderSubtitle": {
+    "message": "पिछले 20 एक्सपोर्ट — लोकल रूप से सेव, कभी अपलोड नहीं होते"
+  },
+  "historySearchPlaceholder": {
+    "message": "शीर्षक, प्लेटफ़ॉर्म, या बातचीत का कंटेंट खोजें…"
+  },
+  "historyClearRecent": {
+    "message": "हाल का इतिहास साफ़ करें"
+  },
+  "historyClearAll": {
+    "message": "सब साफ़ करें"
+  },
+  "historyClearStarred": {
+    "message": "★ साफ़ करें"
+  },
+  "historyClearRecentTitle": {
+    "message": "हाल का एक्सपोर्ट इतिहास साफ़ करें (स्टार किए गए एक्सपोर्ट सुरक्षित रहेंगे)"
+  },
+  "historyClearAllTitle": {
+    "message": "सारा एक्सपोर्ट इतिहास साफ़ करें"
+  },
+  "historyEmptyTitle": {
+    "message": "📭"
+  },
+  "historyEmptyBody": {
+    "message": "अभी तक कोई एक्सपोर्ट नहीं है। यहां देखने के लिए पॉपअप से एक चैट एक्सपोर्ट करें।"
+  },
+  "historyBackLink": {
+    "message": "← पॉपअप पर वापस जाएं"
+  },
+  "historyStorageNote": {
+    "message": "कंटेंट ब्राउज़र एक्सटेंशन स्टोरेज में सेव है"
+  },
+  "historyStatExports": {
+    "message": "एक्सपोर्ट"
+  },
+  "historyStatWords": {
+    "message": "कुल शब्द"
+  },
+  "historyStatPlatform": {
+    "message": "सबसे ज़्यादा उपयोग किया गया प्लेटफ़ॉर्म"
+  },
+  "historyStatFormat": {
+    "message": "सबसे ज़्यादा उपयोग किया गया फ़ॉर्मैट"
+  },
+  "historySectionStarred": {
+    "message": "★ स्टार किए गए"
+  },
+  "historySectionRecent": {
+    "message": "हाल के"
+  },
+  "historyStarPin": {
+    "message": "स्टार में पिन करें"
+  },
+  "historyStarUnpin": {
+    "message": "स्टार से अनपिन करें"
+  },
+  "historyActionSave": {
+    "message": "↓ सेव करें"
+  },
+  "historyActionCopy": {
+    "message": "⎘ कॉपी करें"
+  },
+  "historyActionCopied": {
+    "message": "✓ कॉपी हो गया"
+  },
+  "historyActionGist": {
+    "message": "↗ Gist"
+  },
+  "historyNoExportsYet": {
+    "message": "अभी तक कोई एक्सपोर्ट नहीं है"
+  },
+  "historyMatchCountOne": {
+    "message": "$2 में से $1 मेल खाता है",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyMatchCountOther": {
+    "message": "$2 में से $1 मेल खाते हैं",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyFilteredCount": {
+    "message": "$2 में से $1 एक्सपोर्ट",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyExportCountOne": {
+    "message": "$1 एक्सपोर्ट",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyExportCountOther": {
+    "message": "$1 एक्सपोर्ट",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyLifetimeStatsOne": {
+    "message": "अब तक: $1 एक्सपोर्ट$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyLifetimeStatsOther": {
+    "message": "अब तक: $1 एक्सपोर्ट$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyConfirmClearRecent": {
+    "message": "हाल का इतिहास साफ़ करें? स्टार किए गए एक्सपोर्ट सुरक्षित रहेंगे।"
+  },
+  "historyConfirmClearAll": {
+    "message": "सारा एक्सपोर्ट इतिहास साफ़ करें? इसे पूर्ववत नहीं किया जा सकता।"
+  },
+  "historyConfirmClearStarred": {
+    "message": "सभी स्टार किए गए एक्सपोर्ट हटाएं? इसे पूर्ववत नहीं किया जा सकता।"
+  },
+  "printLoading": {
+    "message": "बातचीत लोड हो रही है…"
+  },
+  "printNoContent": {
+    "message": "Inkpour: कोई कंटेंट नहीं मिला। फिर से एक्सपोर्ट करने की कोशिश करें।"
+  },
+  "printGenericErrorPrefix": {
+    "message": "Inkpour त्रुटि:"
+  },
+  "contentFabTitle": {
+    "message": "Inkpour — इस चैट को एक्सपोर्ट करें"
+  },
+  "contentToastRedactedOne": {
+    "message": "अपलोड से पहले $1 आइटम ($2) छिपाया गया।",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastRedactedOther": {
+    "message": "अपलोड से पहले $1 आइटम ($2) छिपाए गए।",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastGistFailedNetwork": {
+    "message": "✗ Gist अपलोड विफल रहा (नेटवर्क त्रुटि)"
+  },
+  "contentToastGistFailed": {
+    "message": "✗ Gist अपलोड विफल रहा: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentToastGistCreated": {
+    "message": "✓ Gist बन गया"
+  },
+  "popupSelectCount": {
+    "message": "$2 में से $1 चयनित",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupPlatformDetected": {
+    "message": "✓ $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupPlatformCount": {
+    "message": "$1 प्लेटफ़ॉर्म समर्थित",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentMenuExportMd": {
+    "message": "MD एक्सपोर्ट करें"
+  },
+  "contentMenuCopyMd": {
+    "message": "MD कॉपी करें"
+  },
+  "contentMenuExportHtml": {
+    "message": "HTML एक्सपोर्ट करें"
+  },
+  "contentMenuExportDocx": {
+    "message": "DOCX एक्सपोर्ट करें"
+  },
+  "contentMenuExportPdf": {
+    "message": "PDF एक्सपोर्ट करें"
+  },
+  "contentMenuExportZip": {
+    "message": "ZIP एक्सपोर्ट करें"
+  },
+  "contentStatusSaved": {
+    "message": "✓ सेव हो गया!"
+  },
+  "contentStatusCopied": {
+    "message": "✓ कॉपी हो गया!"
+  },
+  "contentStatusExporting": {
+    "message": "एक्सपोर्ट हो रहा है…"
+  },
+  "contentStatusExportStarted": {
+    "message": "✓ $1 एक्सपोर्ट शुरू हो गया",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentStatusExportFailed": {
+    "message": "एक्सपोर्ट विफल रहा"
+  },
+  "contentNoMessagesFound": {
+    "message": "कोई संदेश नहीं मिला"
+  },
+  "settingsPageTitle": {
+    "message": "Inkpour — सेटिंग्स"
+  },
+  "settingsFormatOptionMd": {
+    "message": "Markdown (.md)"
+  },
+  "settingsFormatOptionPdf": {
+    "message": "PDF"
+  },
+  "settingsFormatOptionHtml": {
+    "message": "HTML"
+  },
+  "settingsFormatOptionJson": {
+    "message": "JSON"
+  },
+  "settingsFormatOptionZip": {
+    "message": "ZIP (चैट + कोड फ़ाइलें)"
+  }
+}

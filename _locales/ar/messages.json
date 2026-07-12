@@ -1,0 +1,857 @@
+{
+  "extName": {
+    "message": "Inkpour",
+    "description": "Extension name shown in browser toolbar and stores"
+  },
+  "extDescription": {
+    "message": "تصدير محادثات الذكاء الاصطناعي (ChatGPT وClaude وGemini وCopilot وغيرها) إلى Markdown أو PDF أو HTML أو DOCX أو ZIP.",
+    "description": "Extension description shown in browser stores"
+  },
+  "cmdExportMarkdown": {
+    "message": "تصدير المحادثة الحالية إلى Markdown",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyMarkdown": {
+    "message": "نسخ المحادثة الحالية بصيغة Markdown إلى الحافظة",
+    "description": "Keyboard command description"
+  },
+  "cmdExportPdf": {
+    "message": "تصدير المحادثة الحالية إلى PDF",
+    "description": "Keyboard command description"
+  },
+  "cmdUploadGist": {
+    "message": "رفع المحادثة الحالية إلى GitHub Gist",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyHtml": {
+    "message": "نسخ المحادثة الحالية كملف HTML مستقل إلى الحافظة",
+    "description": "Keyboard command description"
+  },
+  "cmdExportJson": {
+    "message": "تصدير المحادثة الحالية إلى JSON",
+    "description": "Keyboard command description"
+  },
+  "cmdExportZip": {
+    "message": "تصدير المحادثة الحالية كملف ZIP (chat.md + ملفات الأكواد)",
+    "description": "Keyboard command description"
+  },
+  "cmdExportDocx": {
+    "message": "تصدير المحادثة الحالية إلى مستند Word ‏(.docx)",
+    "description": "Keyboard command description"
+  },
+  "popupTagline": {
+    "message": "تصدير محادثات الذكاء الاصطناعي · MD, PDF, HTML, JSON, ZIP",
+    "description": "Popup header subtitle"
+  },
+  "popupSettingsTitle": {
+    "message": "الإعدادات",
+    "description": "Settings gear button tooltip/aria-label in popup"
+  },
+  "popupExportAsLabel": {
+    "message": "تصدير بصيغة",
+    "description": "Section label above the export format buttons"
+  },
+  "popupMdBtnTitle": {
+    "message": "تصدير إلى Markdown (Alt+Shift+M)",
+    "description": "MD button tooltip"
+  },
+  "popupPdfBtnTitle": {
+    "message": "تصدير إلى PDF",
+    "description": "PDF button tooltip"
+  },
+  "popupHtmlBtnTitle": {
+    "message": "تصدير إلى HTML",
+    "description": "HTML button tooltip"
+  },
+  "popupJsonBtnTitle": {
+    "message": "تصدير إلى JSON (Alt+Shift+J)",
+    "description": "JSON button tooltip"
+  },
+  "popupDocxBtnTitle": {
+    "message": "تصدير إلى مستند Word ‏(.docx)",
+    "description": "DOCX button tooltip"
+  },
+  "popupCopyBtnTitle": {
+    "message": "نسخ Markdown إلى الحافظة (Alt+Shift+C)",
+    "description": "Copy MD button tooltip"
+  },
+  "popupCopyHtmlBtnTitle": {
+    "message": "نسخ ملف HTML مستقل إلى الحافظة (Alt+Shift+H)",
+    "description": "Copy HTML button tooltip"
+  },
+  "popupZipBtnTitle": {
+    "message": "تصدير ZIP يتضمن chat.md وملفات الأكواد المستخرجة (Alt+Shift+Z)",
+    "description": "ZIP button tooltip"
+  },
+  "popupGistBtnTitle": {
+    "message": "رفع Markdown إلى GitHub Gist",
+    "description": "Gist button tooltip"
+  },
+  "popupAllBtnTitle": {
+    "message": "تصدير MD وDOCX وZIP في آن واحد",
+    "description": "Export All button tooltip"
+  },
+  "popupBtnMd": {
+    "message": "MD"
+  },
+  "popupBtnPdf": {
+    "message": "PDF"
+  },
+  "popupBtnHtml": {
+    "message": "HTML"
+  },
+  "popupBtnJson": {
+    "message": "JSON"
+  },
+  "popupBtnDocx": {
+    "message": "DOCX"
+  },
+  "popupBtnCopyMd": {
+    "message": "نسخ MD"
+  },
+  "popupBtnCopyHtml": {
+    "message": "نسخ HTML"
+  },
+  "popupBtnZip": {
+    "message": "ZIP"
+  },
+  "popupBtnGist": {
+    "message": "Gist ↑"
+  },
+  "popupBtnExportAll": {
+    "message": "⬇ تصدير الكل (MD + DOCX + ZIP)"
+  },
+  "popupIncrementalBtnTitle": {
+    "message": "تصدير الرسائل المضافة منذ آخر تصدير فقط",
+    "description": "Export new only button tooltip"
+  },
+  "popupBtnExportNewOnly": {
+    "message": "تصدير الجديد فقط"
+  },
+  "popupTitleInputPlaceholder": {
+    "message": "عنوان المحادثة…"
+  },
+  "popupNotesPlaceholder": {
+    "message": "أضف ملاحظات شخصية — تُضاف كاقتباس في بداية الملف المصدَّر…"
+  },
+  "popupNotesToggleAdd": {
+    "message": "+ إضافة ملاحظات"
+  },
+  "popupNotesToggleHide": {
+    "message": "− إخفاء الملاحظات"
+  },
+  "popupSelectToggleOpen": {
+    "message": "☑ تحديد الرسائل"
+  },
+  "popupSelectToggleClose": {
+    "message": "✕ إغلاق أداة التحديد"
+  },
+  "popupSelectAll": {
+    "message": "الكل"
+  },
+  "popupSelectNone": {
+    "message": "لا شيء"
+  },
+  "popupSelectUserOnly": {
+    "message": "المستخدم فقط"
+  },
+  "popupSelectAIOnly": {
+    "message": "الذكاء الاصطناعي فقط"
+  },
+  "popupHistoryBtn": {
+    "message": "⏱ السجل"
+  },
+  "popupSettingsBtn": {
+    "message": "⚙ الإعدادات"
+  },
+  "popupStatusExtracting": {
+    "message": "جارٍ الاستخراج…"
+  },
+  "popupStatusExtractingMessages": {
+    "message": "جارٍ استخراج الرسائل…"
+  },
+  "popupStatusLoadingOlder": {
+    "message": "جارٍ تحميل الرسائل الأقدم…"
+  },
+  "popupStatusAiStillGenerating": {
+    "message": "الذكاء الاصطناعي ما زال يكتب الرد — قم بالتصدير بعد انتهائه"
+  },
+  "popupStatusSavedCheckDownloads": {
+    "message": "✓ تم الحفظ — تحقق من مجلد التنزيلات"
+  },
+  "popupStatusMarkdownCopied": {
+    "message": "✓ تم نسخ Markdown إلى الحافظة"
+  },
+  "popupStatusHtmlCopied": {
+    "message": "✓ تم نسخ HTML — الصقه في أي محرر"
+  },
+  "popupStatusZipSaved": {
+    "message": "✓ تم حفظ ZIP — chat.md",
+    "description": "Prefix; extra code-file count is appended in JS"
+  },
+  "popupCodeFileOne": {
+    "message": " + ملف كود واحد ($1)",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeFileOther": {
+    "message": " + $1 ملفات كود",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupStatusExportAllSaved": {
+    "message": "✓ تم حفظ MD وDOCX وZIP"
+  },
+  "popupStatusGistTokenMissing": {
+    "message": "أضف رمز GitHub في الإعدادات أولًا."
+  },
+  "popupStatusGistUploading": {
+    "message": "جارٍ الرفع إلى GitHub Gist…"
+  },
+  "popupStatusGistCreated": {
+    "message": "✓ تم إنشاء Gist"
+  },
+  "popupStatusGistUploadFailed": {
+    "message": "فشل رفع Gist"
+  },
+  "popupStatusNotSupportedPage": {
+    "message": "هذه ليست صفحة محادثة ذكاء اصطناعي مدعومة. افتح Inkpour على ChatGPT أو Claude أو Gemini أو بحث Google أو أي منصة أخرى مدعومة."
+  },
+  "popupStatusRefreshTab": {
+    "message": "أعد تحميل تبويب المحادثة ثم حاول مجددًا. (سكربت المحتوى لا يعمل — كان التبويب مفتوحًا قبل تحميل الإضافة.)"
+  },
+  "popupStatusNoResponse": {
+    "message": "لا استجابة من الصفحة. حاول إعادة تحميل التبويب."
+  },
+  "popupStatusNoMessagesFound": {
+    "message": "لم يتم العثور على أي رسائل."
+  },
+  "popupStatusCannotAccessTab": {
+    "message": "تعذّر الوصول إلى التبويب الحالي."
+  },
+  "popupStatusNoNewMessages": {
+    "message": "لا توجد رسائل جديدة للتصدير."
+  },
+  "popupMsgCountOne": {
+    "message": "جاهز · $COUNT$ رسالة واحدة$ROLES$ · ~$WORDS$ كلمة · ~$READMIN$ دقيقة قراءة$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupMsgCountOther": {
+    "message": "جاهز · $COUNT$ رسائل$ROLES$ · ~$WORDS$ كلمة · ~$READMIN$ دقيقة قراءة$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupCodeBlockOne": {
+    "message": " · $1 كتلة كود واحدة",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeBlockOther": {
+    "message": " · $1 كتل كود",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupLastExport": {
+    "message": "آخر تصدير: $PLATFORM$ · $COUNT$ رسالة$FORMAT$ · $WHEN$",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      },
+      "when": {
+        "content": "$4"
+      }
+    }
+  },
+  "popupLastExportJustNow": {
+    "message": "آخر تصدير: $PLATFORM$ · $COUNT$ رسالة · $FORMAT$ · الآن",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupNewMessageOne": {
+    "message": "+$COUNT$ رسالة جديدة منذ التصدير $WHEN$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupNewMessageOther": {
+    "message": "+$COUNT$ رسائل جديدة منذ التصدير $WHEN$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOne": {
+    "message": "$COUNT$ رسالة واحدة جديدة منذ آخر تصدير ($WHEN$) — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOther": {
+    "message": "$COUNT$ رسائل جديدة منذ آخر تصدير ($WHEN$) — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupSavedNewMessagesOne": {
+    "message": "✓ تم حفظ $COUNT$ رسالة جديدة واحدة — تحقق من مجلد التنزيلات",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupSavedNewMessagesOther": {
+    "message": "✓ تم حفظ $COUNT$ رسائل جديدة — تحقق من مجلد التنزيلات",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeJustNow": {
+    "message": "الآن"
+  },
+  "timeMinutesAgo": {
+    "message": "منذ $1 د",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeHoursAgo": {
+    "message": "منذ $1 س",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeDaysAgo": {
+    "message": "منذ $1 ي",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsHeaderTitle": {
+    "message": "إعدادات Inkpour"
+  },
+  "settingsHeaderSubtitle": {
+    "message": "تُحفظ التفضيلات محليًا في متصفحك"
+  },
+  "settingsBrowserDetecting": {
+    "message": "جارٍ الاكتشاف…"
+  },
+  "settingsBrowserBadge": {
+    "message": "اكتشاف تلقائي"
+  },
+  "settingsBrowserFirefoxName": {
+    "message": "Firefox"
+  },
+  "settingsBrowserFirefoxNote": {
+    "message": "دعم كامل — جميع صيغ التصدير"
+  },
+  "settingsBrowserChromeName": {
+    "message": "Chrome / Brave"
+  },
+  "settingsBrowserChromeNote": {
+    "message": "دعم كامل — جميع صيغ التصدير"
+  },
+  "settingsBrowserEdgeName": {
+    "message": "Microsoft Edge"
+  },
+  "settingsBrowserEdgeNote": {
+    "message": "دعم كامل — جميع صيغ التصدير"
+  },
+  "settingsBrowserSafariName": {
+    "message": "Safari"
+  },
+  "settingsBrowserSafariNote": {
+    "message": "دعم تجريبي — قد يختلف سلوك PDF"
+  },
+  "settingsBrowserUnknownName": {
+    "message": "متصفح غير معروف"
+  },
+  "settingsBrowserUnknownNote": {
+    "message": "قد يعمل — أبلغ عن أي مشكلات إذا حدث خلل"
+  },
+  "settingsSectionExport": {
+    "message": "التصدير"
+  },
+  "settingsSectionIntegrations": {
+    "message": "عمليات التكامل"
+  },
+  "settingsDefaultFormatLabel": {
+    "message": "الصيغة الافتراضية"
+  },
+  "settingsDefaultFormatDesc": {
+    "message": "الزر الذي يحصل على تركيز لوحة المفاتيح أولًا"
+  },
+  "settingsFilenameTemplateLabel": {
+    "message": "قالب اسم الملف"
+  },
+  "settingsFilenameTemplateDesc": {
+    "message": "الرموز: {platform} {title} {date} {time} {url} {words} {msgcount}"
+  },
+  "settingsPdfAutoPrintLabel": {
+    "message": "طباعة تلقائية لملف PDF"
+  },
+  "settingsPdfAutoPrintDesc": {
+    "message": "فتح نافذة الطباعة تلقائيًا بعد تحميل تبويب PDF"
+  },
+  "settingsYamlLabel": {
+    "message": "تضمين ترويسة YAML"
+  },
+  "settingsYamlDesc": {
+    "message": "يضيف العنوان والتاريخ والمنصة والرابط في أعلى ملفات .md"
+  },
+  "settingsTocLabel": {
+    "message": "إنشاء جدول محتويات"
+  },
+  "settingsTocDesc": {
+    "message": "إضافة جدول محتويات قابل للنقر للمحادثات التي تتجاوز 4 رسائل"
+  },
+  "settingsSubfolderLabel": {
+    "message": "مجلد فرعي للتنزيلات"
+  },
+  "settingsSubfolderDesc": {
+    "message": "مسار فرعي اختياري داخل مجلد التنزيلات الافتراضي (مثال: AI Chats)"
+  },
+  "settingsSubfolderPlaceholder": {
+    "message": "مثال: AI Chats"
+  },
+  "settingsObsidianVaultLabel": {
+    "message": "مجلد فرعي لخزنة Obsidian"
+  },
+  "settingsObsidianVaultDesc": {
+    "message": "عند تحديده، تُحفظ عمليات التصدير في هذا المجلد الفرعي داخل التنزيلات — مفيد لخزائن Obsidian. يتجاوز حقل المجلد الفرعي أعلاه."
+  },
+  "settingsObsidianTagsLabel": {
+    "message": "وسوم Obsidian في YAML"
+  },
+  "settingsObsidianTagsDesc": {
+    "message": "يضيف tags: [ai-chat, {platform}] إلى ترويسة الملف (يتطلب تفعيل YAML)"
+  },
+  "settingsGithubTokenLabel": {
+    "message": "رمز GitHub"
+  },
+  "settingsGithubTokenDesc": {
+    "message": "رمز وصول شخصي بصلاحية gist — يفعّل زر \"Upload to Gist\" في النافذة المنبثقة."
+  },
+  "settingsGithubTokenLink": {
+    "message": "أنشئ رمزًا ←"
+  },
+  "settingsGistVisibilityLabel": {
+    "message": "رؤية Gist"
+  },
+  "settingsGistVisibilityDesc": {
+    "message": "ملفات Gist السرية غير مدرجة (يمكن لأي شخص لديه الرابط الاطلاع عليها)"
+  },
+  "settingsGistSecretOption": {
+    "message": "سري (غير مدرج)"
+  },
+  "settingsGistPublicOption": {
+    "message": "عام"
+  },
+  "settingsGistTagsLabel": {
+    "message": "وسوم Gist"
+  },
+  "settingsGistTagsDesc": {
+    "message": "وسوم إضافية تُضاف إلى ترويسة YAML لكل عملية تصدير إلى Gist، مفصولة بفواصل. يمكنك البحث لاحقًا في ملفات Gist الخاصة بك على GitHub باستخدام user:you \"tag\". يتم دائمًا تضمين الوسم ai-chat واسم المنصة تلقائيًا."
+  },
+  "settingsGistTagsPlaceholder": {
+    "message": "work, project-x, research"
+  },
+  "settingsScrubLabel": {
+    "message": "تنقية الأسرار قبل الرفع"
+  },
+  "settingsScrubDesc": {
+    "message": "حجب مفاتيح API والرموز والبريد الإلكتروني المحتملة قبل الرفع إلى Gist أو webhook"
+  },
+  "settingsWebhookUrlLabel": {
+    "message": "رابط Webhook"
+  },
+  "settingsWebhookUrlDesc": {
+    "message": "بعد كل عملية تصدير، يرسل Inkpour طلب POST إلى هذا الرابط يحتوي على بيانات التصدير الوصفية (العنوان، المنصة، الصيغة، عدد الكلمات). يعمل مع n8n وZapier وMake.com أو أي نقطة نهاية HTTP."
+  },
+  "settingsWebhookContentLabel": {
+    "message": "تضمين المحتوى في الـ webhook"
+  },
+  "settingsWebhookContentDesc": {
+    "message": "إرسال النص الكامل المصدَّر ضمن حمولة الـ webhook (يزيد حجم الحمولة بشكل كبير للمحادثات الطويلة)"
+  },
+  "settingsSaveBtn": {
+    "message": "حفظ"
+  },
+  "settingsSavedStatus": {
+    "message": "✓ تم الحفظ"
+  },
+  "historyHeaderTitle": {
+    "message": "سجل التصدير"
+  },
+  "historyHeaderSubtitle": {
+    "message": "آخر 20 عملية تصدير — تُخزَّن محليًا ولا تُرفع أبدًا"
+  },
+  "historySearchPlaceholder": {
+    "message": "ابحث في العنوان أو المنصة أو محتوى المحادثة…"
+  },
+  "historyClearRecent": {
+    "message": "مسح الأخيرة"
+  },
+  "historyClearAll": {
+    "message": "مسح الكل"
+  },
+  "historyClearStarred": {
+    "message": "مسح ★"
+  },
+  "historyClearRecentTitle": {
+    "message": "مسح السجل الأخير (يتم الاحتفاظ بالعناصر المميزة بنجمة)"
+  },
+  "historyClearAllTitle": {
+    "message": "مسح كامل سجل التصدير"
+  },
+  "historyEmptyTitle": {
+    "message": "📭"
+  },
+  "historyEmptyBody": {
+    "message": "لا توجد عمليات تصدير بعد. صدّر محادثة من النافذة المنبثقة لتظهر هنا."
+  },
+  "historyBackLink": {
+    "message": "← العودة إلى النافذة المنبثقة"
+  },
+  "historyStorageNote": {
+    "message": "يُخزَّن المحتوى في تخزين إضافة المتصفح"
+  },
+  "historyStatExports": {
+    "message": "عمليات التصدير"
+  },
+  "historyStatWords": {
+    "message": "إجمالي الكلمات"
+  },
+  "historyStatPlatform": {
+    "message": "المنصة الأكثر استخدامًا"
+  },
+  "historyStatFormat": {
+    "message": "الصيغة الأكثر استخدامًا"
+  },
+  "historySectionStarred": {
+    "message": "★ المميزة بنجمة"
+  },
+  "historySectionRecent": {
+    "message": "الأخيرة"
+  },
+  "historyStarPin": {
+    "message": "تمييز بنجمة"
+  },
+  "historyStarUnpin": {
+    "message": "إزالة التمييز بنجمة"
+  },
+  "historyActionSave": {
+    "message": "↓ حفظ"
+  },
+  "historyActionCopy": {
+    "message": "⎘ نسخ"
+  },
+  "historyActionCopied": {
+    "message": "✓ تم النسخ"
+  },
+  "historyActionGist": {
+    "message": "↗ Gist"
+  },
+  "historyNoExportsYet": {
+    "message": "لا توجد عمليات تصدير بعد"
+  },
+  "historyMatchCountOne": {
+    "message": "$1 من $2 مطابقة",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyMatchCountOther": {
+    "message": "$1 من $2 مطابقة",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyFilteredCount": {
+    "message": "$1 من $2 عمليات تصدير",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyExportCountOne": {
+    "message": "$1 عملية تصدير واحدة",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyExportCountOther": {
+    "message": "$1 عمليات تصدير",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyLifetimeStatsOne": {
+    "message": "الإجمالي: $1 عملية تصدير واحدة$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyLifetimeStatsOther": {
+    "message": "الإجمالي: $1 عمليات تصدير$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyConfirmClearRecent": {
+    "message": "هل تريد مسح السجل الأخير؟ سيتم الاحتفاظ بالعناصر المميزة بنجمة."
+  },
+  "historyConfirmClearAll": {
+    "message": "هل تريد مسح كامل سجل التصدير؟ لا يمكن التراجع عن هذا الإجراء."
+  },
+  "historyConfirmClearStarred": {
+    "message": "هل تريد إزالة جميع العناصر المميزة بنجمة؟ لا يمكن التراجع عن هذا الإجراء."
+  },
+  "printLoading": {
+    "message": "جارٍ تحميل المحادثة…"
+  },
+  "printNoContent": {
+    "message": "Inkpour: لم يُعثر على محتوى. حاول التصدير مرة أخرى."
+  },
+  "printGenericErrorPrefix": {
+    "message": "خطأ في Inkpour:"
+  },
+  "contentFabTitle": {
+    "message": "Inkpour — تصدير هذه المحادثة"
+  },
+  "contentToastRedactedOne": {
+    "message": "تم حجب $1 عنصر واحد ($2) قبل الرفع.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastRedactedOther": {
+    "message": "تم حجب $1 عناصر ($2) قبل الرفع.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastGistFailedNetwork": {
+    "message": "✗ فشل رفع Gist (خطأ في الشبكة)"
+  },
+  "contentToastGistFailed": {
+    "message": "✗ فشل رفع Gist: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentToastGistCreated": {
+    "message": "✓ تم إنشاء Gist"
+  },
+  "popupSelectCount": {
+    "message": "$1 من $2 محدد",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupPlatformDetected": {
+    "message": "✓ $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupPlatformCount": {
+    "message": "$1 منصة مدعومة",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentMenuExportMd": {
+    "message": "تصدير MD"
+  },
+  "contentMenuCopyMd": {
+    "message": "نسخ MD"
+  },
+  "contentMenuExportHtml": {
+    "message": "تصدير HTML"
+  },
+  "contentMenuExportDocx": {
+    "message": "تصدير DOCX"
+  },
+  "contentMenuExportPdf": {
+    "message": "تصدير PDF"
+  },
+  "contentMenuExportZip": {
+    "message": "تصدير ZIP"
+  },
+  "contentStatusSaved": {
+    "message": "✓ تم الحفظ!"
+  },
+  "contentStatusCopied": {
+    "message": "✓ تم النسخ!"
+  },
+  "contentStatusExporting": {
+    "message": "جارٍ التصدير…"
+  },
+  "contentStatusExportStarted": {
+    "message": "✓ بدأ تصدير $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentStatusExportFailed": {
+    "message": "فشل التصدير"
+  },
+  "contentNoMessagesFound": {
+    "message": "لم يتم العثور على أي رسائل"
+  },
+  "settingsPageTitle": {
+    "message": "Inkpour — الإعدادات"
+  },
+  "settingsFormatOptionMd": {
+    "message": "Markdown ‏(.md)"
+  },
+  "settingsFormatOptionPdf": {
+    "message": "PDF"
+  },
+  "settingsFormatOptionHtml": {
+    "message": "HTML"
+  },
+  "settingsFormatOptionJson": {
+    "message": "JSON"
+  },
+  "settingsFormatOptionZip": {
+    "message": "ZIP (المحادثة + ملفات الأكواد)"
+  }
+}

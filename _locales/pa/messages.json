@@ -1,0 +1,832 @@
+{
+  "extName": {
+    "message": "Inkpour"
+  },
+  "extDescription": {
+    "message": "AI ਚੈਟ ਗੱਲਬਾਤ (ChatGPT, Claude, Gemini, Copilot, ਅਤੇ ਹੋਰ) ਨੂੰ Markdown, PDF, HTML, DOCX ਜਾਂ ZIP ਵਿੱਚ ਐਕਸਪੋਰਟ ਕਰੋ।"
+  },
+  "cmdExportMarkdown": {
+    "message": "ਮੌਜੂਦਾ ਚੈਟ ਨੂੰ Markdown ਵਿੱਚ ਐਕਸਪੋਰਟ ਕਰੋ"
+  },
+  "cmdCopyMarkdown": {
+    "message": "ਮੌਜੂਦਾ ਚੈਟ ਨੂੰ Markdown ਵਜੋਂ ਕਲਿੱਪਬੋਰਡ 'ਤੇ ਕਾਪੀ ਕਰੋ"
+  },
+  "cmdExportPdf": {
+    "message": "ਮੌਜੂਦਾ ਚੈਟ ਨੂੰ PDF ਵਿੱਚ ਐਕਸਪੋਰਟ ਕਰੋ"
+  },
+  "cmdUploadGist": {
+    "message": "ਮੌਜੂਦਾ ਚੈਟ ਨੂੰ GitHub Gist 'ਤੇ ਅੱਪਲੋਡ ਕਰੋ"
+  },
+  "cmdCopyHtml": {
+    "message": "ਮੌਜੂਦਾ ਚੈਟ ਨੂੰ ਸਟੈਂਡਅਲੋਨ HTML ਵਜੋਂ ਕਲਿੱਪਬੋਰਡ 'ਤੇ ਕਾਪੀ ਕਰੋ"
+  },
+  "cmdExportJson": {
+    "message": "ਮੌਜੂਦਾ ਚੈਟ ਨੂੰ JSON ਵਿੱਚ ਐਕਸਪੋਰਟ ਕਰੋ"
+  },
+  "cmdExportZip": {
+    "message": "ਮੌਜੂਦਾ ਚੈਟ ਨੂੰ ZIP ਵਜੋਂ ਐਕਸਪੋਰਟ ਕਰੋ (chat.md + ਕੋਡ ਫਾਈਲਾਂ)"
+  },
+  "cmdExportDocx": {
+    "message": "ਮੌਜੂਦਾ ਚੈਟ ਨੂੰ Word ਦਸਤਾਵੇਜ਼ (.docx) ਵਿੱਚ ਐਕਸਪੋਰਟ ਕਰੋ"
+  },
+  "popupTagline": {
+    "message": "AI ਚੈਟਾਂ ਐਕਸਪੋਰਟ ਕਰੋ · MD, PDF, HTML, JSON, ZIP"
+  },
+  "popupSettingsTitle": {
+    "message": "ਸੈਟਿੰਗਸ"
+  },
+  "popupExportAsLabel": {
+    "message": "ਇਸ ਤਰ੍ਹਾਂ ਐਕਸਪੋਰਟ ਕਰੋ"
+  },
+  "popupMdBtnTitle": {
+    "message": "Markdown ਵਿੱਚ ਐਕਸਪੋਰਟ ਕਰੋ (Alt+Shift+M)"
+  },
+  "popupPdfBtnTitle": {
+    "message": "PDF ਵਿੱਚ ਐਕਸਪੋਰਟ ਕਰੋ"
+  },
+  "popupHtmlBtnTitle": {
+    "message": "HTML ਵਿੱਚ ਐਕਸਪੋਰਟ ਕਰੋ"
+  },
+  "popupJsonBtnTitle": {
+    "message": "JSON ਵਿੱਚ ਐਕਸਪੋਰਟ ਕਰੋ (Alt+Shift+J)"
+  },
+  "popupDocxBtnTitle": {
+    "message": "Word ਦਸਤਾਵੇਜ਼ (.docx) ਵਿੱਚ ਐਕਸਪੋਰਟ ਕਰੋ"
+  },
+  "popupCopyBtnTitle": {
+    "message": "Markdown ਕਲਿੱਪਬੋਰਡ 'ਤੇ ਕਾਪੀ ਕਰੋ (Alt+Shift+C)"
+  },
+  "popupCopyHtmlBtnTitle": {
+    "message": "ਸਟੈਂਡਅਲੋਨ HTML ਕਲਿੱਪਬੋਰਡ 'ਤੇ ਕਾਪੀ ਕਰੋ (Alt+Shift+H)"
+  },
+  "popupZipBtnTitle": {
+    "message": "chat.md + ਕੱਢੀਆਂ ਗਈਆਂ ਕੋਡ ਫਾਈਲਾਂ ਨਾਲ ZIP ਐਕਸਪੋਰਟ ਕਰੋ (Alt+Shift+Z)"
+  },
+  "popupGistBtnTitle": {
+    "message": "Markdown ਨੂੰ GitHub Gist 'ਤੇ ਅੱਪਲੋਡ ਕਰੋ"
+  },
+  "popupAllBtnTitle": {
+    "message": "MD + DOCX + ZIP ਇੱਕੋ ਵਾਰ ਐਕਸਪੋਰਟ ਕਰੋ"
+  },
+  "popupBtnMd": {
+    "message": "MD"
+  },
+  "popupBtnPdf": {
+    "message": "PDF"
+  },
+  "popupBtnHtml": {
+    "message": "HTML"
+  },
+  "popupBtnJson": {
+    "message": "JSON"
+  },
+  "popupBtnDocx": {
+    "message": "DOCX"
+  },
+  "popupBtnCopyMd": {
+    "message": "MD ਕਾਪੀ ਕਰੋ"
+  },
+  "popupBtnCopyHtml": {
+    "message": "HTML ਕਾਪੀ ਕਰੋ"
+  },
+  "popupBtnZip": {
+    "message": "ZIP"
+  },
+  "popupBtnGist": {
+    "message": "Gist ↑"
+  },
+  "popupBtnExportAll": {
+    "message": "⬇ ਸਭ ਐਕਸਪੋਰਟ ਕਰੋ (MD + DOCX + ZIP)"
+  },
+  "popupIncrementalBtnTitle": {
+    "message": "ਸਿਰਫ਼ ਪਿਛਲੀ ਐਕਸਪੋਰਟ ਤੋਂ ਬਾਅਦ ਜੋੜੇ ਗਏ ਸੁਨੇਹੇ ਐਕਸਪੋਰਟ ਕਰੋ"
+  },
+  "popupBtnExportNewOnly": {
+    "message": "ਸਿਰਫ਼ ਨਵੇਂ ਐਕਸਪੋਰਟ ਕਰੋ"
+  },
+  "popupTitleInputPlaceholder": {
+    "message": "ਚੈਟ ਸਿਰਲੇਖ…"
+  },
+  "popupNotesPlaceholder": {
+    "message": "ਨਿੱਜੀ ਨੋਟਸ ਜੋੜੋ — ਐਕਸਪੋਰਟ ਵਿੱਚ ਬਲਾਕਕੋਟ ਵਜੋਂ ਸ਼ੁਰੂ ਵਿੱਚ ਜੋੜੇ ਜਾਣਗੇ…"
+  },
+  "popupNotesToggleAdd": {
+    "message": "+ ਨੋਟਸ ਜੋੜੋ"
+  },
+  "popupNotesToggleHide": {
+    "message": "− ਨੋਟਸ ਲੁਕਾਓ"
+  },
+  "popupSelectToggleOpen": {
+    "message": "☑ ਸੁਨੇਹੇ ਚੁਣੋ"
+  },
+  "popupSelectToggleClose": {
+    "message": "✕ ਚੋਣਕਾਰ ਬੰਦ ਕਰੋ"
+  },
+  "popupSelectAll": {
+    "message": "ਸਾਰੇ"
+  },
+  "popupSelectNone": {
+    "message": "ਕੋਈ ਨਹੀਂ"
+  },
+  "popupSelectUserOnly": {
+    "message": "ਸਿਰਫ਼ ਯੂਜ਼ਰ"
+  },
+  "popupSelectAIOnly": {
+    "message": "ਸਿਰਫ਼ AI"
+  },
+  "popupHistoryBtn": {
+    "message": "⏱ ਇਤਿਹਾਸ"
+  },
+  "popupSettingsBtn": {
+    "message": "⚙ ਸੈਟਿੰਗਸ"
+  },
+  "popupStatusExtracting": {
+    "message": "ਕੱਢਿਆ ਜਾ ਰਿਹਾ ਹੈ…"
+  },
+  "popupStatusExtractingMessages": {
+    "message": "ਸੁਨੇਹੇ ਕੱਢੇ ਜਾ ਰਹੇ ਹਨ…"
+  },
+  "popupStatusLoadingOlder": {
+    "message": "ਪੁਰਾਣੇ ਸੁਨੇਹੇ ਲੋਡ ਹੋ ਰਹੇ ਹਨ…"
+  },
+  "popupStatusAiStillGenerating": {
+    "message": "AI ਹਾਲੇ ਵੀ ਜਵਾਬ ਤਿਆਰ ਕਰ ਰਿਹਾ ਹੈ — ਖ਼ਤਮ ਹੋਣ ਤੋਂ ਬਾਅਦ ਐਕਸਪੋਰਟ ਕਰੋ"
+  },
+  "popupStatusSavedCheckDownloads": {
+    "message": "✓ ਸੇਵ ਹੋ ਗਿਆ — ਆਪਣਾ Downloads ਫੋਲਡਰ ਦੇਖੋ"
+  },
+  "popupStatusMarkdownCopied": {
+    "message": "✓ Markdown ਕਲਿੱਪਬੋਰਡ 'ਤੇ ਕਾਪੀ ਹੋ ਗਿਆ"
+  },
+  "popupStatusHtmlCopied": {
+    "message": "✓ HTML ਕਾਪੀ ਹੋ ਗਿਆ — ਕਿਸੇ ਵੀ ਐਡੀਟਰ ਵਿੱਚ ਪੇਸਟ ਕਰੋ"
+  },
+  "popupStatusZipSaved": {
+    "message": "✓ ZIP ਸੇਵ ਹੋ ਗਿਆ — chat.md"
+  },
+  "popupCodeFileOne": {
+    "message": " + $1 ਕੋਡ ਫਾਈਲ",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeFileOther": {
+    "message": " + $1 ਕੋਡ ਫਾਈਲਾਂ",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupStatusExportAllSaved": {
+    "message": "✓ MD + DOCX + ZIP ਸੇਵ ਹੋ ਗਿਆ"
+  },
+  "popupStatusGistTokenMissing": {
+    "message": "ਪਹਿਲਾਂ ਸੈਟਿੰਗਸ ਵਿੱਚ ਇੱਕ GitHub ਟੋਕਨ ਜੋੜੋ।"
+  },
+  "popupStatusGistUploading": {
+    "message": "GitHub Gist 'ਤੇ ਅੱਪਲੋਡ ਹੋ ਰਿਹਾ ਹੈ…"
+  },
+  "popupStatusGistCreated": {
+    "message": "✓ Gist ਬਣ ਗਿਆ"
+  },
+  "popupStatusGistUploadFailed": {
+    "message": "Gist ਅੱਪਲੋਡ ਅਸਫਲ ਹੋਇਆ"
+  },
+  "popupStatusNotSupportedPage": {
+    "message": "ਇਹ ਸਮਰਥਿਤ AI ਚੈਟ ਪੇਜ ਨਹੀਂ ਹੈ। Inkpour ਨੂੰ ChatGPT, Claude, Gemini, Google Search, ਜਾਂ ਕਿਸੇ ਹੋਰ ਸਮਰਥਿਤ ਪਲੇਟਫਾਰਮ 'ਤੇ ਖੋਲ੍ਹੋ।"
+  },
+  "popupStatusRefreshTab": {
+    "message": "ਚੈਟ ਟੈਬ ਨੂੰ ਰਿਫ੍ਰੈਸ਼ ਕਰੋ, ਫਿਰ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ। (ਕੰਟੈਂਟ ਸਕ੍ਰਿਪਟ ਨਹੀਂ ਚੱਲ ਰਹੀ — ਟੈਬ ਐਕਸਟੈਂਸ਼ਨ ਲੋਡ ਹੋਣ ਤੋਂ ਪਹਿਲਾਂ ਹੀ ਖੁੱਲ੍ਹੀ ਸੀ।)"
+  },
+  "popupStatusNoResponse": {
+    "message": "ਪੇਜ ਤੋਂ ਕੋਈ ਜਵਾਬ ਨਹੀਂ। ਟੈਬ ਰਿਫ੍ਰੈਸ਼ ਕਰਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।"
+  },
+  "popupStatusNoMessagesFound": {
+    "message": "ਕੋਈ ਸੁਨੇਹਾ ਨਹੀਂ ਮਿਲਿਆ।"
+  },
+  "popupStatusCannotAccessTab": {
+    "message": "ਮੌਜੂਦਾ ਟੈਬ ਤੱਕ ਪਹੁੰਚ ਨਹੀਂ ਹੋ ਸਕੀ।"
+  },
+  "popupStatusNoNewMessages": {
+    "message": "ਐਕਸਪੋਰਟ ਕਰਨ ਲਈ ਕੋਈ ਨਵਾਂ ਸੁਨੇਹਾ ਨਹੀਂ।"
+  },
+  "popupMsgCountOne": {
+    "message": "ਤਿਆਰ · $COUNT$ ਸੁਨੇਹਾ$ROLES$ · ~$WORDS$ ਸ਼ਬਦ · ~$READMIN$ ਮਿੰਟ ਪੜ੍ਹਨ ਲਈ$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupMsgCountOther": {
+    "message": "ਤਿਆਰ · $COUNT$ ਸੁਨੇਹੇ$ROLES$ · ~$WORDS$ ਸ਼ਬਦ · ~$READMIN$ ਮਿੰਟ ਪੜ੍ਹਨ ਲਈ$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupCodeBlockOne": {
+    "message": " · $1 ਕੋਡ ਬਲਾਕ",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeBlockOther": {
+    "message": " · $1 ਕੋਡ ਬਲਾਕ",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupLastExport": {
+    "message": "ਆਖਰੀ: $PLATFORM$ · $COUNT$ ਸੁਨੇਹੇ$FORMAT$ · $WHEN$",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      },
+      "when": {
+        "content": "$4"
+      }
+    }
+  },
+  "popupLastExportJustNow": {
+    "message": "ਆਖਰੀ: $PLATFORM$ · $COUNT$ ਸੁਨੇਹੇ · $FORMAT$ · ਹੁਣੇ",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupNewMessageOne": {
+    "message": "+$COUNT$ ਨਵਾਂ ਸੁਨੇਹਾ $WHEN$ ਐਕਸਪੋਰਟ ਕੀਤੇ ਜਾਣ ਤੋਂ ਬਾਅਦ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupNewMessageOther": {
+    "message": "+$COUNT$ ਨਵੇਂ ਸੁਨੇਹੇ $WHEN$ ਐਕਸਪੋਰਟ ਕੀਤੇ ਜਾਣ ਤੋਂ ਬਾਅਦ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOne": {
+    "message": "ਤੁਹਾਡੀ ਪਿਛਲੀ ਐਕਸਪੋਰਟ ($WHEN$) ਤੋਂ ਬਾਅਦ $COUNT$ ਨਵਾਂ ਸੁਨੇਹਾ — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOther": {
+    "message": "ਤੁਹਾਡੀ ਪਿਛਲੀ ਐਕਸਪੋਰਟ ($WHEN$) ਤੋਂ ਬਾਅਦ $COUNT$ ਨਵੇਂ ਸੁਨੇਹੇ — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupSavedNewMessagesOne": {
+    "message": "✓ $COUNT$ ਨਵਾਂ ਸੁਨੇਹਾ ਸੇਵ ਹੋਇਆ — ਆਪਣਾ Downloads ਫੋਲਡਰ ਦੇਖੋ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupSavedNewMessagesOther": {
+    "message": "✓ $COUNT$ ਨਵੇਂ ਸੁਨੇਹੇ ਸੇਵ ਹੋਏ — ਆਪਣਾ Downloads ਫੋਲਡਰ ਦੇਖੋ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeJustNow": {
+    "message": "ਹੁਣੇ"
+  },
+  "timeMinutesAgo": {
+    "message": "$1 ਮਿੰਟ ਪਹਿਲਾਂ",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeHoursAgo": {
+    "message": "$1 ਘੰਟੇ ਪਹਿਲਾਂ",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeDaysAgo": {
+    "message": "$1 ਦਿਨ ਪਹਿਲਾਂ",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsHeaderTitle": {
+    "message": "Inkpour ਸੈਟਿੰਗਸ"
+  },
+  "settingsHeaderSubtitle": {
+    "message": "ਤਰਜੀਹਾਂ ਤੁਹਾਡੇ ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ ਸਥਾਨਕ ਤੌਰ 'ਤੇ ਸੇਵ ਹੁੰਦੀਆਂ ਹਨ"
+  },
+  "settingsBrowserDetecting": {
+    "message": "ਪਤਾ ਲਗਾਇਆ ਜਾ ਰਿਹਾ ਹੈ…"
+  },
+  "settingsBrowserBadge": {
+    "message": "ਆਪਣੇ-ਆਪ ਪਛਾਣਿਆ ਗਿਆ"
+  },
+  "settingsBrowserFirefoxName": {
+    "message": "Firefox"
+  },
+  "settingsBrowserFirefoxNote": {
+    "message": "ਪੂਰਾ ਸਮਰਥਨ — ਸਾਰੇ ਐਕਸਪੋਰਟ ਫਾਰਮੈਟ"
+  },
+  "settingsBrowserChromeName": {
+    "message": "Chrome / Brave"
+  },
+  "settingsBrowserChromeNote": {
+    "message": "ਪੂਰਾ ਸਮਰਥਨ — ਸਾਰੇ ਐਕਸਪੋਰਟ ਫਾਰਮੈਟ"
+  },
+  "settingsBrowserEdgeName": {
+    "message": "Microsoft Edge"
+  },
+  "settingsBrowserEdgeNote": {
+    "message": "ਪੂਰਾ ਸਮਰਥਨ — ਸਾਰੇ ਐਕਸਪੋਰਟ ਫਾਰਮੈਟ"
+  },
+  "settingsBrowserSafariName": {
+    "message": "Safari"
+  },
+  "settingsBrowserSafariNote": {
+    "message": "ਪ੍ਰਯੋਗਾਤਮਕ — PDF ਦਾ ਵਿਹਾਰ ਵੱਖਰਾ ਹੋ ਸਕਦਾ ਹੈ"
+  },
+  "settingsBrowserUnknownName": {
+    "message": "ਅਣਜਾਣ ਬ੍ਰਾਊਜ਼ਰ"
+  },
+  "settingsBrowserUnknownNote": {
+    "message": "ਕੰਮ ਕਰ ਸਕਦਾ ਹੈ — ਕੋਈ ਸਮੱਸਿਆ ਆਵੇ ਤਾਂ ਰਿਪੋਰਟ ਕਰੋ"
+  },
+  "settingsSectionExport": {
+    "message": "ਐਕਸਪੋਰਟ"
+  },
+  "settingsSectionIntegrations": {
+    "message": "ਏਕੀਕਰਨ"
+  },
+  "settingsDefaultFormatLabel": {
+    "message": "ਡਿਫਾਲਟ ਫਾਰਮੈਟ"
+  },
+  "settingsDefaultFormatDesc": {
+    "message": "ਕਿਹੜਾ ਬਟਨ ਪਹਿਲਾਂ ਕੀਬੋਰਡ ਫੋਕਸ ਪ੍ਰਾਪਤ ਕਰਦਾ ਹੈ"
+  },
+  "settingsFilenameTemplateLabel": {
+    "message": "ਫਾਈਲ ਨਾਮ ਟੈਂਪਲੇਟ"
+  },
+  "settingsFilenameTemplateDesc": {
+    "message": "ਟੋਕਨ: {platform} {title} {date} {time} {url} {words} {msgcount}"
+  },
+  "settingsPdfAutoPrintLabel": {
+    "message": "PDF ਆਟੋ-ਪ੍ਰਿੰਟ"
+  },
+  "settingsPdfAutoPrintDesc": {
+    "message": "PDF ਟੈਬ ਲੋਡ ਹੋਣ ਤੋਂ ਬਾਅਦ ਪ੍ਰਿੰਟ ਡਾਇਲੌਗ ਆਪਣੇ-ਆਪ ਖੋਲ੍ਹੋ"
+  },
+  "settingsYamlLabel": {
+    "message": "YAML ਫਰੰਟ ਮੈਟਰ ਸ਼ਾਮਲ ਕਰੋ"
+  },
+  "settingsYamlDesc": {
+    "message": ".md ਫਾਈਲਾਂ ਦੇ ਸਿਖਰ 'ਤੇ ਸਿਰਲੇਖ, ਮਿਤੀ, ਪਲੇਟਫਾਰਮ, URL ਜੋੜਦਾ ਹੈ"
+  },
+  "settingsTocLabel": {
+    "message": "ਵਿਸ਼ਾ-ਸੂਚੀ ਬਣਾਓ"
+  },
+  "settingsTocDesc": {
+    "message": "4 ਤੋਂ ਵੱਧ ਸੁਨੇਹਿਆਂ ਵਾਲੀਆਂ ਚੈਟਾਂ ਲਈ ਸ਼ੁਰੂ ਵਿੱਚ ਕਲਿੱਕ ਕਰਨਯੋਗ TOC ਜੋੜੋ"
+  },
+  "settingsSubfolderLabel": {
+    "message": "Downloads ਸਬ-ਫੋਲਡਰ"
+  },
+  "settingsSubfolderDesc": {
+    "message": "ਤੁਹਾਡੇ ਡਿਫਾਲਟ downloads ਫੋਲਡਰ ਵਿੱਚ ਵਿਕਲਪਿਕ ਸਬ-ਪਾਥ (ਜਿਵੇਂ AI Chats)"
+  },
+  "settingsSubfolderPlaceholder": {
+    "message": "ਜਿਵੇਂ AI Chats"
+  },
+  "settingsObsidianVaultLabel": {
+    "message": "Obsidian ਵਾਲਟ ਸਬ-ਫੋਲਡਰ"
+  },
+  "settingsObsidianVaultDesc": {
+    "message": "ਸੈੱਟ ਕਰਨ 'ਤੇ, ਐਕਸਪੋਰਟ Downloads ਵਿੱਚ ਇਸ ਸਬ-ਫੋਲਡਰ 'ਚ ਜਾਣਗੇ — Obsidian ਵਾਲਟਾਂ ਲਈ ਲਾਭਦਾਇਕ। ਇਹ ਉੱਪਰ ਦਿੱਤੇ ਸਬ-ਫੋਲਡਰ ਖੇਤਰ ਨੂੰ ਓਵਰਰਾਈਡ ਕਰਦਾ ਹੈ।"
+  },
+  "settingsObsidianTagsLabel": {
+    "message": "YAML ਵਿੱਚ Obsidian ਟੈਗ"
+  },
+  "settingsObsidianTagsDesc": {
+    "message": "ਫਰੰਟ ਮੈਟਰ ਵਿੱਚ tags: [ai-chat, {platform}] ਜੋੜਦਾ ਹੈ (YAML ਚਾਲੂ ਹੋਣਾ ਜ਼ਰੂਰੀ ਹੈ)"
+  },
+  "settingsGithubTokenLabel": {
+    "message": "GitHub ਟੋਕਨ"
+  },
+  "settingsGithubTokenDesc": {
+    "message": "gist ਸਕੋਪ ਵਾਲਾ ਨਿੱਜੀ ਐਕਸੈਸ ਟੋਕਨ — ਪੌਪਅੱਪ ਵਿੱਚ \"Upload to Gist\" ਬਟਨ ਚਾਲੂ ਕਰਦਾ ਹੈ।"
+  },
+  "settingsGithubTokenLink": {
+    "message": "ਇੱਕ ਬਣਾਓ →"
+  },
+  "settingsGistVisibilityLabel": {
+    "message": "Gist ਦਿੱਖ"
+  },
+  "settingsGistVisibilityDesc": {
+    "message": "ਸੀਕਰੇਟ Gist ਸੂਚੀਬੱਧ ਨਹੀਂ ਹੁੰਦੇ (ਲਿੰਕ ਵਾਲਾ ਕੋਈ ਵੀ ਦੇਖ ਸਕਦਾ ਹੈ)"
+  },
+  "settingsGistSecretOption": {
+    "message": "ਸੀਕਰੇਟ (ਸੂਚੀਬੱਧ ਨਹੀਂ)"
+  },
+  "settingsGistPublicOption": {
+    "message": "ਜਨਤਕ"
+  },
+  "settingsGistTagsLabel": {
+    "message": "Gist ਟੈਗ"
+  },
+  "settingsGistTagsDesc": {
+    "message": "ਹਰ Gist ਐਕਸਪੋਰਟ ਦੇ YAML ਹੈਡਰ ਵਿੱਚ ਜੋੜੇ ਗਏ ਵਾਧੂ ਟੈਗ, ਕੌਮੇ ਨਾਲ ਵੱਖ ਕੀਤੇ। ਬਾਅਦ ਵਿੱਚ GitHub 'ਤੇ user:you \"tag\" ਨਾਲ ਆਪਣੇ Gist ਲੱਭੋ। ai-chat ਟੈਗ ਅਤੇ ਪਲੇਟਫਾਰਮ ਨਾਮ ਹਮੇਸ਼ਾ ਆਪਣੇ-ਆਪ ਸ਼ਾਮਲ ਹੁੰਦੇ ਹਨ।"
+  },
+  "settingsGistTagsPlaceholder": {
+    "message": "work, project-x, research"
+  },
+  "settingsScrubLabel": {
+    "message": "ਅੱਪਲੋਡ ਤੋਂ ਪਹਿਲਾਂ ਗੁਪਤ ਜਾਣਕਾਰੀ ਹਟਾਓ"
+  },
+  "settingsScrubDesc": {
+    "message": "Gist/webhook ਅੱਪਲੋਡ ਤੋਂ ਪਹਿਲਾਂ ਸੰਭਾਵਿਤ API ਕੁੰਜੀਆਂ, ਟੋਕਨ ਅਤੇ ਈਮੇਲ ਲੁਕਾਓ"
+  },
+  "settingsWebhookUrlLabel": {
+    "message": "Webhook URL"
+  },
+  "settingsWebhookUrlDesc": {
+    "message": "ਹਰ ਐਕਸਪੋਰਟ ਤੋਂ ਬਾਅਦ, Inkpour ਇੱਥੇ ਐਕਸਪੋਰਟ ਮੈਟਾਡਾਟਾ (ਸਿਰਲੇਖ, ਪਲੇਟਫਾਰਮ, ਫਾਰਮੈਟ, ਸ਼ਬਦ ਗਿਣਤੀ) ਨਾਲ ਇੱਕ POST ਬੇਨਤੀ ਭੇਜਦਾ ਹੈ। n8n, Zapier, Make.com, ਜਾਂ ਕਿਸੇ ਵੀ HTTP ਐਂਡਪੁਆਇੰਟ ਨਾਲ ਕੰਮ ਕਰਦਾ ਹੈ।"
+  },
+  "settingsWebhookContentLabel": {
+    "message": "Webhook ਵਿੱਚ ਸਮੱਗਰੀ ਸ਼ਾਮਲ ਕਰੋ"
+  },
+  "settingsWebhookContentDesc": {
+    "message": "Webhook ਪੇਲੋਡ ਵਿੱਚ ਪੂਰਾ ਐਕਸਪੋਰਟ ਕੀਤਾ ਟੈਕਸਟ ਭੇਜੋ (ਲੰਬੀਆਂ ਚੈਟਾਂ ਲਈ ਪੇਲੋਡ ਦਾ ਆਕਾਰ ਕਾਫ਼ੀ ਵਧਾਉਂਦਾ ਹੈ)"
+  },
+  "settingsSaveBtn": {
+    "message": "ਸੇਵ ਕਰੋ"
+  },
+  "settingsSavedStatus": {
+    "message": "✓ ਸੇਵ ਹੋ ਗਿਆ"
+  },
+  "historyHeaderTitle": {
+    "message": "ਐਕਸਪੋਰਟ ਇਤਿਹਾਸ"
+  },
+  "historyHeaderSubtitle": {
+    "message": "ਆਖਰੀ 20 ਐਕਸਪੋਰਟ — ਸਥਾਨਕ ਤੌਰ 'ਤੇ ਸਟੋਰ ਕੀਤੇ, ਕਦੇ ਅੱਪਲੋਡ ਨਹੀਂ ਹੁੰਦੇ"
+  },
+  "historySearchPlaceholder": {
+    "message": "ਸਿਰਲੇਖ, ਪਲੇਟਫਾਰਮ, ਜਾਂ ਗੱਲਬਾਤ ਸਮੱਗਰੀ ਖੋਜੋ…"
+  },
+  "historyClearRecent": {
+    "message": "ਹਾਲੀਆ ਸਾਫ਼ ਕਰੋ"
+  },
+  "historyClearAll": {
+    "message": "ਸਭ ਸਾਫ਼ ਕਰੋ"
+  },
+  "historyClearStarred": {
+    "message": "★ ਸਾਫ਼ ਕਰੋ"
+  },
+  "historyClearRecentTitle": {
+    "message": "ਹਾਲੀਆ ਇਤਿਹਾਸ ਸਾਫ਼ ਕਰੋ (ਸਟਾਰਡ ਐਕਸਪੋਰਟ ਰੱਖੇ ਜਾਣਗੇ)"
+  },
+  "historyClearAllTitle": {
+    "message": "ਸਾਰਾ ਐਕਸਪੋਰਟ ਇਤਿਹਾਸ ਸਾਫ਼ ਕਰੋ"
+  },
+  "historyEmptyTitle": {
+    "message": "📭"
+  },
+  "historyEmptyBody": {
+    "message": "ਹਾਲੇ ਤੱਕ ਕੋਈ ਐਕਸਪੋਰਟ ਨਹੀਂ। ਇਸਨੂੰ ਇੱਥੇ ਦੇਖਣ ਲਈ ਪੌਪਅੱਪ ਤੋਂ ਇੱਕ ਚੈਟ ਐਕਸਪੋਰਟ ਕਰੋ।"
+  },
+  "historyBackLink": {
+    "message": "← ਪੌਪਅੱਪ 'ਤੇ ਵਾਪਸ"
+  },
+  "historyStorageNote": {
+    "message": "ਸਮੱਗਰੀ ਬ੍ਰਾਊਜ਼ਰ ਐਕਸਟੈਂਸ਼ਨ ਸਟੋਰੇਜ ਵਿੱਚ ਸਟੋਰ ਕੀਤੀ ਗਈ"
+  },
+  "historyStatExports": {
+    "message": "ਐਕਸਪੋਰਟ"
+  },
+  "historyStatWords": {
+    "message": "ਕੁੱਲ ਸ਼ਬਦ"
+  },
+  "historyStatPlatform": {
+    "message": "ਪ੍ਰਮੁੱਖ ਪਲੇਟਫਾਰਮ"
+  },
+  "historyStatFormat": {
+    "message": "ਪ੍ਰਮੁੱਖ ਫਾਰਮੈਟ"
+  },
+  "historySectionStarred": {
+    "message": "★ ਸਟਾਰਡ"
+  },
+  "historySectionRecent": {
+    "message": "ਹਾਲੀਆ"
+  },
+  "historyStarPin": {
+    "message": "ਸਟਾਰਡ ਵਿੱਚ ਪਿੰਨ ਕਰੋ"
+  },
+  "historyStarUnpin": {
+    "message": "ਸਟਾਰਡ ਤੋਂ ਅਨਪਿੰਨ ਕਰੋ"
+  },
+  "historyActionSave": {
+    "message": "↓ ਸੇਵ ਕਰੋ"
+  },
+  "historyActionCopy": {
+    "message": "⎘ ਕਾਪੀ ਕਰੋ"
+  },
+  "historyActionCopied": {
+    "message": "✓ ਕਾਪੀ ਹੋ ਗਿਆ"
+  },
+  "historyActionGist": {
+    "message": "↗ Gist"
+  },
+  "historyNoExportsYet": {
+    "message": "ਹਾਲੇ ਤੱਕ ਕੋਈ ਐਕਸਪੋਰਟ ਨਹੀਂ"
+  },
+  "historyMatchCountOne": {
+    "message": "$2 ਵਿੱਚੋਂ $1 ਮੇਲ ਖਾਂਦਾ ਹੈ",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyMatchCountOther": {
+    "message": "$2 ਵਿੱਚੋਂ $1 ਮੇਲ ਖਾਂਦੇ ਹਨ",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyFilteredCount": {
+    "message": "$2 ਵਿੱਚੋਂ $1 ਐਕਸਪੋਰਟ",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyExportCountOne": {
+    "message": "$1 ਐਕਸਪੋਰਟ",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyExportCountOther": {
+    "message": "$1 ਐਕਸਪੋਰਟ",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyLifetimeStatsOne": {
+    "message": "ਹੁਣ ਤੱਕ: $1 ਐਕਸਪੋਰਟ$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyLifetimeStatsOther": {
+    "message": "ਹੁਣ ਤੱਕ: $1 ਐਕਸਪੋਰਟ$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyConfirmClearRecent": {
+    "message": "ਹਾਲੀਆ ਇਤਿਹਾਸ ਸਾਫ਼ ਕਰਨਾ ਹੈ? ਸਟਾਰਡ ਐਕਸਪੋਰਟ ਰੱਖੇ ਜਾਣਗੇ।"
+  },
+  "historyConfirmClearAll": {
+    "message": "ਸਾਰਾ ਐਕਸਪੋਰਟ ਇਤਿਹਾਸ ਸਾਫ਼ ਕਰਨਾ ਹੈ? ਇਹ ਵਾਪਸ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ।"
+  },
+  "historyConfirmClearStarred": {
+    "message": "ਸਾਰੇ ਸਟਾਰਡ ਐਕਸਪੋਰਟ ਹਟਾਉਣੇ ਹਨ? ਇਹ ਵਾਪਸ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ।"
+  },
+  "printLoading": {
+    "message": "ਗੱਲਬਾਤ ਲੋਡ ਹੋ ਰਹੀ ਹੈ…"
+  },
+  "printNoContent": {
+    "message": "Inkpour: ਕੋਈ ਸਮੱਗਰੀ ਨਹੀਂ ਮਿਲੀ। ਦੁਬਾਰਾ ਐਕਸਪੋਰਟ ਕਰਨ ਦੀ ਕੋਸ਼ਿਸ਼ ਕਰੋ।"
+  },
+  "printGenericErrorPrefix": {
+    "message": "Inkpour ਗਲਤੀ:"
+  },
+  "contentFabTitle": {
+    "message": "Inkpour — ਇਹ ਚੈਟ ਐਕਸਪੋਰਟ ਕਰੋ"
+  },
+  "contentToastRedactedOne": {
+    "message": "ਅੱਪਲੋਡ ਤੋਂ ਪਹਿਲਾਂ $1 ਆਈਟਮ ($2) ਲੁਕਾਈ ਗਈ।",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastRedactedOther": {
+    "message": "ਅੱਪਲੋਡ ਤੋਂ ਪਹਿਲਾਂ $1 ਆਈਟਮਾਂ ($2) ਲੁਕਾਈਆਂ ਗਈਆਂ।",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastGistFailedNetwork": {
+    "message": "✗ Gist ਅੱਪਲੋਡ ਅਸਫਲ ਹੋਇਆ (ਨੈੱਟਵਰਕ ਗਲਤੀ)"
+  },
+  "contentToastGistFailed": {
+    "message": "✗ Gist ਅੱਪਲੋਡ ਅਸਫਲ ਹੋਇਆ: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentToastGistCreated": {
+    "message": "✓ Gist ਬਣ ਗਿਆ"
+  },
+  "popupSelectCount": {
+    "message": "$2 ਵਿੱਚੋਂ $1 ਚੁਣਿਆ ਗਿਆ",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupPlatformDetected": {
+    "message": "✓ $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupPlatformCount": {
+    "message": "$1 ਪਲੇਟਫਾਰਮ ਸਮਰਥਿਤ",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentMenuExportMd": {
+    "message": "MD ਐਕਸਪੋਰਟ ਕਰੋ"
+  },
+  "contentMenuCopyMd": {
+    "message": "MD ਕਾਪੀ ਕਰੋ"
+  },
+  "contentMenuExportHtml": {
+    "message": "HTML ਐਕਸਪੋਰਟ ਕਰੋ"
+  },
+  "contentMenuExportDocx": {
+    "message": "DOCX ਐਕਸਪੋਰਟ ਕਰੋ"
+  },
+  "contentMenuExportPdf": {
+    "message": "PDF ਐਕਸਪੋਰਟ ਕਰੋ"
+  },
+  "contentMenuExportZip": {
+    "message": "ZIP ਐਕਸਪੋਰਟ ਕਰੋ"
+  },
+  "contentStatusSaved": {
+    "message": "✓ ਸੇਵ ਹੋ ਗਿਆ!"
+  },
+  "contentStatusCopied": {
+    "message": "✓ ਕਾਪੀ ਹੋ ਗਿਆ!"
+  },
+  "contentStatusExporting": {
+    "message": "ਐਕਸਪੋਰਟ ਹੋ ਰਿਹਾ ਹੈ…"
+  },
+  "contentStatusExportStarted": {
+    "message": "✓ $1 ਐਕਸਪੋਰਟ ਸ਼ੁਰੂ ਹੋਇਆ",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentStatusExportFailed": {
+    "message": "ਐਕਸਪੋਰਟ ਅਸਫਲ ਹੋਇਆ"
+  },
+  "contentNoMessagesFound": {
+    "message": "ਕੋਈ ਸੁਨੇਹਾ ਨਹੀਂ ਮਿਲਿਆ"
+  },
+  "settingsPageTitle": {
+    "message": "Inkpour — ਸੈਟਿੰਗਸ"
+  },
+  "settingsFormatOptionMd": {
+    "message": "Markdown (.md)"
+  },
+  "settingsFormatOptionPdf": {
+    "message": "PDF"
+  },
+  "settingsFormatOptionHtml": {
+    "message": "HTML"
+  },
+  "settingsFormatOptionJson": {
+    "message": "JSON"
+  },
+  "settingsFormatOptionZip": {
+    "message": "ZIP (ਚੈਟ + ਕੋਡ ਫਾਈਲਾਂ)"
+  }
+}

@@ -25,6 +25,27 @@ const FIXTURES_DIR = path.resolve(__dirname, 'fixtures');
 const UTILS_JS = fs.readFileSync(path.resolve(__dirname, '../src/utils.js'), 'utf8');
 vm.runInThisContext(UTILS_JS);
 
+// ─── i18n mock ──────────────────────────────────────────────────────────────
+// content.js calls api.i18n.getMessage(key, substitutions) for the floating
+// button's localized labels/status text. Real browsers always provide
+// chrome.i18n/browser.i18n; mock it here using the actual English catalog so
+// tests exercise the real key set (and fail loudly if a key goes missing).
+const EN_MESSAGES = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, '../_locales/en/messages.json'), 'utf8')
+);
+function mockI18n() {
+  return {
+    getMessage(key, substitutions) {
+      const entry = EN_MESSAGES[key];
+      if (!entry) return '';
+      let msg = entry.message;
+      const subs = Array.isArray(substitutions) ? substitutions : (substitutions != null ? [substitutions] : []);
+      subs.forEach((sub, i) => { msg = msg.split(`$${i + 1}`).join(String(sub)); });
+      return msg;
+    },
+  };
+}
+
 // ─── Mini test framework ────────────────────────────────────────────────────
 
 let passed = 0;
@@ -77,8 +98,8 @@ async function extractFromFixture(fixtureName, hostname = '') {
     onMessage: { addListener: fn => listeners.push(fn) },
     id: 'test-extension-id',
   };
-  window.browser = { runtime: mockRuntime };
-  window.chrome  = { runtime: mockRuntime };
+  window.browser = { runtime: mockRuntime, i18n: mockI18n() };
+  window.chrome  = { runtime: mockRuntime, i18n: mockI18n() };
 
   // Fake hostname so detectSite() routes correctly
   if (hostname) window.__inkpourTestHostname = hostname;
@@ -440,8 +461,8 @@ async function main() {
     window.__inkpourTestHostname = 'perplexity.ai';
     const listeners = [];
     const mockRuntime = { onMessage: { addListener: fn => listeners.push(fn) }, id: 'test' };
-    window.browser = { runtime: mockRuntime };
-    window.chrome  = { runtime: mockRuntime };
+    window.browser = { runtime: mockRuntime, i18n: mockI18n() };
+    window.chrome  = { runtime: mockRuntime, i18n: mockI18n() };
     window.HTMLElement.prototype.scrollTo = function () {};
     window.document.documentElement.scrollTo = function () {};
 
@@ -478,7 +499,7 @@ async function main() {
       dom2.window.__inkpourTestHostname = 'perplexity.ai';
       dom2.window.HTMLElement.prototype.scrollTo = function () {};
       const ls2 = [];
-      dom2.window.browser = { runtime: { onMessage: { addListener: fn => ls2.push(fn) }, id: 't' } };
+      dom2.window.browser = { runtime: { onMessage: { addListener: fn => ls2.push(fn) }, id: 't' }, i18n: mockI18n() };
       dom2.window.chrome  = dom2.window.browser;
       const s2 = dom2.window.document.createElement('script');
       s2.textContent = CONTENT_JS;
@@ -516,7 +537,7 @@ async function main() {
     dom.window.HTMLElement.prototype.scrollTo = function () {};
     dom.window.document.documentElement.scrollTo = function () {};
     const ls = [];
-    dom.window.browser = { runtime: { onMessage: { addListener: fn => ls.push(fn) }, id: 't' } };
+    dom.window.browser = { runtime: { onMessage: { addListener: fn => ls.push(fn) }, id: 't' }, i18n: mockI18n() };
     dom.window.chrome  = dom.window.browser;
     const s = dom.window.document.createElement('script');
     s.textContent = CONTENT_JS;

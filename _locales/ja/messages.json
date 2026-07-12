@@ -1,0 +1,857 @@
+{
+  "extName": {
+    "message": "Inkpour",
+    "description": "Extension name shown in browser toolbar and stores"
+  },
+  "extDescription": {
+    "message": "AIチャットの会話（ChatGPT、Claude、Gemini、Copilotなど）をMarkdown、PDF、HTML、DOCX、ZIPにエクスポート。",
+    "description": "Extension description shown in browser stores"
+  },
+  "cmdExportMarkdown": {
+    "message": "現在のチャットをMarkdownにエクスポート",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyMarkdown": {
+    "message": "現在のチャットをMarkdownとしてコピー",
+    "description": "Keyboard command description"
+  },
+  "cmdExportPdf": {
+    "message": "現在のチャットをPDFにエクスポート",
+    "description": "Keyboard command description"
+  },
+  "cmdUploadGist": {
+    "message": "現在のチャットをGitHub Gistにアップロード",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyHtml": {
+    "message": "現在のチャットを単体HTMLとしてコピー",
+    "description": "Keyboard command description"
+  },
+  "cmdExportJson": {
+    "message": "現在のチャットをJSONにエクスポート",
+    "description": "Keyboard command description"
+  },
+  "cmdExportZip": {
+    "message": "現在のチャットをZIPでエクスポート（chat.md + コードファイル）",
+    "description": "Keyboard command description"
+  },
+  "cmdExportDocx": {
+    "message": "現在のチャットをWord文書（.docx）にエクスポート",
+    "description": "Keyboard command description"
+  },
+  "popupTagline": {
+    "message": "AIチャットをエクスポート · MD、PDF、HTML、JSON、ZIP",
+    "description": "Popup header subtitle"
+  },
+  "popupSettingsTitle": {
+    "message": "設定",
+    "description": "Settings gear button tooltip/aria-label in popup"
+  },
+  "popupExportAsLabel": {
+    "message": "エクスポート形式",
+    "description": "Section label above the export format buttons"
+  },
+  "popupMdBtnTitle": {
+    "message": "Markdownにエクスポート（Alt+Shift+M）",
+    "description": "MD button tooltip"
+  },
+  "popupPdfBtnTitle": {
+    "message": "PDFにエクスポート",
+    "description": "PDF button tooltip"
+  },
+  "popupHtmlBtnTitle": {
+    "message": "HTMLにエクスポート",
+    "description": "HTML button tooltip"
+  },
+  "popupJsonBtnTitle": {
+    "message": "JSONにエクスポート（Alt+Shift+J）",
+    "description": "JSON button tooltip"
+  },
+  "popupDocxBtnTitle": {
+    "message": "Word文書（.docx）にエクスポート",
+    "description": "DOCX button tooltip"
+  },
+  "popupCopyBtnTitle": {
+    "message": "Markdownをクリップボードにコピー（Alt+Shift+C）",
+    "description": "Copy MD button tooltip"
+  },
+  "popupCopyHtmlBtnTitle": {
+    "message": "単体HTMLをクリップボードにコピー（Alt+Shift+H）",
+    "description": "Copy HTML button tooltip"
+  },
+  "popupZipBtnTitle": {
+    "message": "chat.md + 抽出したコードファイルをZIPでエクスポート（Alt+Shift+Z）",
+    "description": "ZIP button tooltip"
+  },
+  "popupGistBtnTitle": {
+    "message": "MarkdownをGitHub Gistにアップロード",
+    "description": "Gist button tooltip"
+  },
+  "popupAllBtnTitle": {
+    "message": "MD + DOCX + ZIPを同時にエクスポート",
+    "description": "Export All button tooltip"
+  },
+  "popupBtnMd": {
+    "message": "MD"
+  },
+  "popupBtnPdf": {
+    "message": "PDF"
+  },
+  "popupBtnHtml": {
+    "message": "HTML"
+  },
+  "popupBtnJson": {
+    "message": "JSON"
+  },
+  "popupBtnDocx": {
+    "message": "DOCX"
+  },
+  "popupBtnCopyMd": {
+    "message": "MDをコピー"
+  },
+  "popupBtnCopyHtml": {
+    "message": "HTMLをコピー"
+  },
+  "popupBtnZip": {
+    "message": "ZIP"
+  },
+  "popupBtnGist": {
+    "message": "Gist ↑"
+  },
+  "popupBtnExportAll": {
+    "message": "⬇ 全てエクスポート（MD + DOCX + ZIP）"
+  },
+  "popupIncrementalBtnTitle": {
+    "message": "前回のエクスポート以降に追加されたメッセージのみをエクスポート",
+    "description": "Export new only button tooltip"
+  },
+  "popupBtnExportNewOnly": {
+    "message": "新規分のみエクスポート"
+  },
+  "popupTitleInputPlaceholder": {
+    "message": "チャットのタイトル…"
+  },
+  "popupNotesPlaceholder": {
+    "message": "個人的なメモを追加（エクスポート先頭に引用として挿入）…"
+  },
+  "popupNotesToggleAdd": {
+    "message": "+ メモを追加"
+  },
+  "popupNotesToggleHide": {
+    "message": "− メモを非表示"
+  },
+  "popupSelectToggleOpen": {
+    "message": "☑ メッセージを選択"
+  },
+  "popupSelectToggleClose": {
+    "message": "✕ 選択を閉じる"
+  },
+  "popupSelectAll": {
+    "message": "全て"
+  },
+  "popupSelectNone": {
+    "message": "なし"
+  },
+  "popupSelectUserOnly": {
+    "message": "ユーザーのみ"
+  },
+  "popupSelectAIOnly": {
+    "message": "AIのみ"
+  },
+  "popupHistoryBtn": {
+    "message": "⏱ 履歴"
+  },
+  "popupSettingsBtn": {
+    "message": "⚙ 設定"
+  },
+  "popupStatusExtracting": {
+    "message": "抽出中…"
+  },
+  "popupStatusExtractingMessages": {
+    "message": "メッセージを抽出中…"
+  },
+  "popupStatusLoadingOlder": {
+    "message": "過去のメッセージを読み込み中…"
+  },
+  "popupStatusAiStillGenerating": {
+    "message": "AIが応答を生成中 — 完了後にエクスポートしてください"
+  },
+  "popupStatusSavedCheckDownloads": {
+    "message": "✓ 保存済み — ダウンロードフォルダを確認"
+  },
+  "popupStatusMarkdownCopied": {
+    "message": "✓ Markdownをクリップボードにコピーしました"
+  },
+  "popupStatusHtmlCopied": {
+    "message": "✓ HTMLをコピーしました — 任意のエディタに貼り付け可能"
+  },
+  "popupStatusZipSaved": {
+    "message": "✓ ZIPを保存しました — chat.md",
+    "description": "Prefix; extra code-file count is appended in JS"
+  },
+  "popupCodeFileOne": {
+    "message": " + コードファイル$1件",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeFileOther": {
+    "message": " + コードファイル$1件",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupStatusExportAllSaved": {
+    "message": "✓ MD + DOCX + ZIPを保存しました"
+  },
+  "popupStatusGistTokenMissing": {
+    "message": "先に設定でGitHubトークンを追加してください。"
+  },
+  "popupStatusGistUploading": {
+    "message": "GitHub Gistにアップロード中…"
+  },
+  "popupStatusGistCreated": {
+    "message": "✓ Gistを作成しました"
+  },
+  "popupStatusGistUploadFailed": {
+    "message": "Gistのアップロードに失敗しました"
+  },
+  "popupStatusNotSupportedPage": {
+    "message": "対応していないAIチャットページです。ChatGPT、Claude、Gemini、Google Search、または他の対応プラットフォームでInkpourを開いてください。"
+  },
+  "popupStatusRefreshTab": {
+    "message": "チャットタブを更新してから再試行してください。（コンテンツスクリプトが実行されていません — 拡張機能の読み込み前にタブが開かれていました）"
+  },
+  "popupStatusNoResponse": {
+    "message": "ページから応答がありません。タブを更新してみてください。"
+  },
+  "popupStatusNoMessagesFound": {
+    "message": "メッセージが見つかりません。"
+  },
+  "popupStatusCannotAccessTab": {
+    "message": "現在のタブにアクセスできません。"
+  },
+  "popupStatusNoNewMessages": {
+    "message": "エクスポートする新しいメッセージはありません。"
+  },
+  "popupMsgCountOne": {
+    "message": "準備完了 · $COUNT$件のメッセージ$ROLES$ · 約$WORDS$語 · 読了時間約$READMIN$分$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupMsgCountOther": {
+    "message": "準備完了 · $COUNT$件のメッセージ$ROLES$ · 約$WORDS$語 · 読了時間約$READMIN$分$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupCodeBlockOne": {
+    "message": " · コードブロック$1個",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeBlockOther": {
+    "message": " · コードブロック$1個",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupLastExport": {
+    "message": "前回: $PLATFORM$ · $COUNT$件$FORMAT$ · $WHEN$",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      },
+      "when": {
+        "content": "$4"
+      }
+    }
+  },
+  "popupLastExportJustNow": {
+    "message": "前回: $PLATFORM$ · $COUNT$件 · $FORMAT$ · たった今",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupNewMessageOne": {
+    "message": "+$COUNT$件の新着メッセージ（$WHEN$のエクスポート以降）",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupNewMessageOther": {
+    "message": "+$COUNT$件の新着メッセージ（$WHEN$のエクスポート以降）",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOne": {
+    "message": "前回のエクスポート（$WHEN$）以降、新着メッセージ$COUNT$件 — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOther": {
+    "message": "前回のエクスポート（$WHEN$）以降、新着メッセージ$COUNT$件 — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupSavedNewMessagesOne": {
+    "message": "✓ 新着メッセージ$COUNT$件を保存しました — ダウンロードフォルダを確認",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupSavedNewMessagesOther": {
+    "message": "✓ 新着メッセージ$COUNT$件を保存しました — ダウンロードフォルダを確認",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeJustNow": {
+    "message": "たった今"
+  },
+  "timeMinutesAgo": {
+    "message": "$1分前",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeHoursAgo": {
+    "message": "$1時間前",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeDaysAgo": {
+    "message": "$1日前",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsHeaderTitle": {
+    "message": "Inkpour設定"
+  },
+  "settingsHeaderSubtitle": {
+    "message": "設定はブラウザにローカル保存されます"
+  },
+  "settingsBrowserDetecting": {
+    "message": "検出中…"
+  },
+  "settingsBrowserBadge": {
+    "message": "自動検出"
+  },
+  "settingsBrowserFirefoxName": {
+    "message": "Firefox"
+  },
+  "settingsBrowserFirefoxNote": {
+    "message": "全機能対応 — 全エクスポート形式"
+  },
+  "settingsBrowserChromeName": {
+    "message": "Chrome / Brave"
+  },
+  "settingsBrowserChromeNote": {
+    "message": "全機能対応 — 全エクスポート形式"
+  },
+  "settingsBrowserEdgeName": {
+    "message": "Microsoft Edge"
+  },
+  "settingsBrowserEdgeNote": {
+    "message": "全機能対応 — 全エクスポート形式"
+  },
+  "settingsBrowserSafariName": {
+    "message": "Safari"
+  },
+  "settingsBrowserSafariNote": {
+    "message": "実験的対応 — PDFの挙動が異なる場合あり"
+  },
+  "settingsBrowserUnknownName": {
+    "message": "不明なブラウザ"
+  },
+  "settingsBrowserUnknownNote": {
+    "message": "動作する可能性あり — 不具合があれば報告してください"
+  },
+  "settingsSectionExport": {
+    "message": "エクスポート"
+  },
+  "settingsSectionIntegrations": {
+    "message": "連携"
+  },
+  "settingsDefaultFormatLabel": {
+    "message": "デフォルト形式"
+  },
+  "settingsDefaultFormatDesc": {
+    "message": "最初にキーボードフォーカスが当たるボタン"
+  },
+  "settingsFilenameTemplateLabel": {
+    "message": "ファイル名テンプレート"
+  },
+  "settingsFilenameTemplateDesc": {
+    "message": "トークン: {platform} {title} {date} {time} {url} {words} {msgcount}"
+  },
+  "settingsPdfAutoPrintLabel": {
+    "message": "PDF自動印刷"
+  },
+  "settingsPdfAutoPrintDesc": {
+    "message": "PDFタブ読み込み後に印刷ダイアログを自動的に開く"
+  },
+  "settingsYamlLabel": {
+    "message": "YAMLフロントマターを含める"
+  },
+  "settingsYamlDesc": {
+    "message": ".mdファイル先頭にタイトル、日付、プラットフォーム、URLを追加"
+  },
+  "settingsTocLabel": {
+    "message": "目次を生成"
+  },
+  "settingsTocDesc": {
+    "message": "5件以上のメッセージがあるチャットにクリック可能な目次を先頭に追加"
+  },
+  "settingsSubfolderLabel": {
+    "message": "ダウンロードのサブフォルダ"
+  },
+  "settingsSubfolderDesc": {
+    "message": "デフォルトのダウンロードフォルダ内の任意のサブパス（例: AI Chats）"
+  },
+  "settingsSubfolderPlaceholder": {
+    "message": "例: AI Chats"
+  },
+  "settingsObsidianVaultLabel": {
+    "message": "Obsidian Vaultのサブフォルダ"
+  },
+  "settingsObsidianVaultDesc": {
+    "message": "設定すると、エクスポート先はダウンロード内のこのサブフォルダになります — Obsidian Vaultに便利です。上のサブフォルダ設定より優先されます。"
+  },
+  "settingsObsidianTagsLabel": {
+    "message": "YAML内のObsidianタグ"
+  },
+  "settingsObsidianTagsDesc": {
+    "message": "フロントマターにタグ: [ai-chat, {platform}] を追加（YAMLを有効にする必要あり）"
+  },
+  "settingsGithubTokenLabel": {
+    "message": "GitHubトークン"
+  },
+  "settingsGithubTokenDesc": {
+    "message": "gistスコープの個人アクセストークン — ポップアップの「Gistにアップロード」ボタンが有効になります。"
+  },
+  "settingsGithubTokenLink": {
+    "message": "作成する →"
+  },
+  "settingsGistVisibilityLabel": {
+    "message": "Gistの公開設定"
+  },
+  "settingsGistVisibilityDesc": {
+    "message": "シークレットGistは非公開リスト（リンクを知っていれば誰でも閲覧可能）"
+  },
+  "settingsGistSecretOption": {
+    "message": "シークレット（非公開リスト）"
+  },
+  "settingsGistPublicOption": {
+    "message": "パブリック"
+  },
+  "settingsGistTagsLabel": {
+    "message": "Gistタグ"
+  },
+  "settingsGistTagsDesc": {
+    "message": "Gistエクスポートごとのカンマ区切りの追加タグをYAMLヘッダーに追加。後でGitHub上でuser:you \"tag\"で検索できます。ai-chatタグとプラットフォーム名は常に自動的に含まれます。"
+  },
+  "settingsGistTagsPlaceholder": {
+    "message": "仕事, プロジェクトX, 研究"
+  },
+  "settingsScrubLabel": {
+    "message": "アップロード前に機密情報を除去"
+  },
+  "settingsScrubDesc": {
+    "message": "Gist/webhookへのアップロード前にAPIキー、トークン、メールアドレスらしき文字列を伏せ字にする"
+  },
+  "settingsWebhookUrlLabel": {
+    "message": "Webhook URL"
+  },
+  "settingsWebhookUrlDesc": {
+    "message": "エクスポートのたびに、Inkpourがエクスポートのメタデータ（タイトル、プラットフォーム、形式、単語数）を含むPOSTリクエストをここに送信します。n8n、Zapier、Make.com、その他任意のHTTPエンドポイントに対応。"
+  },
+  "settingsWebhookContentLabel": {
+    "message": "Webhookに本文を含める"
+  },
+  "settingsWebhookContentDesc": {
+    "message": "エクスポートした全文をwebhookペイロードに含める（長いチャットではペイロードサイズが大幅に増加）"
+  },
+  "settingsSaveBtn": {
+    "message": "保存"
+  },
+  "settingsSavedStatus": {
+    "message": "✓ 保存しました"
+  },
+  "historyHeaderTitle": {
+    "message": "エクスポート履歴"
+  },
+  "historyHeaderSubtitle": {
+    "message": "直近20件のエクスポート — ローカル保存のみ、アップロードなし"
+  },
+  "historySearchPlaceholder": {
+    "message": "タイトル、プラットフォーム、会話内容で検索…"
+  },
+  "historyClearRecent": {
+    "message": "最近の履歴を消去"
+  },
+  "historyClearAll": {
+    "message": "すべて消去"
+  },
+  "historyClearStarred": {
+    "message": "★を消去"
+  },
+  "historyClearRecentTitle": {
+    "message": "最近の履歴を消去（スター付きエクスポートは保持）"
+  },
+  "historyClearAllTitle": {
+    "message": "エクスポート履歴を全て消去"
+  },
+  "historyEmptyTitle": {
+    "message": "📭"
+  },
+  "historyEmptyBody": {
+    "message": "エクスポート履歴はまだありません。ポップアップからチャットをエクスポートするとここに表示されます。"
+  },
+  "historyBackLink": {
+    "message": "← ポップアップに戻る"
+  },
+  "historyStorageNote": {
+    "message": "内容はブラウザ拡張機能のストレージに保存されます"
+  },
+  "historyStatExports": {
+    "message": "エクスポート数"
+  },
+  "historyStatWords": {
+    "message": "合計単語数"
+  },
+  "historyStatPlatform": {
+    "message": "最多プラットフォーム"
+  },
+  "historyStatFormat": {
+    "message": "最多形式"
+  },
+  "historySectionStarred": {
+    "message": "★ スター付き"
+  },
+  "historySectionRecent": {
+    "message": "最近"
+  },
+  "historyStarPin": {
+    "message": "スターを付ける"
+  },
+  "historyStarUnpin": {
+    "message": "スターを外す"
+  },
+  "historyActionSave": {
+    "message": "↓ 保存"
+  },
+  "historyActionCopy": {
+    "message": "⎘ コピー"
+  },
+  "historyActionCopied": {
+    "message": "✓ コピー済み"
+  },
+  "historyActionGist": {
+    "message": "↗ Gist"
+  },
+  "historyNoExportsYet": {
+    "message": "エクスポート履歴はまだありません"
+  },
+  "historyMatchCountOne": {
+    "message": "$2件中$1件が一致",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyMatchCountOther": {
+    "message": "$2件中$1件が一致",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyFilteredCount": {
+    "message": "$2件中$1件のエクスポート",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyExportCountOne": {
+    "message": "$1件のエクスポート",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyExportCountOther": {
+    "message": "$1件のエクスポート",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyLifetimeStatsOne": {
+    "message": "累計: $1件のエクスポート$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyLifetimeStatsOther": {
+    "message": "累計: $1件のエクスポート$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyConfirmClearRecent": {
+    "message": "最近の履歴を消去しますか？スター付きエクスポートは保持されます。"
+  },
+  "historyConfirmClearAll": {
+    "message": "エクスポート履歴を全て消去しますか？この操作は元に戻せません。"
+  },
+  "historyConfirmClearStarred": {
+    "message": "スター付きエクスポートを全て削除しますか？この操作は元に戻せません。"
+  },
+  "printLoading": {
+    "message": "会話を読み込み中…"
+  },
+  "printNoContent": {
+    "message": "Inkpour: コンテンツが見つかりません。再度エクスポートしてください。"
+  },
+  "printGenericErrorPrefix": {
+    "message": "Inkpourエラー:"
+  },
+  "contentFabTitle": {
+    "message": "Inkpour — このチャットをエクスポート"
+  },
+  "contentToastRedactedOne": {
+    "message": "アップロード前に$1件（$2）を伏せ字にしました。",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastRedactedOther": {
+    "message": "アップロード前に$1件（$2）を伏せ字にしました。",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastGistFailedNetwork": {
+    "message": "✗ Gistのアップロードに失敗（ネットワークエラー）"
+  },
+  "contentToastGistFailed": {
+    "message": "✗ Gistのアップロードに失敗: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentToastGistCreated": {
+    "message": "✓ Gistを作成しました"
+  },
+  "popupSelectCount": {
+    "message": "$2件中$1件選択",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupPlatformDetected": {
+    "message": "✓ $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupPlatformCount": {
+    "message": "$1個のプラットフォームに対応",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentMenuExportMd": {
+    "message": "MDをエクスポート"
+  },
+  "contentMenuCopyMd": {
+    "message": "MDをコピー"
+  },
+  "contentMenuExportHtml": {
+    "message": "HTMLをエクスポート"
+  },
+  "contentMenuExportDocx": {
+    "message": "DOCXをエクスポート"
+  },
+  "contentMenuExportPdf": {
+    "message": "PDFをエクスポート"
+  },
+  "contentMenuExportZip": {
+    "message": "ZIPをエクスポート"
+  },
+  "contentStatusSaved": {
+    "message": "✓ 保存しました！"
+  },
+  "contentStatusCopied": {
+    "message": "✓ コピーしました！"
+  },
+  "contentStatusExporting": {
+    "message": "エクスポート中…"
+  },
+  "contentStatusExportStarted": {
+    "message": "✓ $1のエクスポートを開始しました",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentStatusExportFailed": {
+    "message": "エクスポートに失敗しました"
+  },
+  "contentNoMessagesFound": {
+    "message": "メッセージが見つかりません"
+  },
+  "settingsPageTitle": {
+    "message": "Inkpour — 設定"
+  },
+  "settingsFormatOptionMd": {
+    "message": "Markdown (.md)"
+  },
+  "settingsFormatOptionPdf": {
+    "message": "PDF"
+  },
+  "settingsFormatOptionHtml": {
+    "message": "HTML"
+  },
+  "settingsFormatOptionJson": {
+    "message": "JSON"
+  },
+  "settingsFormatOptionZip": {
+    "message": "ZIP（チャット + コードファイル）"
+  }
+}

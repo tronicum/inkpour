@@ -1,0 +1,857 @@
+{
+  "extName": {
+    "message": "Inkpour",
+    "description": "Extension name shown in browser toolbar and stores"
+  },
+  "extDescription": {
+    "message": "将 AI 对话（ChatGPT、Claude、Gemini、Copilot 等）导出为 Markdown、PDF、HTML、DOCX 或 ZIP。",
+    "description": "Extension description shown in browser stores"
+  },
+  "cmdExportMarkdown": {
+    "message": "将当前对话导出为 Markdown",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyMarkdown": {
+    "message": "将当前对话以 Markdown 格式复制到剪贴板",
+    "description": "Keyboard command description"
+  },
+  "cmdExportPdf": {
+    "message": "将当前对话导出为 PDF",
+    "description": "Keyboard command description"
+  },
+  "cmdUploadGist": {
+    "message": "将当前对话上传到 GitHub Gist",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyHtml": {
+    "message": "将当前对话以独立 HTML 格式复制到剪贴板",
+    "description": "Keyboard command description"
+  },
+  "cmdExportJson": {
+    "message": "将当前对话导出为 JSON",
+    "description": "Keyboard command description"
+  },
+  "cmdExportZip": {
+    "message": "将当前对话导出为 ZIP（chat.md + 代码文件）",
+    "description": "Keyboard command description"
+  },
+  "cmdExportDocx": {
+    "message": "将当前对话导出为 Word 文档（.docx）",
+    "description": "Keyboard command description"
+  },
+  "popupTagline": {
+    "message": "导出 AI 对话 · MD、PDF、HTML、JSON、ZIP",
+    "description": "Popup header subtitle"
+  },
+  "popupSettingsTitle": {
+    "message": "设置",
+    "description": "Settings gear button tooltip/aria-label in popup"
+  },
+  "popupExportAsLabel": {
+    "message": "导出为",
+    "description": "Section label above the export format buttons"
+  },
+  "popupMdBtnTitle": {
+    "message": "导出为 Markdown（Alt+Shift+M）",
+    "description": "MD button tooltip"
+  },
+  "popupPdfBtnTitle": {
+    "message": "导出为 PDF",
+    "description": "PDF button tooltip"
+  },
+  "popupHtmlBtnTitle": {
+    "message": "导出为 HTML",
+    "description": "HTML button tooltip"
+  },
+  "popupJsonBtnTitle": {
+    "message": "导出为 JSON（Alt+Shift+J）",
+    "description": "JSON button tooltip"
+  },
+  "popupDocxBtnTitle": {
+    "message": "导出为 Word 文档（.docx）",
+    "description": "DOCX button tooltip"
+  },
+  "popupCopyBtnTitle": {
+    "message": "将 Markdown 复制到剪贴板（Alt+Shift+C）",
+    "description": "Copy MD button tooltip"
+  },
+  "popupCopyHtmlBtnTitle": {
+    "message": "将独立 HTML 复制到剪贴板（Alt+Shift+H）",
+    "description": "Copy HTML button tooltip"
+  },
+  "popupZipBtnTitle": {
+    "message": "导出 ZIP（包含 chat.md + 提取的代码文件）（Alt+Shift+Z）",
+    "description": "ZIP button tooltip"
+  },
+  "popupGistBtnTitle": {
+    "message": "将 Markdown 上传到 GitHub Gist",
+    "description": "Gist button tooltip"
+  },
+  "popupAllBtnTitle": {
+    "message": "同时导出 MD + DOCX + ZIP",
+    "description": "Export All button tooltip"
+  },
+  "popupBtnMd": {
+    "message": "MD"
+  },
+  "popupBtnPdf": {
+    "message": "PDF"
+  },
+  "popupBtnHtml": {
+    "message": "HTML"
+  },
+  "popupBtnJson": {
+    "message": "JSON"
+  },
+  "popupBtnDocx": {
+    "message": "DOCX"
+  },
+  "popupBtnCopyMd": {
+    "message": "复制 MD"
+  },
+  "popupBtnCopyHtml": {
+    "message": "复制 HTML"
+  },
+  "popupBtnZip": {
+    "message": "ZIP"
+  },
+  "popupBtnGist": {
+    "message": "Gist ↑"
+  },
+  "popupBtnExportAll": {
+    "message": "⬇ 导出全部（MD + DOCX + ZIP）"
+  },
+  "popupIncrementalBtnTitle": {
+    "message": "仅导出自上次导出以来新增的消息",
+    "description": "Export new only button tooltip"
+  },
+  "popupBtnExportNewOnly": {
+    "message": "仅导出新消息"
+  },
+  "popupTitleInputPlaceholder": {
+    "message": "对话标题…"
+  },
+  "popupNotesPlaceholder": {
+    "message": "添加个人备注 — 将作为引用块添加到导出内容开头…"
+  },
+  "popupNotesToggleAdd": {
+    "message": "+ 添加备注"
+  },
+  "popupNotesToggleHide": {
+    "message": "− 隐藏备注"
+  },
+  "popupSelectToggleOpen": {
+    "message": "☑ 选择消息"
+  },
+  "popupSelectToggleClose": {
+    "message": "✕ 关闭选择器"
+  },
+  "popupSelectAll": {
+    "message": "全部"
+  },
+  "popupSelectNone": {
+    "message": "全不选"
+  },
+  "popupSelectUserOnly": {
+    "message": "仅用户"
+  },
+  "popupSelectAIOnly": {
+    "message": "仅 AI"
+  },
+  "popupHistoryBtn": {
+    "message": "⏱ 历史记录"
+  },
+  "popupSettingsBtn": {
+    "message": "⚙ 设置"
+  },
+  "popupStatusExtracting": {
+    "message": "正在提取…"
+  },
+  "popupStatusExtractingMessages": {
+    "message": "正在提取消息…"
+  },
+  "popupStatusLoadingOlder": {
+    "message": "正在加载更早的消息…"
+  },
+  "popupStatusAiStillGenerating": {
+    "message": "AI 仍在生成回复 — 请在完成后再导出"
+  },
+  "popupStatusSavedCheckDownloads": {
+    "message": "✓ 已保存 — 请查看您的下载文件夹"
+  },
+  "popupStatusMarkdownCopied": {
+    "message": "✓ Markdown 已复制到剪贴板"
+  },
+  "popupStatusHtmlCopied": {
+    "message": "✓ HTML 已复制 — 可粘贴到任意编辑器"
+  },
+  "popupStatusZipSaved": {
+    "message": "✓ ZIP 已保存 — chat.md",
+    "description": "Prefix; extra code-file count is appended in JS"
+  },
+  "popupCodeFileOne": {
+    "message": " + $1 个代码文件",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeFileOther": {
+    "message": " + $1 个代码文件",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupStatusExportAllSaved": {
+    "message": "✓ MD + DOCX + ZIP 已保存"
+  },
+  "popupStatusGistTokenMissing": {
+    "message": "请先在设置中添加 GitHub 令牌。"
+  },
+  "popupStatusGistUploading": {
+    "message": "正在上传到 GitHub Gist…"
+  },
+  "popupStatusGistCreated": {
+    "message": "✓ Gist 已创建"
+  },
+  "popupStatusGistUploadFailed": {
+    "message": "Gist 上传失败"
+  },
+  "popupStatusNotSupportedPage": {
+    "message": "当前页面不受支持。请在 ChatGPT、Claude、Gemini、Google 搜索或其他受支持的平台上打开 Inkpour。"
+  },
+  "popupStatusRefreshTab": {
+    "message": "请刷新对话标签页后重试。（内容脚本未运行 — 该标签页是在扩展加载前打开的。）"
+  },
+  "popupStatusNoResponse": {
+    "message": "页面无响应。请尝试刷新标签页。"
+  },
+  "popupStatusNoMessagesFound": {
+    "message": "未找到任何消息。"
+  },
+  "popupStatusCannotAccessTab": {
+    "message": "无法访问当前标签页。"
+  },
+  "popupStatusNoNewMessages": {
+    "message": "没有可导出的新消息。"
+  },
+  "popupMsgCountOne": {
+    "message": "准备就绪 · $COUNT$ 条消息$ROLES$ · 约 $WORDS$ 字 · 约 $READMIN$ 分钟阅读$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupMsgCountOther": {
+    "message": "准备就绪 · $COUNT$ 条消息$ROLES$ · 约 $WORDS$ 字 · 约 $READMIN$ 分钟阅读$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupCodeBlockOne": {
+    "message": " · $1 个代码块",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeBlockOther": {
+    "message": " · $1 个代码块",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupLastExport": {
+    "message": "上次：$PLATFORM$ · $COUNT$ 条消息$FORMAT$ · $WHEN$",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      },
+      "when": {
+        "content": "$4"
+      }
+    }
+  },
+  "popupLastExportJustNow": {
+    "message": "上次：$PLATFORM$ · $COUNT$ 条消息 · $FORMAT$ · 刚刚",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupNewMessageOne": {
+    "message": "自 $WHEN$ 导出以来新增 $COUNT$ 条消息",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupNewMessageOther": {
+    "message": "自 $WHEN$ 导出以来新增 $COUNT$ 条消息",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOne": {
+    "message": "自上次导出（$WHEN$）以来有 $COUNT$ 条新消息 — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOther": {
+    "message": "自上次导出（$WHEN$）以来有 $COUNT$ 条新消息 — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupSavedNewMessagesOne": {
+    "message": "✓ 已保存 $COUNT$ 条新消息 — 请查看您的下载文件夹",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupSavedNewMessagesOther": {
+    "message": "✓ 已保存 $COUNT$ 条新消息 — 请查看您的下载文件夹",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeJustNow": {
+    "message": "刚刚"
+  },
+  "timeMinutesAgo": {
+    "message": "$1 分钟前",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeHoursAgo": {
+    "message": "$1 小时前",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeDaysAgo": {
+    "message": "$1 天前",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsHeaderTitle": {
+    "message": "Inkpour 设置"
+  },
+  "settingsHeaderSubtitle": {
+    "message": "偏好设置保存在您浏览器的本地存储中"
+  },
+  "settingsBrowserDetecting": {
+    "message": "正在检测…"
+  },
+  "settingsBrowserBadge": {
+    "message": "自动检测"
+  },
+  "settingsBrowserFirefoxName": {
+    "message": "Firefox"
+  },
+  "settingsBrowserFirefoxNote": {
+    "message": "完全支持 — 所有导出格式"
+  },
+  "settingsBrowserChromeName": {
+    "message": "Chrome / Brave"
+  },
+  "settingsBrowserChromeNote": {
+    "message": "完全支持 — 所有导出格式"
+  },
+  "settingsBrowserEdgeName": {
+    "message": "Microsoft Edge"
+  },
+  "settingsBrowserEdgeNote": {
+    "message": "完全支持 — 所有导出格式"
+  },
+  "settingsBrowserSafariName": {
+    "message": "Safari"
+  },
+  "settingsBrowserSafariNote": {
+    "message": "实验性支持 — PDF 表现可能有所不同"
+  },
+  "settingsBrowserUnknownName": {
+    "message": "未知浏览器"
+  },
+  "settingsBrowserUnknownNote": {
+    "message": "可能可用 — 如遇问题请反馈"
+  },
+  "settingsSectionExport": {
+    "message": "导出"
+  },
+  "settingsSectionIntegrations": {
+    "message": "集成"
+  },
+  "settingsDefaultFormatLabel": {
+    "message": "默认格式"
+  },
+  "settingsDefaultFormatDesc": {
+    "message": "决定哪个按钮优先获得键盘焦点"
+  },
+  "settingsFilenameTemplateLabel": {
+    "message": "文件名模板"
+  },
+  "settingsFilenameTemplateDesc": {
+    "message": "可用变量：{platform} {title} {date} {time} {url} {words} {msgcount}"
+  },
+  "settingsPdfAutoPrintLabel": {
+    "message": "PDF 自动打印"
+  },
+  "settingsPdfAutoPrintDesc": {
+    "message": "PDF 标签页加载后自动打开打印对话框"
+  },
+  "settingsYamlLabel": {
+    "message": "包含 YAML 前置元数据"
+  },
+  "settingsYamlDesc": {
+    "message": "在 .md 文件开头添加标题、日期、平台、URL"
+  },
+  "settingsTocLabel": {
+    "message": "生成目录"
+  },
+  "settingsTocDesc": {
+    "message": "为超过 4 条消息的对话添加可点击的目录"
+  },
+  "settingsSubfolderLabel": {
+    "message": "下载子文件夹"
+  },
+  "settingsSubfolderDesc": {
+    "message": "在默认下载文件夹内的可选子路径（例如 AI Chats）"
+  },
+  "settingsSubfolderPlaceholder": {
+    "message": "例如 AI Chats"
+  },
+  "settingsObsidianVaultLabel": {
+    "message": "Obsidian 库子文件夹"
+  },
+  "settingsObsidianVaultDesc": {
+    "message": "设置后，导出内容将保存到下载文件夹中的该子文件夹 — 适用于 Obsidian 库。会覆盖上方的子文件夹设置。"
+  },
+  "settingsObsidianTagsLabel": {
+    "message": "在 YAML 中添加 Obsidian 标签"
+  },
+  "settingsObsidianTagsDesc": {
+    "message": "在前置元数据中添加 tags: [ai-chat, {platform}]（需先启用 YAML）"
+  },
+  "settingsGithubTokenLabel": {
+    "message": "GitHub 令牌"
+  },
+  "settingsGithubTokenDesc": {
+    "message": "具有 gist 权限的个人访问令牌 — 用于启用弹出窗口中的“Upload to Gist”按钮。"
+  },
+  "settingsGithubTokenLink": {
+    "message": "创建令牌 →"
+  },
+  "settingsGistVisibilityLabel": {
+    "message": "Gist 可见性"
+  },
+  "settingsGistVisibilityDesc": {
+    "message": "私密 Gist 不会被公开列出（拥有链接的人均可查看）"
+  },
+  "settingsGistSecretOption": {
+    "message": "私密（不公开列出）"
+  },
+  "settingsGistPublicOption": {
+    "message": "公开"
+  },
+  "settingsGistTagsLabel": {
+    "message": "Gist 标签"
+  },
+  "settingsGistTagsDesc": {
+    "message": "为每次 Gist 导出的 YAML 头部添加的额外标签，以英文逗号分隔。之后可在 GitHub 上通过 user:you \"tag\" 搜索您的 Gist。ai-chat 标签和平台名称会自动始终包含在内。"
+  },
+  "settingsGistTagsPlaceholder": {
+    "message": "work, project-x, research"
+  },
+  "settingsScrubLabel": {
+    "message": "上传前清除敏感信息"
+  },
+  "settingsScrubDesc": {
+    "message": "在上传到 Gist/webhook 前，涂黑疑似的 API 密钥、令牌和电子邮件地址"
+  },
+  "settingsWebhookUrlLabel": {
+    "message": "Webhook 网址"
+  },
+  "settingsWebhookUrlDesc": {
+    "message": "每次导出后，Inkpour 会向此地址发送包含导出元数据（标题、平台、格式、字数）的 POST 请求。可与 n8n、Zapier、Make.com 或任意 HTTP 端点配合使用。"
+  },
+  "settingsWebhookContentLabel": {
+    "message": "在 webhook 中包含内容"
+  },
+  "settingsWebhookContentDesc": {
+    "message": "在 webhook 负载中发送完整的导出文本（对于较长的对话，会显著增加负载大小）"
+  },
+  "settingsSaveBtn": {
+    "message": "保存"
+  },
+  "settingsSavedStatus": {
+    "message": "✓ 已保存"
+  },
+  "historyHeaderTitle": {
+    "message": "导出历史记录"
+  },
+  "historyHeaderSubtitle": {
+    "message": "最近 20 次导出 — 存储在本地，不会上传"
+  },
+  "historySearchPlaceholder": {
+    "message": "搜索标题、平台或对话内容…"
+  },
+  "historyClearRecent": {
+    "message": "清除最近记录"
+  },
+  "historyClearAll": {
+    "message": "清除全部"
+  },
+  "historyClearStarred": {
+    "message": "清除 ★"
+  },
+  "historyClearRecentTitle": {
+    "message": "清除最近的历史记录（已加星标的导出将被保留）"
+  },
+  "historyClearAllTitle": {
+    "message": "清除全部导出历史记录"
+  },
+  "historyEmptyTitle": {
+    "message": "📭"
+  },
+  "historyEmptyBody": {
+    "message": "暂无导出记录。从弹出窗口导出一个对话后，即可在此处查看。"
+  },
+  "historyBackLink": {
+    "message": "← 返回弹出窗口"
+  },
+  "historyStorageNote": {
+    "message": "内容存储在浏览器扩展存储中"
+  },
+  "historyStatExports": {
+    "message": "导出次数"
+  },
+  "historyStatWords": {
+    "message": "总字数"
+  },
+  "historyStatPlatform": {
+    "message": "最常用平台"
+  },
+  "historyStatFormat": {
+    "message": "最常用格式"
+  },
+  "historySectionStarred": {
+    "message": "★ 已加星标"
+  },
+  "historySectionRecent": {
+    "message": "最近"
+  },
+  "historyStarPin": {
+    "message": "加星标"
+  },
+  "historyStarUnpin": {
+    "message": "取消星标"
+  },
+  "historyActionSave": {
+    "message": "↓ 保存"
+  },
+  "historyActionCopy": {
+    "message": "⎘ 复制"
+  },
+  "historyActionCopied": {
+    "message": "✓ 已复制"
+  },
+  "historyActionGist": {
+    "message": "↗ Gist"
+  },
+  "historyNoExportsYet": {
+    "message": "暂无导出记录"
+  },
+  "historyMatchCountOne": {
+    "message": "$2 项中有 $1 项匹配",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyMatchCountOther": {
+    "message": "$2 项中有 $1 项匹配",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyFilteredCount": {
+    "message": "$2 项导出中的 $1 项",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyExportCountOne": {
+    "message": "$1 次导出",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyExportCountOther": {
+    "message": "$1 次导出",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyLifetimeStatsOne": {
+    "message": "累计：$1 次导出$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyLifetimeStatsOther": {
+    "message": "累计：$1 次导出$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyConfirmClearRecent": {
+    "message": "清除最近的历史记录？已加星标的导出将被保留。"
+  },
+  "historyConfirmClearAll": {
+    "message": "清除全部导出历史记录？此操作无法撤销。"
+  },
+  "historyConfirmClearStarred": {
+    "message": "移除所有已加星标的导出？此操作无法撤销。"
+  },
+  "printLoading": {
+    "message": "正在加载对话…"
+  },
+  "printNoContent": {
+    "message": "Inkpour：未找到内容。请重新尝试导出。"
+  },
+  "printGenericErrorPrefix": {
+    "message": "Inkpour 错误："
+  },
+  "contentFabTitle": {
+    "message": "Inkpour — 导出此对话"
+  },
+  "contentToastRedactedOne": {
+    "message": "上传前已涂黑 $1 项内容（$2）。",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastRedactedOther": {
+    "message": "上传前已涂黑 $1 项内容（$2）。",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastGistFailedNetwork": {
+    "message": "✗ Gist 上传失败（网络错误）"
+  },
+  "contentToastGistFailed": {
+    "message": "✗ Gist 上传失败：$1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentToastGistCreated": {
+    "message": "✓ Gist 已创建"
+  },
+  "popupSelectCount": {
+    "message": "已选择 $2 项中的 $1 项",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupPlatformDetected": {
+    "message": "✓ $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupPlatformCount": {
+    "message": "支持 $1 个平台",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentMenuExportMd": {
+    "message": "导出 MD"
+  },
+  "contentMenuCopyMd": {
+    "message": "复制 MD"
+  },
+  "contentMenuExportHtml": {
+    "message": "导出 HTML"
+  },
+  "contentMenuExportDocx": {
+    "message": "导出 DOCX"
+  },
+  "contentMenuExportPdf": {
+    "message": "导出 PDF"
+  },
+  "contentMenuExportZip": {
+    "message": "导出 ZIP"
+  },
+  "contentStatusSaved": {
+    "message": "✓ 已保存！"
+  },
+  "contentStatusCopied": {
+    "message": "✓ 已复制！"
+  },
+  "contentStatusExporting": {
+    "message": "正在导出…"
+  },
+  "contentStatusExportStarted": {
+    "message": "✓ $1 导出已开始",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentStatusExportFailed": {
+    "message": "导出失败"
+  },
+  "contentNoMessagesFound": {
+    "message": "未找到任何消息"
+  },
+  "settingsPageTitle": {
+    "message": "Inkpour — 设置"
+  },
+  "settingsFormatOptionMd": {
+    "message": "Markdown（.md）"
+  },
+  "settingsFormatOptionPdf": {
+    "message": "PDF"
+  },
+  "settingsFormatOptionHtml": {
+    "message": "HTML"
+  },
+  "settingsFormatOptionJson": {
+    "message": "JSON"
+  },
+  "settingsFormatOptionZip": {
+    "message": "ZIP（对话 + 代码文件）"
+  }
+}

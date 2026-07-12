@@ -1,0 +1,857 @@
+{
+  "extName": {
+    "message": "Inkpour",
+    "description": "Extension name shown in browser toolbar and stores"
+  },
+  "extDescription": {
+    "message": "Exporte conversas de chat de IA (ChatGPT, Claude, Gemini, Copilot e outras) para Markdown, PDF, HTML, DOCX ou ZIP.",
+    "description": "Extension description shown in browser stores"
+  },
+  "cmdExportMarkdown": {
+    "message": "Exportar chat atual para Markdown",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyMarkdown": {
+    "message": "Copiar chat atual como Markdown para a área de transferência",
+    "description": "Keyboard command description"
+  },
+  "cmdExportPdf": {
+    "message": "Exportar chat atual para PDF",
+    "description": "Keyboard command description"
+  },
+  "cmdUploadGist": {
+    "message": "Enviar chat atual para o GitHub Gist",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyHtml": {
+    "message": "Copiar chat atual como HTML autônomo para a área de transferência",
+    "description": "Keyboard command description"
+  },
+  "cmdExportJson": {
+    "message": "Exportar chat atual para JSON",
+    "description": "Keyboard command description"
+  },
+  "cmdExportZip": {
+    "message": "Exportar chat atual como ZIP (chat.md + arquivos de código)",
+    "description": "Keyboard command description"
+  },
+  "cmdExportDocx": {
+    "message": "Exportar chat atual para documento Word (.docx)",
+    "description": "Keyboard command description"
+  },
+  "popupTagline": {
+    "message": "Exporte chats de IA · MD, PDF, HTML, JSON, ZIP",
+    "description": "Popup header subtitle"
+  },
+  "popupSettingsTitle": {
+    "message": "Configurações",
+    "description": "Settings gear button tooltip/aria-label in popup"
+  },
+  "popupExportAsLabel": {
+    "message": "Exportar como",
+    "description": "Section label above the export format buttons"
+  },
+  "popupMdBtnTitle": {
+    "message": "Exportar para Markdown (Alt+Shift+M)",
+    "description": "MD button tooltip"
+  },
+  "popupPdfBtnTitle": {
+    "message": "Exportar para PDF",
+    "description": "PDF button tooltip"
+  },
+  "popupHtmlBtnTitle": {
+    "message": "Exportar para HTML",
+    "description": "HTML button tooltip"
+  },
+  "popupJsonBtnTitle": {
+    "message": "Exportar para JSON (Alt+Shift+J)",
+    "description": "JSON button tooltip"
+  },
+  "popupDocxBtnTitle": {
+    "message": "Exportar para documento Word (.docx)",
+    "description": "DOCX button tooltip"
+  },
+  "popupCopyBtnTitle": {
+    "message": "Copiar Markdown para a área de transferência (Alt+Shift+C)",
+    "description": "Copy MD button tooltip"
+  },
+  "popupCopyHtmlBtnTitle": {
+    "message": "Copiar HTML autônomo para a área de transferência (Alt+Shift+H)",
+    "description": "Copy HTML button tooltip"
+  },
+  "popupZipBtnTitle": {
+    "message": "Exportar ZIP com chat.md + arquivos de código extraídos (Alt+Shift+Z)",
+    "description": "ZIP button tooltip"
+  },
+  "popupGistBtnTitle": {
+    "message": "Enviar Markdown para o GitHub Gist",
+    "description": "Gist button tooltip"
+  },
+  "popupAllBtnTitle": {
+    "message": "Exportar MD + DOCX + ZIP simultaneamente",
+    "description": "Export All button tooltip"
+  },
+  "popupBtnMd": {
+    "message": "MD"
+  },
+  "popupBtnPdf": {
+    "message": "PDF"
+  },
+  "popupBtnHtml": {
+    "message": "HTML"
+  },
+  "popupBtnJson": {
+    "message": "JSON"
+  },
+  "popupBtnDocx": {
+    "message": "DOCX"
+  },
+  "popupBtnCopyMd": {
+    "message": "Copiar MD"
+  },
+  "popupBtnCopyHtml": {
+    "message": "Copiar HTML"
+  },
+  "popupBtnZip": {
+    "message": "ZIP"
+  },
+  "popupBtnGist": {
+    "message": "Gist ↑"
+  },
+  "popupBtnExportAll": {
+    "message": "⬇ Exportar tudo (MD + DOCX + ZIP)"
+  },
+  "popupIncrementalBtnTitle": {
+    "message": "Exportar somente as mensagens adicionadas desde sua última exportação",
+    "description": "Export new only button tooltip"
+  },
+  "popupBtnExportNewOnly": {
+    "message": "Exportar somente novas"
+  },
+  "popupTitleInputPlaceholder": {
+    "message": "Título do chat…"
+  },
+  "popupNotesPlaceholder": {
+    "message": "Adicione notas pessoais — inseridas como citação no início da exportação…"
+  },
+  "popupNotesToggleAdd": {
+    "message": "+ Adicionar notas"
+  },
+  "popupNotesToggleHide": {
+    "message": "− Ocultar notas"
+  },
+  "popupSelectToggleOpen": {
+    "message": "☑ Selecionar mensagens"
+  },
+  "popupSelectToggleClose": {
+    "message": "✕ Fechar seletor"
+  },
+  "popupSelectAll": {
+    "message": "Todas"
+  },
+  "popupSelectNone": {
+    "message": "Nenhuma"
+  },
+  "popupSelectUserOnly": {
+    "message": "Somente usuário"
+  },
+  "popupSelectAIOnly": {
+    "message": "Somente IA"
+  },
+  "popupHistoryBtn": {
+    "message": "⏱ Histórico"
+  },
+  "popupSettingsBtn": {
+    "message": "⚙ Configurações"
+  },
+  "popupStatusExtracting": {
+    "message": "Extraindo…"
+  },
+  "popupStatusExtractingMessages": {
+    "message": "Extraindo mensagens…"
+  },
+  "popupStatusLoadingOlder": {
+    "message": "Carregando mensagens antigas…"
+  },
+  "popupStatusAiStillGenerating": {
+    "message": "A IA ainda está gerando a resposta — exporte depois que terminar"
+  },
+  "popupStatusSavedCheckDownloads": {
+    "message": "✓ Salvo — confira sua pasta de Downloads"
+  },
+  "popupStatusMarkdownCopied": {
+    "message": "✓ Markdown copiado para a área de transferência"
+  },
+  "popupStatusHtmlCopied": {
+    "message": "✓ HTML copiado — cole em qualquer editor"
+  },
+  "popupStatusZipSaved": {
+    "message": "✓ ZIP salvo — chat.md",
+    "description": "Prefix; extra code-file count is appended in JS"
+  },
+  "popupCodeFileOne": {
+    "message": " + $1 arquivo de código",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeFileOther": {
+    "message": " + $1 arquivos de código",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupStatusExportAllSaved": {
+    "message": "✓ MD + DOCX + ZIP salvos"
+  },
+  "popupStatusGistTokenMissing": {
+    "message": "Adicione um token do GitHub nas Configurações primeiro."
+  },
+  "popupStatusGistUploading": {
+    "message": "Enviando para o GitHub Gist…"
+  },
+  "popupStatusGistCreated": {
+    "message": "✓ Gist criado"
+  },
+  "popupStatusGistUploadFailed": {
+    "message": "Falha ao enviar o Gist"
+  },
+  "popupStatusNotSupportedPage": {
+    "message": "Esta página de chat de IA não é suportada. Abra o Inkpour no ChatGPT, Claude, Gemini, Google Search ou outra plataforma compatível."
+  },
+  "popupStatusRefreshTab": {
+    "message": "Atualize a aba do chat e tente novamente. (O content script não está em execução — a aba estava aberta antes da extensão carregar.)"
+  },
+  "popupStatusNoResponse": {
+    "message": "Sem resposta da página. Tente atualizar a aba."
+  },
+  "popupStatusNoMessagesFound": {
+    "message": "Nenhuma mensagem encontrada."
+  },
+  "popupStatusCannotAccessTab": {
+    "message": "Não foi possível acessar a aba atual."
+  },
+  "popupStatusNoNewMessages": {
+    "message": "Nenhuma mensagem nova para exportar."
+  },
+  "popupMsgCountOne": {
+    "message": "Pronto · $COUNT$ mensagem$ROLES$ · ~$WORDS$ palavras · ~$READMIN$ min de leitura$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupMsgCountOther": {
+    "message": "Pronto · $COUNT$ mensagens$ROLES$ · ~$WORDS$ palavras · ~$READMIN$ min de leitura$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupCodeBlockOne": {
+    "message": " · $1 bloco de código",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeBlockOther": {
+    "message": " · $1 blocos de código",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupLastExport": {
+    "message": "Última: $PLATFORM$ · $COUNT$ msgs$FORMAT$ · $WHEN$",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      },
+      "when": {
+        "content": "$4"
+      }
+    }
+  },
+  "popupLastExportJustNow": {
+    "message": "Última: $PLATFORM$ · $COUNT$ msgs · $FORMAT$ · agora mesmo",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupNewMessageOne": {
+    "message": "+$COUNT$ nova mensagem desde a exportação de $WHEN$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupNewMessageOther": {
+    "message": "+$COUNT$ novas mensagens desde a exportação de $WHEN$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOne": {
+    "message": "$COUNT$ nova mensagem desde sua última exportação ($WHEN$) — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOther": {
+    "message": "$COUNT$ novas mensagens desde sua última exportação ($WHEN$) — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupSavedNewMessagesOne": {
+    "message": "✓ $COUNT$ nova mensagem salva — confira sua pasta de Downloads",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupSavedNewMessagesOther": {
+    "message": "✓ $COUNT$ novas mensagens salvas — confira sua pasta de Downloads",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeJustNow": {
+    "message": "agora mesmo"
+  },
+  "timeMinutesAgo": {
+    "message": "há $1min",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeHoursAgo": {
+    "message": "há $1h",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeDaysAgo": {
+    "message": "há $1d",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsHeaderTitle": {
+    "message": "Configurações do Inkpour"
+  },
+  "settingsHeaderSubtitle": {
+    "message": "As preferências são salvas localmente no seu navegador"
+  },
+  "settingsBrowserDetecting": {
+    "message": "Detectando…"
+  },
+  "settingsBrowserBadge": {
+    "message": "Detectado automaticamente"
+  },
+  "settingsBrowserFirefoxName": {
+    "message": "Firefox"
+  },
+  "settingsBrowserFirefoxNote": {
+    "message": "Suporte completo — todos os formatos de exportação"
+  },
+  "settingsBrowserChromeName": {
+    "message": "Chrome / Brave"
+  },
+  "settingsBrowserChromeNote": {
+    "message": "Suporte completo — todos os formatos de exportação"
+  },
+  "settingsBrowserEdgeName": {
+    "message": "Microsoft Edge"
+  },
+  "settingsBrowserEdgeNote": {
+    "message": "Suporte completo — todos os formatos de exportação"
+  },
+  "settingsBrowserSafariName": {
+    "message": "Safari"
+  },
+  "settingsBrowserSafariNote": {
+    "message": "Experimental — o PDF pode se comportar de forma diferente"
+  },
+  "settingsBrowserUnknownName": {
+    "message": "Navegador desconhecido"
+  },
+  "settingsBrowserUnknownNote": {
+    "message": "Pode funcionar — relate problemas se algo falhar"
+  },
+  "settingsSectionExport": {
+    "message": "Exportação"
+  },
+  "settingsSectionIntegrations": {
+    "message": "Integrações"
+  },
+  "settingsDefaultFormatLabel": {
+    "message": "Formato padrão"
+  },
+  "settingsDefaultFormatDesc": {
+    "message": "Qual botão recebe o foco do teclado primeiro"
+  },
+  "settingsFilenameTemplateLabel": {
+    "message": "Modelo de nome de arquivo"
+  },
+  "settingsFilenameTemplateDesc": {
+    "message": "Tokens: {platform} {title} {date} {time} {url} {words} {msgcount}"
+  },
+  "settingsPdfAutoPrintLabel": {
+    "message": "Impressão automática de PDF"
+  },
+  "settingsPdfAutoPrintDesc": {
+    "message": "Abrir a caixa de diálogo de impressão automaticamente após a aba do PDF carregar"
+  },
+  "settingsYamlLabel": {
+    "message": "Incluir front matter YAML"
+  },
+  "settingsYamlDesc": {
+    "message": "Adiciona título, data, plataforma e URL no início dos arquivos .md"
+  },
+  "settingsTocLabel": {
+    "message": "Gerar sumário"
+  },
+  "settingsTocDesc": {
+    "message": "Insere um sumário clicável no início para chats com mais de 4 mensagens"
+  },
+  "settingsSubfolderLabel": {
+    "message": "Subpasta de Downloads"
+  },
+  "settingsSubfolderDesc": {
+    "message": "Subcaminho opcional dentro da sua pasta padrão de downloads (ex.: AI Chats)"
+  },
+  "settingsSubfolderPlaceholder": {
+    "message": "ex.: AI Chats"
+  },
+  "settingsObsidianVaultLabel": {
+    "message": "Subpasta do cofre do Obsidian"
+  },
+  "settingsObsidianVaultDesc": {
+    "message": "Quando definido, as exportações vão para essa subpasta em Downloads — útil para cofres do Obsidian. Substitui o campo de subpasta acima."
+  },
+  "settingsObsidianTagsLabel": {
+    "message": "Tags do Obsidian no YAML"
+  },
+  "settingsObsidianTagsDesc": {
+    "message": "Adiciona tags: [ai-chat, {platform}] ao front matter (requer YAML habilitado)"
+  },
+  "settingsGithubTokenLabel": {
+    "message": "Token do GitHub"
+  },
+  "settingsGithubTokenDesc": {
+    "message": "Token de acesso pessoal com escopo gist — habilita o botão \"Enviar para o Gist\" no popup."
+  },
+  "settingsGithubTokenLink": {
+    "message": "Criar um →"
+  },
+  "settingsGistVisibilityLabel": {
+    "message": "Visibilidade do Gist"
+  },
+  "settingsGistVisibilityDesc": {
+    "message": "Gists secretos não são listados (qualquer pessoa com o link pode visualizar)"
+  },
+  "settingsGistSecretOption": {
+    "message": "Secreto (não listado)"
+  },
+  "settingsGistPublicOption": {
+    "message": "Público"
+  },
+  "settingsGistTagsLabel": {
+    "message": "Tags do Gist"
+  },
+  "settingsGistTagsDesc": {
+    "message": "Tags extras adicionadas ao cabeçalho YAML de cada exportação de Gist, separadas por vírgula. Depois, pesquise seus Gists no GitHub com user:you \"tag\". As tags ai-chat e o nome da plataforma são sempre incluídos automaticamente."
+  },
+  "settingsGistTagsPlaceholder": {
+    "message": "trabalho, projeto-x, pesquisa"
+  },
+  "settingsScrubLabel": {
+    "message": "Remover dados sensíveis antes do envio"
+  },
+  "settingsScrubDesc": {
+    "message": "Oculta possíveis chaves de API, tokens e e-mails antes de envios para Gist/webhook"
+  },
+  "settingsWebhookUrlLabel": {
+    "message": "URL do webhook"
+  },
+  "settingsWebhookUrlDesc": {
+    "message": "Após cada exportação, o Inkpour envia uma requisição POST para este endereço com metadados da exportação (título, plataforma, formato, contagem de palavras). Funciona com n8n, Zapier, Make.com ou qualquer endpoint HTTP."
+  },
+  "settingsWebhookContentLabel": {
+    "message": "Incluir conteúdo no webhook"
+  },
+  "settingsWebhookContentDesc": {
+    "message": "Envia o texto completo exportado no payload do webhook (aumenta significativamente o tamanho do payload em chats longos)"
+  },
+  "settingsSaveBtn": {
+    "message": "Salvar"
+  },
+  "settingsSavedStatus": {
+    "message": "✓ Salvo"
+  },
+  "historyHeaderTitle": {
+    "message": "Histórico de exportações"
+  },
+  "historyHeaderSubtitle": {
+    "message": "Últimas 20 exportações — armazenadas localmente, nunca enviadas"
+  },
+  "historySearchPlaceholder": {
+    "message": "Buscar título, plataforma ou conteúdo da conversa…"
+  },
+  "historyClearRecent": {
+    "message": "Limpar recentes"
+  },
+  "historyClearAll": {
+    "message": "Limpar tudo"
+  },
+  "historyClearStarred": {
+    "message": "Limpar ★"
+  },
+  "historyClearRecentTitle": {
+    "message": "Limpar histórico recente (exportações marcadas com estrela são mantidas)"
+  },
+  "historyClearAllTitle": {
+    "message": "Limpar todo o histórico de exportações"
+  },
+  "historyEmptyTitle": {
+    "message": "📭"
+  },
+  "historyEmptyBody": {
+    "message": "Ainda não há exportações. Exporte um chat pelo popup para vê-lo aqui."
+  },
+  "historyBackLink": {
+    "message": "← Voltar ao popup"
+  },
+  "historyStorageNote": {
+    "message": "Conteúdo armazenado no armazenamento da extensão do navegador"
+  },
+  "historyStatExports": {
+    "message": "Exportações"
+  },
+  "historyStatWords": {
+    "message": "Total de palavras"
+  },
+  "historyStatPlatform": {
+    "message": "Plataforma principal"
+  },
+  "historyStatFormat": {
+    "message": "Formato principal"
+  },
+  "historySectionStarred": {
+    "message": "★ Marcadas"
+  },
+  "historySectionRecent": {
+    "message": "Recentes"
+  },
+  "historyStarPin": {
+    "message": "Marcar com estrela"
+  },
+  "historyStarUnpin": {
+    "message": "Remover estrela"
+  },
+  "historyActionSave": {
+    "message": "↓ Salvar"
+  },
+  "historyActionCopy": {
+    "message": "⎘ Copiar"
+  },
+  "historyActionCopied": {
+    "message": "✓ Copiado"
+  },
+  "historyActionGist": {
+    "message": "↗ Gist"
+  },
+  "historyNoExportsYet": {
+    "message": "Ainda não há exportações"
+  },
+  "historyMatchCountOne": {
+    "message": "$1 de $2 correspondência",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyMatchCountOther": {
+    "message": "$1 de $2 correspondências",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyFilteredCount": {
+    "message": "$1 de $2 exportações",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyExportCountOne": {
+    "message": "$1 exportação",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyExportCountOther": {
+    "message": "$1 exportações",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyLifetimeStatsOne": {
+    "message": "No total: $1 exportação$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyLifetimeStatsOther": {
+    "message": "No total: $1 exportações$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyConfirmClearRecent": {
+    "message": "Limpar histórico recente? As exportações marcadas com estrela serão mantidas."
+  },
+  "historyConfirmClearAll": {
+    "message": "Limpar todo o histórico de exportações? Esta ação não pode ser desfeita."
+  },
+  "historyConfirmClearStarred": {
+    "message": "Remover todas as exportações marcadas com estrela? Esta ação não pode ser desfeita."
+  },
+  "printLoading": {
+    "message": "Carregando conversa…"
+  },
+  "printNoContent": {
+    "message": "Inkpour: nenhum conteúdo encontrado. Tente exportar novamente."
+  },
+  "printGenericErrorPrefix": {
+    "message": "Erro do Inkpour:"
+  },
+  "contentFabTitle": {
+    "message": "Inkpour — Exportar este chat"
+  },
+  "contentToastRedactedOne": {
+    "message": "$1 item ocultado ($2) antes do envio.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastRedactedOther": {
+    "message": "$1 itens ocultados ($2) antes do envio.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastGistFailedNetwork": {
+    "message": "✗ Falha ao enviar o Gist (erro de rede)"
+  },
+  "contentToastGistFailed": {
+    "message": "✗ Falha ao enviar o Gist: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentToastGistCreated": {
+    "message": "✓ Gist criado"
+  },
+  "popupSelectCount": {
+    "message": "$1 de $2 selecionados",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupPlatformDetected": {
+    "message": "✓ $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupPlatformCount": {
+    "message": "$1 plataformas com suporte",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentMenuExportMd": {
+    "message": "Exportar MD"
+  },
+  "contentMenuCopyMd": {
+    "message": "Copiar MD"
+  },
+  "contentMenuExportHtml": {
+    "message": "Exportar HTML"
+  },
+  "contentMenuExportDocx": {
+    "message": "Exportar DOCX"
+  },
+  "contentMenuExportPdf": {
+    "message": "Exportar PDF"
+  },
+  "contentMenuExportZip": {
+    "message": "Exportar ZIP"
+  },
+  "contentStatusSaved": {
+    "message": "✓ Salvo!"
+  },
+  "contentStatusCopied": {
+    "message": "✓ Copiado!"
+  },
+  "contentStatusExporting": {
+    "message": "Exportando…"
+  },
+  "contentStatusExportStarted": {
+    "message": "✓ Exportação de $1 iniciada",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentStatusExportFailed": {
+    "message": "Falha na exportação"
+  },
+  "contentNoMessagesFound": {
+    "message": "Nenhuma mensagem encontrada"
+  },
+  "settingsPageTitle": {
+    "message": "Inkpour — Configurações"
+  },
+  "settingsFormatOptionMd": {
+    "message": "Markdown (.md)"
+  },
+  "settingsFormatOptionPdf": {
+    "message": "PDF"
+  },
+  "settingsFormatOptionHtml": {
+    "message": "HTML"
+  },
+  "settingsFormatOptionJson": {
+    "message": "JSON"
+  },
+  "settingsFormatOptionZip": {
+    "message": "ZIP (chat + arquivos de código)"
+  }
+}

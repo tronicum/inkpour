@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Inkpour — Settings</title>
+  <title data-i18n="settingsPageTitle">Inkpour — Settings</title>
   <style>
     :root {
       --bg:       #ffffff;
@@ -137,7 +137,7 @@
     .toggle-track::after {
       content: '';
       position: absolute;
-      left: 3px; top: 3px;
+      inset-inline-start: 3px; top: 3px;
       width: 16px; height: 16px;
       background: #fff;
       border-radius: 50%;
@@ -145,6 +145,7 @@
     }
     .toggle input:checked + .toggle-track { background: var(--accent); }
     .toggle input:checked + .toggle-track::after { transform: translateX(18px); }
+    [dir="rtl"] .toggle input:checked + .toggle-track::after { transform: translateX(-18px); }
 
     /* ── Save button ── */
     .save-row {
@@ -172,8 +173,8 @@
   <div class="header">
     <div class="logo">ip</div>
     <div>
-      <h1>Inkpour Settings</h1>
-      <p>Preferences are saved locally in your browser</p>
+      <h1 data-i18n="settingsHeaderTitle">Inkpour Settings</h1>
+      <p data-i18n="settingsHeaderSubtitle">Preferences are saved locally in your browser</p>
     </div>
   </div>
 
@@ -181,42 +182,42 @@
   <div class="browser-row">
     <div class="browser-icon" id="browserIcon">🌐</div>
     <div class="browser-info">
-      <strong id="browserName">Detecting…</strong>
+      <strong id="browserName" data-i18n="settingsBrowserDetecting">Detecting…</strong>
       <span id="browserNote"></span>
     </div>
-    <div class="badge" id="browserBadge">Auto-detected</div>
+    <div class="badge" id="browserBadge" data-i18n="settingsBrowserBadge">Auto-detected</div>
   </div>
 
   <!-- Export defaults -->
   <section>
-    <h2>Export</h2>
+    <h2 data-i18n="settingsSectionExport">Export</h2>
 
     <div class="field">
       <div class="field-label">
-        <strong>Default format</strong>
-        <span>Which button gets keyboard focus first</span>
+        <strong data-i18n="settingsDefaultFormatLabel">Default format</strong>
+        <span data-i18n="settingsDefaultFormatDesc">Which button gets keyboard focus first</span>
       </div>
       <select id="defaultFormat">
-        <option value="md">Markdown (.md)</option>
-        <option value="pdf">PDF</option>
-        <option value="html">HTML</option>
-        <option value="json">JSON</option>
-        <option value="zip">ZIP (chat + code files)</option>
+        <option value="md" data-i18n="settingsFormatOptionMd">Markdown (.md)</option>
+        <option value="pdf" data-i18n="settingsFormatOptionPdf">PDF</option>
+        <option value="html" data-i18n="settingsFormatOptionHtml">HTML</option>
+        <option value="json" data-i18n="settingsFormatOptionJson">JSON</option>
+        <option value="zip" data-i18n="settingsFormatOptionZip">ZIP (chat + code files)</option>
       </select>
     </div>
 
     <div class="field">
       <div class="field-label">
-        <strong>Filename template</strong>
-        <span>Tokens: {platform} {title} {date} {time} {url} {words} {msgcount}</span>
+        <strong data-i18n="settingsFilenameTemplateLabel">Filename template</strong>
+        <span data-i18n="settingsFilenameTemplateDesc">Tokens: {platform} {title} {date} {time} {url} {words} {msgcount}</span>
       </div>
       <input type="text" id="filenameTemplate" value="{platform}-{title}" style="min-width:160px" />
     </div>
 
     <div class="field">
       <div class="field-label">
-        <strong>PDF auto-print</strong>
-        <span>Open print dialog automatically after PDF tab loads</span>
+        <strong data-i18n="settingsPdfAutoPrintLabel">PDF auto-print</strong>
+        <span data-i18n="settingsPdfAutoPrintDesc">Open print dialog automatically after PDF tab loads</span>
       </div>
       <label class="toggle">
         <input type="checkbox" id="pdfAutoPrint" checked />
@@ -226,8 +227,8 @@
 
     <div class="field">
       <div class="field-label">
-        <strong>Include YAML front matter</strong>
-        <span>Adds title, date, platform, URL to top of .md files</span>
+        <strong data-i18n="settingsYamlLabel">Include YAML front matter</strong>
+        <span data-i18n="settingsYamlDesc">Adds title, date, platform, URL to top of .md files</span>
       </div>
       <label class="toggle">
         <input type="checkbox" id="yamlFrontMatter" />
@@ -237,8 +238,8 @@
 
     <div class="field">
       <div class="field-label">
-        <strong>Generate table of contents</strong>
-        <span>Prepend a clickable TOC for chats with more than 4 messages</span>
+        <strong data-i18n="settingsTocLabel">Generate table of contents</strong>
+        <span data-i18n="settingsTocDesc">Prepend a clickable TOC for chats with more than 4 messages</span>
       </div>
       <label class="toggle">
         <input type="checkbox" id="generateTOC" />
@@ -248,24 +249,24 @@
 
     <div class="field">
       <div class="field-label">
-        <strong>Downloads subfolder</strong>
-        <span>Optional sub-path within your default downloads folder (e.g. <code>AI Chats</code>)</span>
+        <strong data-i18n="settingsSubfolderLabel">Downloads subfolder</strong>
+        <span data-i18n="settingsSubfolderDesc">Optional sub-path within your default downloads folder (e.g. <code>AI Chats</code>)</span>
       </div>
-      <input type="text" id="downloadSubfolder" placeholder="e.g. AI Chats" style="min-width:160px" />
+      <input type="text" id="downloadSubfolder" data-i18n-placeholder="settingsSubfolderPlaceholder" placeholder="e.g. AI Chats" style="min-width:160px" />
     </div>
 
     <div class="field">
       <div class="field-label">
-        <strong>Obsidian vault subfolder</strong>
-        <span>When set, exports go to this subfolder in Downloads — useful for Obsidian vaults. Overrides the subfolder field above.</span>
+        <strong data-i18n="settingsObsidianVaultLabel">Obsidian vault subfolder</strong>
+        <span data-i18n="settingsObsidianVaultDesc">When set, exports go to this subfolder in Downloads — useful for Obsidian vaults. Overrides the subfolder field above.</span>
       </div>
-      <input type="text" id="obsidianVault" placeholder="e.g. AI Chats" style="min-width:160px" />
+      <input type="text" id="obsidianVault" data-i18n-placeholder="settingsSubfolderPlaceholder" placeholder="e.g. AI Chats" style="min-width:160px" />
     </div>
 
     <div class="field">
       <div class="field-label">
-        <strong>Obsidian tags in YAML</strong>
-        <span>Adds <code>tags: [ai-chat, {platform}]</code> to front matter (requires YAML enabled)</span>
+        <strong data-i18n="settingsObsidianTagsLabel">Obsidian tags in YAML</strong>
+        <span data-i18n="settingsObsidianTagsDesc">Adds <code>tags: [ai-chat, {platform}]</code> to front matter (requires YAML enabled)</span>
       </div>
       <label class="toggle">
         <input type="checkbox" id="obsidianTags" />
@@ -276,39 +277,40 @@
 
   <!-- Integrations -->
   <section>
-    <h2>Integrations</h2>
+    <h2 data-i18n="settingsSectionIntegrations">Integrations</h2>
 
     <div class="field">
       <div class="field-label">
-        <strong>GitHub token</strong>
-        <span>Personal access token with <code>gist</code> scope — enables "Upload to Gist" button in popup. <a href="https://github.com/settings/tokens/new?scopes=gist" target="_blank" rel="noopener">Create one →</a></span>
+        <strong data-i18n="settingsGithubTokenLabel">GitHub token</strong>
+        <span data-i18n="settingsGithubTokenDesc">Personal access token with <code>gist</code> scope — enables "Upload to Gist" button in popup.</span>
+        <a href="https://github.com/settings/tokens/new?scopes=gist" target="_blank" rel="noopener" data-i18n="settingsGithubTokenLink">Create one →</a>
       </div>
       <input type="password" id="githubToken" placeholder="ghp_…" style="min-width:180px; font-family: monospace;" />
     </div>
 
     <div class="field">
       <div class="field-label">
-        <strong>Gist visibility</strong>
-        <span>Secret Gists are unlisted (anyone with the link can view)</span>
+        <strong data-i18n="settingsGistVisibilityLabel">Gist visibility</strong>
+        <span data-i18n="settingsGistVisibilityDesc">Secret Gists are unlisted (anyone with the link can view)</span>
       </div>
       <select id="gistPublic">
-        <option value="false">Secret (unlisted)</option>
-        <option value="true">Public</option>
+        <option value="false" data-i18n="settingsGistSecretOption">Secret (unlisted)</option>
+        <option value="true" data-i18n="settingsGistPublicOption">Public</option>
       </select>
     </div>
 
     <div class="field">
       <div class="field-label">
-        <strong>Gist tags</strong>
-        <span>Extra tags added to the YAML header of every Gist export, comma-separated. Search your Gists later on GitHub with <code>user:you "tag"</code>. The tags <code>ai-chat</code> and the platform name are always included automatically.</span>
+        <strong data-i18n="settingsGistTagsLabel">Gist tags</strong>
+        <span data-i18n="settingsGistTagsDesc">Extra tags added to the YAML header of every Gist export, comma-separated. Search your Gists later on GitHub with <code>user:you "tag"</code>. The tags <code>ai-chat</code> and the platform name are always included automatically.</span>
       </div>
-      <input type="text" id="gistTags" placeholder="work, project-x, research" style="min-width:220px;" />
+      <input type="text" id="gistTags" data-i18n-placeholder="settingsGistTagsPlaceholder" placeholder="work, project-x, research" style="min-width:220px;" />
     </div>
 
     <div class="field">
       <div class="field-label">
-        <strong>Scrub secrets before upload</strong>
-        <span>Redact likely API keys, tokens & emails before Gist/webhook uploads</span>
+        <strong data-i18n="settingsScrubLabel">Scrub secrets before upload</strong>
+        <span data-i18n="settingsScrubDesc">Redact likely API keys, tokens & emails before Gist/webhook uploads</span>
       </div>
       <label class="toggle">
         <input type="checkbox" id="scrubSecrets" checked />
@@ -318,16 +320,16 @@
 
     <div class="field">
       <div class="field-label">
-        <strong>Webhook URL</strong>
-        <span>After each export, Inkpour sends a POST request here with export metadata (title, platform, format, word count). Works with n8n, Zapier, Make.com, or any HTTP endpoint.</span>
+        <strong data-i18n="settingsWebhookUrlLabel">Webhook URL</strong>
+        <span data-i18n="settingsWebhookUrlDesc">After each export, Inkpour sends a POST request here with export metadata (title, platform, format, word count). Works with n8n, Zapier, Make.com, or any HTTP endpoint.</span>
       </div>
       <input type="url" id="webhookUrl" placeholder="https://hooks.example.com/…" style="min-width:260px; font-family: monospace; font-size: 12px;" />
     </div>
 
     <div class="field">
       <div class="field-label">
-        <strong>Include content in webhook</strong>
-        <span>Send the full exported text in the webhook payload (increases payload size significantly for long chats)</span>
+        <strong data-i18n="settingsWebhookContentLabel">Include content in webhook</strong>
+        <span data-i18n="settingsWebhookContentDesc">Send the full exported text in the webhook payload (increases payload size significantly for long chats)</span>
       </div>
       <label class="toggle" for="webhookIncludeContent">
         <input type="checkbox" id="webhookIncludeContent" role="switch" />
@@ -337,10 +339,11 @@
   </section>
 
   <div class="save-row">
-    <button class="btn-save" id="saveBtn">Save</button>
+    <button class="btn-save" id="saveBtn" data-i18n="settingsSaveBtn">Save</button>
     <span id="saveStatus"></span>
   </div>
 
+  <script src="src/i18n.js"></script>
   <script src="settings.js"></script>
 </body>
 </html>

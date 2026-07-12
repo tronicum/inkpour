@@ -1,0 +1,857 @@
+{
+  "extName": {
+    "message": "Inkpour",
+    "description": "Extension name shown in browser toolbar and stores"
+  },
+  "extDescription": {
+    "message": "Экспортируйте переписки с ИИ-чатами (ChatGPT, Claude, Gemini, Copilot и другими) в Markdown, PDF, HTML, DOCX или ZIP.",
+    "description": "Extension description shown in browser stores"
+  },
+  "cmdExportMarkdown": {
+    "message": "Экспортировать текущий чат в Markdown",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyMarkdown": {
+    "message": "Скопировать текущий чат как Markdown в буфер обмена",
+    "description": "Keyboard command description"
+  },
+  "cmdExportPdf": {
+    "message": "Экспортировать текущий чат в PDF",
+    "description": "Keyboard command description"
+  },
+  "cmdUploadGist": {
+    "message": "Загрузить текущий чат в GitHub Gist",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyHtml": {
+    "message": "Скопировать текущий чат как автономный HTML в буфер обмена",
+    "description": "Keyboard command description"
+  },
+  "cmdExportJson": {
+    "message": "Экспортировать текущий чат в JSON",
+    "description": "Keyboard command description"
+  },
+  "cmdExportZip": {
+    "message": "Экспортировать текущий чат как ZIP (chat.md + файлы кода)",
+    "description": "Keyboard command description"
+  },
+  "cmdExportDocx": {
+    "message": "Экспортировать текущий чат в документ Word (.docx)",
+    "description": "Keyboard command description"
+  },
+  "popupTagline": {
+    "message": "Экспорт ИИ-чатов · MD, PDF, HTML, JSON, ZIP",
+    "description": "Popup header subtitle"
+  },
+  "popupSettingsTitle": {
+    "message": "Настройки",
+    "description": "Settings gear button tooltip/aria-label in popup"
+  },
+  "popupExportAsLabel": {
+    "message": "Экспортировать как",
+    "description": "Section label above the export format buttons"
+  },
+  "popupMdBtnTitle": {
+    "message": "Экспорт в Markdown (Alt+Shift+M)",
+    "description": "MD button tooltip"
+  },
+  "popupPdfBtnTitle": {
+    "message": "Экспорт в PDF",
+    "description": "PDF button tooltip"
+  },
+  "popupHtmlBtnTitle": {
+    "message": "Экспорт в HTML",
+    "description": "HTML button tooltip"
+  },
+  "popupJsonBtnTitle": {
+    "message": "Экспорт в JSON (Alt+Shift+J)",
+    "description": "JSON button tooltip"
+  },
+  "popupDocxBtnTitle": {
+    "message": "Экспорт в документ Word (.docx)",
+    "description": "DOCX button tooltip"
+  },
+  "popupCopyBtnTitle": {
+    "message": "Скопировать Markdown в буфер обмена (Alt+Shift+C)",
+    "description": "Copy MD button tooltip"
+  },
+  "popupCopyHtmlBtnTitle": {
+    "message": "Скопировать автономный HTML в буфер обмена (Alt+Shift+H)",
+    "description": "Copy HTML button tooltip"
+  },
+  "popupZipBtnTitle": {
+    "message": "Экспорт ZIP с chat.md + извлечёнными файлами кода (Alt+Shift+Z)",
+    "description": "ZIP button tooltip"
+  },
+  "popupGistBtnTitle": {
+    "message": "Загрузить Markdown в GitHub Gist",
+    "description": "Gist button tooltip"
+  },
+  "popupAllBtnTitle": {
+    "message": "Экспортировать MD + DOCX + ZIP одновременно",
+    "description": "Export All button tooltip"
+  },
+  "popupBtnMd": {
+    "message": "MD"
+  },
+  "popupBtnPdf": {
+    "message": "PDF"
+  },
+  "popupBtnHtml": {
+    "message": "HTML"
+  },
+  "popupBtnJson": {
+    "message": "JSON"
+  },
+  "popupBtnDocx": {
+    "message": "DOCX"
+  },
+  "popupBtnCopyMd": {
+    "message": "Копировать MD"
+  },
+  "popupBtnCopyHtml": {
+    "message": "Копировать HTML"
+  },
+  "popupBtnZip": {
+    "message": "ZIP"
+  },
+  "popupBtnGist": {
+    "message": "Gist ↑"
+  },
+  "popupBtnExportAll": {
+    "message": "⬇ Экспортировать всё (MD + DOCX + ZIP)"
+  },
+  "popupIncrementalBtnTitle": {
+    "message": "Экспортировать только сообщения, добавленные после последнего экспорта",
+    "description": "Export new only button tooltip"
+  },
+  "popupBtnExportNewOnly": {
+    "message": "Экспортировать только новые"
+  },
+  "popupTitleInputPlaceholder": {
+    "message": "Название чата…"
+  },
+  "popupNotesPlaceholder": {
+    "message": "Добавьте личные заметки — будут вставлены как цитата в начале экспорта…"
+  },
+  "popupNotesToggleAdd": {
+    "message": "+ Добавить заметки"
+  },
+  "popupNotesToggleHide": {
+    "message": "− Скрыть заметки"
+  },
+  "popupSelectToggleOpen": {
+    "message": "☑ Выбрать сообщения"
+  },
+  "popupSelectToggleClose": {
+    "message": "✕ Закрыть выбор"
+  },
+  "popupSelectAll": {
+    "message": "Все"
+  },
+  "popupSelectNone": {
+    "message": "Ничего"
+  },
+  "popupSelectUserOnly": {
+    "message": "Только пользователь"
+  },
+  "popupSelectAIOnly": {
+    "message": "Только ИИ"
+  },
+  "popupHistoryBtn": {
+    "message": "⏱ История"
+  },
+  "popupSettingsBtn": {
+    "message": "⚙ Настройки"
+  },
+  "popupStatusExtracting": {
+    "message": "Извлечение…"
+  },
+  "popupStatusExtractingMessages": {
+    "message": "Извлечение сообщений…"
+  },
+  "popupStatusLoadingOlder": {
+    "message": "Загрузка старых сообщений…"
+  },
+  "popupStatusAiStillGenerating": {
+    "message": "ИИ ещё генерирует ответ — экспортируйте после завершения"
+  },
+  "popupStatusSavedCheckDownloads": {
+    "message": "✓ Сохранено — проверьте папку «Загрузки»"
+  },
+  "popupStatusMarkdownCopied": {
+    "message": "✓ Markdown скопирован в буфер обмена"
+  },
+  "popupStatusHtmlCopied": {
+    "message": "✓ HTML скопирован — вставьте в любой редактор"
+  },
+  "popupStatusZipSaved": {
+    "message": "✓ ZIP сохранён — chat.md",
+    "description": "Prefix; extra code-file count is appended in JS"
+  },
+  "popupCodeFileOne": {
+    "message": " + $1 файл кода",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeFileOther": {
+    "message": " + $1 файлов кода",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupStatusExportAllSaved": {
+    "message": "✓ MD + DOCX + ZIP сохранены"
+  },
+  "popupStatusGistTokenMissing": {
+    "message": "Сначала добавьте токен GitHub в настройках."
+  },
+  "popupStatusGistUploading": {
+    "message": "Загрузка в GitHub Gist…"
+  },
+  "popupStatusGistCreated": {
+    "message": "✓ Gist создан"
+  },
+  "popupStatusGistUploadFailed": {
+    "message": "Не удалось загрузить Gist"
+  },
+  "popupStatusNotSupportedPage": {
+    "message": "Эта страница ИИ-чата не поддерживается. Откройте Inkpour в ChatGPT, Claude, Gemini, Google Search или на другой поддерживаемой платформе."
+  },
+  "popupStatusRefreshTab": {
+    "message": "Обновите вкладку чата и повторите попытку. (Content script не запущен — вкладка была открыта до загрузки расширения.)"
+  },
+  "popupStatusNoResponse": {
+    "message": "Нет ответа от страницы. Попробуйте обновить вкладку."
+  },
+  "popupStatusNoMessagesFound": {
+    "message": "Сообщения не найдены."
+  },
+  "popupStatusCannotAccessTab": {
+    "message": "Не удалось получить доступ к текущей вкладке."
+  },
+  "popupStatusNoNewMessages": {
+    "message": "Нет новых сообщений для экспорта."
+  },
+  "popupMsgCountOne": {
+    "message": "Готово · $COUNT$ сообщение$ROLES$ · ~$WORDS$ слов · ~$READMIN$ мин чтения$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupMsgCountOther": {
+    "message": "Готово · $COUNT$ сообщений$ROLES$ · ~$WORDS$ слов · ~$READMIN$ мин чтения$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupCodeBlockOne": {
+    "message": " · $1 блок кода",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeBlockOther": {
+    "message": " · $1 блоков кода",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupLastExport": {
+    "message": "Последний: $PLATFORM$ · $COUNT$ сообщ.$FORMAT$ · $WHEN$",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      },
+      "when": {
+        "content": "$4"
+      }
+    }
+  },
+  "popupLastExportJustNow": {
+    "message": "Последний: $PLATFORM$ · $COUNT$ сообщ. · $FORMAT$ · только что",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupNewMessageOne": {
+    "message": "+$COUNT$ новое сообщение с момента экспорта $WHEN$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupNewMessageOther": {
+    "message": "+$COUNT$ новых сообщений с момента экспорта $WHEN$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOne": {
+    "message": "$COUNT$ новое сообщение с момента последнего экспорта ($WHEN$) — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOther": {
+    "message": "$COUNT$ новых сообщений с момента последнего экспорта ($WHEN$) — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupSavedNewMessagesOne": {
+    "message": "✓ Сохранено $COUNT$ новое сообщение — проверьте папку «Загрузки»",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupSavedNewMessagesOther": {
+    "message": "✓ Сохранено $COUNT$ новых сообщений — проверьте папку «Загрузки»",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeJustNow": {
+    "message": "только что"
+  },
+  "timeMinutesAgo": {
+    "message": "$1 мин назад",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeHoursAgo": {
+    "message": "$1 ч назад",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeDaysAgo": {
+    "message": "$1 дн назад",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsHeaderTitle": {
+    "message": "Настройки Inkpour"
+  },
+  "settingsHeaderSubtitle": {
+    "message": "Настройки сохраняются локально в вашем браузере"
+  },
+  "settingsBrowserDetecting": {
+    "message": "Определение…"
+  },
+  "settingsBrowserBadge": {
+    "message": "Определено автоматически"
+  },
+  "settingsBrowserFirefoxName": {
+    "message": "Firefox"
+  },
+  "settingsBrowserFirefoxNote": {
+    "message": "Полная поддержка — все форматы экспорта"
+  },
+  "settingsBrowserChromeName": {
+    "message": "Chrome / Brave"
+  },
+  "settingsBrowserChromeNote": {
+    "message": "Полная поддержка — все форматы экспорта"
+  },
+  "settingsBrowserEdgeName": {
+    "message": "Microsoft Edge"
+  },
+  "settingsBrowserEdgeNote": {
+    "message": "Полная поддержка — все форматы экспорта"
+  },
+  "settingsBrowserSafariName": {
+    "message": "Safari"
+  },
+  "settingsBrowserSafariNote": {
+    "message": "Экспериментально — PDF может работать иначе"
+  },
+  "settingsBrowserUnknownName": {
+    "message": "Неизвестный браузер"
+  },
+  "settingsBrowserUnknownNote": {
+    "message": "Может работать — сообщайте о проблемах, если что-то не работает"
+  },
+  "settingsSectionExport": {
+    "message": "Экспорт"
+  },
+  "settingsSectionIntegrations": {
+    "message": "Интеграции"
+  },
+  "settingsDefaultFormatLabel": {
+    "message": "Формат по умолчанию"
+  },
+  "settingsDefaultFormatDesc": {
+    "message": "Какая кнопка получает фокус клавиатуры первой"
+  },
+  "settingsFilenameTemplateLabel": {
+    "message": "Шаблон имени файла"
+  },
+  "settingsFilenameTemplateDesc": {
+    "message": "Токены: {platform} {title} {date} {time} {url} {words} {msgcount}"
+  },
+  "settingsPdfAutoPrintLabel": {
+    "message": "Автопечать PDF"
+  },
+  "settingsPdfAutoPrintDesc": {
+    "message": "Автоматически открывать диалог печати после загрузки вкладки PDF"
+  },
+  "settingsYamlLabel": {
+    "message": "Включить YAML front matter"
+  },
+  "settingsYamlDesc": {
+    "message": "Добавляет заголовок, дату, платформу и URL в начало файлов .md"
+  },
+  "settingsTocLabel": {
+    "message": "Создавать оглавление"
+  },
+  "settingsTocDesc": {
+    "message": "Добавляет кликабельное оглавление для чатов с более чем 4 сообщениями"
+  },
+  "settingsSubfolderLabel": {
+    "message": "Подпапка загрузок"
+  },
+  "settingsSubfolderDesc": {
+    "message": "Необязательный подпуть внутри папки загрузок по умолчанию (например, AI Chats)"
+  },
+  "settingsSubfolderPlaceholder": {
+    "message": "например, AI Chats"
+  },
+  "settingsObsidianVaultLabel": {
+    "message": "Подпапка хранилища Obsidian"
+  },
+  "settingsObsidianVaultDesc": {
+    "message": "Если задано, экспорт сохраняется в эту подпапку в «Загрузках» — полезно для хранилищ Obsidian. Переопределяет поле подпапки выше."
+  },
+  "settingsObsidianTagsLabel": {
+    "message": "Теги Obsidian в YAML"
+  },
+  "settingsObsidianTagsDesc": {
+    "message": "Добавляет теги: [ai-chat, {platform}] во front matter (требуется включённый YAML)"
+  },
+  "settingsGithubTokenLabel": {
+    "message": "Токен GitHub"
+  },
+  "settingsGithubTokenDesc": {
+    "message": "Персональный токен доступа с областью gist — включает кнопку «Загрузить в Gist» во всплывающем окне."
+  },
+  "settingsGithubTokenLink": {
+    "message": "Создать →"
+  },
+  "settingsGistVisibilityLabel": {
+    "message": "Видимость Gist"
+  },
+  "settingsGistVisibilityDesc": {
+    "message": "Секретные Gist не отображаются в списках (доступны всем, у кого есть ссылка)"
+  },
+  "settingsGistSecretOption": {
+    "message": "Секретный (не в списках)"
+  },
+  "settingsGistPublicOption": {
+    "message": "Публичный"
+  },
+  "settingsGistTagsLabel": {
+    "message": "Теги Gist"
+  },
+  "settingsGistTagsDesc": {
+    "message": "Дополнительные теги, добавляемые в YAML-заголовок каждого экспорта в Gist, через запятую. Позже ищите свои Gist на GitHub с помощью user:you \"tag\". Теги ai-chat и название платформы всегда добавляются автоматически."
+  },
+  "settingsGistTagsPlaceholder": {
+    "message": "работа, проект-x, исследование"
+  },
+  "settingsScrubLabel": {
+    "message": "Удалять секреты перед загрузкой"
+  },
+  "settingsScrubDesc": {
+    "message": "Скрывает вероятные ключи API, токены и адреса электронной почты перед загрузкой в Gist/webhook"
+  },
+  "settingsWebhookUrlLabel": {
+    "message": "URL webhook"
+  },
+  "settingsWebhookUrlDesc": {
+    "message": "После каждого экспорта Inkpour отправляет сюда POST-запрос с метаданными экспорта (заголовок, платформа, формат, количество слов). Работает с n8n, Zapier, Make.com или любым HTTP-эндпоинтом."
+  },
+  "settingsWebhookContentLabel": {
+    "message": "Включать содержимое в webhook"
+  },
+  "settingsWebhookContentDesc": {
+    "message": "Отправляет полный экспортированный текст в теле webhook (значительно увеличивает размер данных для длинных чатов)"
+  },
+  "settingsSaveBtn": {
+    "message": "Сохранить"
+  },
+  "settingsSavedStatus": {
+    "message": "✓ Сохранено"
+  },
+  "historyHeaderTitle": {
+    "message": "История экспорта"
+  },
+  "historyHeaderSubtitle": {
+    "message": "Последние 20 экспортов — хранятся локально, никогда не загружаются"
+  },
+  "historySearchPlaceholder": {
+    "message": "Поиск по названию, платформе или содержимому переписки…"
+  },
+  "historyClearRecent": {
+    "message": "Очистить недавние"
+  },
+  "historyClearAll": {
+    "message": "Очистить всё"
+  },
+  "historyClearStarred": {
+    "message": "Очистить ★"
+  },
+  "historyClearRecentTitle": {
+    "message": "Очистить недавнюю историю (отмеченные звездой экспорты сохранятся)"
+  },
+  "historyClearAllTitle": {
+    "message": "Очистить всю историю экспорта"
+  },
+  "historyEmptyTitle": {
+    "message": "📭"
+  },
+  "historyEmptyBody": {
+    "message": "Экспортов пока нет. Экспортируйте чат из всплывающего окна, чтобы увидеть его здесь."
+  },
+  "historyBackLink": {
+    "message": "← Назад к всплывающему окну"
+  },
+  "historyStorageNote": {
+    "message": "Содержимое хранится в хранилище расширения браузера"
+  },
+  "historyStatExports": {
+    "message": "Экспортов"
+  },
+  "historyStatWords": {
+    "message": "Всего слов"
+  },
+  "historyStatPlatform": {
+    "message": "Основная платформа"
+  },
+  "historyStatFormat": {
+    "message": "Основной формат"
+  },
+  "historySectionStarred": {
+    "message": "★ Отмеченные"
+  },
+  "historySectionRecent": {
+    "message": "Недавние"
+  },
+  "historyStarPin": {
+    "message": "Отметить звездой"
+  },
+  "historyStarUnpin": {
+    "message": "Снять отметку"
+  },
+  "historyActionSave": {
+    "message": "↓ Сохранить"
+  },
+  "historyActionCopy": {
+    "message": "⎘ Копировать"
+  },
+  "historyActionCopied": {
+    "message": "✓ Скопировано"
+  },
+  "historyActionGist": {
+    "message": "↗ Gist"
+  },
+  "historyNoExportsYet": {
+    "message": "Экспортов пока нет"
+  },
+  "historyMatchCountOne": {
+    "message": "$1 из $2 совпадения",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyMatchCountOther": {
+    "message": "$1 из $2 совпадений",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyFilteredCount": {
+    "message": "$1 из $2 экспортов",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyExportCountOne": {
+    "message": "$1 экспорт",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyExportCountOther": {
+    "message": "$1 экспортов",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyLifetimeStatsOne": {
+    "message": "За всё время: $1 экспорт$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyLifetimeStatsOther": {
+    "message": "За всё время: $1 экспортов$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyConfirmClearRecent": {
+    "message": "Очистить недавнюю историю? Отмеченные звездой экспорты сохранятся."
+  },
+  "historyConfirmClearAll": {
+    "message": "Очистить всю историю экспорта? Это действие нельзя отменить."
+  },
+  "historyConfirmClearStarred": {
+    "message": "Удалить все отмеченные звездой экспорты? Это действие нельзя отменить."
+  },
+  "printLoading": {
+    "message": "Загрузка переписки…"
+  },
+  "printNoContent": {
+    "message": "Inkpour: содержимое не найдено. Попробуйте экспортировать снова."
+  },
+  "printGenericErrorPrefix": {
+    "message": "Ошибка Inkpour:"
+  },
+  "contentFabTitle": {
+    "message": "Inkpour — экспортировать этот чат"
+  },
+  "contentToastRedactedOne": {
+    "message": "Скрыт $1 элемент ($2) перед загрузкой.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastRedactedOther": {
+    "message": "Скрыто $1 элементов ($2) перед загрузкой.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastGistFailedNetwork": {
+    "message": "✗ Не удалось загрузить Gist (ошибка сети)"
+  },
+  "contentToastGistFailed": {
+    "message": "✗ Не удалось загрузить Gist: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentToastGistCreated": {
+    "message": "✓ Gist создан"
+  },
+  "popupSelectCount": {
+    "message": "Выбрано $1 из $2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupPlatformDetected": {
+    "message": "✓ $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupPlatformCount": {
+    "message": "Поддерживается платформ: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentMenuExportMd": {
+    "message": "Экспорт MD"
+  },
+  "contentMenuCopyMd": {
+    "message": "Копировать MD"
+  },
+  "contentMenuExportHtml": {
+    "message": "Экспорт HTML"
+  },
+  "contentMenuExportDocx": {
+    "message": "Экспорт DOCX"
+  },
+  "contentMenuExportPdf": {
+    "message": "Экспорт PDF"
+  },
+  "contentMenuExportZip": {
+    "message": "Экспорт ZIP"
+  },
+  "contentStatusSaved": {
+    "message": "✓ Сохранено!"
+  },
+  "contentStatusCopied": {
+    "message": "✓ Скопировано!"
+  },
+  "contentStatusExporting": {
+    "message": "Экспорт…"
+  },
+  "contentStatusExportStarted": {
+    "message": "✓ Экспорт $1 начат",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentStatusExportFailed": {
+    "message": "Ошибка экспорта"
+  },
+  "contentNoMessagesFound": {
+    "message": "Сообщения не найдены"
+  },
+  "settingsPageTitle": {
+    "message": "Inkpour — Настройки"
+  },
+  "settingsFormatOptionMd": {
+    "message": "Markdown (.md)"
+  },
+  "settingsFormatOptionPdf": {
+    "message": "PDF"
+  },
+  "settingsFormatOptionHtml": {
+    "message": "HTML"
+  },
+  "settingsFormatOptionJson": {
+    "message": "JSON"
+  },
+  "settingsFormatOptionZip": {
+    "message": "ZIP (чат + файлы кода)"
+  }
+}
