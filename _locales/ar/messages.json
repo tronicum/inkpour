@@ -853,5 +853,53 @@
   },
   "settingsFormatOptionZip": {
     "message": "ZIP (المحادثة + ملفات الأكواد)"
+  },
+  "settingsSectionLanguage": {
+    "message": "اللغة"
+  },
+  "settingsLanguageLabel": {
+    "message": "لغة العرض"
+  },
+  "settingsLanguageDesc": {
+    "message": "يتجاوز لغة متصفحك لشاشات Inkpour الخاصة فقط"
+  },
+  "settingsLanguageAuto": {
+    "message": "اتباع لغة المتصفح (تلقائي)"
+  },
+  "popupImportBtnTitle": {
+    "message": "استيراد من الحافظة"
+  },
+  "popupImportTextPlaceholder": {
+    "message": "الصق محادثة منسوخة هنا…"
+  },
+  "popupImportTitlePlaceholder": {
+    "message": "العنوان (اختياري)…"
+  },
+  "popupImportCancelBtn": {
+    "message": "إلغاء"
+  },
+  "popupImportSubmitBtn": {
+    "message": "استيراد"
+  },
+  "popupImportEmptyError": {
+    "message": "الصق بعض النص أولاً"
+  },
+  "popupImportDefaultTitle": {
+    "message": "محادثة مستوردة"
+  },
+  "popupStatusImportedOne": {
+    "message": "✓ تم استيراد $1 رسالة — اختر تنسيقًا أدناه"
+  },
+  "popupStatusImportedOther": {
+    "message": "✓ تم استيراد $1 رسائل — اختر تنسيقًا أدناه"
+  },
+  "popupGistCopyLinkBtn": {
+    "message": "نسخ الرابط"
+  },
+  "popupGistShareBtn": {
+    "message": "مشاركة…"
+  },
+  "popupStatusGistLinkCopied": {
+    "message": "✓ تم نسخ الرابط إلى الحافظة"
   }
 }

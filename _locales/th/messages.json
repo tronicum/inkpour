@@ -853,5 +853,53 @@
   },
   "settingsFormatOptionZip": {
     "message": "ZIP (แชท + ไฟล์โค้ด)"
+  },
+  "settingsSectionLanguage": {
+    "message": "ภาษา"
+  },
+  "settingsLanguageLabel": {
+    "message": "ภาษาที่แสดง"
+  },
+  "settingsLanguageDesc": {
+    "message": "แทนที่ภาษาเบราว์เซอร์ของคุณเฉพาะหน้าจอของ Inkpour เท่านั้น"
+  },
+  "settingsLanguageAuto": {
+    "message": "ใช้ภาษาเบราว์เซอร์ (อัตโนมัติ)"
+  },
+  "popupImportBtnTitle": {
+    "message": "นำเข้าจากคลิปบอร์ด"
+  },
+  "popupImportTextPlaceholder": {
+    "message": "วางบทสนทนาที่คัดลอกไว้ที่นี่…"
+  },
+  "popupImportTitlePlaceholder": {
+    "message": "ชื่อเรื่อง (ไม่บังคับ)…"
+  },
+  "popupImportCancelBtn": {
+    "message": "ยกเลิก"
+  },
+  "popupImportSubmitBtn": {
+    "message": "นำเข้า"
+  },
+  "popupImportEmptyError": {
+    "message": "โปรดวางข้อความก่อน"
+  },
+  "popupImportDefaultTitle": {
+    "message": "แชทที่นำเข้า"
+  },
+  "popupStatusImportedOne": {
+    "message": "✓ นำเข้า $1 ข้อความแล้ว — เลือกรูปแบบด้านล่าง"
+  },
+  "popupStatusImportedOther": {
+    "message": "✓ นำเข้า $1 ข้อความแล้ว — เลือกรูปแบบด้านล่าง"
+  },
+  "popupGistCopyLinkBtn": {
+    "message": "คัดลอกลิงก์"
+  },
+  "popupGistShareBtn": {
+    "message": "แชร์…"
+  },
+  "popupStatusGistLinkCopied": {
+    "message": "✓ คัดลอกลิงก์ไปยังคลิปบอร์ดแล้ว"
   }
 }

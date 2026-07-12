@@ -828,5 +828,53 @@
   },
   "settingsFormatOptionZip": {
     "message": "ZIP (ਚੈਟ + ਕੋਡ ਫਾਈਲਾਂ)"
+  },
+  "settingsSectionLanguage": {
+    "message": "ਭਾਸ਼ਾ"
+  },
+  "settingsLanguageLabel": {
+    "message": "ਡਿਸਪਲੇ ਭਾਸ਼ਾ"
+  },
+  "settingsLanguageDesc": {
+    "message": "ਸਿਰਫ਼ Inkpour ਦੀਆਂ ਆਪਣੀਆਂ ਸਕ੍ਰੀਨਾਂ ਲਈ ਤੁਹਾਡੇ ਬ੍ਰਾਊਜ਼ਰ ਦੀ ਭਾਸ਼ਾ ਨੂੰ ਓਵਰਰਾਈਡ ਕਰਦਾ ਹੈ"
+  },
+  "settingsLanguageAuto": {
+    "message": "ਬ੍ਰਾਊਜ਼ਰ ਭਾਸ਼ਾ ਦੀ ਪਾਲਣਾ ਕਰੋ (ਆਟੋ)"
+  },
+  "popupImportBtnTitle": {
+    "message": "ਕਲਿੱਪਬੋਰਡ ਤੋਂ ਆਯਾਤ ਕਰੋ"
+  },
+  "popupImportTextPlaceholder": {
+    "message": "ਇੱਥੇ ਕਾਪੀ ਕੀਤੀ ਗੱਲਬਾਤ ਪੇਸਟ ਕਰੋ…"
+  },
+  "popupImportTitlePlaceholder": {
+    "message": "ਸਿਰਲੇਖ (ਵਿਕਲਪਿਕ)…"
+  },
+  "popupImportCancelBtn": {
+    "message": "ਰੱਦ ਕਰੋ"
+  },
+  "popupImportSubmitBtn": {
+    "message": "ਆਯਾਤ ਕਰੋ"
+  },
+  "popupImportEmptyError": {
+    "message": "ਪਹਿਲਾਂ ਕੁਝ ਟੈਕਸਟ ਪੇਸਟ ਕਰੋ"
+  },
+  "popupImportDefaultTitle": {
+    "message": "ਆਯਾਤ ਕੀਤੀ ਗੱਲਬਾਤ"
+  },
+  "popupStatusImportedOne": {
+    "message": "✓ $1 ਸੁਨੇਹਾ ਆਯਾਤ ਕੀਤਾ ਗਿਆ — ਹੇਠਾਂ ਇੱਕ ਫਾਰਮੈਟ ਚੁਣੋ"
+  },
+  "popupStatusImportedOther": {
+    "message": "✓ $1 ਸੁਨੇਹੇ ਆਯਾਤ ਕੀਤੇ ਗਏ — ਹੇਠਾਂ ਇੱਕ ਫਾਰਮੈਟ ਚੁਣੋ"
+  },
+  "popupGistCopyLinkBtn": {
+    "message": "ਲਿੰਕ ਕਾਪੀ ਕਰੋ"
+  },
+  "popupGistShareBtn": {
+    "message": "ਸਾਂਝਾ ਕਰੋ…"
+  },
+  "popupStatusGistLinkCopied": {
+    "message": "✓ ਲਿੰਕ ਕਲਿੱਪਬੋਰਡ ਵਿੱਚ ਕਾਪੀ ਕੀਤਾ ਗਿਆ"
   }
 }

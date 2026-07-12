@@ -853,5 +853,53 @@
   },
   "settingsFormatOptionZip": {
     "message": "ZIP (chat + codebestanden)"
+  },
+  "settingsSectionLanguage": {
+    "message": "Taal"
+  },
+  "settingsLanguageLabel": {
+    "message": "Weergavetaal"
+  },
+  "settingsLanguageDesc": {
+    "message": "Overschrijft de taal van je browser alleen voor de eigen schermen van Inkpour"
+  },
+  "settingsLanguageAuto": {
+    "message": "Browsertaal volgen (automatisch)"
+  },
+  "popupImportBtnTitle": {
+    "message": "Importeren vanuit klembord"
+  },
+  "popupImportTextPlaceholder": {
+    "message": "Plak hier een gekopieerd gesprek…"
+  },
+  "popupImportTitlePlaceholder": {
+    "message": "Titel (optioneel)…"
+  },
+  "popupImportCancelBtn": {
+    "message": "Annuleren"
+  },
+  "popupImportSubmitBtn": {
+    "message": "Importeren"
+  },
+  "popupImportEmptyError": {
+    "message": "Plak eerst wat tekst"
+  },
+  "popupImportDefaultTitle": {
+    "message": "Geïmporteerde chat"
+  },
+  "popupStatusImportedOne": {
+    "message": "✓ $1 bericht geïmporteerd — kies hieronder een formaat"
+  },
+  "popupStatusImportedOther": {
+    "message": "✓ $1 berichten geïmporteerd — kies hieronder een formaat"
+  },
+  "popupGistCopyLinkBtn": {
+    "message": "Link kopiëren"
+  },
+  "popupGistShareBtn": {
+    "message": "Delen…"
+  },
+  "popupStatusGistLinkCopied": {
+    "message": "✓ Link gekopieerd naar klembord"
   }
 }

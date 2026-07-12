@@ -47,6 +47,36 @@
     "message": "Settings",
     "description": "Settings gear button tooltip/aria-label in popup"
   },
+  "popupImportBtnTitle": {
+    "message": "Import from clipboard",
+    "description": "Import icon button tooltip/aria-label in popup header"
+  },
+  "popupImportTextPlaceholder": {
+    "message": "Paste a copied conversation here…"
+  },
+  "popupImportTitlePlaceholder": {
+    "message": "Title (optional)…"
+  },
+  "popupImportCancelBtn": {
+    "message": "Cancel"
+  },
+  "popupImportSubmitBtn": {
+    "message": "Import"
+  },
+  "popupImportEmptyError": {
+    "message": "Paste some text first"
+  },
+  "popupImportDefaultTitle": {
+    "message": "Imported chat"
+  },
+  "popupStatusImportedOne": {
+    "message": "✓ Imported $1 message — pick a format below",
+    "description": "Singular; $1 is the message count"
+  },
+  "popupStatusImportedOther": {
+    "message": "✓ Imported $1 messages — pick a format below",
+    "description": "Plural; $1 is the message count"
+  },
   "popupPlatformDetected": {
     "message": "✓ $1",
     "placeholders": {
@@ -232,6 +262,15 @@
   },
   "popupStatusGistCreated": {
     "message": "✓ Gist created"
+  },
+  "popupGistCopyLinkBtn": {
+    "message": "Copy link"
+  },
+  "popupGistShareBtn": {
+    "message": "Share…"
+  },
+  "popupStatusGistLinkCopied": {
+    "message": "✓ Link copied to clipboard"
   },
   "popupStatusGistUploadFailed": {
     "message": "Gist upload failed"
@@ -476,6 +515,10 @@
   "settingsBrowserUnknownNote": {
     "message": "May work — report issues if something breaks"
   },
+  "settingsSectionLanguage": { "message": "Language" },
+  "settingsLanguageLabel": { "message": "Display language" },
+  "settingsLanguageDesc": { "message": "Overrides your browser's language for Inkpour's own screens only" },
+  "settingsLanguageAuto": { "message": "Follow browser language (auto)" },
   "settingsSectionExport": {
     "message": "Export"
   },
