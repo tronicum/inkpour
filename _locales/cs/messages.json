@@ -828,5 +828,53 @@
   },
   "settingsFormatOptionZip": {
     "message": "ZIP (chat + soubory s kódem)"
+  },
+  "settingsSectionLanguage": {
+    "message": "Jazyk"
+  },
+  "settingsLanguageLabel": {
+    "message": "Zobrazovací jazyk"
+  },
+  "settingsLanguageDesc": {
+    "message": "Přepíše jazyk vašeho prohlížeče pouze pro vlastní obrazovky Inkpour"
+  },
+  "settingsLanguageAuto": {
+    "message": "Použít jazyk prohlížeče (automaticky)"
+  },
+  "popupImportBtnTitle": {
+    "message": "Importovat ze schránky"
+  },
+  "popupImportTextPlaceholder": {
+    "message": "Sem vložte zkopírovanou konverzaci…"
+  },
+  "popupImportTitlePlaceholder": {
+    "message": "Název (volitelné)…"
+  },
+  "popupImportCancelBtn": {
+    "message": "Zrušit"
+  },
+  "popupImportSubmitBtn": {
+    "message": "Importovat"
+  },
+  "popupImportEmptyError": {
+    "message": "Nejprve vložte nějaký text"
+  },
+  "popupImportDefaultTitle": {
+    "message": "Importovaný chat"
+  },
+  "popupStatusImportedOne": {
+    "message": "✓ Importována $1 zpráva — vyberte formát níže"
+  },
+  "popupStatusImportedOther": {
+    "message": "✓ Importováno $1 zpráv — vyberte formát níže"
+  },
+  "popupGistCopyLinkBtn": {
+    "message": "Kopírovat odkaz"
+  },
+  "popupGistShareBtn": {
+    "message": "Sdílet…"
+  },
+  "popupStatusGistLinkCopied": {
+    "message": "✓ Odkaz zkopírován do schránky"
   }
 }

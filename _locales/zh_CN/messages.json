@@ -853,5 +853,53 @@
   },
   "settingsFormatOptionZip": {
     "message": "ZIP（对话 + 代码文件）"
+  },
+  "settingsSectionLanguage": {
+    "message": "语言"
+  },
+  "settingsLanguageLabel": {
+    "message": "显示语言"
+  },
+  "settingsLanguageDesc": {
+    "message": "仅覆盖 Inkpour 自身界面的浏览器语言设置"
+  },
+  "settingsLanguageAuto": {
+    "message": "跟随浏览器语言(自动)"
+  },
+  "popupImportBtnTitle": {
+    "message": "从剪贴板导入"
+  },
+  "popupImportTextPlaceholder": {
+    "message": "在此粘贴复制的对话…"
+  },
+  "popupImportTitlePlaceholder": {
+    "message": "标题(可选)…"
+  },
+  "popupImportCancelBtn": {
+    "message": "取消"
+  },
+  "popupImportSubmitBtn": {
+    "message": "导入"
+  },
+  "popupImportEmptyError": {
+    "message": "请先粘贴一些文本"
+  },
+  "popupImportDefaultTitle": {
+    "message": "已导入的聊天"
+  },
+  "popupStatusImportedOne": {
+    "message": "✓ 已导入 $1 条消息 — 请在下方选择格式"
+  },
+  "popupStatusImportedOther": {
+    "message": "✓ 已导入 $1 条消息 — 请在下方选择格式"
+  },
+  "popupGistCopyLinkBtn": {
+    "message": "复制链接"
+  },
+  "popupGistShareBtn": {
+    "message": "分享…"
+  },
+  "popupStatusGistLinkCopied": {
+    "message": "✓ 链接已复制到剪贴板"
   }
 }

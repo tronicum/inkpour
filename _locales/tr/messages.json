@@ -853,5 +853,53 @@
   },
   "settingsFormatOptionZip": {
     "message": "ZIP (sohbet + kod dosyaları)"
+  },
+  "settingsSectionLanguage": {
+    "message": "Dil"
+  },
+  "settingsLanguageLabel": {
+    "message": "Görüntüleme dili"
+  },
+  "settingsLanguageDesc": {
+    "message": "Yalnızca Inkpour'un kendi ekranları için tarayıcınızın dilini geçersiz kılar"
+  },
+  "settingsLanguageAuto": {
+    "message": "Tarayıcı dilini izle (otomatik)"
+  },
+  "popupImportBtnTitle": {
+    "message": "Panodan içe aktar"
+  },
+  "popupImportTextPlaceholder": {
+    "message": "Kopyalanan bir konuşmayı buraya yapıştırın…"
+  },
+  "popupImportTitlePlaceholder": {
+    "message": "Başlık (isteğe bağlı)…"
+  },
+  "popupImportCancelBtn": {
+    "message": "İptal"
+  },
+  "popupImportSubmitBtn": {
+    "message": "İçe aktar"
+  },
+  "popupImportEmptyError": {
+    "message": "Önce biraz metin yapıştırın"
+  },
+  "popupImportDefaultTitle": {
+    "message": "İçe aktarılan sohbet"
+  },
+  "popupStatusImportedOne": {
+    "message": "✓ $1 mesaj içe aktarıldı — aşağıdan bir biçim seçin"
+  },
+  "popupStatusImportedOther": {
+    "message": "✓ $1 mesaj içe aktarıldı — aşağıdan bir biçim seçin"
+  },
+  "popupGistCopyLinkBtn": {
+    "message": "Bağlantıyı kopyala"
+  },
+  "popupGistShareBtn": {
+    "message": "Paylaş…"
+  },
+  "popupStatusGistLinkCopied": {
+    "message": "✓ Bağlantı panoya kopyalandı"
   }
 }

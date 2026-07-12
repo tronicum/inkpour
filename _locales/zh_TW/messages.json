@@ -853,5 +853,53 @@
   },
   "settingsFormatOptionZip": {
     "message": "ZIP (聊天記錄 + 程式碼檔案)"
+  },
+  "settingsSectionLanguage": {
+    "message": "語言"
+  },
+  "settingsLanguageLabel": {
+    "message": "顯示語言"
+  },
+  "settingsLanguageDesc": {
+    "message": "僅覆寫 Inkpour 自身介面的瀏覽器語言設定"
+  },
+  "settingsLanguageAuto": {
+    "message": "跟隨瀏覽器語言(自動)"
+  },
+  "popupImportBtnTitle": {
+    "message": "從剪貼簿匯入"
+  },
+  "popupImportTextPlaceholder": {
+    "message": "在此貼上複製的對話…"
+  },
+  "popupImportTitlePlaceholder": {
+    "message": "標題(選填)…"
+  },
+  "popupImportCancelBtn": {
+    "message": "取消"
+  },
+  "popupImportSubmitBtn": {
+    "message": "匯入"
+  },
+  "popupImportEmptyError": {
+    "message": "請先貼上一些文字"
+  },
+  "popupImportDefaultTitle": {
+    "message": "已匯入的對話"
+  },
+  "popupStatusImportedOne": {
+    "message": "✓ 已匯入 $1 則訊息 — 請在下方選擇格式"
+  },
+  "popupStatusImportedOther": {
+    "message": "✓ 已匯入 $1 則訊息 — 請在下方選擇格式"
+  },
+  "popupGistCopyLinkBtn": {
+    "message": "複製連結"
+  },
+  "popupGistShareBtn": {
+    "message": "分享…"
+  },
+  "popupStatusGistLinkCopied": {
+    "message": "✓ 連結已複製到剪貼簿"
   }
 }

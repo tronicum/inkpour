@@ -35,6 +35,37 @@
   document.getElementById('browserName').textContent = meta.name;
   document.getElementById('browserNote').textContent = meta.note;
 
+  // ─── Language override ───────────────────────────────────────────────────
+  // Populate the picker with every shipped locale plus a leading "auto"
+  // option (empty value = follow the browser's own language, the default).
+  // Selecting a language fetches+caches its messages.json (via
+  // InkpourI18n.setLanguageOverride) and reloads so the change is visible
+  // immediately across this page; picking "auto" again clears the override.
+  const i18n = (typeof InkpourI18n !== 'undefined' ? InkpourI18n : window.InkpourI18n);
+  const languageSelect = document.getElementById('languageOverride');
+
+  if (languageSelect) {
+    const autoOption = document.createElement('option');
+    autoOption.value = '';
+    autoOption.textContent = t('settingsLanguageAuto');
+    languageSelect.appendChild(autoOption);
+
+    i18n.SUPPORTED_LOCALES.forEach(({ code, name }) => {
+      const opt = document.createElement('option');
+      opt.value = code;
+      opt.textContent = name;
+      languageSelect.appendChild(opt);
+    });
+
+    languageSelect.value = i18n.getLanguageOverride();
+
+    languageSelect.addEventListener('change', () => {
+      i18n.setLanguageOverride(languageSelect.value).then(() => {
+        location.reload();
+      });
+    });
+  }
+
   // ─── Load saved prefs ────────────────────────────────────────────────────
 
   const DEFAULTS = {

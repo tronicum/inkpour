@@ -853,5 +853,53 @@
   },
   "settingsFormatOptionZip": {
     "message": "ZIP (chat + fichiers de code)"
+  },
+  "settingsSectionLanguage": {
+    "message": "Langue"
+  },
+  "settingsLanguageLabel": {
+    "message": "Langue d'affichage"
+  },
+  "settingsLanguageDesc": {
+    "message": "Remplace la langue de votre navigateur uniquement pour les écrans propres à Inkpour"
+  },
+  "settingsLanguageAuto": {
+    "message": "Suivre la langue du navigateur (automatique)"
+  },
+  "popupImportBtnTitle": {
+    "message": "Importer depuis le presse-papiers"
+  },
+  "popupImportTextPlaceholder": {
+    "message": "Collez ici une conversation copiée…"
+  },
+  "popupImportTitlePlaceholder": {
+    "message": "Titre (facultatif)…"
+  },
+  "popupImportCancelBtn": {
+    "message": "Annuler"
+  },
+  "popupImportSubmitBtn": {
+    "message": "Importer"
+  },
+  "popupImportEmptyError": {
+    "message": "Collez d'abord du texte"
+  },
+  "popupImportDefaultTitle": {
+    "message": "Conversation importée"
+  },
+  "popupStatusImportedOne": {
+    "message": "✓ $1 message importé — choisissez un format ci-dessous"
+  },
+  "popupStatusImportedOther": {
+    "message": "✓ $1 messages importés — choisissez un format ci-dessous"
+  },
+  "popupGistCopyLinkBtn": {
+    "message": "Copier le lien"
+  },
+  "popupGistShareBtn": {
+    "message": "Partager…"
+  },
+  "popupStatusGistLinkCopied": {
+    "message": "✓ Lien copié dans le presse-papiers"
   }
 }

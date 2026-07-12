@@ -42,6 +42,13 @@
   const selectNoneBtn = document.getElementById('selectNone');
   const selectUserBtn = document.getElementById('selectUser');
   const selectAIBtn   = document.getElementById('selectAI');
+  const importBtn         = document.getElementById('importBtn');
+  const importSection     = document.getElementById('import-section');
+  const importText        = document.getElementById('importText');
+  const importTitleInput  = document.getElementById('importTitleInput');
+  const importError       = document.getElementById('importError');
+  const importSubmitBtn   = document.getElementById('importSubmitBtn');
+  const importCancelBtn   = document.getElementById('importCancelBtn');
 
   // ─── Load user settings ───────────────────────────────────────────────────
 
@@ -347,13 +354,28 @@
     }
   }
 
-  // Status bar acts as a "Refresh" button — click to re-extract
+  // Status bar acts as a "Refresh" button — click to re-extract. An explicit
+  // refresh means "give up on the pending import, get me the live page"
+  // (there's nothing else it could mean if the popup is showing imported
+  // data on a page that isn't a supported chat), so drop the persisted
+  // import state too.
   status?.addEventListener('click', async () => {
     cachedData = null;
+    await clearImportState();
     await runPeek();
   });
 
-  runPeek();
+  // A pending import survives popup close/reopen (see "Import from
+  // clipboard" below) and takes priority on load — only fall back to a live
+  // page peek when there's nothing pending.
+  (async () => {
+    const pending = await loadImportState();
+    if (pending?.messages?.length) {
+      restoreImportState(pending);
+    } else {
+      runPeek();
+    }
+  })();
 
   // ─── Settings ────────────────────────────────────────────────────────────
 
@@ -367,6 +389,141 @@
 
   historyBtn?.addEventListener('click', () => {
     api.tabs.create({ url: api.runtime.getURL('history.html') });
+  });
+
+  // ─── Import from clipboard ────────────────────────────────────────────────
+  // Low-tech alternative to live capture: paste a conversation copied from
+  // elsewhere (e.g. a mobile chat app's text, saved via Apple Notes/iCloud)
+  // and it's parsed into the same {role, content} shape a live extraction
+  // produces, then dropped into cachedData so every existing export button —
+  // and History, once something is actually exported — works on it unchanged.
+  //
+  // Unlike a live page capture (which can always be re-extracted by simply
+  // reopening the popup on the same tab), an imported conversation has no
+  // other source to fall back to — and WebExtension popups are ephemeral,
+  // closing the instant they lose focus (clicking away, switching windows,
+  // even taking a screenshot). Without persisting it, the imported data would
+  // vanish the moment the popup closes, forcing a re-paste. So it's also
+  // written to storage.local and restored on the next popup open, taking
+  // priority over a fresh live-page peek until the user explicitly imports
+  // something new or clicks the status bar to force a live refresh.
+
+  const PENDING_IMPORT_KEY = 'inkpour_pending_import';
+
+  async function saveImportState(data) {
+    try { await api.storage.local.set({ [PENDING_IMPORT_KEY]: data }); } catch { /* ignore */ }
+  }
+
+  async function loadImportState() {
+    try {
+      const result = await api.storage.local.get(PENDING_IMPORT_KEY);
+      return result?.[PENDING_IMPORT_KEY] || null;
+    } catch { return null; }
+  }
+
+  async function clearImportState() {
+    try { await api.storage.local.remove(PENDING_IMPORT_KEY); } catch { /* ignore */ }
+  }
+
+  function restoreImportState(data) {
+    cachedData = data;
+    updatePeekStatus(cachedData);
+    showTitleInput(cachedData.title);
+    showNotesToggle();
+    showSelectToggle();
+    buildMessageSelector(cachedData.messages);
+  }
+
+  function openImportPanel() {
+    if (!importSection) return;
+    importSection.hidden = false;
+    importSection.style.display = 'block';
+    if (importError) importError.textContent = '';
+    importText?.focus();
+  }
+
+  function closeImportPanel() {
+    if (!importSection) return;
+    importSection.hidden = true;
+    importSection.style.display = 'none';
+    if (importText) importText.value = '';
+    if (importTitleInput) importTitleInput.value = '';
+    if (importError) importError.textContent = '';
+  }
+
+  importBtn?.addEventListener('click', () => {
+    const isOpen = importSection && !importSection.hidden;
+    if (isOpen) closeImportPanel();
+    else openImportPanel();
+  });
+
+  importCancelBtn?.addEventListener('click', closeImportPanel);
+
+  // Prefer a rich-text (HTML) clipboard payload when one is present — copying
+  // directly out of a browser tab (or any source that writes real markup to
+  // the pasteboard) carries actual <table>/<strong>/<em> tags, which convert
+  // to a proper Markdown table instead of the flattened, structure-less text
+  // you get from a plain-text-only paste. Falls through to the browser's
+  // normal plain-text paste when no HTML payload is available.
+  importText?.addEventListener('paste', (event) => {
+    const html = event.clipboardData?.getData('text/html');
+    if (!html || !html.trim()) return; // let the default plain-text paste happen
+    event.preventDefault();
+    const converted = htmlPasteToMarkdown(html);
+    const el    = importText;
+    const start = el.selectionStart ?? el.value.length;
+    const end   = el.selectionEnd ?? el.value.length;
+    el.value = el.value.slice(0, start) + converted + el.value.slice(end);
+    const caret = start + converted.length;
+    el.setSelectionRange(caret, caret);
+  });
+
+  importSubmitBtn?.addEventListener('click', () => {
+    const raw = importText?.value || '';
+    if (!raw.trim()) {
+      if (importError) importError.textContent = t('popupImportEmptyError');
+      return;
+    }
+
+    const messages = parseImportedText(raw);
+    if (!messages.length) {
+      if (importError) importError.textContent = t('popupImportEmptyError');
+      return;
+    }
+
+    const title = importTitleInput?.value.trim() || t('popupImportDefaultTitle');
+    const filenameSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'imported-chat';
+
+    cachedData = {
+      messages,
+      title,
+      site:      'Imported',
+      platform:  'generic',
+      filename:  filenameSlug,
+      sourceUrl: '',
+    };
+
+    closeImportPanel();
+    hideIncrementalHint();
+    if (newMsgsHint) { newMsgsHint.hidden = true; newMsgsHint.style.display = 'none'; }
+
+    updatePeekStatus(cachedData);
+    showTitleInput(cachedData.title);
+    showNotesToggle();
+    showSelectToggle();
+    buildMessageSelector(cachedData.messages);
+    saveImportState(cachedData); // survive the popup closing before you export it
+
+    // Land it in History immediately, the same moment a live capture would
+    // if you'd clicked an export button — otherwise "appears in History" (the
+    // whole point of choosing to save imports there instead of a one-shot
+    // download) silently doesn't happen until you separately click a format
+    // button, which isn't obvious and isn't what was promised.
+    const md = buildMarkdown(cachedData.messages, cachedData.title, cachedData.site, userSettings, cachedData.sourceUrl);
+    saveLastExport('md', cachedData, md);
+
+    const count = messages.length;
+    setStatus(t(count === 1 ? 'popupStatusImportedOne' : 'popupStatusImportedOther', [String(count)]), 'success');
   });
 
   // ─── Markdown export ─────────────────────────────────────────────────────
@@ -608,6 +765,61 @@
 
   // ─── GitHub Gist upload ───────────────────────────────────────────────────
 
+  /**
+   * Renders the created gist's URL as a clickable link, plus a "Copy link"
+   * button (works everywhere) and, where the platform actually supports it,
+   * a "Share…" button using the standard Web Share API — this invokes the
+   * real native OS share sheet (macOS NSSharingServicePicker on Safari, the
+   * Windows Share flyout on Chrome/Edge) for exactly this kind of "hand off
+   * a URL" case, no native messaging host or browser fork required. Desktop
+   * Firefox doesn't implement navigator.share() at all, so the button is
+   * simply omitted there — Copy link still covers it.
+   */
+  function renderGistLink(url, title) {
+    if (!gistLinkEl) return;
+    gistLinkEl.textContent = '';
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = url;
+    gistLinkEl.appendChild(a);
+
+    const actions = document.createElement('div');
+    actions.className = 'gist-link-actions';
+
+    const copyBtn = document.createElement('button');
+    copyBtn.type = 'button';
+    copyBtn.className = 'gist-link-btn';
+    copyBtn.textContent = t('popupGistCopyLinkBtn');
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(url);
+        setStatus(t('popupStatusGistLinkCopied'), 'success');
+      } catch {
+        setStatus(t('popupStatusGistUploadFailed'), 'error');
+      }
+    });
+    actions.appendChild(copyBtn);
+
+    if (typeof navigator.share === 'function') {
+      const shareBtn = document.createElement('button');
+      shareBtn.type = 'button';
+      shareBtn.className = 'gist-link-btn';
+      shareBtn.textContent = t('popupGistShareBtn');
+      shareBtn.addEventListener('click', () => {
+        // Must be called synchronously inside the click handler — browsers
+        // require an active user gesture (transient activation) or this
+        // throws NotAllowedError.
+        navigator.share({ title, url }).catch(() => { /* user cancelled, or unsupported — ignore */ });
+      });
+      actions.appendChild(shareBtn);
+    }
+
+    gistLinkEl.appendChild(actions);
+  }
+
   gistBtn?.addEventListener('click', async () => {
     if (!userSettings.githubToken) {
       setStatus(t('popupStatusGistTokenMissing'), 'warning');
@@ -654,15 +866,7 @@
 
       const gist = await res.json();
       setStatus(t('popupStatusGistCreated'), 'success');
-      if (gistLinkEl) {
-        const a = document.createElement('a');
-        a.href = gist.html_url;
-        a.target = '_blank';
-        a.rel = 'noopener';
-        a.textContent = gist.html_url;
-        gistLinkEl.textContent = '';
-        gistLinkEl.appendChild(a);
-      }
+      if (gistLinkEl) renderGistLink(gist.html_url, data.title);
       saveLastExport('gist', { ...data, messages: msgs }, md, { gistUrl: gist.html_url });
     } catch (err) {
       setStatus(err.message || t('popupStatusGistUploadFailed'), 'error');

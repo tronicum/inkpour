@@ -853,5 +853,53 @@
   },
   "settingsFormatOptionZip": {
     "message": "ZIP（チャット + コードファイル）"
+  },
+  "settingsSectionLanguage": {
+    "message": "言語"
+  },
+  "settingsLanguageLabel": {
+    "message": "表示言語"
+  },
+  "settingsLanguageDesc": {
+    "message": "Inkpour 独自の画面にのみブラウザの言語設定を上書きします"
+  },
+  "settingsLanguageAuto": {
+    "message": "ブラウザの言語に従う(自動)"
+  },
+  "popupImportBtnTitle": {
+    "message": "クリップボードからインポート"
+  },
+  "popupImportTextPlaceholder": {
+    "message": "コピーした会話をここに貼り付け…"
+  },
+  "popupImportTitlePlaceholder": {
+    "message": "タイトル(任意)…"
+  },
+  "popupImportCancelBtn": {
+    "message": "キャンセル"
+  },
+  "popupImportSubmitBtn": {
+    "message": "インポート"
+  },
+  "popupImportEmptyError": {
+    "message": "先にテキストを貼り付けてください"
+  },
+  "popupImportDefaultTitle": {
+    "message": "インポートしたチャット"
+  },
+  "popupStatusImportedOne": {
+    "message": "✓ $1 件のメッセージをインポートしました — 下から形式を選択"
+  },
+  "popupStatusImportedOther": {
+    "message": "✓ $1 件のメッセージをインポートしました — 下から形式を選択"
+  },
+  "popupGistCopyLinkBtn": {
+    "message": "リンクをコピー"
+  },
+  "popupGistShareBtn": {
+    "message": "共有…"
+  },
+  "popupStatusGistLinkCopied": {
+    "message": "✓ リンクをクリップボードにコピーしました"
   }
 }

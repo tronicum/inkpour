@@ -853,5 +853,53 @@
   },
   "settingsFormatOptionZip": {
     "message": "ZIP (چت + فایل‌های کد)"
+  },
+  "settingsSectionLanguage": {
+    "message": "زبان"
+  },
+  "settingsLanguageLabel": {
+    "message": "زبان نمایش"
+  },
+  "settingsLanguageDesc": {
+    "message": "فقط برای صفحات خود Inkpour، زبان مرورگر شما را نادیده می‌گیرد"
+  },
+  "settingsLanguageAuto": {
+    "message": "پیروی از زبان مرورگر (خودکار)"
+  },
+  "popupImportBtnTitle": {
+    "message": "وارد کردن از کلیپ‌بورد"
+  },
+  "popupImportTextPlaceholder": {
+    "message": "یک گفتگوی کپی‌شده را اینجا جای‌گذاری کنید…"
+  },
+  "popupImportTitlePlaceholder": {
+    "message": "عنوان (اختیاری)…"
+  },
+  "popupImportCancelBtn": {
+    "message": "لغو"
+  },
+  "popupImportSubmitBtn": {
+    "message": "وارد کردن"
+  },
+  "popupImportEmptyError": {
+    "message": "ابتدا مقداری متن جای‌گذاری کنید"
+  },
+  "popupImportDefaultTitle": {
+    "message": "گفتگوی وارد شده"
+  },
+  "popupStatusImportedOne": {
+    "message": "✓ $1 پیام وارد شد — فرمتی را در زیر انتخاب کنید"
+  },
+  "popupStatusImportedOther": {
+    "message": "✓ $1 پیام وارد شد — فرمتی را در زیر انتخاب کنید"
+  },
+  "popupGistCopyLinkBtn": {
+    "message": "کپی پیوند"
+  },
+  "popupGistShareBtn": {
+    "message": "اشتراک‌گذاری…"
+  },
+  "popupStatusGistLinkCopied": {
+    "message": "✓ پیوند در کلیپ‌بورد کپی شد"
   }
 }
