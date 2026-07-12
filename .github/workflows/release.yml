@@ -19,7 +19,12 @@ jobs:
         id: meta
         run: |
           VERSION=$(node -e "process.stdout.write(require('./manifest.json').version)")
-          NAME=$(node -e "process.stdout.write(require('./manifest.json').name)")
+          NAME=$(node -e "
+            const raw = require('./manifest.json').name;
+            const m = raw.match(/^__MSG_(\w+)__\$/);
+            if (!m) { process.stdout.write(raw); }
+            else { process.stdout.write(require('./_locales/en/messages.json')[m[1]].message); }
+          ")
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "name=$NAME"       >> $GITHUB_OUTPUT
           echo "zip=inkpour-$VERSION.zip" >> $GITHUB_OUTPUT
