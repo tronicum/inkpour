@@ -2,15 +2,18 @@
   'use strict';
 
   const api = (typeof browser !== 'undefined') ? browser : chrome;
+  const t = (key, subs) => (typeof InkpourI18n !== 'undefined' ? InkpourI18n : window.InkpourI18n).t(key, subs);
+  (typeof InkpourI18n !== 'undefined' ? InkpourI18n : window.InkpourI18n).applyI18n(document);
+  (typeof InkpourI18n !== 'undefined' ? InkpourI18n : window.InkpourI18n).applyDirection(document);
 
   // ─── Browser detection ────────────────────────────────────────────────────
 
   const BROWSER_META = {
-    firefox: { icon: '🦊', name: 'Firefox',          note: 'Full support — all export formats' },
-    chrome:  { icon: '🌐', name: 'Chrome / Brave',   note: 'Full support — all export formats' },
-    edge:    { icon: '🌀', name: 'Microsoft Edge',   note: 'Full support — all export formats' },
-    safari:  { icon: '🧭', name: 'Safari',           note: 'Experimental — PDF may behave differently' },
-    unknown: { icon: '🌐', name: 'Unknown browser',  note: 'May work — report issues if something breaks' },
+    firefox: { icon: '🦊', name: t('settingsBrowserFirefoxName'), note: t('settingsBrowserFirefoxNote') },
+    chrome:  { icon: '🌐', name: t('settingsBrowserChromeName'),  note: t('settingsBrowserChromeNote') },
+    edge:    { icon: '🌀', name: t('settingsBrowserEdgeName'),    note: t('settingsBrowserEdgeNote') },
+    safari:  { icon: '🧭', name: t('settingsBrowserSafariName'),  note: t('settingsBrowserSafariNote') },
+    unknown: { icon: '🌐', name: t('settingsBrowserUnknownName'), note: t('settingsBrowserUnknownNote') },
   };
 
   function detectBrowser() {
@@ -90,7 +93,7 @@
     };
     api.storage.local.set({ inkpour_settings: prefs }, () => {
       const el = document.getElementById('saveStatus');
-      el.textContent = '✓ Saved';
+      el.textContent = t('settingsSavedStatus');
       setTimeout(() => { el.textContent = ''; }, 2000);
     });
   });

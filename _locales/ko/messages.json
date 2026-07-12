@@ -1,0 +1,857 @@
+{
+  "extName": {
+    "message": "Inkpour",
+    "description": "Extension name shown in browser toolbar and stores"
+  },
+  "extDescription": {
+    "message": "AI 채팅 대화(ChatGPT, Claude, Gemini, Copilot 등)를 Markdown, PDF, HTML, DOCX 또는 ZIP으로 내보냅니다.",
+    "description": "Extension description shown in browser stores"
+  },
+  "cmdExportMarkdown": {
+    "message": "현재 채팅을 Markdown으로 내보내기",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyMarkdown": {
+    "message": "현재 채팅을 Markdown으로 클립보드에 복사",
+    "description": "Keyboard command description"
+  },
+  "cmdExportPdf": {
+    "message": "현재 채팅을 PDF로 내보내기",
+    "description": "Keyboard command description"
+  },
+  "cmdUploadGist": {
+    "message": "현재 채팅을 GitHub Gist에 업로드",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyHtml": {
+    "message": "현재 채팅을 독립형 HTML로 클립보드에 복사",
+    "description": "Keyboard command description"
+  },
+  "cmdExportJson": {
+    "message": "현재 채팅을 JSON으로 내보내기",
+    "description": "Keyboard command description"
+  },
+  "cmdExportZip": {
+    "message": "현재 채팅을 ZIP으로 내보내기 (chat.md + 코드 파일)",
+    "description": "Keyboard command description"
+  },
+  "cmdExportDocx": {
+    "message": "현재 채팅을 Word 문서(.docx)로 내보내기",
+    "description": "Keyboard command description"
+  },
+  "popupTagline": {
+    "message": "AI 채팅 내보내기 · MD, PDF, HTML, JSON, ZIP",
+    "description": "Popup header subtitle"
+  },
+  "popupSettingsTitle": {
+    "message": "설정",
+    "description": "Settings gear button tooltip/aria-label in popup"
+  },
+  "popupExportAsLabel": {
+    "message": "내보내기 형식",
+    "description": "Section label above the export format buttons"
+  },
+  "popupMdBtnTitle": {
+    "message": "Markdown으로 내보내기 (Alt+Shift+M)",
+    "description": "MD button tooltip"
+  },
+  "popupPdfBtnTitle": {
+    "message": "PDF로 내보내기",
+    "description": "PDF button tooltip"
+  },
+  "popupHtmlBtnTitle": {
+    "message": "HTML로 내보내기",
+    "description": "HTML button tooltip"
+  },
+  "popupJsonBtnTitle": {
+    "message": "JSON으로 내보내기 (Alt+Shift+J)",
+    "description": "JSON button tooltip"
+  },
+  "popupDocxBtnTitle": {
+    "message": "Word 문서(.docx)로 내보내기",
+    "description": "DOCX button tooltip"
+  },
+  "popupCopyBtnTitle": {
+    "message": "Markdown을 클립보드에 복사 (Alt+Shift+C)",
+    "description": "Copy MD button tooltip"
+  },
+  "popupCopyHtmlBtnTitle": {
+    "message": "독립형 HTML을 클립보드에 복사 (Alt+Shift+H)",
+    "description": "Copy HTML button tooltip"
+  },
+  "popupZipBtnTitle": {
+    "message": "chat.md + 추출된 코드 파일을 ZIP으로 내보내기 (Alt+Shift+Z)",
+    "description": "ZIP button tooltip"
+  },
+  "popupGistBtnTitle": {
+    "message": "Markdown을 GitHub Gist에 업로드",
+    "description": "Gist button tooltip"
+  },
+  "popupAllBtnTitle": {
+    "message": "MD + DOCX + ZIP 동시에 내보내기",
+    "description": "Export All button tooltip"
+  },
+  "popupBtnMd": {
+    "message": "MD"
+  },
+  "popupBtnPdf": {
+    "message": "PDF"
+  },
+  "popupBtnHtml": {
+    "message": "HTML"
+  },
+  "popupBtnJson": {
+    "message": "JSON"
+  },
+  "popupBtnDocx": {
+    "message": "DOCX"
+  },
+  "popupBtnCopyMd": {
+    "message": "MD 복사"
+  },
+  "popupBtnCopyHtml": {
+    "message": "HTML 복사"
+  },
+  "popupBtnZip": {
+    "message": "ZIP"
+  },
+  "popupBtnGist": {
+    "message": "Gist ↑"
+  },
+  "popupBtnExportAll": {
+    "message": "⬇ 모두 내보내기 (MD + DOCX + ZIP)"
+  },
+  "popupIncrementalBtnTitle": {
+    "message": "마지막 내보내기 이후 추가된 메시지만 내보냅니다",
+    "description": "Export new only button tooltip"
+  },
+  "popupBtnExportNewOnly": {
+    "message": "새 항목만 내보내기"
+  },
+  "popupTitleInputPlaceholder": {
+    "message": "채팅 제목…"
+  },
+  "popupNotesPlaceholder": {
+    "message": "개인 메모 추가 — 내보내기 시 인용문으로 맨 앞에 추가됩니다…"
+  },
+  "popupNotesToggleAdd": {
+    "message": "+ 메모 추가"
+  },
+  "popupNotesToggleHide": {
+    "message": "− 메모 숨기기"
+  },
+  "popupSelectToggleOpen": {
+    "message": "☑ 메시지 선택"
+  },
+  "popupSelectToggleClose": {
+    "message": "✕ 선택기 닫기"
+  },
+  "popupSelectAll": {
+    "message": "전체"
+  },
+  "popupSelectNone": {
+    "message": "없음"
+  },
+  "popupSelectUserOnly": {
+    "message": "사용자만"
+  },
+  "popupSelectAIOnly": {
+    "message": "AI만"
+  },
+  "popupHistoryBtn": {
+    "message": "⏱ 기록"
+  },
+  "popupSettingsBtn": {
+    "message": "⚙ 설정"
+  },
+  "popupStatusExtracting": {
+    "message": "추출 중…"
+  },
+  "popupStatusExtractingMessages": {
+    "message": "메시지 추출 중…"
+  },
+  "popupStatusLoadingOlder": {
+    "message": "이전 메시지 불러오는 중…"
+  },
+  "popupStatusAiStillGenerating": {
+    "message": "AI가 아직 응답을 생성 중입니다 — 완료된 후 내보내세요"
+  },
+  "popupStatusSavedCheckDownloads": {
+    "message": "✓ 저장됨 — 다운로드 폴더를 확인하세요"
+  },
+  "popupStatusMarkdownCopied": {
+    "message": "✓ Markdown이 클립보드에 복사되었습니다"
+  },
+  "popupStatusHtmlCopied": {
+    "message": "✓ HTML이 복사되었습니다 — 아무 편집기에나 붙여넣으세요"
+  },
+  "popupStatusZipSaved": {
+    "message": "✓ ZIP 저장됨 — chat.md",
+    "description": "Prefix; extra code-file count is appended in JS"
+  },
+  "popupCodeFileOne": {
+    "message": " + 코드 파일 $1개",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeFileOther": {
+    "message": " + 코드 파일 $1개",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupStatusExportAllSaved": {
+    "message": "✓ MD + DOCX + ZIP 저장됨"
+  },
+  "popupStatusGistTokenMissing": {
+    "message": "먼저 설정에서 GitHub 토큰을 추가하세요."
+  },
+  "popupStatusGistUploading": {
+    "message": "GitHub Gist에 업로드 중…"
+  },
+  "popupStatusGistCreated": {
+    "message": "✓ Gist가 생성되었습니다"
+  },
+  "popupStatusGistUploadFailed": {
+    "message": "Gist 업로드 실패"
+  },
+  "popupStatusNotSupportedPage": {
+    "message": "지원되는 AI 채팅 페이지가 아닙니다. ChatGPT, Claude, Gemini, Google Search 또는 다른 지원되는 플랫폼에서 Inkpour를 여세요."
+  },
+  "popupStatusRefreshTab": {
+    "message": "채팅 탭을 새로고침한 후 다시 시도하세요. (Content script가 실행되고 있지 않습니다 — 확장 프로그램이 로드되기 전에 탭이 열려 있었습니다.)"
+  },
+  "popupStatusNoResponse": {
+    "message": "페이지로부터 응답이 없습니다. 탭을 새로고침해 보세요."
+  },
+  "popupStatusNoMessagesFound": {
+    "message": "메시지를 찾을 수 없습니다."
+  },
+  "popupStatusCannotAccessTab": {
+    "message": "현재 탭에 접근할 수 없습니다."
+  },
+  "popupStatusNoNewMessages": {
+    "message": "내보낼 새 메시지가 없습니다."
+  },
+  "popupMsgCountOne": {
+    "message": "준비 완료 · $COUNT$개 메시지$ROLES$ · 약 $WORDS$단어 · 약 $READMIN$분 읽기$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupMsgCountOther": {
+    "message": "준비 완료 · $COUNT$개 메시지$ROLES$ · 약 $WORDS$단어 · 약 $READMIN$분 읽기$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupCodeBlockOne": {
+    "message": " · 코드 블록 $1개",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeBlockOther": {
+    "message": " · 코드 블록 $1개",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupLastExport": {
+    "message": "최근: $PLATFORM$ · 메시지 $COUNT$개$FORMAT$ · $WHEN$",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      },
+      "when": {
+        "content": "$4"
+      }
+    }
+  },
+  "popupLastExportJustNow": {
+    "message": "최근: $PLATFORM$ · 메시지 $COUNT$개 · $FORMAT$ · 방금 전",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupNewMessageOne": {
+    "message": "+$COUNT$개의 새 메시지 ($WHEN$ 내보내기 이후)",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupNewMessageOther": {
+    "message": "+$COUNT$개의 새 메시지 ($WHEN$ 내보내기 이후)",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOne": {
+    "message": "마지막 내보내기($WHEN$) 이후 새 메시지 $COUNT$개 — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOther": {
+    "message": "마지막 내보내기($WHEN$) 이후 새 메시지 $COUNT$개 — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupSavedNewMessagesOne": {
+    "message": "✓ 새 메시지 $COUNT$개 저장됨 — 다운로드 폴더를 확인하세요",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupSavedNewMessagesOther": {
+    "message": "✓ 새 메시지 $COUNT$개 저장됨 — 다운로드 폴더를 확인하세요",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeJustNow": {
+    "message": "방금 전"
+  },
+  "timeMinutesAgo": {
+    "message": "$1분 전",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeHoursAgo": {
+    "message": "$1시간 전",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeDaysAgo": {
+    "message": "$1일 전",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsHeaderTitle": {
+    "message": "Inkpour 설정"
+  },
+  "settingsHeaderSubtitle": {
+    "message": "환경설정은 브라우저에 로컬로 저장됩니다"
+  },
+  "settingsBrowserDetecting": {
+    "message": "감지 중…"
+  },
+  "settingsBrowserBadge": {
+    "message": "자동 감지됨"
+  },
+  "settingsBrowserFirefoxName": {
+    "message": "Firefox"
+  },
+  "settingsBrowserFirefoxNote": {
+    "message": "완전 지원 — 모든 내보내기 형식"
+  },
+  "settingsBrowserChromeName": {
+    "message": "Chrome / Brave"
+  },
+  "settingsBrowserChromeNote": {
+    "message": "완전 지원 — 모든 내보내기 형식"
+  },
+  "settingsBrowserEdgeName": {
+    "message": "Microsoft Edge"
+  },
+  "settingsBrowserEdgeNote": {
+    "message": "완전 지원 — 모든 내보내기 형식"
+  },
+  "settingsBrowserSafariName": {
+    "message": "Safari"
+  },
+  "settingsBrowserSafariNote": {
+    "message": "실험적 지원 — PDF 동작이 다를 수 있습니다"
+  },
+  "settingsBrowserUnknownName": {
+    "message": "알 수 없는 브라우저"
+  },
+  "settingsBrowserUnknownNote": {
+    "message": "작동할 수 있습니다 — 문제가 발생하면 신고해 주세요"
+  },
+  "settingsSectionExport": {
+    "message": "내보내기"
+  },
+  "settingsSectionIntegrations": {
+    "message": "연동"
+  },
+  "settingsDefaultFormatLabel": {
+    "message": "기본 형식"
+  },
+  "settingsDefaultFormatDesc": {
+    "message": "어떤 버튼이 먼저 키보드 포커스를 받을지 설정"
+  },
+  "settingsFilenameTemplateLabel": {
+    "message": "파일명 템플릿"
+  },
+  "settingsFilenameTemplateDesc": {
+    "message": "토큰: {platform} {title} {date} {time} {url} {words} {msgcount}"
+  },
+  "settingsPdfAutoPrintLabel": {
+    "message": "PDF 자동 인쇄"
+  },
+  "settingsPdfAutoPrintDesc": {
+    "message": "PDF 탭 로드 후 인쇄 대화상자를 자동으로 엽니다"
+  },
+  "settingsYamlLabel": {
+    "message": "YAML 프런트매터 포함"
+  },
+  "settingsYamlDesc": {
+    "message": ".md 파일 맨 위에 제목, 날짜, 플랫폼, URL을 추가합니다"
+  },
+  "settingsTocLabel": {
+    "message": "목차 생성"
+  },
+  "settingsTocDesc": {
+    "message": "메시지가 4개를 초과하는 채팅에 클릭 가능한 목차를 추가합니다"
+  },
+  "settingsSubfolderLabel": {
+    "message": "다운로드 하위 폴더"
+  },
+  "settingsSubfolderDesc": {
+    "message": "기본 다운로드 폴더 내의 선택적 하위 경로 (예: AI Chats)"
+  },
+  "settingsSubfolderPlaceholder": {
+    "message": "예: AI Chats"
+  },
+  "settingsObsidianVaultLabel": {
+    "message": "Obsidian 볼트 하위 폴더"
+  },
+  "settingsObsidianVaultDesc": {
+    "message": "설정하면 내보내기가 다운로드 내 이 하위 폴더로 이동합니다 — Obsidian 볼트에 유용합니다. 위의 하위 폴더 필드보다 우선합니다."
+  },
+  "settingsObsidianTagsLabel": {
+    "message": "YAML의 Obsidian 태그"
+  },
+  "settingsObsidianTagsDesc": {
+    "message": "프런트매터에 tags: [ai-chat, {platform}]을 추가합니다 (YAML 활성화 필요)"
+  },
+  "settingsGithubTokenLabel": {
+    "message": "GitHub 토큰"
+  },
+  "settingsGithubTokenDesc": {
+    "message": "gist 범위를 가진 개인 액세스 토큰 — 팝업에서 \"Gist에 업로드\" 버튼을 활성화합니다."
+  },
+  "settingsGithubTokenLink": {
+    "message": "토큰 만들기 →"
+  },
+  "settingsGistVisibilityLabel": {
+    "message": "Gist 공개 범위"
+  },
+  "settingsGistVisibilityDesc": {
+    "message": "비공개 Gist는 목록에 표시되지 않습니다 (링크가 있는 사람은 누구나 볼 수 있음)"
+  },
+  "settingsGistSecretOption": {
+    "message": "비공개 (목록에 표시 안 함)"
+  },
+  "settingsGistPublicOption": {
+    "message": "공개"
+  },
+  "settingsGistTagsLabel": {
+    "message": "Gist 태그"
+  },
+  "settingsGistTagsDesc": {
+    "message": "모든 Gist 내보내기의 YAML 헤더에 추가되는 태그로, 쉼표로 구분합니다. 나중에 GitHub에서 user:you \"tag\"로 Gist를 검색할 수 있습니다. ai-chat 태그와 플랫폼 이름은 항상 자동으로 포함됩니다."
+  },
+  "settingsGistTagsPlaceholder": {
+    "message": "업무, 프로젝트-x, 연구"
+  },
+  "settingsScrubLabel": {
+    "message": "업로드 전 민감 정보 제거"
+  },
+  "settingsScrubDesc": {
+    "message": "Gist/webhook 업로드 전에 API 키, 토큰, 이메일로 추정되는 정보를 삭제합니다"
+  },
+  "settingsWebhookUrlLabel": {
+    "message": "Webhook URL"
+  },
+  "settingsWebhookUrlDesc": {
+    "message": "내보내기마다 Inkpour가 이 주소로 내보내기 메타데이터(제목, 플랫폼, 형식, 단어 수)를 담은 POST 요청을 보냅니다. n8n, Zapier, Make.com 또는 모든 HTTP 엔드포인트와 함께 사용할 수 있습니다."
+  },
+  "settingsWebhookContentLabel": {
+    "message": "webhook에 내용 포함"
+  },
+  "settingsWebhookContentDesc": {
+    "message": "webhook 페이로드에 내보낸 전체 텍스트를 전송합니다 (긴 채팅의 경우 페이로드 크기가 크게 증가함)"
+  },
+  "settingsSaveBtn": {
+    "message": "저장"
+  },
+  "settingsSavedStatus": {
+    "message": "✓ 저장됨"
+  },
+  "historyHeaderTitle": {
+    "message": "내보내기 기록"
+  },
+  "historyHeaderSubtitle": {
+    "message": "최근 20개의 내보내기 — 로컬에 저장되며 업로드되지 않습니다"
+  },
+  "historySearchPlaceholder": {
+    "message": "제목, 플랫폼 또는 대화 내용 검색…"
+  },
+  "historyClearRecent": {
+    "message": "최근 기록 지우기"
+  },
+  "historyClearAll": {
+    "message": "전체 지우기"
+  },
+  "historyClearStarred": {
+    "message": "★ 지우기"
+  },
+  "historyClearRecentTitle": {
+    "message": "최근 기록 지우기 (즐겨찾기한 내보내기는 유지됩니다)"
+  },
+  "historyClearAllTitle": {
+    "message": "모든 내보내기 기록 지우기"
+  },
+  "historyEmptyTitle": {
+    "message": "📭"
+  },
+  "historyEmptyBody": {
+    "message": "아직 내보내기가 없습니다. 팝업에서 채팅을 내보내면 여기에 표시됩니다."
+  },
+  "historyBackLink": {
+    "message": "← 팝업으로 돌아가기"
+  },
+  "historyStorageNote": {
+    "message": "내용은 브라우저 확장 프로그램 저장소에 저장됩니다"
+  },
+  "historyStatExports": {
+    "message": "내보내기 수"
+  },
+  "historyStatWords": {
+    "message": "총 단어 수"
+  },
+  "historyStatPlatform": {
+    "message": "최다 사용 플랫폼"
+  },
+  "historyStatFormat": {
+    "message": "최다 사용 형식"
+  },
+  "historySectionStarred": {
+    "message": "★ 즐겨찾기"
+  },
+  "historySectionRecent": {
+    "message": "최근"
+  },
+  "historyStarPin": {
+    "message": "즐겨찾기에 고정"
+  },
+  "historyStarUnpin": {
+    "message": "즐겨찾기에서 고정 해제"
+  },
+  "historyActionSave": {
+    "message": "↓ 저장"
+  },
+  "historyActionCopy": {
+    "message": "⎘ 복사"
+  },
+  "historyActionCopied": {
+    "message": "✓ 복사됨"
+  },
+  "historyActionGist": {
+    "message": "↗ Gist"
+  },
+  "historyNoExportsYet": {
+    "message": "아직 내보내기가 없습니다"
+  },
+  "historyMatchCountOne": {
+    "message": "$2개 중 $1개 일치",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyMatchCountOther": {
+    "message": "$2개 중 $1개 일치",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyFilteredCount": {
+    "message": "$2개 중 $1개 내보내기",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyExportCountOne": {
+    "message": "내보내기 $1개",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyExportCountOther": {
+    "message": "내보내기 $1개",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyLifetimeStatsOne": {
+    "message": "전체 기간: 내보내기 $1개$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyLifetimeStatsOther": {
+    "message": "전체 기간: 내보내기 $1개$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyConfirmClearRecent": {
+    "message": "최근 기록을 지우시겠습니까? 즐겨찾기한 내보내기는 유지됩니다."
+  },
+  "historyConfirmClearAll": {
+    "message": "모든 내보내기 기록을 지우시겠습니까? 이 작업은 되돌릴 수 없습니다."
+  },
+  "historyConfirmClearStarred": {
+    "message": "즐겨찾기한 모든 내보내기를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+  },
+  "printLoading": {
+    "message": "대화를 불러오는 중…"
+  },
+  "printNoContent": {
+    "message": "Inkpour: 내용을 찾을 수 없습니다. 다시 내보내 보세요."
+  },
+  "printGenericErrorPrefix": {
+    "message": "Inkpour 오류:"
+  },
+  "contentFabTitle": {
+    "message": "Inkpour — 이 채팅 내보내기"
+  },
+  "contentToastRedactedOne": {
+    "message": "업로드 전 $1개 항목($2)을 삭제 처리했습니다.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastRedactedOther": {
+    "message": "업로드 전 $1개 항목($2)을 삭제 처리했습니다.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastGistFailedNetwork": {
+    "message": "✗ Gist 업로드 실패 (네트워크 오류)"
+  },
+  "contentToastGistFailed": {
+    "message": "✗ Gist 업로드 실패: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentToastGistCreated": {
+    "message": "✓ Gist가 생성되었습니다"
+  },
+  "popupSelectCount": {
+    "message": "$2개 중 $1개 선택됨",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupPlatformDetected": {
+    "message": "✓ $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupPlatformCount": {
+    "message": "$1개 플랫폼 지원",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentMenuExportMd": {
+    "message": "MD 내보내기"
+  },
+  "contentMenuCopyMd": {
+    "message": "MD 복사"
+  },
+  "contentMenuExportHtml": {
+    "message": "HTML 내보내기"
+  },
+  "contentMenuExportDocx": {
+    "message": "DOCX 내보내기"
+  },
+  "contentMenuExportPdf": {
+    "message": "PDF 내보내기"
+  },
+  "contentMenuExportZip": {
+    "message": "ZIP 내보내기"
+  },
+  "contentStatusSaved": {
+    "message": "✓ 저장됨!"
+  },
+  "contentStatusCopied": {
+    "message": "✓ 복사됨!"
+  },
+  "contentStatusExporting": {
+    "message": "내보내는 중…"
+  },
+  "contentStatusExportStarted": {
+    "message": "✓ $1 내보내기가 시작되었습니다",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentStatusExportFailed": {
+    "message": "내보내기 실패"
+  },
+  "contentNoMessagesFound": {
+    "message": "메시지를 찾을 수 없습니다"
+  },
+  "settingsPageTitle": {
+    "message": "Inkpour — 설정"
+  },
+  "settingsFormatOptionMd": {
+    "message": "Markdown (.md)"
+  },
+  "settingsFormatOptionPdf": {
+    "message": "PDF"
+  },
+  "settingsFormatOptionHtml": {
+    "message": "HTML"
+  },
+  "settingsFormatOptionJson": {
+    "message": "JSON"
+  },
+  "settingsFormatOptionZip": {
+    "message": "ZIP (채팅 + 코드 파일)"
+  }
+}

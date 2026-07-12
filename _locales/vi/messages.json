@@ -1,0 +1,857 @@
+{
+  "extName": {
+    "message": "Inkpour",
+    "description": "Extension name shown in browser toolbar and stores"
+  },
+  "extDescription": {
+    "message": "Xuất các cuộc trò chuyện AI (ChatGPT, Claude, Gemini, Copilot, và nhiều nền tảng khác) sang Markdown, PDF, HTML, DOCX hoặc ZIP.",
+    "description": "Extension description shown in browser stores"
+  },
+  "cmdExportMarkdown": {
+    "message": "Xuất cuộc trò chuyện hiện tại sang Markdown",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyMarkdown": {
+    "message": "Sao chép cuộc trò chuyện hiện tại dưới dạng Markdown vào clipboard",
+    "description": "Keyboard command description"
+  },
+  "cmdExportPdf": {
+    "message": "Xuất cuộc trò chuyện hiện tại sang PDF",
+    "description": "Keyboard command description"
+  },
+  "cmdUploadGist": {
+    "message": "Tải cuộc trò chuyện hiện tại lên GitHub Gist",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyHtml": {
+    "message": "Sao chép cuộc trò chuyện hiện tại dưới dạng HTML độc lập vào clipboard",
+    "description": "Keyboard command description"
+  },
+  "cmdExportJson": {
+    "message": "Xuất cuộc trò chuyện hiện tại sang JSON",
+    "description": "Keyboard command description"
+  },
+  "cmdExportZip": {
+    "message": "Xuất cuộc trò chuyện hiện tại dưới dạng ZIP (chat.md + các tệp mã)",
+    "description": "Keyboard command description"
+  },
+  "cmdExportDocx": {
+    "message": "Xuất cuộc trò chuyện hiện tại sang tài liệu Word (.docx)",
+    "description": "Keyboard command description"
+  },
+  "popupTagline": {
+    "message": "Xuất các cuộc trò chuyện AI · MD, PDF, HTML, JSON, ZIP",
+    "description": "Popup header subtitle"
+  },
+  "popupSettingsTitle": {
+    "message": "Cài đặt",
+    "description": "Settings gear button tooltip/aria-label in popup"
+  },
+  "popupExportAsLabel": {
+    "message": "Xuất dưới dạng",
+    "description": "Section label above the export format buttons"
+  },
+  "popupMdBtnTitle": {
+    "message": "Xuất sang Markdown (Alt+Shift+M)",
+    "description": "MD button tooltip"
+  },
+  "popupPdfBtnTitle": {
+    "message": "Xuất sang PDF",
+    "description": "PDF button tooltip"
+  },
+  "popupHtmlBtnTitle": {
+    "message": "Xuất sang HTML",
+    "description": "HTML button tooltip"
+  },
+  "popupJsonBtnTitle": {
+    "message": "Xuất sang JSON (Alt+Shift+J)",
+    "description": "JSON button tooltip"
+  },
+  "popupDocxBtnTitle": {
+    "message": "Xuất sang tài liệu Word (.docx)",
+    "description": "DOCX button tooltip"
+  },
+  "popupCopyBtnTitle": {
+    "message": "Sao chép Markdown vào clipboard (Alt+Shift+C)",
+    "description": "Copy MD button tooltip"
+  },
+  "popupCopyHtmlBtnTitle": {
+    "message": "Sao chép HTML độc lập vào clipboard (Alt+Shift+H)",
+    "description": "Copy HTML button tooltip"
+  },
+  "popupZipBtnTitle": {
+    "message": "Xuất ZIP kèm chat.md + các tệp mã đã trích xuất (Alt+Shift+Z)",
+    "description": "ZIP button tooltip"
+  },
+  "popupGistBtnTitle": {
+    "message": "Tải Markdown lên GitHub Gist",
+    "description": "Gist button tooltip"
+  },
+  "popupAllBtnTitle": {
+    "message": "Xuất đồng thời MD + DOCX + ZIP",
+    "description": "Export All button tooltip"
+  },
+  "popupBtnMd": {
+    "message": "MD"
+  },
+  "popupBtnPdf": {
+    "message": "PDF"
+  },
+  "popupBtnHtml": {
+    "message": "HTML"
+  },
+  "popupBtnJson": {
+    "message": "JSON"
+  },
+  "popupBtnDocx": {
+    "message": "DOCX"
+  },
+  "popupBtnCopyMd": {
+    "message": "Sao chép MD"
+  },
+  "popupBtnCopyHtml": {
+    "message": "Sao chép HTML"
+  },
+  "popupBtnZip": {
+    "message": "ZIP"
+  },
+  "popupBtnGist": {
+    "message": "Gist ↑"
+  },
+  "popupBtnExportAll": {
+    "message": "⬇ Xuất tất cả (MD + DOCX + ZIP)"
+  },
+  "popupIncrementalBtnTitle": {
+    "message": "Chỉ xuất các tin nhắn được thêm kể từ lần xuất gần nhất",
+    "description": "Export new only button tooltip"
+  },
+  "popupBtnExportNewOnly": {
+    "message": "Chỉ xuất tin nhắn mới"
+  },
+  "popupTitleInputPlaceholder": {
+    "message": "Tiêu đề cuộc trò chuyện…"
+  },
+  "popupNotesPlaceholder": {
+    "message": "Thêm ghi chú cá nhân — sẽ được chèn dưới dạng blockquote ở đầu bản xuất…"
+  },
+  "popupNotesToggleAdd": {
+    "message": "+ Thêm ghi chú"
+  },
+  "popupNotesToggleHide": {
+    "message": "− Ẩn ghi chú"
+  },
+  "popupSelectToggleOpen": {
+    "message": "☑ Chọn tin nhắn"
+  },
+  "popupSelectToggleClose": {
+    "message": "✕ Đóng bộ chọn"
+  },
+  "popupSelectAll": {
+    "message": "Tất cả"
+  },
+  "popupSelectNone": {
+    "message": "Không"
+  },
+  "popupSelectUserOnly": {
+    "message": "Chỉ người dùng"
+  },
+  "popupSelectAIOnly": {
+    "message": "Chỉ AI"
+  },
+  "popupHistoryBtn": {
+    "message": "⏱ Lịch sử"
+  },
+  "popupSettingsBtn": {
+    "message": "⚙ Cài đặt"
+  },
+  "popupStatusExtracting": {
+    "message": "Đang trích xuất…"
+  },
+  "popupStatusExtractingMessages": {
+    "message": "Đang trích xuất tin nhắn…"
+  },
+  "popupStatusLoadingOlder": {
+    "message": "Đang tải tin nhắn cũ hơn…"
+  },
+  "popupStatusAiStillGenerating": {
+    "message": "AI vẫn đang tạo phản hồi — hãy xuất sau khi hoàn tất"
+  },
+  "popupStatusSavedCheckDownloads": {
+    "message": "✓ Đã lưu — kiểm tra thư mục Downloads của bạn"
+  },
+  "popupStatusMarkdownCopied": {
+    "message": "✓ Đã sao chép Markdown vào clipboard"
+  },
+  "popupStatusHtmlCopied": {
+    "message": "✓ Đã sao chép HTML — dán vào trình soạn thảo bất kỳ"
+  },
+  "popupStatusZipSaved": {
+    "message": "✓ Đã lưu ZIP — chat.md",
+    "description": "Prefix; extra code-file count is appended in JS"
+  },
+  "popupCodeFileOne": {
+    "message": " + $1 tệp mã",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeFileOther": {
+    "message": " + $1 tệp mã",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupStatusExportAllSaved": {
+    "message": "✓ Đã lưu MD + DOCX + ZIP"
+  },
+  "popupStatusGistTokenMissing": {
+    "message": "Hãy thêm token GitHub trong Cài đặt trước."
+  },
+  "popupStatusGistUploading": {
+    "message": "Đang tải lên GitHub Gist…"
+  },
+  "popupStatusGistCreated": {
+    "message": "✓ Đã tạo Gist"
+  },
+  "popupStatusGistUploadFailed": {
+    "message": "Tải lên Gist thất bại"
+  },
+  "popupStatusNotSupportedPage": {
+    "message": "Đây không phải là trang trò chuyện AI được hỗ trợ. Hãy mở Inkpour trên ChatGPT, Claude, Gemini, Google Search hoặc nền tảng được hỗ trợ khác."
+  },
+  "popupStatusRefreshTab": {
+    "message": "Hãy làm mới tab trò chuyện rồi thử lại. (Content script không chạy — tab đã mở trước khi tiện ích được tải.)"
+  },
+  "popupStatusNoResponse": {
+    "message": "Không có phản hồi từ trang. Hãy thử làm mới tab."
+  },
+  "popupStatusNoMessagesFound": {
+    "message": "Không tìm thấy tin nhắn nào."
+  },
+  "popupStatusCannotAccessTab": {
+    "message": "Không thể truy cập tab hiện tại."
+  },
+  "popupStatusNoNewMessages": {
+    "message": "Không có tin nhắn mới để xuất."
+  },
+  "popupMsgCountOne": {
+    "message": "Sẵn sàng · $COUNT$ tin nhắn$ROLES$ · ~$WORDS$ từ · ~$READMIN$ phút đọc$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupMsgCountOther": {
+    "message": "Sẵn sàng · $COUNT$ tin nhắn$ROLES$ · ~$WORDS$ từ · ~$READMIN$ phút đọc$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupCodeBlockOne": {
+    "message": " · $1 khối mã",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeBlockOther": {
+    "message": " · $1 khối mã",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupLastExport": {
+    "message": "Gần nhất: $PLATFORM$ · $COUNT$ tin nhắn$FORMAT$ · $WHEN$",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      },
+      "when": {
+        "content": "$4"
+      }
+    }
+  },
+  "popupLastExportJustNow": {
+    "message": "Gần nhất: $PLATFORM$ · $COUNT$ tin nhắn · $FORMAT$ · vừa xong",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupNewMessageOne": {
+    "message": "+$COUNT$ tin nhắn mới kể từ lần xuất $WHEN$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupNewMessageOther": {
+    "message": "+$COUNT$ tin nhắn mới kể từ lần xuất $WHEN$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOne": {
+    "message": "$COUNT$ tin nhắn mới kể từ lần xuất gần nhất ($WHEN$) — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOther": {
+    "message": "$COUNT$ tin nhắn mới kể từ lần xuất gần nhất ($WHEN$) — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupSavedNewMessagesOne": {
+    "message": "✓ Đã lưu $COUNT$ tin nhắn mới — kiểm tra thư mục Downloads của bạn",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupSavedNewMessagesOther": {
+    "message": "✓ Đã lưu $COUNT$ tin nhắn mới — kiểm tra thư mục Downloads của bạn",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeJustNow": {
+    "message": "vừa xong"
+  },
+  "timeMinutesAgo": {
+    "message": "$1 phút trước",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeHoursAgo": {
+    "message": "$1 giờ trước",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeDaysAgo": {
+    "message": "$1 ngày trước",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsHeaderTitle": {
+    "message": "Cài đặt Inkpour"
+  },
+  "settingsHeaderSubtitle": {
+    "message": "Tùy chọn được lưu cục bộ trong trình duyệt của bạn"
+  },
+  "settingsBrowserDetecting": {
+    "message": "Đang phát hiện…"
+  },
+  "settingsBrowserBadge": {
+    "message": "Tự động phát hiện"
+  },
+  "settingsBrowserFirefoxName": {
+    "message": "Firefox"
+  },
+  "settingsBrowserFirefoxNote": {
+    "message": "Hỗ trợ đầy đủ — tất cả định dạng xuất"
+  },
+  "settingsBrowserChromeName": {
+    "message": "Chrome / Brave"
+  },
+  "settingsBrowserChromeNote": {
+    "message": "Hỗ trợ đầy đủ — tất cả định dạng xuất"
+  },
+  "settingsBrowserEdgeName": {
+    "message": "Microsoft Edge"
+  },
+  "settingsBrowserEdgeNote": {
+    "message": "Hỗ trợ đầy đủ — tất cả định dạng xuất"
+  },
+  "settingsBrowserSafariName": {
+    "message": "Safari"
+  },
+  "settingsBrowserSafariNote": {
+    "message": "Thử nghiệm — PDF có thể hoạt động khác"
+  },
+  "settingsBrowserUnknownName": {
+    "message": "Trình duyệt không xác định"
+  },
+  "settingsBrowserUnknownNote": {
+    "message": "Có thể hoạt động — hãy báo cáo nếu có sự cố"
+  },
+  "settingsSectionExport": {
+    "message": "Xuất"
+  },
+  "settingsSectionIntegrations": {
+    "message": "Tích hợp"
+  },
+  "settingsDefaultFormatLabel": {
+    "message": "Định dạng mặc định"
+  },
+  "settingsDefaultFormatDesc": {
+    "message": "Nút nào sẽ nhận tiêu điểm bàn phím trước tiên"
+  },
+  "settingsFilenameTemplateLabel": {
+    "message": "Mẫu tên tệp"
+  },
+  "settingsFilenameTemplateDesc": {
+    "message": "Token: {platform} {title} {date} {time} {url} {words} {msgcount}"
+  },
+  "settingsPdfAutoPrintLabel": {
+    "message": "Tự động in PDF"
+  },
+  "settingsPdfAutoPrintDesc": {
+    "message": "Tự động mở hộp thoại in sau khi tab PDF tải xong"
+  },
+  "settingsYamlLabel": {
+    "message": "Bao gồm phần đầu YAML"
+  },
+  "settingsYamlDesc": {
+    "message": "Thêm tiêu đề, ngày, nền tảng, URL vào đầu tệp .md"
+  },
+  "settingsTocLabel": {
+    "message": "Tạo mục lục"
+  },
+  "settingsTocDesc": {
+    "message": "Chèn mục lục có thể nhấp cho các cuộc trò chuyện có hơn 4 tin nhắn"
+  },
+  "settingsSubfolderLabel": {
+    "message": "Thư mục con Downloads"
+  },
+  "settingsSubfolderDesc": {
+    "message": "Đường dẫn con tùy chọn trong thư mục tải xuống mặc định của bạn (ví dụ: AI Chats)"
+  },
+  "settingsSubfolderPlaceholder": {
+    "message": "ví dụ: AI Chats"
+  },
+  "settingsObsidianVaultLabel": {
+    "message": "Thư mục con kho Obsidian"
+  },
+  "settingsObsidianVaultDesc": {
+    "message": "Khi được đặt, các bản xuất sẽ vào thư mục con này trong Downloads — hữu ích cho kho Obsidian. Ghi đè trường thư mục con ở trên."
+  },
+  "settingsObsidianTagsLabel": {
+    "message": "Thẻ Obsidian trong YAML"
+  },
+  "settingsObsidianTagsDesc": {
+    "message": "Thêm tags: [ai-chat, {platform}] vào phần đầu (yêu cầu bật YAML)"
+  },
+  "settingsGithubTokenLabel": {
+    "message": "Token GitHub"
+  },
+  "settingsGithubTokenDesc": {
+    "message": "Token truy cập cá nhân có phạm vi gist — kích hoạt nút \"Tải lên Gist\" trong popup."
+  },
+  "settingsGithubTokenLink": {
+    "message": "Tạo một token →"
+  },
+  "settingsGistVisibilityLabel": {
+    "message": "Chế độ hiển thị Gist"
+  },
+  "settingsGistVisibilityDesc": {
+    "message": "Gist bí mật không được liệt kê công khai (bất kỳ ai có liên kết đều có thể xem)"
+  },
+  "settingsGistSecretOption": {
+    "message": "Bí mật (không liệt kê)"
+  },
+  "settingsGistPublicOption": {
+    "message": "Công khai"
+  },
+  "settingsGistTagsLabel": {
+    "message": "Thẻ Gist"
+  },
+  "settingsGistTagsDesc": {
+    "message": "Các thẻ bổ sung được thêm vào phần đầu YAML của mỗi bản xuất Gist, phân tách bằng dấu phẩy. Sau này tìm Gist của bạn trên GitHub bằng user:you \"tag\". Thẻ ai-chat và tên nền tảng luôn được tự động thêm vào."
+  },
+  "settingsGistTagsPlaceholder": {
+    "message": "công-việc, dự-án-x, nghiên-cứu"
+  },
+  "settingsScrubLabel": {
+    "message": "Xóa thông tin nhạy cảm trước khi tải lên"
+  },
+  "settingsScrubDesc": {
+    "message": "Che các khóa API, token và email có khả năng nhạy cảm trước khi tải lên Gist/webhook"
+  },
+  "settingsWebhookUrlLabel": {
+    "message": "URL Webhook"
+  },
+  "settingsWebhookUrlDesc": {
+    "message": "Sau mỗi lần xuất, Inkpour sẽ gửi một yêu cầu POST đến đây kèm siêu dữ liệu xuất (tiêu đề, nền tảng, định dạng, số từ). Hoạt động với n8n, Zapier, Make.com hoặc bất kỳ điểm cuối HTTP nào."
+  },
+  "settingsWebhookContentLabel": {
+    "message": "Bao gồm nội dung trong webhook"
+  },
+  "settingsWebhookContentDesc": {
+    "message": "Gửi toàn bộ văn bản đã xuất trong payload webhook (làm tăng đáng kể kích thước payload đối với các cuộc trò chuyện dài)"
+  },
+  "settingsSaveBtn": {
+    "message": "Lưu"
+  },
+  "settingsSavedStatus": {
+    "message": "✓ Đã lưu"
+  },
+  "historyHeaderTitle": {
+    "message": "Lịch sử xuất"
+  },
+  "historyHeaderSubtitle": {
+    "message": "20 lần xuất gần nhất — lưu cục bộ, không bao giờ tải lên"
+  },
+  "historySearchPlaceholder": {
+    "message": "Tìm tiêu đề, nền tảng hoặc nội dung cuộc trò chuyện…"
+  },
+  "historyClearRecent": {
+    "message": "Xóa gần đây"
+  },
+  "historyClearAll": {
+    "message": "Xóa tất cả"
+  },
+  "historyClearStarred": {
+    "message": "Xóa ★"
+  },
+  "historyClearRecentTitle": {
+    "message": "Xóa lịch sử gần đây (các bản xuất được gắn sao vẫn được giữ lại)"
+  },
+  "historyClearAllTitle": {
+    "message": "Xóa toàn bộ lịch sử xuất"
+  },
+  "historyEmptyTitle": {
+    "message": "📭"
+  },
+  "historyEmptyBody": {
+    "message": "Chưa có bản xuất nào. Hãy xuất một cuộc trò chuyện từ popup để xem tại đây."
+  },
+  "historyBackLink": {
+    "message": "← Quay lại popup"
+  },
+  "historyStorageNote": {
+    "message": "Nội dung được lưu trong bộ nhớ tiện ích mở rộng trình duyệt"
+  },
+  "historyStatExports": {
+    "message": "Số lần xuất"
+  },
+  "historyStatWords": {
+    "message": "Tổng số từ"
+  },
+  "historyStatPlatform": {
+    "message": "Nền tảng hàng đầu"
+  },
+  "historyStatFormat": {
+    "message": "Định dạng hàng đầu"
+  },
+  "historySectionStarred": {
+    "message": "★ Đã gắn sao"
+  },
+  "historySectionRecent": {
+    "message": "Gần đây"
+  },
+  "historyStarPin": {
+    "message": "Ghim vào mục đã gắn sao"
+  },
+  "historyStarUnpin": {
+    "message": "Bỏ ghim khỏi mục đã gắn sao"
+  },
+  "historyActionSave": {
+    "message": "↓ Lưu"
+  },
+  "historyActionCopy": {
+    "message": "⎘ Sao chép"
+  },
+  "historyActionCopied": {
+    "message": "✓ Đã sao chép"
+  },
+  "historyActionGist": {
+    "message": "↗ Gist"
+  },
+  "historyNoExportsYet": {
+    "message": "Chưa có bản xuất nào"
+  },
+  "historyMatchCountOne": {
+    "message": "$1 trong số $2 khớp",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyMatchCountOther": {
+    "message": "$1 trong số $2 khớp",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyFilteredCount": {
+    "message": "$1 trong số $2 bản xuất",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyExportCountOne": {
+    "message": "$1 bản xuất",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyExportCountOther": {
+    "message": "$1 bản xuất",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyLifetimeStatsOne": {
+    "message": "Tổng cộng: $1 bản xuất$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyLifetimeStatsOther": {
+    "message": "Tổng cộng: $1 bản xuất$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyConfirmClearRecent": {
+    "message": "Xóa lịch sử gần đây? Các bản xuất được gắn sao sẽ được giữ lại."
+  },
+  "historyConfirmClearAll": {
+    "message": "Xóa toàn bộ lịch sử xuất? Hành động này không thể hoàn tác."
+  },
+  "historyConfirmClearStarred": {
+    "message": "Xóa tất cả các bản xuất đã gắn sao? Hành động này không thể hoàn tác."
+  },
+  "printLoading": {
+    "message": "Đang tải cuộc trò chuyện…"
+  },
+  "printNoContent": {
+    "message": "Inkpour: Không tìm thấy nội dung. Hãy thử xuất lại."
+  },
+  "printGenericErrorPrefix": {
+    "message": "Lỗi Inkpour:"
+  },
+  "contentFabTitle": {
+    "message": "Inkpour — Xuất cuộc trò chuyện này"
+  },
+  "contentToastRedactedOne": {
+    "message": "Đã che $1 mục ($2) trước khi tải lên.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastRedactedOther": {
+    "message": "Đã che $1 mục ($2) trước khi tải lên.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastGistFailedNetwork": {
+    "message": "✗ Tải lên Gist thất bại (lỗi mạng)"
+  },
+  "contentToastGistFailed": {
+    "message": "✗ Tải lên Gist thất bại: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentToastGistCreated": {
+    "message": "✓ Đã tạo Gist"
+  },
+  "popupSelectCount": {
+    "message": "Đã chọn $1/$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupPlatformDetected": {
+    "message": "✓ $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupPlatformCount": {
+    "message": "Hỗ trợ $1 nền tảng",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentMenuExportMd": {
+    "message": "Xuất MD"
+  },
+  "contentMenuCopyMd": {
+    "message": "Sao chép MD"
+  },
+  "contentMenuExportHtml": {
+    "message": "Xuất HTML"
+  },
+  "contentMenuExportDocx": {
+    "message": "Xuất DOCX"
+  },
+  "contentMenuExportPdf": {
+    "message": "Xuất PDF"
+  },
+  "contentMenuExportZip": {
+    "message": "Xuất ZIP"
+  },
+  "contentStatusSaved": {
+    "message": "✓ Đã lưu!"
+  },
+  "contentStatusCopied": {
+    "message": "✓ Đã sao chép!"
+  },
+  "contentStatusExporting": {
+    "message": "Đang xuất…"
+  },
+  "contentStatusExportStarted": {
+    "message": "✓ Đã bắt đầu xuất $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentStatusExportFailed": {
+    "message": "Xuất thất bại"
+  },
+  "contentNoMessagesFound": {
+    "message": "Không tìm thấy tin nhắn nào"
+  },
+  "settingsPageTitle": {
+    "message": "Inkpour — Cài đặt"
+  },
+  "settingsFormatOptionMd": {
+    "message": "Markdown (.md)"
+  },
+  "settingsFormatOptionPdf": {
+    "message": "PDF"
+  },
+  "settingsFormatOptionHtml": {
+    "message": "HTML"
+  },
+  "settingsFormatOptionJson": {
+    "message": "JSON"
+  },
+  "settingsFormatOptionZip": {
+    "message": "ZIP (chat + các tệp mã)"
+  }
+}

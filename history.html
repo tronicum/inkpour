@@ -302,53 +302,54 @@
   <div class="header">
     <div class="logo">ip</div>
     <div class="header-text">
-      <h1>Export History</h1>
-      <p>Last 20 exports — stored locally, never uploaded</p>
+      <h1 data-i18n="historyHeaderTitle">Export History</h1>
+      <p data-i18n="historyHeaderSubtitle">Last 20 exports — stored locally, never uploaded</p>
     </div>
   </div>
 
   <div class="stats-bar" id="statsBar" hidden>
     <div class="stat-pill">
       <span class="stat-value" id="statExports">—</span>
-      <span class="stat-label">Exports</span>
+      <span class="stat-label" data-i18n="historyStatExports">Exports</span>
     </div>
     <div class="stat-pill">
       <span class="stat-value" id="statWords">—</span>
-      <span class="stat-label">Total words</span>
+      <span class="stat-label" data-i18n="historyStatWords">Total words</span>
     </div>
     <div class="stat-pill">
       <span class="stat-value" id="statPlatform">—</span>
-      <span class="stat-label">Top platform</span>
+      <span class="stat-label" data-i18n="historyStatPlatform">Top platform</span>
     </div>
     <div class="stat-pill">
       <span class="stat-value" id="statFormat">—</span>
-      <span class="stat-label">Top format</span>
+      <span class="stat-label" data-i18n="historyStatFormat">Top format</span>
     </div>
   </div>
 
   <div class="toolbar">
     <div class="toolbar-left">
-      <input class="search-box" id="searchBox" type="search" placeholder="Search title, platform, or conversation content…" />
+      <input class="search-box" id="searchBox" type="search" data-i18n-placeholder="historySearchPlaceholder" placeholder="Search title, platform, or conversation content…" />
       <span class="count" id="countLabel"></span>
     </div>
-    <button class="btn-clear" id="clearBtn" disabled>Clear recent</button>
-    <button class="btn-clear" id="clearStarredBtn" hidden style="border-color:var(--subtext);color:var(--subtext)">Clear ★</button>
+    <button class="btn-clear" id="clearBtn" disabled data-i18n="historyClearRecent">Clear recent</button>
+    <button class="btn-clear" id="clearStarredBtn" hidden style="border-color:var(--subtext);color:var(--subtext)" data-i18n="historyClearStarred">Clear ★</button>
   </div>
 
   <div id="content">
     <div class="empty" id="emptyState" hidden>
-      <p>📭</p>
-      <p>No exports yet. Export a chat from the popup to see it here.</p>
+      <p data-i18n="historyEmptyTitle">📭</p>
+      <p data-i18n="historyEmptyBody">No exports yet. Export a chat from the popup to see it here.</p>
     </div>
     <div class="history-list" id="historyList"></div>
   </div>
 
   <footer>
-    <a href="popup.html" id="backLink">← Back to popup</a>
+    <a href="popup.html" id="backLink" data-i18n="historyBackLink">← Back to popup</a>
     &nbsp;·&nbsp;
-    Content stored in browser extension storage
+    <span data-i18n="historyStorageNote">Content stored in browser extension storage</span>
   </footer>
 
+  <script src="src/i18n.js"></script>
   <script src="history.js"></script>
 </body>
 </html>

@@ -1,0 +1,857 @@
+{
+  "extName": {
+    "message": "Inkpour",
+    "description": "Extension name shown in browser toolbar and stores"
+  },
+  "extDescription": {
+    "message": "ส่งออกบทสนทนาแชท AI (ChatGPT, Claude, Gemini, Copilot และอื่น ๆ) เป็น Markdown, PDF, HTML, DOCX หรือ ZIP",
+    "description": "Extension description shown in browser stores"
+  },
+  "cmdExportMarkdown": {
+    "message": "ส่งออกแชทปัจจุบันเป็น Markdown",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyMarkdown": {
+    "message": "คัดลอกแชทปัจจุบันเป็น Markdown ไปยังคลิปบอร์ด",
+    "description": "Keyboard command description"
+  },
+  "cmdExportPdf": {
+    "message": "ส่งออกแชทปัจจุบันเป็น PDF",
+    "description": "Keyboard command description"
+  },
+  "cmdUploadGist": {
+    "message": "อัปโหลดแชทปัจจุบันไปยัง GitHub Gist",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyHtml": {
+    "message": "คัดลอกแชทปัจจุบันเป็น HTML แบบสแตนด์อโลนไปยังคลิปบอร์ด",
+    "description": "Keyboard command description"
+  },
+  "cmdExportJson": {
+    "message": "ส่งออกแชทปัจจุบันเป็น JSON",
+    "description": "Keyboard command description"
+  },
+  "cmdExportZip": {
+    "message": "ส่งออกแชทปัจจุบันเป็น ZIP (chat.md + ไฟล์โค้ด)",
+    "description": "Keyboard command description"
+  },
+  "cmdExportDocx": {
+    "message": "ส่งออกแชทปัจจุบันเป็นเอกสาร Word (.docx)",
+    "description": "Keyboard command description"
+  },
+  "popupTagline": {
+    "message": "ส่งออกแชท AI · MD, PDF, HTML, JSON, ZIP",
+    "description": "Popup header subtitle"
+  },
+  "popupSettingsTitle": {
+    "message": "การตั้งค่า",
+    "description": "Settings gear button tooltip/aria-label in popup"
+  },
+  "popupExportAsLabel": {
+    "message": "ส่งออกเป็น",
+    "description": "Section label above the export format buttons"
+  },
+  "popupMdBtnTitle": {
+    "message": "ส่งออกเป็น Markdown (Alt+Shift+M)",
+    "description": "MD button tooltip"
+  },
+  "popupPdfBtnTitle": {
+    "message": "ส่งออกเป็น PDF",
+    "description": "PDF button tooltip"
+  },
+  "popupHtmlBtnTitle": {
+    "message": "ส่งออกเป็น HTML",
+    "description": "HTML button tooltip"
+  },
+  "popupJsonBtnTitle": {
+    "message": "ส่งออกเป็น JSON (Alt+Shift+J)",
+    "description": "JSON button tooltip"
+  },
+  "popupDocxBtnTitle": {
+    "message": "ส่งออกเป็นเอกสาร Word (.docx)",
+    "description": "DOCX button tooltip"
+  },
+  "popupCopyBtnTitle": {
+    "message": "คัดลอก Markdown ไปยังคลิปบอร์ด (Alt+Shift+C)",
+    "description": "Copy MD button tooltip"
+  },
+  "popupCopyHtmlBtnTitle": {
+    "message": "คัดลอก HTML แบบสแตนด์อโลนไปยังคลิปบอร์ด (Alt+Shift+H)",
+    "description": "Copy HTML button tooltip"
+  },
+  "popupZipBtnTitle": {
+    "message": "ส่งออก ZIP พร้อม chat.md + ไฟล์โค้ดที่แยกออกมา (Alt+Shift+Z)",
+    "description": "ZIP button tooltip"
+  },
+  "popupGistBtnTitle": {
+    "message": "อัปโหลด Markdown ไปยัง GitHub Gist",
+    "description": "Gist button tooltip"
+  },
+  "popupAllBtnTitle": {
+    "message": "ส่งออก MD + DOCX + ZIP พร้อมกัน",
+    "description": "Export All button tooltip"
+  },
+  "popupBtnMd": {
+    "message": "MD"
+  },
+  "popupBtnPdf": {
+    "message": "PDF"
+  },
+  "popupBtnHtml": {
+    "message": "HTML"
+  },
+  "popupBtnJson": {
+    "message": "JSON"
+  },
+  "popupBtnDocx": {
+    "message": "DOCX"
+  },
+  "popupBtnCopyMd": {
+    "message": "คัดลอก MD"
+  },
+  "popupBtnCopyHtml": {
+    "message": "คัดลอก HTML"
+  },
+  "popupBtnZip": {
+    "message": "ZIP"
+  },
+  "popupBtnGist": {
+    "message": "Gist ↑"
+  },
+  "popupBtnExportAll": {
+    "message": "⬇ ส่งออกทั้งหมด (MD + DOCX + ZIP)"
+  },
+  "popupIncrementalBtnTitle": {
+    "message": "ส่งออกเฉพาะข้อความที่เพิ่มขึ้นตั้งแต่การส่งออกครั้งล่าสุด",
+    "description": "Export new only button tooltip"
+  },
+  "popupBtnExportNewOnly": {
+    "message": "ส่งออกเฉพาะรายการใหม่"
+  },
+  "popupTitleInputPlaceholder": {
+    "message": "ชื่อแชท…"
+  },
+  "popupNotesPlaceholder": {
+    "message": "เพิ่มบันทึกส่วนตัว — จะถูกใส่ไว้ด้านบนสุดของไฟล์ส่งออกในรูปแบบคำพูดอ้างอิง…"
+  },
+  "popupNotesToggleAdd": {
+    "message": "+ เพิ่มบันทึก"
+  },
+  "popupNotesToggleHide": {
+    "message": "− ซ่อนบันทึก"
+  },
+  "popupSelectToggleOpen": {
+    "message": "☑ เลือกข้อความ"
+  },
+  "popupSelectToggleClose": {
+    "message": "✕ ปิดตัวเลือก"
+  },
+  "popupSelectAll": {
+    "message": "ทั้งหมด"
+  },
+  "popupSelectNone": {
+    "message": "ไม่เลือกเลย"
+  },
+  "popupSelectUserOnly": {
+    "message": "เฉพาะผู้ใช้"
+  },
+  "popupSelectAIOnly": {
+    "message": "เฉพาะ AI"
+  },
+  "popupHistoryBtn": {
+    "message": "⏱ ประวัติ"
+  },
+  "popupSettingsBtn": {
+    "message": "⚙ การตั้งค่า"
+  },
+  "popupStatusExtracting": {
+    "message": "กำลังแยกข้อมูล…"
+  },
+  "popupStatusExtractingMessages": {
+    "message": "กำลังแยกข้อความ…"
+  },
+  "popupStatusLoadingOlder": {
+    "message": "กำลังโหลดข้อความเก่า…"
+  },
+  "popupStatusAiStillGenerating": {
+    "message": "AI กำลังสร้างคำตอบอยู่ — กรุณาส่งออกหลังจากเสร็จสิ้น"
+  },
+  "popupStatusSavedCheckDownloads": {
+    "message": "✓ บันทึกแล้ว — ตรวจสอบโฟลเดอร์ดาวน์โหลดของคุณ"
+  },
+  "popupStatusMarkdownCopied": {
+    "message": "✓ คัดลอก Markdown ไปยังคลิปบอร์ดแล้ว"
+  },
+  "popupStatusHtmlCopied": {
+    "message": "✓ คัดลอก HTML แล้ว — วางลงในโปรแกรมแก้ไขใดก็ได้"
+  },
+  "popupStatusZipSaved": {
+    "message": "✓ บันทึก ZIP แล้ว — chat.md",
+    "description": "Prefix; extra code-file count is appended in JS"
+  },
+  "popupCodeFileOne": {
+    "message": " + ไฟล์โค้ด $1 ไฟล์",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeFileOther": {
+    "message": " + ไฟล์โค้ด $1 ไฟล์",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupStatusExportAllSaved": {
+    "message": "✓ บันทึก MD + DOCX + ZIP แล้ว"
+  },
+  "popupStatusGistTokenMissing": {
+    "message": "กรุณาเพิ่มโทเคน GitHub ในการตั้งค่าก่อน"
+  },
+  "popupStatusGistUploading": {
+    "message": "กำลังอัปโหลดไปยัง GitHub Gist…"
+  },
+  "popupStatusGistCreated": {
+    "message": "✓ สร้าง Gist แล้ว"
+  },
+  "popupStatusGistUploadFailed": {
+    "message": "อัปโหลด Gist ไม่สำเร็จ"
+  },
+  "popupStatusNotSupportedPage": {
+    "message": "นี่ไม่ใช่หน้าแชท AI ที่รองรับ เปิด Inkpour บน ChatGPT, Claude, Gemini, Google Search หรือแพลตฟอร์มอื่นที่รองรับ"
+  },
+  "popupStatusRefreshTab": {
+    "message": "รีเฟรชแท็บแชทแล้วลองอีกครั้ง (สคริปต์เนื้อหาไม่ทำงาน — แท็บถูกเปิดไว้ก่อนที่ส่วนขยายจะโหลด)"
+  },
+  "popupStatusNoResponse": {
+    "message": "ไม่มีการตอบสนองจากหน้าเว็บ ลองรีเฟรชแท็บดู"
+  },
+  "popupStatusNoMessagesFound": {
+    "message": "ไม่พบข้อความ"
+  },
+  "popupStatusCannotAccessTab": {
+    "message": "ไม่สามารถเข้าถึงแท็บปัจจุบันได้"
+  },
+  "popupStatusNoNewMessages": {
+    "message": "ไม่มีข้อความใหม่ให้ส่งออก"
+  },
+  "popupMsgCountOne": {
+    "message": "พร้อม · $COUNT$ ข้อความ$ROLES$ · ~$WORDS$ คำ · ~$READMIN$ นาทีในการอ่าน$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupMsgCountOther": {
+    "message": "พร้อม · $COUNT$ ข้อความ$ROLES$ · ~$WORDS$ คำ · ~$READMIN$ นาทีในการอ่าน$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupCodeBlockOne": {
+    "message": " · $1 บล็อกโค้ด",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeBlockOther": {
+    "message": " · $1 บล็อกโค้ด",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupLastExport": {
+    "message": "ล่าสุด: $PLATFORM$ · $COUNT$ ข้อความ$FORMAT$ · $WHEN$",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      },
+      "when": {
+        "content": "$4"
+      }
+    }
+  },
+  "popupLastExportJustNow": {
+    "message": "ล่าสุด: $PLATFORM$ · $COUNT$ ข้อความ · $FORMAT$ · เมื่อสักครู่",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupNewMessageOne": {
+    "message": "+$COUNT$ ข้อความใหม่นับตั้งแต่ส่งออกเมื่อ $WHEN$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupNewMessageOther": {
+    "message": "+$COUNT$ ข้อความใหม่นับตั้งแต่ส่งออกเมื่อ $WHEN$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOne": {
+    "message": "$COUNT$ ข้อความใหม่นับตั้งแต่การส่งออกครั้งล่าสุด ($WHEN$) — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOther": {
+    "message": "$COUNT$ ข้อความใหม่นับตั้งแต่การส่งออกครั้งล่าสุด ($WHEN$) — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupSavedNewMessagesOne": {
+    "message": "✓ บันทึก $COUNT$ ข้อความใหม่แล้ว — ตรวจสอบโฟลเดอร์ดาวน์โหลดของคุณ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupSavedNewMessagesOther": {
+    "message": "✓ บันทึก $COUNT$ ข้อความใหม่แล้ว — ตรวจสอบโฟลเดอร์ดาวน์โหลดของคุณ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeJustNow": {
+    "message": "เมื่อสักครู่"
+  },
+  "timeMinutesAgo": {
+    "message": "$1 นาทีที่แล้ว",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeHoursAgo": {
+    "message": "$1 ชั่วโมงที่แล้ว",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeDaysAgo": {
+    "message": "$1 วันที่แล้ว",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsHeaderTitle": {
+    "message": "การตั้งค่า Inkpour"
+  },
+  "settingsHeaderSubtitle": {
+    "message": "การตั้งค่าถูกบันทึกไว้ในเครื่องของเบราว์เซอร์คุณ"
+  },
+  "settingsBrowserDetecting": {
+    "message": "กำลังตรวจสอบ…"
+  },
+  "settingsBrowserBadge": {
+    "message": "ตรวจพบโดยอัตโนมัติ"
+  },
+  "settingsBrowserFirefoxName": {
+    "message": "Firefox"
+  },
+  "settingsBrowserFirefoxNote": {
+    "message": "รองรับเต็มรูปแบบ — ทุกรูปแบบการส่งออก"
+  },
+  "settingsBrowserChromeName": {
+    "message": "Chrome / Brave"
+  },
+  "settingsBrowserChromeNote": {
+    "message": "รองรับเต็มรูปแบบ — ทุกรูปแบบการส่งออก"
+  },
+  "settingsBrowserEdgeName": {
+    "message": "Microsoft Edge"
+  },
+  "settingsBrowserEdgeNote": {
+    "message": "รองรับเต็มรูปแบบ — ทุกรูปแบบการส่งออก"
+  },
+  "settingsBrowserSafariName": {
+    "message": "Safari"
+  },
+  "settingsBrowserSafariNote": {
+    "message": "อยู่ในขั้นทดลอง — PDF อาจทำงานแตกต่างออกไป"
+  },
+  "settingsBrowserUnknownName": {
+    "message": "เบราว์เซอร์ที่ไม่รู้จัก"
+  },
+  "settingsBrowserUnknownNote": {
+    "message": "อาจใช้งานได้ — แจ้งปัญหาหากมีสิ่งใดไม่ทำงาน"
+  },
+  "settingsSectionExport": {
+    "message": "การส่งออก"
+  },
+  "settingsSectionIntegrations": {
+    "message": "การเชื่อมต่อ"
+  },
+  "settingsDefaultFormatLabel": {
+    "message": "รูปแบบเริ่มต้น"
+  },
+  "settingsDefaultFormatDesc": {
+    "message": "ปุ่มใดที่จะได้รับโฟกัสจากคีย์บอร์ดเป็นอันดับแรก"
+  },
+  "settingsFilenameTemplateLabel": {
+    "message": "รูปแบบชื่อไฟล์"
+  },
+  "settingsFilenameTemplateDesc": {
+    "message": "โทเคน: {platform} {title} {date} {time} {url} {words} {msgcount}"
+  },
+  "settingsPdfAutoPrintLabel": {
+    "message": "พิมพ์ PDF อัตโนมัติ"
+  },
+  "settingsPdfAutoPrintDesc": {
+    "message": "เปิดกล่องโต้ตอบการพิมพ์โดยอัตโนมัติหลังจากแท็บ PDF โหลดเสร็จ"
+  },
+  "settingsYamlLabel": {
+    "message": "รวมส่วนหัว YAML"
+  },
+  "settingsYamlDesc": {
+    "message": "เพิ่มชื่อเรื่อง วันที่ แพลตฟอร์ม และ URL ไว้ด้านบนสุดของไฟล์ .md"
+  },
+  "settingsTocLabel": {
+    "message": "สร้างสารบัญ"
+  },
+  "settingsTocDesc": {
+    "message": "เพิ่มสารบัญที่คลิกได้สำหรับแชทที่มีมากกว่า 4 ข้อความ"
+  },
+  "settingsSubfolderLabel": {
+    "message": "โฟลเดอร์ย่อยของดาวน์โหลด"
+  },
+  "settingsSubfolderDesc": {
+    "message": "เส้นทางย่อยเสริมภายในโฟลเดอร์ดาวน์โหลดเริ่มต้นของคุณ (เช่น AI Chats)"
+  },
+  "settingsSubfolderPlaceholder": {
+    "message": "เช่น AI Chats"
+  },
+  "settingsObsidianVaultLabel": {
+    "message": "โฟลเดอร์ย่อยของ Obsidian vault"
+  },
+  "settingsObsidianVaultDesc": {
+    "message": "เมื่อกำหนดไว้ การส่งออกจะไปยังโฟลเดอร์ย่อยนี้ในดาวน์โหลด — มีประโยชน์สำหรับ Obsidian vault จะแทนที่ช่องโฟลเดอร์ย่อยด้านบน"
+  },
+  "settingsObsidianTagsLabel": {
+    "message": "แท็ก Obsidian ใน YAML"
+  },
+  "settingsObsidianTagsDesc": {
+    "message": "เพิ่ม tags: [ai-chat, {platform}] ในส่วนหัว (ต้องเปิดใช้งาน YAML)"
+  },
+  "settingsGithubTokenLabel": {
+    "message": "โทเคน GitHub"
+  },
+  "settingsGithubTokenDesc": {
+    "message": "โทเคนการเข้าถึงส่วนบุคคลที่มีขอบเขต gist — เปิดใช้งานปุ่ม \"อัปโหลดไปยัง Gist\" ในหน้าต่างป๊อปอัป"
+  },
+  "settingsGithubTokenLink": {
+    "message": "สร้างโทเคน →"
+  },
+  "settingsGistVisibilityLabel": {
+    "message": "การมองเห็น Gist"
+  },
+  "settingsGistVisibilityDesc": {
+    "message": "Gist แบบลับจะไม่แสดงในรายการ (ผู้ที่มีลิงก์สามารถดูได้)"
+  },
+  "settingsGistSecretOption": {
+    "message": "ลับ (ไม่แสดงในรายการ)"
+  },
+  "settingsGistPublicOption": {
+    "message": "สาธารณะ"
+  },
+  "settingsGistTagsLabel": {
+    "message": "แท็ก Gist"
+  },
+  "settingsGistTagsDesc": {
+    "message": "แท็กเพิ่มเติมที่เพิ่มลงในส่วนหัว YAML ของการส่งออก Gist ทุกครั้ง คั่นด้วยจุลภาค ค้นหา Gist ของคุณภายหลังบน GitHub ด้วย user:you \"tag\" แท็ก ai-chat และชื่อแพลตฟอร์มจะถูกเพิ่มโดยอัตโนมัติเสมอ"
+  },
+  "settingsGistTagsPlaceholder": {
+    "message": "งาน, โปรเจกต์-x, การวิจัย"
+  },
+  "settingsScrubLabel": {
+    "message": "ลบข้อมูลลับก่อนอัปโหลด"
+  },
+  "settingsScrubDesc": {
+    "message": "ปิดบังคีย์ API โทเคน และอีเมลที่น่าจะเป็นข้อมูลลับก่อนอัปโหลดไปยัง Gist/webhook"
+  },
+  "settingsWebhookUrlLabel": {
+    "message": "URL ของ Webhook"
+  },
+  "settingsWebhookUrlDesc": {
+    "message": "หลังจากการส่งออกแต่ละครั้ง Inkpour จะส่งคำขอ POST มาที่นี่พร้อมข้อมูลเมตาของการส่งออก (ชื่อเรื่อง แพลตฟอร์ม รูปแบบ จำนวนคำ) ใช้งานได้กับ n8n, Zapier, Make.com หรือ HTTP endpoint ใดก็ได้"
+  },
+  "settingsWebhookContentLabel": {
+    "message": "รวมเนื้อหาใน webhook"
+  },
+  "settingsWebhookContentDesc": {
+    "message": "ส่งข้อความที่ส่งออกทั้งหมดไปใน payload ของ webhook (เพิ่มขนาด payload อย่างมากสำหรับแชทที่ยาว)"
+  },
+  "settingsSaveBtn": {
+    "message": "บันทึก"
+  },
+  "settingsSavedStatus": {
+    "message": "✓ บันทึกแล้ว"
+  },
+  "historyHeaderTitle": {
+    "message": "ประวัติการส่งออก"
+  },
+  "historyHeaderSubtitle": {
+    "message": "การส่งออก 20 รายการล่าสุด — จัดเก็บในเครื่อง ไม่เคยอัปโหลด"
+  },
+  "historySearchPlaceholder": {
+    "message": "ค้นหาชื่อเรื่อง แพลตฟอร์ม หรือเนื้อหาการสนทนา…"
+  },
+  "historyClearRecent": {
+    "message": "ล้างรายการล่าสุด"
+  },
+  "historyClearAll": {
+    "message": "ล้างทั้งหมด"
+  },
+  "historyClearStarred": {
+    "message": "ล้าง ★"
+  },
+  "historyClearRecentTitle": {
+    "message": "ล้างประวัติล่าสุด (การส่งออกที่ติดดาวจะยังคงอยู่)"
+  },
+  "historyClearAllTitle": {
+    "message": "ล้างประวัติการส่งออกทั้งหมด"
+  },
+  "historyEmptyTitle": {
+    "message": "📭"
+  },
+  "historyEmptyBody": {
+    "message": "ยังไม่มีการส่งออก ส่งออกแชทจากป๊อปอัปเพื่อดูที่นี่"
+  },
+  "historyBackLink": {
+    "message": "← กลับไปที่ป๊อปอัป"
+  },
+  "historyStorageNote": {
+    "message": "เนื้อหาถูกจัดเก็บในพื้นที่จัดเก็บของส่วนขยายเบราว์เซอร์"
+  },
+  "historyStatExports": {
+    "message": "การส่งออก"
+  },
+  "historyStatWords": {
+    "message": "จำนวนคำทั้งหมด"
+  },
+  "historyStatPlatform": {
+    "message": "แพลตฟอร์มยอดนิยม"
+  },
+  "historyStatFormat": {
+    "message": "รูปแบบยอดนิยม"
+  },
+  "historySectionStarred": {
+    "message": "★ ติดดาว"
+  },
+  "historySectionRecent": {
+    "message": "ล่าสุด"
+  },
+  "historyStarPin": {
+    "message": "ปักหมุดเป็นรายการติดดาว"
+  },
+  "historyStarUnpin": {
+    "message": "ถอดหมุดออกจากรายการติดดาว"
+  },
+  "historyActionSave": {
+    "message": "↓ บันทึก"
+  },
+  "historyActionCopy": {
+    "message": "⎘ คัดลอก"
+  },
+  "historyActionCopied": {
+    "message": "✓ คัดลอกแล้ว"
+  },
+  "historyActionGist": {
+    "message": "↗ Gist"
+  },
+  "historyNoExportsYet": {
+    "message": "ยังไม่มีการส่งออก"
+  },
+  "historyMatchCountOne": {
+    "message": "ตรงกัน $1 จาก $2 รายการ",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyMatchCountOther": {
+    "message": "ตรงกัน $1 จาก $2 รายการ",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyFilteredCount": {
+    "message": "$1 จาก $2 รายการส่งออก",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyExportCountOne": {
+    "message": "$1 รายการส่งออก",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyExportCountOther": {
+    "message": "$1 รายการส่งออก",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyLifetimeStatsOne": {
+    "message": "ทั้งหมด: $1 รายการส่งออก$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyLifetimeStatsOther": {
+    "message": "ทั้งหมด: $1 รายการส่งออก$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyConfirmClearRecent": {
+    "message": "ล้างประวัติล่าสุดหรือไม่? รายการที่ติดดาวจะยังคงอยู่"
+  },
+  "historyConfirmClearAll": {
+    "message": "ล้างประวัติการส่งออกทั้งหมดหรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้"
+  },
+  "historyConfirmClearStarred": {
+    "message": "ลบรายการที่ติดดาวทั้งหมดหรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้"
+  },
+  "printLoading": {
+    "message": "กำลังโหลดการสนทนา…"
+  },
+  "printNoContent": {
+    "message": "Inkpour: ไม่พบเนื้อหา ลองส่งออกอีกครั้ง"
+  },
+  "printGenericErrorPrefix": {
+    "message": "ข้อผิดพลาด Inkpour:"
+  },
+  "contentFabTitle": {
+    "message": "Inkpour — ส่งออกแชทนี้"
+  },
+  "contentToastRedactedOne": {
+    "message": "ปิดบังข้อมูล $1 รายการ ($2) ก่อนอัปโหลด",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastRedactedOther": {
+    "message": "ปิดบังข้อมูล $1 รายการ ($2) ก่อนอัปโหลด",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastGistFailedNetwork": {
+    "message": "✗ อัปโหลด Gist ไม่สำเร็จ (ข้อผิดพลาดเครือข่าย)"
+  },
+  "contentToastGistFailed": {
+    "message": "✗ อัปโหลด Gist ไม่สำเร็จ: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentToastGistCreated": {
+    "message": "✓ สร้าง Gist แล้ว"
+  },
+  "popupSelectCount": {
+    "message": "เลือกแล้ว $1 จาก $2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupPlatformDetected": {
+    "message": "✓ $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupPlatformCount": {
+    "message": "รองรับ $1 แพลตฟอร์ม",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentMenuExportMd": {
+    "message": "ส่งออก MD"
+  },
+  "contentMenuCopyMd": {
+    "message": "คัดลอก MD"
+  },
+  "contentMenuExportHtml": {
+    "message": "ส่งออก HTML"
+  },
+  "contentMenuExportDocx": {
+    "message": "ส่งออก DOCX"
+  },
+  "contentMenuExportPdf": {
+    "message": "ส่งออก PDF"
+  },
+  "contentMenuExportZip": {
+    "message": "ส่งออก ZIP"
+  },
+  "contentStatusSaved": {
+    "message": "✓ บันทึกแล้ว!"
+  },
+  "contentStatusCopied": {
+    "message": "✓ คัดลอกแล้ว!"
+  },
+  "contentStatusExporting": {
+    "message": "กำลังส่งออก…"
+  },
+  "contentStatusExportStarted": {
+    "message": "✓ เริ่มส่งออก $1 แล้ว",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentStatusExportFailed": {
+    "message": "ส่งออกไม่สำเร็จ"
+  },
+  "contentNoMessagesFound": {
+    "message": "ไม่พบข้อความ"
+  },
+  "settingsPageTitle": {
+    "message": "Inkpour — การตั้งค่า"
+  },
+  "settingsFormatOptionMd": {
+    "message": "Markdown (.md)"
+  },
+  "settingsFormatOptionPdf": {
+    "message": "PDF"
+  },
+  "settingsFormatOptionHtml": {
+    "message": "HTML"
+  },
+  "settingsFormatOptionJson": {
+    "message": "JSON"
+  },
+  "settingsFormatOptionZip": {
+    "message": "ZIP (แชท + ไฟล์โค้ด)"
+  }
+}

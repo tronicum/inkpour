@@ -616,12 +616,17 @@
 
   // Perplexity (perplexity.ai) — experimental
   function extractPerplexity() {
-    // User queries: [data-testid="query-text"] or .break-words.whitespace-pre-line
-    // querySelectorAll de-dupes, so matching both classes+attribute on the same element is fine
-    const userEls = Array.from(document.querySelectorAll(
-      '[data-testid="query-text"], .break-words.whitespace-pre-line, ' +
-      'div[class*="UserQuery"] p, div[class*="userQuery"] p'
-    )).map(el => ({ el, role: 'You' }));
+    // User queries: verified live DOM (July 2026) uses a Tailwind "group/query"
+    // marker class — [class*="group/query"] — on the query bubble itself.
+    // Older guessed selectors kept as fallback in case Perplexity A/B-tests UI.
+    let userEls = Array.from(document.querySelectorAll('[class*="group/query"]'))
+      .map(el => ({ el, role: 'You' }));
+    if (!userEls.length) {
+      userEls = Array.from(document.querySelectorAll(
+        '[data-testid="query-text"], .break-words.whitespace-pre-line, ' +
+        'div[class*="UserQuery"] p, div[class*="userQuery"] p'
+      )).map(el => ({ el, role: 'You' }));
+    }
 
     // AI answers: select the answer CONTAINER and extract from its .prose child if present.
     // Avoids double-counting (outer container + inner .prose are different DOM nodes).
@@ -699,7 +704,22 @@
 
   // Mistral Le Chat (chat.mistral.ai) — experimental
   function extractMistral() {
-    // Mistral's Next.js UI uses role-labelled containers
+    // Verified live DOM (July 2026): each turn is a [class*="group/message"]
+    // wrapper. Assistant turns contain a [data-testid="text-message-part"]
+    // node; user turns don't have that testid but their bubble carries a
+    // right-aligned [class*="ms-auto"] wrapper instead.
+    const groups = Array.from(document.querySelectorAll('[class*="group/message"]'));
+    if (groups.length) {
+      const messages = groups.map(g => {
+        const textPart = g.querySelector('[data-testid="text-message-part"]');
+        if (textPart) return { role: 'Mistral', content: htmlToMarkdown(textPart) };
+        const bubble = g.querySelector('[class*="ms-auto"]') ?? g;
+        return { role: 'You', content: htmlToMarkdown(bubble) };
+      }).filter(m => m.content);
+      if (messages.length) return messages;
+    }
+
+    // Fallback: older guessed selectors, kept in case the UI changes again.
     const userEls = Array.from(document.querySelectorAll(
       '[data-role="user"], [class*="human"], [class*="Human"], ' +
       'div[class*="UserTurn"], div[class*="user-turn"], ' +
@@ -928,52 +948,73 @@
       .filter(m => m.content);
   }
 
-  // Venice.ai (venice.ai) — Chakra UI + react-virtuoso
-  // DOM confirmed July 2026:
-  //   All turns live inside .chakra-stack (react-virtuoso scroll root)
-  //   AI turns:   .assistant > .assistant-content > .prose
-  //   User turns: direct children of chakra-stack that are NOT .assistant
-  //               (bare div/p with no assistant class)
+  // Venice.ai (venice.ai) — Chakra UI + react-virtuoso chat UI.
+  // Verified live DOM: user turns and assistant turns live in TWO DISJOINT
+  // subtrees, not siblings under one shared scroll root:
+  //   User turns:      [data-testid="virtuoso-item-list"] a[role="link"]
+  //   Assistant turns: .assistant .assistant-content .prose
+  // Since the two subtrees are disjoint, DOM order can't interleave them —
+  // assume strict alternation and zip user/AI turns by index instead.
   function extractVenice() {
-    // Prefer explicit AI containers
-    const aiEls = Array.from(document.querySelectorAll('.assistant-content .prose, .assistant .prose'))
-      .map(el => ({ el, role: 'Venice' }));
+    const userEls = Array.from(
+      document.querySelectorAll('[data-testid="virtuoso-item-list"] a[role="link"]')
+    ).map(el => ({ el, role: 'You' }));
 
-    // User messages: elements marked with aria or class patterns
-    const userEls = Array.from(document.querySelectorAll(
-      '[class*="userMessage"], [class*="user-message"], [class*="UserMessage"], ' +
-      '[data-role="user"], [aria-label*="user"], [aria-label*="You"]'
-    )).map(el => ({ el, role: 'You' }));
+    const aiEls = Array.from(
+      document.querySelectorAll('.assistant .assistant-content .prose, .assistant-content .prose, .assistant .prose')
+    ).map(el => ({ el, role: 'Venice' }));
 
-    // Fallback: scan the chakra scroll root for alternating blocks
-    if (!aiEls.length && !userEls.length) {
-      const root = document.querySelector('.minds-chat-scroll-root, [class*="chakra-stack"]');
-      if (!root) return null;
-      const children = Array.from(root.children);
+    if (userEls.length || aiEls.length) {
       const combined = [];
-      for (const child of children) {
-        const isAI = child.classList.contains('assistant') ||
-                     child.querySelector('.assistant-content, .prose');
-        const prose = isAI && (child.querySelector('.prose') ?? child);
-        if (isAI && prose) {
-          combined.push({ el: prose, role: 'Venice' });
-        } else if (!isAI && child.textContent.trim()) {
-          combined.push({ el: child, role: 'You' });
-        }
+      const max = Math.max(userEls.length, aiEls.length);
+      for (let i = 0; i < max; i++) {
+        if (userEls[i]) combined.push(userEls[i]);
+        if (aiEls[i])   combined.push(aiEls[i]);
       }
       return combined.map(({ el, role }) => ({ role, content: htmlToMarkdown(el) }))
                      .filter(m => m.content);
     }
 
-    return [...userEls, ...aiEls]
-      .sort(sortByDOMOrder)
-      .map(({ el, role }) => ({ role, content: htmlToMarkdown(el) }))
-      .filter(m => m.content);
+    // Fallback: scan the chakra scroll root for alternating blocks (older/unverified layout)
+    const root = document.querySelector('.minds-chat-scroll-root, [class*="chakra-stack"]');
+    if (!root) return null;
+    const children = Array.from(root.children);
+    const combined = [];
+    for (const child of children) {
+      const isAI = child.classList.contains('assistant') ||
+                   child.querySelector('.assistant-content, .prose');
+      const prose = isAI && (child.querySelector('.prose') ?? child);
+      if (isAI && prose) {
+        combined.push({ el: prose, role: 'Venice' });
+      } else if (!isAI && child.textContent.trim()) {
+        combined.push({ el: child, role: 'You' });
+      }
+    }
+    return combined.map(({ el, role }) => ({ role, content: htmlToMarkdown(el) }))
+                   .filter(m => m.content);
   }
 
   // Lmsys Chatbot Arena (lmarena.ai, chat.lmsys.org) — experimental
   // Gradio-based multi-model comparison UI. We extract the first model column only.
   function extractLmarena() {
+    const userElsNew = Array.from(document.querySelectorAll('.justify-end .prose'))
+      .map(el => ({ el, role: 'You' }));
+    const colAHeader = Array.from(document.querySelectorAll('span'))
+      .find(s => s.textContent.trim() === 'Assistant A');
+    const colA = colAHeader?.closest('[class*="overflow"], [class*="flex-col"]');
+    const aiElsNew = colA
+      ? Array.from(colA.querySelectorAll('.prose')).filter(el => !el.closest('.justify-end')).map(el => ({ el, role: 'Chatbot Arena' }))
+      : [];
+    if (userElsNew.length || aiElsNew.length) {
+      const messages = [...userElsNew, ...aiElsNew]
+        .sort(sortByDOMOrder)
+        .map(({ el, role }) => ({ role, content: htmlToMarkdown(el) }))
+        .filter(m => m.content);
+      if (messages.length) return messages;
+    }
+
+    // Fallback: Gradio-era selectors, kept only in case an old cached
+    // build is ever served again.
     // Primary: Gradio data-testid attributes
     const userEls = Array.from(document.querySelectorAll(
       '[data-testid="user-message"] > p, [data-testid="user-message"]'
@@ -1025,20 +1066,33 @@
   // Character.AI (character.ai) — experimental
   // React-based SPA; class names are obfuscated but data-author-name is stable.
   function extractCharacterAI() {
-    // Primary: data-author-name attribute (most stable)
+    const msgEls = Array.from(document.querySelectorAll('[data-testid="completed-message"]'));
+    if (msgEls.length) {
+      const messages = msgEls.map(msgEl => {
+        let cur = msgEl, role = null;
+        for (let i = 0; i < 10 && cur; i++) {
+          const cls = (cur.className || '').toString();
+          if (cls.includes('items-end')) { role = 'You'; break; }
+          if (cls.includes('items-start') && cls.includes('flex-col')) { role = 'Character.AI'; break; }
+          cur = cur.parentElement;
+        }
+        return role ? { role, content: htmlToMarkdown(msgEl) } : null;
+      }).filter(Boolean);
+      if (messages.length) return messages;
+    }
+
+    // Fallback: older guessed selectors, kept in case the UI changes again.
     const byAuthor = document.querySelectorAll('[data-author-name]');
     if (byAuthor.length) {
       return Array.from(byAuthor).map(el => {
         const author = el.getAttribute('data-author-name') || '';
         const isUser = author.toLowerCase() === 'user' || author.toLowerCase() === 'you';
-        // Try to get the character name from the first AI message
         const role = isUser ? 'You' : (author || 'Character.AI');
         const p = el.querySelector('p') ?? el;
         return { role, content: htmlToMarkdown(p) };
       }).filter(m => m.content);
     }
 
-    // Secondary: obfuscated class-name patterns
     const userEls = Array.from(document.querySelectorAll(
       'div[class*="UserMessage"] p, div[class*="UserMessage"]'
     )).map(el => ({ el, role: 'You' }));
@@ -1090,7 +1144,28 @@
   // Pi.ai (pi.ai) — experimental
   // SPA with human/pi role indicators; uses data-role or class-name patterns.
   function extractPiAI() {
-    // Primary: data-role attributes
+    const candidates = Array.from(document.querySelectorAll('div.space-y-6'));
+    const turnsContainer = candidates.find(c => {
+      const kids = Array.from(c.children);
+      return kids.some(k => /justify-end/.test(k.className) && k.textContent.trim())
+          && kids.some(k => !/justify-end/.test(k.className) && k.textContent.trim());
+    });
+
+    if (turnsContainer) {
+      const messages = Array.from(turnsContainer.children)
+        .filter(el => el.textContent.trim())
+        .map(turn => {
+          const isUser = /justify-end/.test(turn.className);
+          const contentEl = isUser
+            ? (turn.querySelector('[class*="rounded-10"][class*="bg-sec"]') || turn)
+            : (turn.querySelector(':scope > div:first-child') || turn);
+          return { role: isUser ? 'You' : 'Pi', content: htmlToMarkdown(contentEl) };
+        })
+        .filter(m => m.content);
+      if (messages.length) return messages;
+    }
+
+    // Fallback: older guessed selectors, kept in case the UI changes again.
     const byRole = document.querySelectorAll('[data-role="human"], [data-role="pi"]');
     if (byRole.length) {
       return Array.from(byRole).map(el => {
@@ -1099,7 +1174,6 @@
       }).filter(m => m.content);
     }
 
-    // Secondary: class-name patterns
     const userEls = Array.from(document.querySelectorAll(
       'div[class*="human"] p, div[class*="human"]'
     )).map(el => ({ el, role: 'You' }));
@@ -1507,6 +1581,13 @@
 
     const root = document.createElement('div');
     root.id = 'inkpour-root';
+    // The widget's own label text follows the extension's UI language (not
+    // the host page's direction, which is arbitrary third-party content) —
+    // mirror the menu for the two RTL locales this extension ships.
+    try {
+      const uiLang = (api.i18n.getUILanguage() || 'en').toLowerCase();
+      if (uiLang.startsWith('ar') || uiLang.startsWith('fa')) root.dir = 'rtl';
+    } catch { /* default ltr */ }
     root.style.cssText = [
       'position:fixed',
       'bottom:20px',
@@ -1517,6 +1598,10 @@
 
     const shadow = root.attachShadow({ mode: 'open' });
 
+    // Localized label text is applied via textContent/property assignment
+    // AFTER the (purely literal, non-interpolated) shadow markup is inserted
+    // below — never interpolated into the innerHTML string itself, to avoid
+    // dynamic-value-into-innerHTML lint/security flags.
     shadow.innerHTML = `
 <style>
   :host { all: initial; }
@@ -1589,26 +1674,26 @@
 <div class="widget">
   <div class="menu" hidden id="inkpour-menu">
     <button class="menu-btn" id="inkpour-md">
-      <span class="icon">⤓</span> Export MD
+      <span class="icon">⤓</span> <span id="inkpour-md-label"></span>
     </button>
     <button class="menu-btn" id="inkpour-copy">
-      <span class="icon">⎘</span> Copy MD
+      <span class="icon">⎘</span> <span id="inkpour-copy-label"></span>
     </button>
     <button class="menu-btn" id="inkpour-html">
-      <span class="icon">🌐</span> Export HTML
+      <span class="icon">🌐</span> <span id="inkpour-html-label"></span>
     </button>
     <button class="menu-btn" id="inkpour-docx">
-      <span class="icon">📄</span> Export DOCX
+      <span class="icon">📄</span> <span id="inkpour-docx-label"></span>
     </button>
     <button class="menu-btn" id="inkpour-pdf">
-      <span class="icon">🖨</span> Export PDF
+      <span class="icon">🖨</span> <span id="inkpour-pdf-label"></span>
     </button>
     <button class="menu-btn" id="inkpour-zip">
-      <span class="icon">📦</span> Export ZIP
+      <span class="icon">📦</span> <span id="inkpour-zip-label"></span>
     </button>
     <div class="status-msg" id="inkpour-status"></div>
   </div>
-  <button class="fab" id="inkpour-fab" title="Inkpour — Export this chat">ip</button>
+  <button class="fab" id="inkpour-fab">ip</button>
 </div>`;
 
     document.body.appendChild(root);
@@ -1623,6 +1708,16 @@
     const zipBtn  = shadow.getElementById('inkpour-zip');
     const status  = shadow.getElementById('inkpour-status');
     const allBtns = [mdBtn, cpBtn, htmlBtn, docxBtn, pdfBtn, zipBtn];
+
+    // Apply localized text via property/textContent assignment — never via
+    // innerHTML interpolation (see comment above).
+    fab.title = api.i18n.getMessage('contentFabTitle') || 'Inkpour — Export this chat';
+    shadow.getElementById('inkpour-md-label').textContent   = api.i18n.getMessage('contentMenuExportMd');
+    shadow.getElementById('inkpour-copy-label').textContent = api.i18n.getMessage('contentMenuCopyMd');
+    shadow.getElementById('inkpour-html-label').textContent = api.i18n.getMessage('contentMenuExportHtml');
+    shadow.getElementById('inkpour-docx-label').textContent = api.i18n.getMessage('contentMenuExportDocx');
+    shadow.getElementById('inkpour-pdf-label').textContent  = api.i18n.getMessage('contentMenuExportPdf');
+    shadow.getElementById('inkpour-zip-label').textContent  = api.i18n.getMessage('contentMenuExportZip');
 
     // Toggle menu
     fab.addEventListener('click', (e) => {
@@ -1653,10 +1748,10 @@
 
     async function runExport(action) {
       disableAll();
-      setStatus('Extracting…', '');
+      setStatus(api.i18n.getMessage('popupStatusExtracting'), '');
       try {
         const messages = await extractMessages();
-        if (!messages.length) throw new Error('No messages found');
+        if (!messages.length) throw new Error(api.i18n.getMessage('contentNoMessagesFound'));
         const title    = smartenTitle(getCleanTitle(), messages);
         const platform = detectSite();
         const slug     = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
@@ -1665,10 +1760,10 @@
 
         if (action === 'md') {
           downloadInPage(md, `${filename}.md`, 'text/markdown;charset=utf-8');
-          setStatus('✓ Saved!', 'ok');
+          setStatus(api.i18n.getMessage('contentStatusSaved'), 'ok');
         } else {
           await navigator.clipboard.writeText(md);
-          setStatus('✓ Copied!', 'ok');
+          setStatus(api.i18n.getMessage('contentStatusCopied'), 'ok');
         }
       } catch (err) {
         setStatus('✗ ' + err.message.slice(0, 50), 'err');
@@ -1680,12 +1775,12 @@
     // PDF and ZIP require the background service worker (can't open tabs / build ZIP here)
     async function runBgExport(format) {
       disableAll();
-      setStatus('Exporting…', '');
+      setStatus(api.i18n.getMessage('contentStatusExporting'), '');
       try {
         await api.runtime.sendMessage({ action: 'inPageExport', format });
-        setStatus(`✓ ${format.toUpperCase()} export started`, 'ok');
+        setStatus(api.i18n.getMessage('contentStatusExportStarted', [format.toUpperCase()]), 'ok');
       } catch (err) {
-        setStatus('✗ ' + (err.message || 'Export failed').slice(0, 50), 'err');
+        setStatus('✗ ' + (err.message || api.i18n.getMessage('contentStatusExportFailed')).slice(0, 50), 'err');
       } finally {
         enableAll();
       }
@@ -1717,6 +1812,21 @@
   // Inject on load
   injectInPageButton();
 
+  // ─── Chrome shortcut-cap workaround ────────────────────────────────────────
+  // manifest.json's "upload-gist" command has no suggested_key because Chrome
+  // hard-fails to load the whole extension past 4 pre-suggested shortcuts
+  // (Firefox has no such cap). Alt+Shift+G still works via this in-page
+  // keydown listener — it only fires while this tab has focus (unlike a real
+  // chrome.commands global shortcut), which is an acceptable trade-off for a
+  // 5th+ hotkey. background.js's runCommand() handles the actual upload.
+  document.addEventListener('keydown', (e) => {
+    if (e.altKey && e.shiftKey && !e.ctrlKey && !e.metaKey && e.key.toLowerCase() === 'g') {
+      e.preventDefault();
+      e.stopPropagation();
+      api.runtime.sendMessage({ action: 'runShortcutCommand', command: 'upload-gist' }).catch(() => {});
+    }
+  }, true);
+
   // ─── Test hook — expose internals for JSDOM unit tests ───────────────────
   // Only active in test environments (window.__inkpourTestHostname is set).
   // Never used by real extension code.
@@ -1739,15 +1849,14 @@
     };
     const c = colors[variant] || colors.info;
 
-    shadow.innerHTML = `<style>
+    const styleEl = document.createElement('style');
+    styleEl.textContent = `
       .toast {
         display: inline-flex;
         align-items: center;
         gap: 7px;
         padding: 9px 16px;
         border-radius: 10px;
-        background: ${c.bg};
-        color: ${c.text};
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
         font-size: 13px;
         font-weight: 600;
@@ -1758,10 +1867,16 @@
         white-space: nowrap;
       }
       .toast.fade { opacity: 0; transform: translateY(8px); }
-    </style>
-    <div class="toast">${text}</div>`;
+    `;
+    shadow.appendChild(styleEl);
 
-    const toastEl = shadow.querySelector('.toast');
+    const toastEl = document.createElement('div');
+    toastEl.className = 'toast';
+    toastEl.style.background = c.bg;
+    toastEl.style.color = c.text;
+    toastEl.textContent = text;
+    shadow.appendChild(toastEl);
+
     setTimeout(() => {
       toastEl.classList.add('fade');
       setTimeout(() => document.body.removeChild(host), 450);

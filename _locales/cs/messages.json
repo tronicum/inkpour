@@ -1,0 +1,832 @@
+{
+  "extName": {
+    "message": "Inkpour"
+  },
+  "extDescription": {
+    "message": "Export konverzací s AI chatboty (ChatGPT, Claude, Gemini, Copilot a další) do formátů Markdown, PDF, HTML, DOCX nebo ZIP."
+  },
+  "cmdExportMarkdown": {
+    "message": "Exportovat aktuální chat do Markdownu"
+  },
+  "cmdCopyMarkdown": {
+    "message": "Zkopírovat aktuální chat jako Markdown do schránky"
+  },
+  "cmdExportPdf": {
+    "message": "Exportovat aktuální chat do PDF"
+  },
+  "cmdUploadGist": {
+    "message": "Nahrát aktuální chat do GitHub Gist"
+  },
+  "cmdCopyHtml": {
+    "message": "Zkopírovat aktuální chat jako samostatné HTML do schránky"
+  },
+  "cmdExportJson": {
+    "message": "Exportovat aktuální chat do JSON"
+  },
+  "cmdExportZip": {
+    "message": "Exportovat aktuální chat jako ZIP (chat.md + soubory s kódem)"
+  },
+  "cmdExportDocx": {
+    "message": "Exportovat aktuální chat do dokumentu Word (.docx)"
+  },
+  "popupTagline": {
+    "message": "Export AI chatů · MD, PDF, HTML, JSON, ZIP"
+  },
+  "popupSettingsTitle": {
+    "message": "Nastavení"
+  },
+  "popupExportAsLabel": {
+    "message": "Exportovat jako"
+  },
+  "popupMdBtnTitle": {
+    "message": "Exportovat do Markdownu (Alt+Shift+M)"
+  },
+  "popupPdfBtnTitle": {
+    "message": "Exportovat do PDF"
+  },
+  "popupHtmlBtnTitle": {
+    "message": "Exportovat do HTML"
+  },
+  "popupJsonBtnTitle": {
+    "message": "Exportovat do JSON (Alt+Shift+J)"
+  },
+  "popupDocxBtnTitle": {
+    "message": "Exportovat do dokumentu Word (.docx)"
+  },
+  "popupCopyBtnTitle": {
+    "message": "Zkopírovat Markdown do schránky (Alt+Shift+C)"
+  },
+  "popupCopyHtmlBtnTitle": {
+    "message": "Zkopírovat samostatné HTML do schránky (Alt+Shift+H)"
+  },
+  "popupZipBtnTitle": {
+    "message": "Exportovat ZIP s chat.md + extrahovanými soubory kódu (Alt+Shift+Z)"
+  },
+  "popupGistBtnTitle": {
+    "message": "Nahrát Markdown do GitHub Gist"
+  },
+  "popupAllBtnTitle": {
+    "message": "Exportovat MD + DOCX + ZIP najednou"
+  },
+  "popupBtnMd": {
+    "message": "MD"
+  },
+  "popupBtnPdf": {
+    "message": "PDF"
+  },
+  "popupBtnHtml": {
+    "message": "HTML"
+  },
+  "popupBtnJson": {
+    "message": "JSON"
+  },
+  "popupBtnDocx": {
+    "message": "DOCX"
+  },
+  "popupBtnCopyMd": {
+    "message": "Kopírovat MD"
+  },
+  "popupBtnCopyHtml": {
+    "message": "Kopírovat HTML"
+  },
+  "popupBtnZip": {
+    "message": "ZIP"
+  },
+  "popupBtnGist": {
+    "message": "Gist ↑"
+  },
+  "popupBtnExportAll": {
+    "message": "⬇ Exportovat vše (MD + DOCX + ZIP)"
+  },
+  "popupIncrementalBtnTitle": {
+    "message": "Exportovat pouze zprávy přidané od posledního exportu"
+  },
+  "popupBtnExportNewOnly": {
+    "message": "Exportovat jen nové"
+  },
+  "popupTitleInputPlaceholder": {
+    "message": "Název chatu…"
+  },
+  "popupNotesPlaceholder": {
+    "message": "Přidat osobní poznámky — vloží se jako citace na začátek exportu…"
+  },
+  "popupNotesToggleAdd": {
+    "message": "+ Přidat poznámky"
+  },
+  "popupNotesToggleHide": {
+    "message": "− Skrýt poznámky"
+  },
+  "popupSelectToggleOpen": {
+    "message": "☑ Vybrat zprávy"
+  },
+  "popupSelectToggleClose": {
+    "message": "✕ Zavřít výběr"
+  },
+  "popupSelectAll": {
+    "message": "Vše"
+  },
+  "popupSelectNone": {
+    "message": "Nic"
+  },
+  "popupSelectUserOnly": {
+    "message": "Jen uživatel"
+  },
+  "popupSelectAIOnly": {
+    "message": "Jen AI"
+  },
+  "popupHistoryBtn": {
+    "message": "⏱ Historie"
+  },
+  "popupSettingsBtn": {
+    "message": "⚙ Nastavení"
+  },
+  "popupStatusExtracting": {
+    "message": "Extrahování…"
+  },
+  "popupStatusExtractingMessages": {
+    "message": "Extrahování zpráv…"
+  },
+  "popupStatusLoadingOlder": {
+    "message": "Načítání starších zpráv…"
+  },
+  "popupStatusAiStillGenerating": {
+    "message": "AI stále generuje odpověď — exportujte až po jejím dokončení"
+  },
+  "popupStatusSavedCheckDownloads": {
+    "message": "✓ Uloženo — zkontrolujte složku Stažené soubory"
+  },
+  "popupStatusMarkdownCopied": {
+    "message": "✓ Markdown zkopírován do schránky"
+  },
+  "popupStatusHtmlCopied": {
+    "message": "✓ HTML zkopírováno — vložte do libovolného editoru"
+  },
+  "popupStatusZipSaved": {
+    "message": "✓ ZIP uložen — chat.md"
+  },
+  "popupCodeFileOne": {
+    "message": " + $1 soubor s kódem",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeFileOther": {
+    "message": " + $1 souborů s kódem",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupStatusExportAllSaved": {
+    "message": "✓ MD + DOCX + ZIP uloženy"
+  },
+  "popupStatusGistTokenMissing": {
+    "message": "Nejprve přidejte token pro GitHub v Nastavení."
+  },
+  "popupStatusGistUploading": {
+    "message": "Nahrávání do GitHub Gist…"
+  },
+  "popupStatusGistCreated": {
+    "message": "✓ Gist vytvořen"
+  },
+  "popupStatusGistUploadFailed": {
+    "message": "Nahrání Gistu se nezdařilo"
+  },
+  "popupStatusNotSupportedPage": {
+    "message": "Toto není podporovaná stránka AI chatu. Otevřete Inkpour na ChatGPT, Claude, Gemini, Google Search nebo jiné podporované platformě."
+  },
+  "popupStatusRefreshTab": {
+    "message": "Obnovte kartu s chatem a zkuste to znovu. (Content script neběží — karta byla otevřená před načtením rozšíření.)"
+  },
+  "popupStatusNoResponse": {
+    "message": "Stránka neodpovídá. Zkuste obnovit kartu."
+  },
+  "popupStatusNoMessagesFound": {
+    "message": "Nebyly nalezeny žádné zprávy."
+  },
+  "popupStatusCannotAccessTab": {
+    "message": "Nelze přistupovat k aktuální kartě."
+  },
+  "popupStatusNoNewMessages": {
+    "message": "Žádné nové zprávy k exportu."
+  },
+  "popupMsgCountOne": {
+    "message": "Připraveno · $COUNT$ zpráva$ROLES$ · ~$WORDS$ slov · ~$READMIN$ min čtení$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupMsgCountOther": {
+    "message": "Připraveno · $COUNT$ zpráv$ROLES$ · ~$WORDS$ slov · ~$READMIN$ min čtení$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupCodeBlockOne": {
+    "message": " · $1 blok kódu",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeBlockOther": {
+    "message": " · $1 bloků kódu",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupLastExport": {
+    "message": "Poslední: $PLATFORM$ · $COUNT$ zpráv$FORMAT$ · $WHEN$",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      },
+      "when": {
+        "content": "$4"
+      }
+    }
+  },
+  "popupLastExportJustNow": {
+    "message": "Poslední: $PLATFORM$ · $COUNT$ zpráv · $FORMAT$ · právě teď",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupNewMessageOne": {
+    "message": "+$COUNT$ nová zpráva od exportu $WHEN$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupNewMessageOther": {
+    "message": "+$COUNT$ nových zpráv od exportu $WHEN$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOne": {
+    "message": "$COUNT$ nová zpráva od posledního exportu ($WHEN$) — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOther": {
+    "message": "$COUNT$ nových zpráv od posledního exportu ($WHEN$) — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupSavedNewMessagesOne": {
+    "message": "✓ Uložena $COUNT$ nová zpráva — zkontrolujte složku Stažené soubory",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupSavedNewMessagesOther": {
+    "message": "✓ Uloženo $COUNT$ nových zpráv — zkontrolujte složku Stažené soubory",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeJustNow": {
+    "message": "právě teď"
+  },
+  "timeMinutesAgo": {
+    "message": "před $1 min",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeHoursAgo": {
+    "message": "před $1 h",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeDaysAgo": {
+    "message": "před $1 d",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsHeaderTitle": {
+    "message": "Nastavení Inkpour"
+  },
+  "settingsHeaderSubtitle": {
+    "message": "Předvolby se ukládají lokálně ve vašem prohlížeči"
+  },
+  "settingsBrowserDetecting": {
+    "message": "Zjišťování…"
+  },
+  "settingsBrowserBadge": {
+    "message": "Automaticky rozpoznáno"
+  },
+  "settingsBrowserFirefoxName": {
+    "message": "Firefox"
+  },
+  "settingsBrowserFirefoxNote": {
+    "message": "Plná podpora — všechny formáty exportu"
+  },
+  "settingsBrowserChromeName": {
+    "message": "Chrome / Brave"
+  },
+  "settingsBrowserChromeNote": {
+    "message": "Plná podpora — všechny formáty exportu"
+  },
+  "settingsBrowserEdgeName": {
+    "message": "Microsoft Edge"
+  },
+  "settingsBrowserEdgeNote": {
+    "message": "Plná podpora — všechny formáty exportu"
+  },
+  "settingsBrowserSafariName": {
+    "message": "Safari"
+  },
+  "settingsBrowserSafariNote": {
+    "message": "Experimentální — PDF se může chovat jinak"
+  },
+  "settingsBrowserUnknownName": {
+    "message": "Neznámý prohlížeč"
+  },
+  "settingsBrowserUnknownNote": {
+    "message": "Může fungovat — v případě problémů je prosím nahlaste"
+  },
+  "settingsSectionExport": {
+    "message": "Export"
+  },
+  "settingsSectionIntegrations": {
+    "message": "Integrace"
+  },
+  "settingsDefaultFormatLabel": {
+    "message": "Výchozí formát"
+  },
+  "settingsDefaultFormatDesc": {
+    "message": "Které tlačítko získá fokus klávesnice jako první"
+  },
+  "settingsFilenameTemplateLabel": {
+    "message": "Šablona názvu souboru"
+  },
+  "settingsFilenameTemplateDesc": {
+    "message": "Tokeny: {platform} {title} {date} {time} {url} {words} {msgcount}"
+  },
+  "settingsPdfAutoPrintLabel": {
+    "message": "Automatický tisk PDF"
+  },
+  "settingsPdfAutoPrintDesc": {
+    "message": "Po načtení karty s PDF automaticky otevřít dialog tisku"
+  },
+  "settingsYamlLabel": {
+    "message": "Zahrnout YAML hlavičku"
+  },
+  "settingsYamlDesc": {
+    "message": "Přidá název, datum, platformu a URL na začátek souborů .md"
+  },
+  "settingsTocLabel": {
+    "message": "Generovat obsah"
+  },
+  "settingsTocDesc": {
+    "message": "Vloží klikatelný obsah pro chaty s více než 4 zprávami"
+  },
+  "settingsSubfolderLabel": {
+    "message": "Podsložka ve staženém obsahu"
+  },
+  "settingsSubfolderDesc": {
+    "message": "Volitelná podcesta ve výchozí složce stažených souborů (např. AI Chats)"
+  },
+  "settingsSubfolderPlaceholder": {
+    "message": "např. AI Chats"
+  },
+  "settingsObsidianVaultLabel": {
+    "message": "Podsložka trezoru Obsidian"
+  },
+  "settingsObsidianVaultDesc": {
+    "message": "Pokud je nastaveno, exporty se ukládají do této podsložky ve Stažených souborech — užitečné pro trezory Obsidian. Má přednost před polem podsložky výše."
+  },
+  "settingsObsidianTagsLabel": {
+    "message": "Značky Obsidian v YAML"
+  },
+  "settingsObsidianTagsDesc": {
+    "message": "Přidá tags: [ai-chat, {platform}] do hlavičky (vyžaduje zapnutý YAML)"
+  },
+  "settingsGithubTokenLabel": {
+    "message": "Token GitHub"
+  },
+  "settingsGithubTokenDesc": {
+    "message": "Osobní přístupový token s oprávněním gist — zpřístupní tlačítko „Nahrát do Gistu“ v okně rozšíření."
+  },
+  "settingsGithubTokenLink": {
+    "message": "Vytvořit →"
+  },
+  "settingsGistVisibilityLabel": {
+    "message": "Viditelnost Gistu"
+  },
+  "settingsGistVisibilityDesc": {
+    "message": "Tajné Gisty nejsou veřejně uvedeny (kdokoli s odkazem si je může zobrazit)"
+  },
+  "settingsGistSecretOption": {
+    "message": "Tajný (neuvedený veřejně)"
+  },
+  "settingsGistPublicOption": {
+    "message": "Veřejný"
+  },
+  "settingsGistTagsLabel": {
+    "message": "Značky Gistu"
+  },
+  "settingsGistTagsDesc": {
+    "message": "Další značky přidané do YAML hlavičky každého exportu do Gistu, oddělené čárkou. Své Gisty pak můžete na GitHubu vyhledat pomocí user:you \"tag\". Značky ai-chat a název platformy se přidávají vždy automaticky."
+  },
+  "settingsGistTagsPlaceholder": {
+    "message": "práce, projekt-x, výzkum"
+  },
+  "settingsScrubLabel": {
+    "message": "Odstranit citlivé údaje před nahráním"
+  },
+  "settingsScrubDesc": {
+    "message": "Před nahráním do Gistu/webhooku začerní pravděpodobné API klíče, tokeny a e-maily"
+  },
+  "settingsWebhookUrlLabel": {
+    "message": "URL webhooku"
+  },
+  "settingsWebhookUrlDesc": {
+    "message": "Po každém exportu sem Inkpour odešle POST požadavek s metadaty exportu (název, platforma, formát, počet slov). Funguje s n8n, Zapier, Make.com nebo jakýmkoli HTTP endpointem."
+  },
+  "settingsWebhookContentLabel": {
+    "message": "Zahrnout obsah do webhooku"
+  },
+  "settingsWebhookContentDesc": {
+    "message": "Odešle celý exportovaný text v datech webhooku (u dlouhých chatů výrazně zvětší velikost dat)"
+  },
+  "settingsSaveBtn": {
+    "message": "Uložit"
+  },
+  "settingsSavedStatus": {
+    "message": "✓ Uloženo"
+  },
+  "historyHeaderTitle": {
+    "message": "Historie exportů"
+  },
+  "historyHeaderSubtitle": {
+    "message": "Posledních 20 exportů — uloženo lokálně, nikdy nenahráno"
+  },
+  "historySearchPlaceholder": {
+    "message": "Hledat název, platformu nebo obsah konverzace…"
+  },
+  "historyClearRecent": {
+    "message": "Vymazat nedávné"
+  },
+  "historyClearAll": {
+    "message": "Vymazat vše"
+  },
+  "historyClearStarred": {
+    "message": "Vymazat ★"
+  },
+  "historyClearRecentTitle": {
+    "message": "Vymazat nedávnou historii (exporty s hvězdičkou zůstanou zachovány)"
+  },
+  "historyClearAllTitle": {
+    "message": "Vymazat celou historii exportů"
+  },
+  "historyEmptyTitle": {
+    "message": "📭"
+  },
+  "historyEmptyBody": {
+    "message": "Zatím žádné exporty. Exportujte chat z okna rozšíření a zobrazí se zde."
+  },
+  "historyBackLink": {
+    "message": "← Zpět do okna rozšíření"
+  },
+  "historyStorageNote": {
+    "message": "Obsah je uložen v úložišti rozšíření prohlížeče"
+  },
+  "historyStatExports": {
+    "message": "Exporty"
+  },
+  "historyStatWords": {
+    "message": "Celkem slov"
+  },
+  "historyStatPlatform": {
+    "message": "Nejčastější platforma"
+  },
+  "historyStatFormat": {
+    "message": "Nejčastější formát"
+  },
+  "historySectionStarred": {
+    "message": "★ S hvězdičkou"
+  },
+  "historySectionRecent": {
+    "message": "Nedávné"
+  },
+  "historyStarPin": {
+    "message": "Přidat hvězdičku"
+  },
+  "historyStarUnpin": {
+    "message": "Odebrat hvězdičku"
+  },
+  "historyActionSave": {
+    "message": "↓ Uložit"
+  },
+  "historyActionCopy": {
+    "message": "⎘ Kopírovat"
+  },
+  "historyActionCopied": {
+    "message": "✓ Zkopírováno"
+  },
+  "historyActionGist": {
+    "message": "↗ Gist"
+  },
+  "historyNoExportsYet": {
+    "message": "Zatím žádné exporty"
+  },
+  "historyMatchCountOne": {
+    "message": "$1 z $2 odpovídá",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyMatchCountOther": {
+    "message": "$1 z $2 odpovídá",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyFilteredCount": {
+    "message": "$1 z $2 exportů",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyExportCountOne": {
+    "message": "$1 export",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyExportCountOther": {
+    "message": "$1 exportů",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyLifetimeStatsOne": {
+    "message": "Celkem: $1 export$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyLifetimeStatsOther": {
+    "message": "Celkem: $1 exportů$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyConfirmClearRecent": {
+    "message": "Vymazat nedávnou historii? Exporty s hvězdičkou zůstanou zachovány."
+  },
+  "historyConfirmClearAll": {
+    "message": "Vymazat celou historii exportů? Tuto akci nelze vrátit zpět."
+  },
+  "historyConfirmClearStarred": {
+    "message": "Odebrat všechny exporty s hvězdičkou? Tuto akci nelze vrátit zpět."
+  },
+  "printLoading": {
+    "message": "Načítání konverzace…"
+  },
+  "printNoContent": {
+    "message": "Inkpour: Nebyl nalezen žádný obsah. Zkuste export znovu."
+  },
+  "printGenericErrorPrefix": {
+    "message": "Chyba Inkpour:"
+  },
+  "contentFabTitle": {
+    "message": "Inkpour — Exportovat tento chat"
+  },
+  "contentToastRedactedOne": {
+    "message": "Před nahráním byla začerněna $1 položka ($2).",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastRedactedOther": {
+    "message": "Před nahráním bylo začerněno $1 položek ($2).",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastGistFailedNetwork": {
+    "message": "✗ Nahrání Gistu se nezdařilo (chyba sítě)"
+  },
+  "contentToastGistFailed": {
+    "message": "✗ Nahrání Gistu se nezdařilo: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentToastGistCreated": {
+    "message": "✓ Gist vytvořen"
+  },
+  "popupSelectCount": {
+    "message": "Vybráno $1 z $2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupPlatformDetected": {
+    "message": "✓ $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupPlatformCount": {
+    "message": "Podporováno $1 platforem",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentMenuExportMd": {
+    "message": "Exportovat MD"
+  },
+  "contentMenuCopyMd": {
+    "message": "Kopírovat MD"
+  },
+  "contentMenuExportHtml": {
+    "message": "Exportovat HTML"
+  },
+  "contentMenuExportDocx": {
+    "message": "Exportovat DOCX"
+  },
+  "contentMenuExportPdf": {
+    "message": "Exportovat PDF"
+  },
+  "contentMenuExportZip": {
+    "message": "Exportovat ZIP"
+  },
+  "contentStatusSaved": {
+    "message": "✓ Uloženo!"
+  },
+  "contentStatusCopied": {
+    "message": "✓ Zkopírováno!"
+  },
+  "contentStatusExporting": {
+    "message": "Exportování…"
+  },
+  "contentStatusExportStarted": {
+    "message": "✓ Export $1 zahájen",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentStatusExportFailed": {
+    "message": "Export se nezdařil"
+  },
+  "contentNoMessagesFound": {
+    "message": "Nebyly nalezeny žádné zprávy"
+  },
+  "settingsPageTitle": {
+    "message": "Inkpour — Nastavení"
+  },
+  "settingsFormatOptionMd": {
+    "message": "Markdown (.md)"
+  },
+  "settingsFormatOptionPdf": {
+    "message": "PDF"
+  },
+  "settingsFormatOptionHtml": {
+    "message": "HTML"
+  },
+  "settingsFormatOptionJson": {
+    "message": "JSON"
+  },
+  "settingsFormatOptionZip": {
+    "message": "ZIP (chat + soubory s kódem)"
+  }
+}

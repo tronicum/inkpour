@@ -7,6 +7,9 @@
   'use strict';
 
   const api = (typeof browser !== 'undefined') ? browser : chrome;
+  const t = (key, subs) => (typeof InkpourI18n !== 'undefined' ? InkpourI18n : window.InkpourI18n).t(key, subs);
+  (typeof InkpourI18n !== 'undefined' ? InkpourI18n : window.InkpourI18n).applyI18n(document);
+  (typeof InkpourI18n !== 'undefined' ? InkpourI18n : window.InkpourI18n).applyDirection(document);
 
   const mdBtn       = document.getElementById('mdBtn');
   const pdfBtn      = document.getElementById('pdfBtn');
@@ -125,13 +128,13 @@
       const url = new URL(tab.url);
       for (const [name, hosts] of Object.entries(CHIP_HOSTS)) {
         if (hosts.some(h => url.hostname === h || url.hostname.endsWith('.' + h))) {
-          platformIndicator.textContent = `✓ ${name}`;
+          platformIndicator.textContent = t('popupPlatformDetected', [name]);
           platformIndicator.classList.add('detected');
           return;
         }
       }
       // Not a supported page — show subtle count
-      platformIndicator.textContent = `${Object.keys(CHIP_HOSTS).length} platforms supported`;
+      platformIndicator.textContent = t('popupPlatformCount', [String(Object.keys(CHIP_HOSTS).length)]);
     } catch {
       // permission error or non-URL tab — leave blank
     }
@@ -147,7 +150,7 @@
       if (!last || !lastExportEl) return;
       const when = formatRelativeTime(last.exportedAt);
       const fmt  = last.format ? ` · ${last.format.toUpperCase()}` : '';
-      lastExportEl.textContent = `Last: ${last.platform} · ${last.messageCount} msgs${fmt} · ${when}`;
+      lastExportEl.textContent = t('popupLastExport', [last.platform, String(last.messageCount), fmt, when]);
     } catch {
       // storage unavailable — ignore
     }
@@ -169,8 +172,11 @@
       return sum + (matches ? matches.length : 0);
     }, 0);
     const roleNote = ` · ${userCount}u/${aiCount}a`;
-    const codeNote = codeBlocks > 0 ? ` · ${codeBlocks} code block${codeBlocks !== 1 ? 's' : ''}` : '';
-    setStatus(`Ready · ${n} message${n !== 1 ? 's' : ''}${roleNote} · ~${words.toLocaleString()} words · ~${readMin} min read${codeNote}`);
+    const codeNote = codeBlocks > 0
+      ? t(codeBlocks === 1 ? 'popupCodeBlockOne' : 'popupCodeBlockOther', [String(codeBlocks)])
+      : '';
+    const key = n === 1 ? 'popupMsgCountOne' : 'popupMsgCountOther';
+    setStatus(t(key, [String(n), roleNote, words.toLocaleString(), String(readMin), codeNote]));
   }
 
   function showTitleInput(title) {
@@ -210,17 +216,28 @@
   /** Populate the checkbox list from the current cachedData messages. */
   function buildMessageSelector(messages) {
     if (!msgCheckboxes) return;
-    msgCheckboxes.innerHTML = '';
+    msgCheckboxes.textContent = '';
     messages.forEach((msg, i) => {
       const isUser = msg.role.toLowerCase() === 'you' || msg.role.toLowerCase() === 'user';
       const preview = msg.content.replace(/\s+/g, ' ').slice(0, 72);
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.dataset.idx = String(i);
+      checkbox.checked = true;
+      checkbox.addEventListener('change', updateSelectCount);
+
+      const roleSpan = document.createElement('span');
+      roleSpan.className = `msg-role ${isUser ? 'user' : 'ai'}`;
+      roleSpan.textContent = msg.role.slice(0, 6); // role text comes from the extracted page, not UI chrome
+
+      const previewSpan = document.createElement('span');
+      previewSpan.className = 'msg-preview';
+      previewSpan.textContent = preview;
+
       const row = document.createElement('label');
       row.className = 'msg-row';
-      row.innerHTML = `
-        <input type="checkbox" data-idx="${i}" checked>
-        <span class="msg-role ${isUser ? 'user' : 'ai'}">${esc(msg.role.slice(0, 6))}</span>
-        <span class="msg-preview">${esc(preview)}</span>`; // safe: all user content passed through esc()
-      row.querySelector('input').addEventListener('change', updateSelectCount);
+      row.append(checkbox, roleSpan, previewSpan);
       msgCheckboxes.appendChild(row);
     });
     updateSelectCount();
@@ -230,7 +247,7 @@
     if (!msgCheckboxes || !selectCount) return;
     const all     = msgCheckboxes.querySelectorAll('input[type=checkbox]');
     const checked = msgCheckboxes.querySelectorAll('input[type=checkbox]:checked');
-    selectCount.textContent = `${checked.length} of ${all.length} selected`;
+    selectCount.textContent = t('popupSelectCount', [String(checked.length), String(all.length)]);
   }
 
   /**
@@ -263,7 +280,7 @@
       selectSection.hidden = open;
       selectSection.style.display = open ? 'none' : 'block';
     }
-    if (selectToggle) selectToggle.textContent = open ? '☑ Select messages' : '✕ Close selector';
+    if (selectToggle) selectToggle.textContent = t(open ? 'popupSelectToggleOpen' : 'popupSelectToggleClose');
   });
 
   selectAllBtn?.addEventListener('click',  () => setCheckboxes(() => true,  cachedData?.messages ?? []));
@@ -284,7 +301,7 @@
       notesSection.hidden = !open ? false : true;
       notesSection.style.display = !open ? 'block' : 'none';
     }
-    if (notesToggle) notesToggle.textContent = !open ? '− Hide notes' : '+ Add notes';
+    if (notesToggle) notesToggle.textContent = t(!open ? 'popupNotesToggleHide' : 'popupNotesToggleAdd');
   });
 
   /** Return user-edited title if the field is visible, otherwise the original. */
@@ -299,7 +316,7 @@
     try {
       const [tab] = await api.tabs.query({ active: true, currentWindow: true });
       if (!tab?.id) return;
-      setStatus('Extracting…');
+      setStatus(t('popupStatusExtracting'));
       hideTitleInput();
       if (newMsgsHint) { newMsgsHint.hidden = true; newMsgsHint.style.display = 'none'; }
       hideIncrementalHint();
@@ -309,7 +326,7 @@
         return;
       }
       if (response?.streaming) {
-        setStatus('AI is still generating — export after it finishes', 'warning');
+        setStatus(t('popupStatusAiStillGenerating'), 'warning');
         return;
       }
       if (response?.messages?.length) {
@@ -363,7 +380,7 @@
       const notes = getExportNotes();
       const md   = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, userSettings, data.sourceUrl);
       downloadFile(md, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length) + '.md', 'text/markdown;charset=utf-8');
-      setStatus('✓ Saved — check your Downloads folder', 'success');
+      setStatus(t('popupStatusSavedCheckDownloads'), 'success');
       saveLastExport('md', { ...data, messages: msgs }, md);
     } catch (err) {
       setStatus(err.message, err.streaming ? 'warning' : 'error');
@@ -400,7 +417,7 @@
       const msgs     = getSelectedMessages(data.messages);
       const fullHTML = buildStandaloneHTML(msgs, data.title, data.site);
       downloadFile(fullHTML, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length) + '.html', 'text/html;charset=utf-8');
-      setStatus('✓ Saved — check your Downloads folder', 'success');
+      setStatus(t('popupStatusSavedCheckDownloads'), 'success');
       saveLastExport('html', { ...data, messages: msgs }, fullHTML);
     } catch (err) {
       setStatus(err.message, err.streaming ? 'warning' : 'error');
@@ -420,7 +437,7 @@
       const notes = getExportNotes();
       const md    = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, userSettings, data.sourceUrl);
       await navigator.clipboard.writeText(md);
-      setStatus('✓ Markdown copied to clipboard', 'success');
+      setStatus(t('popupStatusMarkdownCopied'), 'success');
       saveLastExport('copy-md', data, md);
     } catch (err) {
       setStatus(err.message, err.streaming ? 'warning' : 'error');
@@ -439,7 +456,7 @@
       const msgs     = getSelectedMessages(data.messages);
       const fullHTML = buildStandaloneHTML(msgs, data.title, data.site);
       await navigator.clipboard.writeText(fullHTML);
-      setStatus('✓ HTML copied — paste into any editor', 'success');
+      setStatus(t('popupStatusHtmlCopied'), 'success');
       saveLastExport('copy-html', data, fullHTML);
     } catch (err) {
       setStatus(err.message, err.streaming ? 'warning' : 'error');
@@ -467,7 +484,7 @@
         } catch { /* leave json as-is if parse fails */ }
       }
       downloadFile(json, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length) + '.json', 'application/json;charset=utf-8');
-      setStatus('✓ Saved — check your Downloads folder', 'success');
+      setStatus(t('popupStatusSavedCheckDownloads'), 'success');
       saveLastExport('json', { ...data, messages: msgs }, json);
     } catch (err) {
       setStatus(err.message, err.streaming ? 'warning' : 'error');
@@ -495,7 +512,7 @@
       a.click();
       document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      setStatus('✓ Saved — check your Downloads folder', 'success');
+      setStatus(t('popupStatusSavedCheckDownloads'), 'success');
       saveLastExport('docx', { ...data, messages: msgs }, '');
     } catch (err) {
       setStatus(err.message, err.streaming ? 'warning' : 'error');
@@ -526,8 +543,10 @@
       a.click();
       document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      const note = codeCount > 0 ? ` + ${codeCount} code file${codeCount !== 1 ? 's' : ''}` : '';
-      setStatus(`✓ ZIP saved — chat.md${note}`, 'success');
+      const note = codeCount > 0
+        ? t(codeCount === 1 ? 'popupCodeFileOne' : 'popupCodeFileOther', [String(codeCount)])
+        : '';
+      setStatus(t('popupStatusZipSaved') + note, 'success');
       saveLastExport('zip', { ...data, messages: msgs }, ''); // content not stored (binary)
     } catch (err) {
       setStatus(err.message, err.streaming ? 'warning' : 'error');
@@ -578,7 +597,7 @@
       document.body.removeChild(zipA);
       setTimeout(() => URL.revokeObjectURL(zipUrl), 1000);
 
-      setStatus('✓ MD + DOCX + ZIP saved', 'success');
+      setStatus(t('popupStatusExportAllSaved'), 'success');
       saveLastExport('all', { ...data, messages: msgs }, '');
     } catch (err) {
       setStatus(err.message, err.streaming ? 'warning' : 'error');
@@ -591,7 +610,7 @@
 
   gistBtn?.addEventListener('click', async () => {
     if (!userSettings.githubToken) {
-      setStatus('Add a GitHub token in Settings first.', 'warning');
+      setStatus(t('popupStatusGistTokenMissing'), 'warning');
       return;
     }
     if (gistLinkEl) gistLinkEl.innerHTML = '';
@@ -613,7 +632,7 @@
       const slug  = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length);
       const filename = slug + '.md';
 
-      setStatus('Uploading to GitHub Gist…');
+      setStatus(t('popupStatusGistUploading'));
       const res = await fetch('https://api.github.com/gists', {
         method: 'POST',
         headers: {
@@ -634,7 +653,7 @@
       }
 
       const gist = await res.json();
-      setStatus('✓ Gist created', 'success');
+      setStatus(t('popupStatusGistCreated'), 'success');
       if (gistLinkEl) {
         const a = document.createElement('a');
         a.href = gist.html_url;
@@ -646,7 +665,7 @@
       }
       saveLastExport('gist', { ...data, messages: msgs }, md, { gistUrl: gist.html_url });
     } catch (err) {
-      setStatus(err.message || 'Gist upload failed', 'error');
+      setStatus(err.message || t('popupStatusGistUploadFailed'), 'error');
     } finally {
       setLoading(gistBtn, false);
     }
@@ -670,18 +689,18 @@
     try {
       [tab] = await api.tabs.query({ active: true, currentWindow: true });
     } catch {
-      throw new Error('Cannot access the current tab.');
+      throw new Error(t('popupStatusCannotAccessTab'));
     }
 
     let response;
     // Show progress hint — auto-scroll can take up to 4 s on long chats
-    setStatus('Extracting messages…');
+    setStatus(t('popupStatusExtractingMessages'));
     let scrollPollInterval = null;
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.session) {
       scrollPollInterval = setInterval(async () => {
         try {
           const data = await chrome.storage.session.get(['inkpourScrolling', 'inkpourScrollMsg']);
-          if (data.inkpourScrolling) setStatus(data.inkpourScrollMsg || 'Loading older messages…', 'info');
+          if (data.inkpourScrolling) setStatus(data.inkpourScrollMsg || t('popupStatusLoadingOlder'), 'info');
         } catch (_) {}
       }, 600);
     }
@@ -690,17 +709,17 @@
     } catch {
       if (scrollPollInterval) { clearInterval(scrollPollInterval); scrollPollInterval = null; }
       if (!isSupportedHost(tab?.url || '')) {
-        throw new Error('Not a supported AI chat page. Open Inkpour on ChatGPT, Claude, Gemini, Google Search, or another supported platform.');
+        throw new Error(t('popupStatusNotSupportedPage'));
       }
-      throw new Error('Refresh the chat tab, then try again. (Content script not running — tab was open before the extension loaded.)');
+      throw new Error(t('popupStatusRefreshTab'));
     }
     if (scrollPollInterval) { clearInterval(scrollPollInterval); scrollPollInterval = null; }
     clearStatus();
 
-    if (!response)              throw new Error('No response from page. Try refreshing the tab.');
+    if (!response)              throw new Error(t('popupStatusNoResponse'));
     if (response.streaming)     throw Object.assign(new Error(response.error), { streaming: true });
     if (response.error)         throw new Error(response.error);
-    if (!response.messages?.length) throw new Error('No messages found.');
+    if (!response.messages?.length) throw new Error(t('popupStatusNoMessagesFound'));
 
     // Attach the source tab URL so exports can include it
     response.sourceUrl = tab.url || '';
@@ -792,8 +811,7 @@
     api.storage.local.set({ inkpour_last_export: record });
     if (lastExportEl) {
       const fmtLabel = format.toUpperCase().replace('-', ' ');
-      lastExportEl.textContent =
-        `Last: ${data.platform} · ${data.messages.length} msgs · ${fmtLabel} · just now`;
+      lastExportEl.textContent = t('popupLastExportJustNow', [data.platform, String(data.messages.length), fmtLabel]);
     }
 
     // Prepend to rolling history (max 20 entries)
@@ -857,7 +875,7 @@
       }
       const diff = currentCount - prev.messageCount;
       const when = formatRelativeTime(prev.exportedAt);
-      newMsgsHint.textContent = `+${diff} new message${diff !== 1 ? 's' : ''} since exported ${when}`;
+      newMsgsHint.textContent = t(diff === 1 ? 'popupNewMessageOne' : 'popupNewMessageOther', [String(diff), when]);
       newMsgsHint.hidden = false;
       newMsgsHint.style.display = 'block';
 
@@ -880,7 +898,7 @@
     incrementalPrevEntry = prevEntry;
     if (!incrementalHint) return;
     const hintText = incrementalHint.querySelector('[data-role="text"]') || incrementalHint;
-    hintText.textContent = `${diff} new message${diff !== 1 ? 's' : ''} since your last export (${when}) — `;
+    hintText.textContent = t(diff === 1 ? 'popupIncrementalHintOne' : 'popupIncrementalHintOther', [String(diff), when]);
     incrementalHint.hidden = false;
     incrementalHint.style.display = 'block';
   }
@@ -893,14 +911,14 @@
       const data = cachedData;
       const newOnly = (typeof InkpourDiff !== 'undefined' ? InkpourDiff : window.InkpourDiff).sliceNewMessages(data.messages, incrementalPrevEntry.messageCount);
       if (!newOnly.length) {
-        setStatus('No new messages to export.', 'warning');
+        setStatus(t('popupStatusNoNewMessages'), 'warning');
         return;
       }
       const notes = getExportNotes();
       const md = notesBlockMD(notes) + buildMarkdown(newOnly, data.title, data.site, userSettings, data.sourceUrl);
       const slug = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(newOnly), newOnly.length);
       downloadFile(md, slug + '-continued.md', 'text/markdown;charset=utf-8');
-      setStatus(`✓ Saved ${newOnly.length} new message${newOnly.length !== 1 ? 's' : ''} — check your Downloads folder`, 'success');
+      setStatus(t(newOnly.length === 1 ? 'popupSavedNewMessagesOne' : 'popupSavedNewMessagesOther', [String(newOnly.length)]), 'success');
       // Record the checkpoint against the FULL cumulative message count (not
       // just the new slice) — future incremental diffs compare against this
       // messageCount, so it must reflect the whole conversation as it stands
@@ -921,12 +939,12 @@
   function formatRelativeTime(isoString) {
     const diff    = Date.now() - new Date(isoString).getTime();
     const minutes = Math.floor(diff / 60_000);
-    if (minutes < 1)  return 'just now';
-    if (minutes < 60) return `${minutes}m ago`;
+    if (minutes < 1)  return t('timeJustNow');
+    if (minutes < 60) return t('timeMinutesAgo', [String(minutes)]);
     const hours = Math.floor(minutes / 60);
-    if (hours < 24)   return `${hours}h ago`;
+    if (hours < 24)   return t('timeHoursAgo', [String(hours)]);
     const days  = Math.floor(hours / 24);
-    return `${days}d ago`;
+    return t('timeDaysAgo', [String(days)]);
   }
 
   // ─── Status helpers ───────────────────────────────────────────────────────

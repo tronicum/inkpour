@@ -1,0 +1,857 @@
+{
+  "extName": {
+    "message": "Inkpour",
+    "description": "Extension name shown in browser toolbar and stores"
+  },
+  "extDescription": {
+    "message": "Εξαγωγή συνομιλιών AI (ChatGPT, Claude, Gemini, Copilot και άλλα) σε Markdown, PDF, HTML, DOCX ή ZIP.",
+    "description": "Extension description shown in browser stores"
+  },
+  "cmdExportMarkdown": {
+    "message": "Εξαγωγή τρέχουσας συνομιλίας σε Markdown",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyMarkdown": {
+    "message": "Αντιγραφή τρέχουσας συνομιλίας ως Markdown στο πρόχειρο",
+    "description": "Keyboard command description"
+  },
+  "cmdExportPdf": {
+    "message": "Εξαγωγή τρέχουσας συνομιλίας σε PDF",
+    "description": "Keyboard command description"
+  },
+  "cmdUploadGist": {
+    "message": "Μεταφόρτωση τρέχουσας συνομιλίας σε GitHub Gist",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyHtml": {
+    "message": "Αντιγραφή τρέχουσας συνομιλίας ως αυτόνομο HTML στο πρόχειρο",
+    "description": "Keyboard command description"
+  },
+  "cmdExportJson": {
+    "message": "Εξαγωγή τρέχουσας συνομιλίας σε JSON",
+    "description": "Keyboard command description"
+  },
+  "cmdExportZip": {
+    "message": "Εξαγωγή τρέχουσας συνομιλίας ως ZIP (chat.md + αρχεία κώδικα)",
+    "description": "Keyboard command description"
+  },
+  "cmdExportDocx": {
+    "message": "Εξαγωγή τρέχουσας συνομιλίας σε έγγραφο Word (.docx)",
+    "description": "Keyboard command description"
+  },
+  "popupTagline": {
+    "message": "Εξαγωγή συνομιλιών AI · MD, PDF, HTML, JSON, ZIP",
+    "description": "Popup header subtitle"
+  },
+  "popupSettingsTitle": {
+    "message": "Ρυθμίσεις",
+    "description": "Settings gear button tooltip/aria-label in popup"
+  },
+  "popupExportAsLabel": {
+    "message": "Εξαγωγή ως",
+    "description": "Section label above the export format buttons"
+  },
+  "popupMdBtnTitle": {
+    "message": "Εξαγωγή σε Markdown (Alt+Shift+M)",
+    "description": "MD button tooltip"
+  },
+  "popupPdfBtnTitle": {
+    "message": "Εξαγωγή σε PDF",
+    "description": "PDF button tooltip"
+  },
+  "popupHtmlBtnTitle": {
+    "message": "Εξαγωγή σε HTML",
+    "description": "HTML button tooltip"
+  },
+  "popupJsonBtnTitle": {
+    "message": "Εξαγωγή σε JSON (Alt+Shift+J)",
+    "description": "JSON button tooltip"
+  },
+  "popupDocxBtnTitle": {
+    "message": "Εξαγωγή σε έγγραφο Word (.docx)",
+    "description": "DOCX button tooltip"
+  },
+  "popupCopyBtnTitle": {
+    "message": "Αντιγραφή Markdown στο πρόχειρο (Alt+Shift+C)",
+    "description": "Copy MD button tooltip"
+  },
+  "popupCopyHtmlBtnTitle": {
+    "message": "Αντιγραφή αυτόνομου HTML στο πρόχειρο (Alt+Shift+H)",
+    "description": "Copy HTML button tooltip"
+  },
+  "popupZipBtnTitle": {
+    "message": "Εξαγωγή ZIP με chat.md + εξαγόμενα αρχεία κώδικα (Alt+Shift+Z)",
+    "description": "ZIP button tooltip"
+  },
+  "popupGistBtnTitle": {
+    "message": "Μεταφόρτωση Markdown σε GitHub Gist",
+    "description": "Gist button tooltip"
+  },
+  "popupAllBtnTitle": {
+    "message": "Ταυτόχρονη εξαγωγή MD + DOCX + ZIP",
+    "description": "Export All button tooltip"
+  },
+  "popupBtnMd": {
+    "message": "MD"
+  },
+  "popupBtnPdf": {
+    "message": "PDF"
+  },
+  "popupBtnHtml": {
+    "message": "HTML"
+  },
+  "popupBtnJson": {
+    "message": "JSON"
+  },
+  "popupBtnDocx": {
+    "message": "DOCX"
+  },
+  "popupBtnCopyMd": {
+    "message": "Αντιγραφή MD"
+  },
+  "popupBtnCopyHtml": {
+    "message": "Αντιγραφή HTML"
+  },
+  "popupBtnZip": {
+    "message": "ZIP"
+  },
+  "popupBtnGist": {
+    "message": "Gist ↑"
+  },
+  "popupBtnExportAll": {
+    "message": "⬇ Εξαγωγή όλων (MD + DOCX + ZIP)"
+  },
+  "popupIncrementalBtnTitle": {
+    "message": "Εξαγωγή μόνο των μηνυμάτων που προστέθηκαν από την τελευταία εξαγωγή",
+    "description": "Export new only button tooltip"
+  },
+  "popupBtnExportNewOnly": {
+    "message": "Εξαγωγή μόνο νέων"
+  },
+  "popupTitleInputPlaceholder": {
+    "message": "Τίτλος συνομιλίας…"
+  },
+  "popupNotesPlaceholder": {
+    "message": "Προσθήκη προσωπικών σημειώσεων — προστίθενται ως παράθεση στην αρχή της εξαγωγής…"
+  },
+  "popupNotesToggleAdd": {
+    "message": "+ Προσθήκη σημειώσεων"
+  },
+  "popupNotesToggleHide": {
+    "message": "− Απόκρυψη σημειώσεων"
+  },
+  "popupSelectToggleOpen": {
+    "message": "☑ Επιλογή μηνυμάτων"
+  },
+  "popupSelectToggleClose": {
+    "message": "✕ Κλείσιμο επιλογέα"
+  },
+  "popupSelectAll": {
+    "message": "Όλα"
+  },
+  "popupSelectNone": {
+    "message": "Κανένα"
+  },
+  "popupSelectUserOnly": {
+    "message": "Μόνο χρήστη"
+  },
+  "popupSelectAIOnly": {
+    "message": "Μόνο AI"
+  },
+  "popupHistoryBtn": {
+    "message": "⏱ Ιστορικό"
+  },
+  "popupSettingsBtn": {
+    "message": "⚙ Ρυθμίσεις"
+  },
+  "popupStatusExtracting": {
+    "message": "Εξαγωγή δεδομένων…"
+  },
+  "popupStatusExtractingMessages": {
+    "message": "Εξαγωγή μηνυμάτων…"
+  },
+  "popupStatusLoadingOlder": {
+    "message": "Φόρτωση παλαιότερων μηνυμάτων…"
+  },
+  "popupStatusAiStillGenerating": {
+    "message": "Το AI εξακολουθεί να δημιουργεί περιεχόμενο — εξάγετε μετά την ολοκλήρωση"
+  },
+  "popupStatusSavedCheckDownloads": {
+    "message": "✓ Αποθηκεύτηκε — ελέγξτε τον φάκελο Λήψεις"
+  },
+  "popupStatusMarkdownCopied": {
+    "message": "✓ Το Markdown αντιγράφηκε στο πρόχειρο"
+  },
+  "popupStatusHtmlCopied": {
+    "message": "✓ Το HTML αντιγράφηκε — επικολλήστε το σε οποιονδήποτε επεξεργαστή"
+  },
+  "popupStatusZipSaved": {
+    "message": "✓ Το ZIP αποθηκεύτηκε — chat.md",
+    "description": "Prefix; extra code-file count is appended in JS"
+  },
+  "popupCodeFileOne": {
+    "message": " + $1 αρχείο κώδικα",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeFileOther": {
+    "message": " + $1 αρχεία κώδικα",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupStatusExportAllSaved": {
+    "message": "✓ Αποθηκεύτηκαν MD + DOCX + ZIP"
+  },
+  "popupStatusGistTokenMissing": {
+    "message": "Προσθέστε πρώτα ένα GitHub token στις Ρυθμίσεις."
+  },
+  "popupStatusGistUploading": {
+    "message": "Μεταφόρτωση σε GitHub Gist…"
+  },
+  "popupStatusGistCreated": {
+    "message": "✓ Το Gist δημιουργήθηκε"
+  },
+  "popupStatusGistUploadFailed": {
+    "message": "Η μεταφόρτωση στο Gist απέτυχε"
+  },
+  "popupStatusNotSupportedPage": {
+    "message": "Μη υποστηριζόμενη σελίδα συνομιλίας AI. Ανοίξτε το Inkpour στο ChatGPT, Claude, Gemini, Google Search ή σε άλλη υποστηριζόμενη πλατφόρμα."
+  },
+  "popupStatusRefreshTab": {
+    "message": "Ανανεώστε την καρτέλα συνομιλίας και δοκιμάστε ξανά. (Το content script δεν εκτελείται — η καρτέλα ήταν ανοιχτή πριν φορτωθεί η επέκταση.)"
+  },
+  "popupStatusNoResponse": {
+    "message": "Καμία απόκριση από τη σελίδα. Δοκιμάστε να ανανεώσετε την καρτέλα."
+  },
+  "popupStatusNoMessagesFound": {
+    "message": "Δεν βρέθηκαν μηνύματα."
+  },
+  "popupStatusCannotAccessTab": {
+    "message": "Δεν είναι δυνατή η πρόσβαση στην τρέχουσα καρτέλα."
+  },
+  "popupStatusNoNewMessages": {
+    "message": "Δεν υπάρχουν νέα μηνύματα προς εξαγωγή."
+  },
+  "popupMsgCountOne": {
+    "message": "Έτοιμο · $COUNT$ μήνυμα$ROLES$ · ~$WORDS$ λέξεις · ~$READMIN$ λεπτά ανάγνωσης$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupMsgCountOther": {
+    "message": "Έτοιμο · $COUNT$ μηνύματα$ROLES$ · ~$WORDS$ λέξεις · ~$READMIN$ λεπτά ανάγνωσης$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupCodeBlockOne": {
+    "message": " · $1 μπλοκ κώδικα",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeBlockOther": {
+    "message": " · $1 μπλοκ κώδικα",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupLastExport": {
+    "message": "Τελευταία: $PLATFORM$ · $COUNT$ μηνύματα$FORMAT$ · $WHEN$",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      },
+      "when": {
+        "content": "$4"
+      }
+    }
+  },
+  "popupLastExportJustNow": {
+    "message": "Τελευταία: $PLATFORM$ · $COUNT$ μηνύματα · $FORMAT$ · μόλις τώρα",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupNewMessageOne": {
+    "message": "+$COUNT$ νέο μήνυμα από την εξαγωγή $WHEN$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupNewMessageOther": {
+    "message": "+$COUNT$ νέα μηνύματα από την εξαγωγή $WHEN$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOne": {
+    "message": "$COUNT$ νέο μήνυμα από την τελευταία σας εξαγωγή ($WHEN$) — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOther": {
+    "message": "$COUNT$ νέα μηνύματα από την τελευταία σας εξαγωγή ($WHEN$) — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupSavedNewMessagesOne": {
+    "message": "✓ Αποθηκεύτηκε $COUNT$ νέο μήνυμα — ελέγξτε τον φάκελο Λήψεις",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupSavedNewMessagesOther": {
+    "message": "✓ Αποθηκεύτηκαν $COUNT$ νέα μηνύματα — ελέγξτε τον φάκελο Λήψεις",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeJustNow": {
+    "message": "μόλις τώρα"
+  },
+  "timeMinutesAgo": {
+    "message": "πριν $1λ",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeHoursAgo": {
+    "message": "πριν $1ώ",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeDaysAgo": {
+    "message": "πριν $1η",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsHeaderTitle": {
+    "message": "Ρυθμίσεις Inkpour"
+  },
+  "settingsHeaderSubtitle": {
+    "message": "Οι προτιμήσεις αποθηκεύονται τοπικά στο πρόγραμμα περιήγησής σας"
+  },
+  "settingsBrowserDetecting": {
+    "message": "Εντοπισμός…"
+  },
+  "settingsBrowserBadge": {
+    "message": "Αυτόματος εντοπισμός"
+  },
+  "settingsBrowserFirefoxName": {
+    "message": "Firefox"
+  },
+  "settingsBrowserFirefoxNote": {
+    "message": "Πλήρης υποστήριξη — όλες οι μορφές εξαγωγής"
+  },
+  "settingsBrowserChromeName": {
+    "message": "Chrome / Brave"
+  },
+  "settingsBrowserChromeNote": {
+    "message": "Πλήρης υποστήριξη — όλες οι μορφές εξαγωγής"
+  },
+  "settingsBrowserEdgeName": {
+    "message": "Microsoft Edge"
+  },
+  "settingsBrowserEdgeNote": {
+    "message": "Πλήρης υποστήριξη — όλες οι μορφές εξαγωγής"
+  },
+  "settingsBrowserSafariName": {
+    "message": "Safari"
+  },
+  "settingsBrowserSafariNote": {
+    "message": "Πειραματική — το PDF ενδέχεται να συμπεριφέρεται διαφορετικά"
+  },
+  "settingsBrowserUnknownName": {
+    "message": "Άγνωστο πρόγραμμα περιήγησης"
+  },
+  "settingsBrowserUnknownNote": {
+    "message": "Ενδέχεται να λειτουργεί — αναφέρετε τυχόν προβλήματα"
+  },
+  "settingsSectionExport": {
+    "message": "Εξαγωγή"
+  },
+  "settingsSectionIntegrations": {
+    "message": "Ενσωματώσεις"
+  },
+  "settingsDefaultFormatLabel": {
+    "message": "Προεπιλεγμένη μορφή"
+  },
+  "settingsDefaultFormatDesc": {
+    "message": "Ποιο κουμπί λαμβάνει πρώτο την εστίαση πληκτρολογίου"
+  },
+  "settingsFilenameTemplateLabel": {
+    "message": "Πρότυπο ονόματος αρχείου"
+  },
+  "settingsFilenameTemplateDesc": {
+    "message": "Παράμετροι: {platform} {title} {date} {time} {url} {words} {msgcount}"
+  },
+  "settingsPdfAutoPrintLabel": {
+    "message": "Αυτόματη εκτύπωση PDF"
+  },
+  "settingsPdfAutoPrintDesc": {
+    "message": "Άνοιγμα του παραθύρου εκτύπωσης αυτόματα μετά τη φόρτωση της καρτέλας PDF"
+  },
+  "settingsYamlLabel": {
+    "message": "Συμπερίληψη YAML front matter"
+  },
+  "settingsYamlDesc": {
+    "message": "Προσθέτει τίτλο, ημερομηνία, πλατφόρμα, URL στην αρχή των αρχείων .md"
+  },
+  "settingsTocLabel": {
+    "message": "Δημιουργία πίνακα περιεχομένων"
+  },
+  "settingsTocDesc": {
+    "message": "Προσθέτει έναν διαδραστικό πίνακα περιεχομένων για συνομιλίες με περισσότερα από 4 μηνύματα"
+  },
+  "settingsSubfolderLabel": {
+    "message": "Υποφάκελος Λήψεων"
+  },
+  "settingsSubfolderDesc": {
+    "message": "Προαιρετική διαδρομή υποφακέλου μέσα στον προεπιλεγμένο φάκελο λήψεων (π.χ. AI Chats)"
+  },
+  "settingsSubfolderPlaceholder": {
+    "message": "π.χ. AI Chats"
+  },
+  "settingsObsidianVaultLabel": {
+    "message": "Υποφάκελος Obsidian vault"
+  },
+  "settingsObsidianVaultDesc": {
+    "message": "Όταν οριστεί, οι εξαγωγές πηγαίνουν σε αυτόν τον υποφάκελο μέσα στις Λήψεις — χρήσιμο για Obsidian vaults. Υπερισχύει του παραπάνω πεδίου υποφακέλου."
+  },
+  "settingsObsidianTagsLabel": {
+    "message": "Ετικέτες Obsidian στο YAML"
+  },
+  "settingsObsidianTagsDesc": {
+    "message": "Προσθέτει tags: [ai-chat, {platform}] στο front matter (απαιτεί ενεργοποιημένο YAML)"
+  },
+  "settingsGithubTokenLabel": {
+    "message": "GitHub token"
+  },
+  "settingsGithubTokenDesc": {
+    "message": "Προσωπικό token πρόσβασης με εμβέλεια gist — ενεργοποιεί το κουμπί «Μεταφόρτωση σε Gist» στο popup."
+  },
+  "settingsGithubTokenLink": {
+    "message": "Δημιουργήστε ένα →"
+  },
+  "settingsGistVisibilityLabel": {
+    "message": "Ορατότητα Gist"
+  },
+  "settingsGistVisibilityDesc": {
+    "message": "Τα μυστικά (secret) Gists δεν εμφανίζονται σε λίστα (ορατά μόνο με τον σύνδεσμο)"
+  },
+  "settingsGistSecretOption": {
+    "message": "Μυστικό (μη καταχωρημένο)"
+  },
+  "settingsGistPublicOption": {
+    "message": "Δημόσιο"
+  },
+  "settingsGistTagsLabel": {
+    "message": "Ετικέτες Gist"
+  },
+  "settingsGistTagsDesc": {
+    "message": "Επιπλέον ετικέτες που προστίθενται στην κεφαλίδα YAML κάθε εξαγωγής Gist, χωρισμένες με κόμμα. Αναζητήστε αργότερα τα Gists σας στο GitHub με user:you \"tag\". Οι ετικέτες ai-chat και το όνομα της πλατφόρμας περιλαμβάνονται πάντα αυτόματα."
+  },
+  "settingsGistTagsPlaceholder": {
+    "message": "work, project-x, research"
+  },
+  "settingsScrubLabel": {
+    "message": "Απόκρυψη ευαίσθητων δεδομένων πριν τη μεταφόρτωση"
+  },
+  "settingsScrubDesc": {
+    "message": "Συγκαλύπτει πιθανά API keys, tokens και email πριν τις μεταφορτώσεις σε Gist/webhook"
+  },
+  "settingsWebhookUrlLabel": {
+    "message": "URL webhook"
+  },
+  "settingsWebhookUrlDesc": {
+    "message": "Μετά από κάθε εξαγωγή, το Inkpour στέλνει εδώ ένα αίτημα POST με μεταδεδομένα εξαγωγής (τίτλος, πλατφόρμα, μορφή, αριθμός λέξεων). Λειτουργεί με n8n, Zapier, Make.com ή οποιοδήποτε τελικό σημείο HTTP."
+  },
+  "settingsWebhookContentLabel": {
+    "message": "Συμπερίληψη περιεχομένου στο webhook"
+  },
+  "settingsWebhookContentDesc": {
+    "message": "Αποστολή ολόκληρου του εξαγόμενου κειμένου στο payload του webhook (αυξάνει σημαντικά το μέγεθος του payload για μεγάλες συνομιλίες)"
+  },
+  "settingsSaveBtn": {
+    "message": "Αποθήκευση"
+  },
+  "settingsSavedStatus": {
+    "message": "✓ Αποθηκεύτηκε"
+  },
+  "historyHeaderTitle": {
+    "message": "Ιστορικό Εξαγωγών"
+  },
+  "historyHeaderSubtitle": {
+    "message": "Οι τελευταίες 20 εξαγωγές — αποθηκεύονται τοπικά, ποτέ δεν μεταφορτώνονται"
+  },
+  "historySearchPlaceholder": {
+    "message": "Αναζήτηση τίτλου, πλατφόρμας ή περιεχομένου συνομιλίας…"
+  },
+  "historyClearRecent": {
+    "message": "Εκκαθάριση πρόσφατων"
+  },
+  "historyClearAll": {
+    "message": "Εκκαθάριση όλων"
+  },
+  "historyClearStarred": {
+    "message": "Εκκαθάριση ★"
+  },
+  "historyClearRecentTitle": {
+    "message": "Εκκαθάριση πρόσφατου ιστορικού (οι επισημασμένες εξαγωγές διατηρούνται)"
+  },
+  "historyClearAllTitle": {
+    "message": "Εκκαθάριση όλου του ιστορικού εξαγωγών"
+  },
+  "historyEmptyTitle": {
+    "message": "📭"
+  },
+  "historyEmptyBody": {
+    "message": "Δεν υπάρχουν ακόμη εξαγωγές. Εξάγετε μια συνομιλία από το popup για να την δείτε εδώ."
+  },
+  "historyBackLink": {
+    "message": "← Πίσω στο popup"
+  },
+  "historyStorageNote": {
+    "message": "Το περιεχόμενο αποθηκεύεται στον χώρο αποθήκευσης της επέκτασης"
+  },
+  "historyStatExports": {
+    "message": "Εξαγωγές"
+  },
+  "historyStatWords": {
+    "message": "Σύνολο λέξεων"
+  },
+  "historyStatPlatform": {
+    "message": "Κορυφαία πλατφόρμα"
+  },
+  "historyStatFormat": {
+    "message": "Κορυφαία μορφή"
+  },
+  "historySectionStarred": {
+    "message": "★ Με αστέρι"
+  },
+  "historySectionRecent": {
+    "message": "Πρόσφατα"
+  },
+  "historyStarPin": {
+    "message": "Καρφίτσωμα ως επισημασμένο"
+  },
+  "historyStarUnpin": {
+    "message": "Κατάργηση καρφιτσώματος"
+  },
+  "historyActionSave": {
+    "message": "↓ Αποθήκευση"
+  },
+  "historyActionCopy": {
+    "message": "⎘ Αντιγραφή"
+  },
+  "historyActionCopied": {
+    "message": "✓ Αντιγράφηκε"
+  },
+  "historyActionGist": {
+    "message": "↗ Gist"
+  },
+  "historyNoExportsYet": {
+    "message": "Δεν υπάρχουν ακόμη εξαγωγές"
+  },
+  "historyMatchCountOne": {
+    "message": "$1 από $2 αντιστοιχεί",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyMatchCountOther": {
+    "message": "$1 από $2 αντιστοιχούν",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyFilteredCount": {
+    "message": "$1 από $2 εξαγωγές",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyExportCountOne": {
+    "message": "$1 εξαγωγή",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyExportCountOther": {
+    "message": "$1 εξαγωγές",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyLifetimeStatsOne": {
+    "message": "Συνολικά: $1 εξαγωγή$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyLifetimeStatsOther": {
+    "message": "Συνολικά: $1 εξαγωγές$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyConfirmClearRecent": {
+    "message": "Εκκαθάριση πρόσφατου ιστορικού; Οι επισημασμένες εξαγωγές θα διατηρηθούν."
+  },
+  "historyConfirmClearAll": {
+    "message": "Εκκαθάριση όλου του ιστορικού εξαγωγών; Αυτή η ενέργεια δεν μπορεί να αναιρεθεί."
+  },
+  "historyConfirmClearStarred": {
+    "message": "Αφαίρεση όλων των επισημασμένων εξαγωγών; Αυτή η ενέργεια δεν μπορεί να αναιρεθεί."
+  },
+  "printLoading": {
+    "message": "Φόρτωση συνομιλίας…"
+  },
+  "printNoContent": {
+    "message": "Inkpour: Δεν βρέθηκε περιεχόμενο. Δοκιμάστε να εξαγάγετε ξανά."
+  },
+  "printGenericErrorPrefix": {
+    "message": "Σφάλμα Inkpour:"
+  },
+  "contentFabTitle": {
+    "message": "Inkpour — Εξαγωγή αυτής της συνομιλίας"
+  },
+  "contentToastRedactedOne": {
+    "message": "Αποκρύφθηκε $1 στοιχείο ($2) πριν τη μεταφόρτωση.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastRedactedOther": {
+    "message": "Αποκρύφθηκαν $1 στοιχεία ($2) πριν τη μεταφόρτωση.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastGistFailedNetwork": {
+    "message": "✗ Η μεταφόρτωση στο Gist απέτυχε (σφάλμα δικτύου)"
+  },
+  "contentToastGistFailed": {
+    "message": "✗ Η μεταφόρτωση στο Gist απέτυχε: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentToastGistCreated": {
+    "message": "✓ Το Gist δημιουργήθηκε"
+  },
+  "popupSelectCount": {
+    "message": "$1 από $2 επιλεγμένα",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupPlatformDetected": {
+    "message": "✓ $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupPlatformCount": {
+    "message": "$1 πλατφόρμες υποστηρίζονται",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentMenuExportMd": {
+    "message": "Εξαγωγή MD"
+  },
+  "contentMenuCopyMd": {
+    "message": "Αντιγραφή MD"
+  },
+  "contentMenuExportHtml": {
+    "message": "Εξαγωγή HTML"
+  },
+  "contentMenuExportDocx": {
+    "message": "Εξαγωγή DOCX"
+  },
+  "contentMenuExportPdf": {
+    "message": "Εξαγωγή PDF"
+  },
+  "contentMenuExportZip": {
+    "message": "Εξαγωγή ZIP"
+  },
+  "contentStatusSaved": {
+    "message": "✓ Αποθηκεύτηκε!"
+  },
+  "contentStatusCopied": {
+    "message": "✓ Αντιγράφηκε!"
+  },
+  "contentStatusExporting": {
+    "message": "Γίνεται εξαγωγή…"
+  },
+  "contentStatusExportStarted": {
+    "message": "✓ Η εξαγωγή $1 ξεκίνησε",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentStatusExportFailed": {
+    "message": "Η εξαγωγή απέτυχε"
+  },
+  "contentNoMessagesFound": {
+    "message": "Δεν βρέθηκαν μηνύματα"
+  },
+  "settingsPageTitle": {
+    "message": "Inkpour — Ρυθμίσεις"
+  },
+  "settingsFormatOptionMd": {
+    "message": "Markdown (.md)"
+  },
+  "settingsFormatOptionPdf": {
+    "message": "PDF"
+  },
+  "settingsFormatOptionHtml": {
+    "message": "HTML"
+  },
+  "settingsFormatOptionJson": {
+    "message": "JSON"
+  },
+  "settingsFormatOptionZip": {
+    "message": "ZIP (συνομιλία + αρχεία κώδικα)"
+  }
+}

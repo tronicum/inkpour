@@ -1,0 +1,857 @@
+{
+  "extName": {
+    "message": "Inkpour",
+    "description": "Extension name shown in browser toolbar and stores"
+  },
+  "extDescription": {
+    "message": "Exportera AI-chattkonversationer (ChatGPT, Claude, Gemini, Copilot med flera) till Markdown, PDF, HTML, DOCX eller ZIP.",
+    "description": "Extension description shown in browser stores"
+  },
+  "cmdExportMarkdown": {
+    "message": "Exportera aktuell chatt till Markdown",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyMarkdown": {
+    "message": "Kopiera aktuell chatt som Markdown till urklipp",
+    "description": "Keyboard command description"
+  },
+  "cmdExportPdf": {
+    "message": "Exportera aktuell chatt till PDF",
+    "description": "Keyboard command description"
+  },
+  "cmdUploadGist": {
+    "message": "Ladda upp aktuell chatt till GitHub Gist",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyHtml": {
+    "message": "Kopiera aktuell chatt som fristående HTML till urklipp",
+    "description": "Keyboard command description"
+  },
+  "cmdExportJson": {
+    "message": "Exportera aktuell chatt till JSON",
+    "description": "Keyboard command description"
+  },
+  "cmdExportZip": {
+    "message": "Exportera aktuell chatt som ZIP (chat.md + kodfiler)",
+    "description": "Keyboard command description"
+  },
+  "cmdExportDocx": {
+    "message": "Exportera aktuell chatt till Word-dokument (.docx)",
+    "description": "Keyboard command description"
+  },
+  "popupTagline": {
+    "message": "Exportera AI-chattar · MD, PDF, HTML, JSON, ZIP",
+    "description": "Popup header subtitle"
+  },
+  "popupSettingsTitle": {
+    "message": "Inställningar",
+    "description": "Settings gear button tooltip/aria-label in popup"
+  },
+  "popupExportAsLabel": {
+    "message": "Exportera som",
+    "description": "Section label above the export format buttons"
+  },
+  "popupMdBtnTitle": {
+    "message": "Exportera till Markdown (Alt+Shift+M)",
+    "description": "MD button tooltip"
+  },
+  "popupPdfBtnTitle": {
+    "message": "Exportera till PDF",
+    "description": "PDF button tooltip"
+  },
+  "popupHtmlBtnTitle": {
+    "message": "Exportera till HTML",
+    "description": "HTML button tooltip"
+  },
+  "popupJsonBtnTitle": {
+    "message": "Exportera till JSON (Alt+Shift+J)",
+    "description": "JSON button tooltip"
+  },
+  "popupDocxBtnTitle": {
+    "message": "Exportera till Word-dokument (.docx)",
+    "description": "DOCX button tooltip"
+  },
+  "popupCopyBtnTitle": {
+    "message": "Kopiera Markdown till urklipp (Alt+Shift+C)",
+    "description": "Copy MD button tooltip"
+  },
+  "popupCopyHtmlBtnTitle": {
+    "message": "Kopiera fristående HTML till urklipp (Alt+Shift+H)",
+    "description": "Copy HTML button tooltip"
+  },
+  "popupZipBtnTitle": {
+    "message": "Exportera ZIP med chat.md + extraherade kodfiler (Alt+Shift+Z)",
+    "description": "ZIP button tooltip"
+  },
+  "popupGistBtnTitle": {
+    "message": "Ladda upp Markdown till GitHub Gist",
+    "description": "Gist button tooltip"
+  },
+  "popupAllBtnTitle": {
+    "message": "Exportera MD + DOCX + ZIP samtidigt",
+    "description": "Export All button tooltip"
+  },
+  "popupBtnMd": {
+    "message": "MD"
+  },
+  "popupBtnPdf": {
+    "message": "PDF"
+  },
+  "popupBtnHtml": {
+    "message": "HTML"
+  },
+  "popupBtnJson": {
+    "message": "JSON"
+  },
+  "popupBtnDocx": {
+    "message": "DOCX"
+  },
+  "popupBtnCopyMd": {
+    "message": "Kopiera MD"
+  },
+  "popupBtnCopyHtml": {
+    "message": "Kopiera HTML"
+  },
+  "popupBtnZip": {
+    "message": "ZIP"
+  },
+  "popupBtnGist": {
+    "message": "Gist ↑"
+  },
+  "popupBtnExportAll": {
+    "message": "⬇ Exportera allt (MD + DOCX + ZIP)"
+  },
+  "popupIncrementalBtnTitle": {
+    "message": "Exportera endast meddelanden som tillkommit sedan din senaste export",
+    "description": "Export new only button tooltip"
+  },
+  "popupBtnExportNewOnly": {
+    "message": "Exportera endast nya"
+  },
+  "popupTitleInputPlaceholder": {
+    "message": "Chattens titel…"
+  },
+  "popupNotesPlaceholder": {
+    "message": "Lägg till personliga anteckningar — läggs till som citat överst i exporten…"
+  },
+  "popupNotesToggleAdd": {
+    "message": "+ Lägg till anteckningar"
+  },
+  "popupNotesToggleHide": {
+    "message": "− Dölj anteckningar"
+  },
+  "popupSelectToggleOpen": {
+    "message": "☑ Välj meddelanden"
+  },
+  "popupSelectToggleClose": {
+    "message": "✕ Stäng väljaren"
+  },
+  "popupSelectAll": {
+    "message": "Alla"
+  },
+  "popupSelectNone": {
+    "message": "Inga"
+  },
+  "popupSelectUserOnly": {
+    "message": "Endast användare"
+  },
+  "popupSelectAIOnly": {
+    "message": "Endast AI"
+  },
+  "popupHistoryBtn": {
+    "message": "⏱ Historik"
+  },
+  "popupSettingsBtn": {
+    "message": "⚙ Inställningar"
+  },
+  "popupStatusExtracting": {
+    "message": "Extraherar…"
+  },
+  "popupStatusExtractingMessages": {
+    "message": "Extraherar meddelanden…"
+  },
+  "popupStatusLoadingOlder": {
+    "message": "Laddar äldre meddelanden…"
+  },
+  "popupStatusAiStillGenerating": {
+    "message": "AI:n genererar fortfarande — exportera när den är klar"
+  },
+  "popupStatusSavedCheckDownloads": {
+    "message": "✓ Sparad — kolla din nedladdningsmapp"
+  },
+  "popupStatusMarkdownCopied": {
+    "message": "✓ Markdown kopierad till urklipp"
+  },
+  "popupStatusHtmlCopied": {
+    "message": "✓ HTML kopierad — klistra in i valfri redigerare"
+  },
+  "popupStatusZipSaved": {
+    "message": "✓ ZIP sparad — chat.md",
+    "description": "Prefix; extra code-file count is appended in JS"
+  },
+  "popupCodeFileOne": {
+    "message": " + $1 kodfil",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeFileOther": {
+    "message": " + $1 kodfiler",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupStatusExportAllSaved": {
+    "message": "✓ MD + DOCX + ZIP sparade"
+  },
+  "popupStatusGistTokenMissing": {
+    "message": "Lägg till en GitHub-token i Inställningar först."
+  },
+  "popupStatusGistUploading": {
+    "message": "Laddar upp till GitHub Gist…"
+  },
+  "popupStatusGistCreated": {
+    "message": "✓ Gist skapad"
+  },
+  "popupStatusGistUploadFailed": {
+    "message": "Gist-uppladdning misslyckades"
+  },
+  "popupStatusNotSupportedPage": {
+    "message": "Inte en AI-chattsida som stöds. Öppna Inkpour på ChatGPT, Claude, Gemini, Google Sök eller en annan plattform som stöds."
+  },
+  "popupStatusRefreshTab": {
+    "message": "Uppdatera chattfliken och försök igen. (Innehållsskriptet körs inte — fliken var öppen innan tillägget laddades.)"
+  },
+  "popupStatusNoResponse": {
+    "message": "Inget svar från sidan. Försök uppdatera fliken."
+  },
+  "popupStatusNoMessagesFound": {
+    "message": "Inga meddelanden hittades."
+  },
+  "popupStatusCannotAccessTab": {
+    "message": "Kan inte komma åt den aktuella fliken."
+  },
+  "popupStatusNoNewMessages": {
+    "message": "Inga nya meddelanden att exportera."
+  },
+  "popupMsgCountOne": {
+    "message": "Klar · $COUNT$ meddelande$ROLES$ · ~$WORDS$ ord · ~$READMIN$ min lästid$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupMsgCountOther": {
+    "message": "Klar · $COUNT$ meddelanden$ROLES$ · ~$WORDS$ ord · ~$READMIN$ min lästid$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupCodeBlockOne": {
+    "message": " · $1 kodblock",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeBlockOther": {
+    "message": " · $1 kodblock",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupLastExport": {
+    "message": "Senast: $PLATFORM$ · $COUNT$ meddel.$FORMAT$ · $WHEN$",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      },
+      "when": {
+        "content": "$4"
+      }
+    }
+  },
+  "popupLastExportJustNow": {
+    "message": "Senast: $PLATFORM$ · $COUNT$ meddel. · $FORMAT$ · just nu",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupNewMessageOne": {
+    "message": "+$COUNT$ nytt meddelande sedan exporten $WHEN$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupNewMessageOther": {
+    "message": "+$COUNT$ nya meddelanden sedan exporten $WHEN$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOne": {
+    "message": "$COUNT$ nytt meddelande sedan din senaste export ($WHEN$) — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOther": {
+    "message": "$COUNT$ nya meddelanden sedan din senaste export ($WHEN$) — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupSavedNewMessagesOne": {
+    "message": "✓ Sparade $COUNT$ nytt meddelande — kolla din nedladdningsmapp",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupSavedNewMessagesOther": {
+    "message": "✓ Sparade $COUNT$ nya meddelanden — kolla din nedladdningsmapp",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeJustNow": {
+    "message": "just nu"
+  },
+  "timeMinutesAgo": {
+    "message": "$1 min sedan",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeHoursAgo": {
+    "message": "$1 tim sedan",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeDaysAgo": {
+    "message": "$1 dgr sedan",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsHeaderTitle": {
+    "message": "Inkpour-inställningar"
+  },
+  "settingsHeaderSubtitle": {
+    "message": "Inställningar sparas lokalt i din webbläsare"
+  },
+  "settingsBrowserDetecting": {
+    "message": "Identifierar…"
+  },
+  "settingsBrowserBadge": {
+    "message": "Identifierad automatiskt"
+  },
+  "settingsBrowserFirefoxName": {
+    "message": "Firefox"
+  },
+  "settingsBrowserFirefoxNote": {
+    "message": "Fullt stöd — alla exportformat"
+  },
+  "settingsBrowserChromeName": {
+    "message": "Chrome / Brave"
+  },
+  "settingsBrowserChromeNote": {
+    "message": "Fullt stöd — alla exportformat"
+  },
+  "settingsBrowserEdgeName": {
+    "message": "Microsoft Edge"
+  },
+  "settingsBrowserEdgeNote": {
+    "message": "Fullt stöd — alla exportformat"
+  },
+  "settingsBrowserSafariName": {
+    "message": "Safari"
+  },
+  "settingsBrowserSafariNote": {
+    "message": "Experimentellt — PDF kan bete sig annorlunda"
+  },
+  "settingsBrowserUnknownName": {
+    "message": "Okänd webbläsare"
+  },
+  "settingsBrowserUnknownNote": {
+    "message": "Kan fungera — rapportera problem om något inte fungerar"
+  },
+  "settingsSectionExport": {
+    "message": "Export"
+  },
+  "settingsSectionIntegrations": {
+    "message": "Integrationer"
+  },
+  "settingsDefaultFormatLabel": {
+    "message": "Standardformat"
+  },
+  "settingsDefaultFormatDesc": {
+    "message": "Vilken knapp som får tangentbordsfokus först"
+  },
+  "settingsFilenameTemplateLabel": {
+    "message": "Filnamnsmall"
+  },
+  "settingsFilenameTemplateDesc": {
+    "message": "Taggar: {platform} {title} {date} {time} {url} {words} {msgcount}"
+  },
+  "settingsPdfAutoPrintLabel": {
+    "message": "Automatisk PDF-utskrift"
+  },
+  "settingsPdfAutoPrintDesc": {
+    "message": "Öppna utskriftsdialogen automatiskt när PDF-fliken har laddats"
+  },
+  "settingsYamlLabel": {
+    "message": "Inkludera YAML-inledning"
+  },
+  "settingsYamlDesc": {
+    "message": "Lägger till titel, datum, plattform och URL överst i .md-filer"
+  },
+  "settingsTocLabel": {
+    "message": "Generera innehållsförteckning"
+  },
+  "settingsTocDesc": {
+    "message": "Lägger till en klickbar innehållsförteckning för chattar med fler än 4 meddelanden"
+  },
+  "settingsSubfolderLabel": {
+    "message": "Undermapp för nedladdningar"
+  },
+  "settingsSubfolderDesc": {
+    "message": "Valfri undersökväg i din nedladdningsmapp (t.ex. AI Chats)"
+  },
+  "settingsSubfolderPlaceholder": {
+    "message": "t.ex. AI Chats"
+  },
+  "settingsObsidianVaultLabel": {
+    "message": "Undermapp för Obsidian-valv"
+  },
+  "settingsObsidianVaultDesc": {
+    "message": "Om detta anges hamnar exporter i denna undermapp i Nedladdningar — praktiskt för Obsidian-valv. Åsidosätter fältet för undermapp ovan."
+  },
+  "settingsObsidianTagsLabel": {
+    "message": "Obsidian-taggar i YAML"
+  },
+  "settingsObsidianTagsDesc": {
+    "message": "Lägger till tags: [ai-chat, {platform}] i inledningen (kräver att YAML är aktiverat)"
+  },
+  "settingsGithubTokenLabel": {
+    "message": "GitHub-token"
+  },
+  "settingsGithubTokenDesc": {
+    "message": "Personlig åtkomsttoken med gist-behörighet — aktiverar knappen \"Ladda upp till Gist\" i popupen."
+  },
+  "settingsGithubTokenLink": {
+    "message": "Skapa en →"
+  },
+  "settingsGistVisibilityLabel": {
+    "message": "Gist-synlighet"
+  },
+  "settingsGistVisibilityDesc": {
+    "message": "Hemliga Gists är olistade (alla med länken kan visa dem)"
+  },
+  "settingsGistSecretOption": {
+    "message": "Hemlig (olistad)"
+  },
+  "settingsGistPublicOption": {
+    "message": "Offentlig"
+  },
+  "settingsGistTagsLabel": {
+    "message": "Gist-taggar"
+  },
+  "settingsGistTagsDesc": {
+    "message": "Extra taggar som läggs till i YAML-huvudet för varje Gist-export, kommaseparerade. Sök bland dina Gists senare på GitHub med user:you \"tagg\". Taggarna ai-chat och plattformsnamnet läggs alltid till automatiskt."
+  },
+  "settingsGistTagsPlaceholder": {
+    "message": "arbete, projekt-x, forskning"
+  },
+  "settingsScrubLabel": {
+    "message": "Rensa hemligheter före uppladdning"
+  },
+  "settingsScrubDesc": {
+    "message": "Maskera troliga API-nycklar, tokens och e-postadresser före uppladdning till Gist/webhook"
+  },
+  "settingsWebhookUrlLabel": {
+    "message": "Webhook-URL"
+  },
+  "settingsWebhookUrlDesc": {
+    "message": "Efter varje export skickar Inkpour en POST-förfrågan hit med exportmetadata (titel, plattform, format, antal ord). Fungerar med n8n, Zapier, Make.com eller vilken HTTP-slutpunkt som helst."
+  },
+  "settingsWebhookContentLabel": {
+    "message": "Inkludera innehåll i webhook"
+  },
+  "settingsWebhookContentDesc": {
+    "message": "Skicka hela den exporterade texten i webhook-nyttolasten (ökar nyttolastens storlek avsevärt för långa chattar)"
+  },
+  "settingsSaveBtn": {
+    "message": "Spara"
+  },
+  "settingsSavedStatus": {
+    "message": "✓ Sparad"
+  },
+  "historyHeaderTitle": {
+    "message": "Exporthistorik"
+  },
+  "historyHeaderSubtitle": {
+    "message": "Senaste 20 exporterna — lagras lokalt, laddas aldrig upp"
+  },
+  "historySearchPlaceholder": {
+    "message": "Sök titel, plattform eller konversationsinnehåll…"
+  },
+  "historyClearRecent": {
+    "message": "Rensa senaste"
+  },
+  "historyClearAll": {
+    "message": "Rensa allt"
+  },
+  "historyClearStarred": {
+    "message": "Rensa ★"
+  },
+  "historyClearRecentTitle": {
+    "message": "Rensa senaste historik (stjärnmärkta exporter behålls)"
+  },
+  "historyClearAllTitle": {
+    "message": "Rensa hela exporthistoriken"
+  },
+  "historyEmptyTitle": {
+    "message": "📭"
+  },
+  "historyEmptyBody": {
+    "message": "Inga exporter än. Exportera en chatt från popupen för att se den här."
+  },
+  "historyBackLink": {
+    "message": "← Tillbaka till popup"
+  },
+  "historyStorageNote": {
+    "message": "Innehåll lagras i webbläsartilläggets lagring"
+  },
+  "historyStatExports": {
+    "message": "Exporter"
+  },
+  "historyStatWords": {
+    "message": "Totalt antal ord"
+  },
+  "historyStatPlatform": {
+    "message": "Vanligaste plattform"
+  },
+  "historyStatFormat": {
+    "message": "Vanligaste format"
+  },
+  "historySectionStarred": {
+    "message": "★ Stjärnmärkta"
+  },
+  "historySectionRecent": {
+    "message": "Senaste"
+  },
+  "historyStarPin": {
+    "message": "Stjärnmärk"
+  },
+  "historyStarUnpin": {
+    "message": "Ta bort stjärnmärkning"
+  },
+  "historyActionSave": {
+    "message": "↓ Spara"
+  },
+  "historyActionCopy": {
+    "message": "⎘ Kopiera"
+  },
+  "historyActionCopied": {
+    "message": "✓ Kopierad"
+  },
+  "historyActionGist": {
+    "message": "↗ Gist"
+  },
+  "historyNoExportsYet": {
+    "message": "Inga exporter än"
+  },
+  "historyMatchCountOne": {
+    "message": "$1 av $2 träff",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyMatchCountOther": {
+    "message": "$1 av $2 träffar",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyFilteredCount": {
+    "message": "$1 av $2 exporter",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyExportCountOne": {
+    "message": "$1 export",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyExportCountOther": {
+    "message": "$1 exporter",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyLifetimeStatsOne": {
+    "message": "Totalt: $1 export$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyLifetimeStatsOther": {
+    "message": "Totalt: $1 exporter$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyConfirmClearRecent": {
+    "message": "Rensa senaste historik? Stjärnmärkta exporter behålls."
+  },
+  "historyConfirmClearAll": {
+    "message": "Rensa hela exporthistoriken? Detta kan inte ångras."
+  },
+  "historyConfirmClearStarred": {
+    "message": "Ta bort alla stjärnmärkta exporter? Detta kan inte ångras."
+  },
+  "printLoading": {
+    "message": "Laddar konversation…"
+  },
+  "printNoContent": {
+    "message": "Inkpour: Inget innehåll hittades. Försök exportera igen."
+  },
+  "printGenericErrorPrefix": {
+    "message": "Inkpour-fel:"
+  },
+  "contentFabTitle": {
+    "message": "Inkpour — Exportera denna chatt"
+  },
+  "contentToastRedactedOne": {
+    "message": "Maskerade $1 objekt ($2) före uppladdning.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastRedactedOther": {
+    "message": "Maskerade $1 objekt ($2) före uppladdning.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastGistFailedNetwork": {
+    "message": "✗ Gist-uppladdning misslyckades (nätverksfel)"
+  },
+  "contentToastGistFailed": {
+    "message": "✗ Gist-uppladdning misslyckades: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentToastGistCreated": {
+    "message": "✓ Gist skapad"
+  },
+  "popupSelectCount": {
+    "message": "$1 av $2 markerade",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupPlatformDetected": {
+    "message": "✓ $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupPlatformCount": {
+    "message": "$1 plattformar stöds",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentMenuExportMd": {
+    "message": "Exportera MD"
+  },
+  "contentMenuCopyMd": {
+    "message": "Kopiera MD"
+  },
+  "contentMenuExportHtml": {
+    "message": "Exportera HTML"
+  },
+  "contentMenuExportDocx": {
+    "message": "Exportera DOCX"
+  },
+  "contentMenuExportPdf": {
+    "message": "Exportera PDF"
+  },
+  "contentMenuExportZip": {
+    "message": "Exportera ZIP"
+  },
+  "contentStatusSaved": {
+    "message": "✓ Sparad!"
+  },
+  "contentStatusCopied": {
+    "message": "✓ Kopierad!"
+  },
+  "contentStatusExporting": {
+    "message": "Exporterar…"
+  },
+  "contentStatusExportStarted": {
+    "message": "✓ $1-export startad",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentStatusExportFailed": {
+    "message": "Export misslyckades"
+  },
+  "contentNoMessagesFound": {
+    "message": "Inga meddelanden hittades"
+  },
+  "settingsPageTitle": {
+    "message": "Inkpour – inställningar"
+  },
+  "settingsFormatOptionMd": {
+    "message": "Markdown (.md)"
+  },
+  "settingsFormatOptionPdf": {
+    "message": "PDF"
+  },
+  "settingsFormatOptionHtml": {
+    "message": "HTML"
+  },
+  "settingsFormatOptionJson": {
+    "message": "JSON"
+  },
+  "settingsFormatOptionZip": {
+    "message": "ZIP (chatt + kodfiler)"
+  }
+}

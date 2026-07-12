@@ -1,0 +1,857 @@
+{
+  "extName": {
+    "message": "Inkpour",
+    "description": "Extension name shown in browser toolbar and stores"
+  },
+  "extDescription": {
+    "message": "AI sohbet konuşmalarını (ChatGPT, Claude, Gemini, Copilot ve daha fazlası) Markdown, PDF, HTML, DOCX veya ZIP olarak dışa aktarın.",
+    "description": "Extension description shown in browser stores"
+  },
+  "cmdExportMarkdown": {
+    "message": "Geçerli sohbeti Markdown olarak dışa aktar",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyMarkdown": {
+    "message": "Geçerli sohbeti Markdown olarak panoya kopyala",
+    "description": "Keyboard command description"
+  },
+  "cmdExportPdf": {
+    "message": "Geçerli sohbeti PDF olarak dışa aktar",
+    "description": "Keyboard command description"
+  },
+  "cmdUploadGist": {
+    "message": "Geçerli sohbeti GitHub Gist'e yükle",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyHtml": {
+    "message": "Geçerli sohbeti bağımsız HTML olarak panoya kopyala",
+    "description": "Keyboard command description"
+  },
+  "cmdExportJson": {
+    "message": "Geçerli sohbeti JSON olarak dışa aktar",
+    "description": "Keyboard command description"
+  },
+  "cmdExportZip": {
+    "message": "Geçerli sohbeti ZIP olarak dışa aktar (chat.md + kod dosyaları)",
+    "description": "Keyboard command description"
+  },
+  "cmdExportDocx": {
+    "message": "Geçerli sohbeti Word belgesi (.docx) olarak dışa aktar",
+    "description": "Keyboard command description"
+  },
+  "popupTagline": {
+    "message": "AI sohbetlerini dışa aktarın · MD, PDF, HTML, JSON, ZIP",
+    "description": "Popup header subtitle"
+  },
+  "popupSettingsTitle": {
+    "message": "Ayarlar",
+    "description": "Settings gear button tooltip/aria-label in popup"
+  },
+  "popupExportAsLabel": {
+    "message": "Farklı dışa aktar",
+    "description": "Section label above the export format buttons"
+  },
+  "popupMdBtnTitle": {
+    "message": "Markdown olarak dışa aktar (Alt+Shift+M)",
+    "description": "MD button tooltip"
+  },
+  "popupPdfBtnTitle": {
+    "message": "PDF olarak dışa aktar",
+    "description": "PDF button tooltip"
+  },
+  "popupHtmlBtnTitle": {
+    "message": "HTML olarak dışa aktar",
+    "description": "HTML button tooltip"
+  },
+  "popupJsonBtnTitle": {
+    "message": "JSON olarak dışa aktar (Alt+Shift+J)",
+    "description": "JSON button tooltip"
+  },
+  "popupDocxBtnTitle": {
+    "message": "Word belgesi (.docx) olarak dışa aktar",
+    "description": "DOCX button tooltip"
+  },
+  "popupCopyBtnTitle": {
+    "message": "Markdown'ı panoya kopyala (Alt+Shift+C)",
+    "description": "Copy MD button tooltip"
+  },
+  "popupCopyHtmlBtnTitle": {
+    "message": "Bağımsız HTML'i panoya kopyala (Alt+Shift+H)",
+    "description": "Copy HTML button tooltip"
+  },
+  "popupZipBtnTitle": {
+    "message": "chat.md + çıkarılan kod dosyalarıyla ZIP dışa aktar (Alt+Shift+Z)",
+    "description": "ZIP button tooltip"
+  },
+  "popupGistBtnTitle": {
+    "message": "Markdown'ı GitHub Gist'e yükle",
+    "description": "Gist button tooltip"
+  },
+  "popupAllBtnTitle": {
+    "message": "MD + DOCX + ZIP'i aynı anda dışa aktar",
+    "description": "Export All button tooltip"
+  },
+  "popupBtnMd": {
+    "message": "MD"
+  },
+  "popupBtnPdf": {
+    "message": "PDF"
+  },
+  "popupBtnHtml": {
+    "message": "HTML"
+  },
+  "popupBtnJson": {
+    "message": "JSON"
+  },
+  "popupBtnDocx": {
+    "message": "DOCX"
+  },
+  "popupBtnCopyMd": {
+    "message": "MD Kopyala"
+  },
+  "popupBtnCopyHtml": {
+    "message": "HTML Kopyala"
+  },
+  "popupBtnZip": {
+    "message": "ZIP"
+  },
+  "popupBtnGist": {
+    "message": "Gist ↑"
+  },
+  "popupBtnExportAll": {
+    "message": "⬇ Tümünü Dışa Aktar (MD + DOCX + ZIP)"
+  },
+  "popupIncrementalBtnTitle": {
+    "message": "Yalnızca son dışa aktarımdan sonra eklenen mesajları dışa aktarır",
+    "description": "Export new only button tooltip"
+  },
+  "popupBtnExportNewOnly": {
+    "message": "Yalnızca yenileri dışa aktar"
+  },
+  "popupTitleInputPlaceholder": {
+    "message": "Sohbet başlığı…"
+  },
+  "popupNotesPlaceholder": {
+    "message": "Kişisel not ekle — dışa aktarımın başına alıntı olarak eklenir…"
+  },
+  "popupNotesToggleAdd": {
+    "message": "+ Not ekle"
+  },
+  "popupNotesToggleHide": {
+    "message": "− Notları gizle"
+  },
+  "popupSelectToggleOpen": {
+    "message": "☑ Mesajları seç"
+  },
+  "popupSelectToggleClose": {
+    "message": "✕ Seçiciyi kapat"
+  },
+  "popupSelectAll": {
+    "message": "Tümü"
+  },
+  "popupSelectNone": {
+    "message": "Hiçbiri"
+  },
+  "popupSelectUserOnly": {
+    "message": "Yalnızca kullanıcı"
+  },
+  "popupSelectAIOnly": {
+    "message": "Yalnızca AI"
+  },
+  "popupHistoryBtn": {
+    "message": "⏱ Geçmiş"
+  },
+  "popupSettingsBtn": {
+    "message": "⚙ Ayarlar"
+  },
+  "popupStatusExtracting": {
+    "message": "Çıkarılıyor…"
+  },
+  "popupStatusExtractingMessages": {
+    "message": "Mesajlar çıkarılıyor…"
+  },
+  "popupStatusLoadingOlder": {
+    "message": "Daha eski mesajlar yükleniyor…"
+  },
+  "popupStatusAiStillGenerating": {
+    "message": "AI hâlâ yanıt oluşturuyor — bitince dışa aktarın"
+  },
+  "popupStatusSavedCheckDownloads": {
+    "message": "✓ Kaydedildi — İndirilenler klasörünüzü kontrol edin"
+  },
+  "popupStatusMarkdownCopied": {
+    "message": "✓ Markdown panoya kopyalandı"
+  },
+  "popupStatusHtmlCopied": {
+    "message": "✓ HTML kopyalandı — herhangi bir düzenleyiciye yapıştırın"
+  },
+  "popupStatusZipSaved": {
+    "message": "✓ ZIP kaydedildi — chat.md",
+    "description": "Prefix; extra code-file count is appended in JS"
+  },
+  "popupCodeFileOne": {
+    "message": " + $1 kod dosyası",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeFileOther": {
+    "message": " + $1 kod dosyası",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupStatusExportAllSaved": {
+    "message": "✓ MD + DOCX + ZIP kaydedildi"
+  },
+  "popupStatusGistTokenMissing": {
+    "message": "Önce Ayarlar'dan bir GitHub token'ı ekleyin."
+  },
+  "popupStatusGistUploading": {
+    "message": "GitHub Gist'e yükleniyor…"
+  },
+  "popupStatusGistCreated": {
+    "message": "✓ Gist oluşturuldu"
+  },
+  "popupStatusGistUploadFailed": {
+    "message": "Gist yüklemesi başarısız oldu"
+  },
+  "popupStatusNotSupportedPage": {
+    "message": "Desteklenen bir AI sohbet sayfası değil. Inkpour'u ChatGPT, Claude, Gemini, Google Search veya desteklenen başka bir platformda açın."
+  },
+  "popupStatusRefreshTab": {
+    "message": "Sohbet sekmesini yenileyip tekrar deneyin. (Content script çalışmıyor — sekme, uzantı yüklenmeden önce açıktı.)"
+  },
+  "popupStatusNoResponse": {
+    "message": "Sayfadan yanıt yok. Sekmeyi yenilemeyi deneyin."
+  },
+  "popupStatusNoMessagesFound": {
+    "message": "Mesaj bulunamadı."
+  },
+  "popupStatusCannotAccessTab": {
+    "message": "Geçerli sekmeye erişilemiyor."
+  },
+  "popupStatusNoNewMessages": {
+    "message": "Dışa aktarılacak yeni mesaj yok."
+  },
+  "popupMsgCountOne": {
+    "message": "Hazır · $COUNT$ mesaj$ROLES$ · ~$WORDS$ kelime · ~$READMIN$ dk okuma$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupMsgCountOther": {
+    "message": "Hazır · $COUNT$ mesaj$ROLES$ · ~$WORDS$ kelime · ~$READMIN$ dk okuma$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupCodeBlockOne": {
+    "message": " · $1 kod bloğu",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeBlockOther": {
+    "message": " · $1 kod bloğu",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupLastExport": {
+    "message": "Son: $PLATFORM$ · $COUNT$ mesaj$FORMAT$ · $WHEN$",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      },
+      "when": {
+        "content": "$4"
+      }
+    }
+  },
+  "popupLastExportJustNow": {
+    "message": "Son: $PLATFORM$ · $COUNT$ mesaj · $FORMAT$ · az önce",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupNewMessageOne": {
+    "message": "+$COUNT$ yeni mesaj ($WHEN$ dışa aktarımından bu yana)",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupNewMessageOther": {
+    "message": "+$COUNT$ yeni mesaj ($WHEN$ dışa aktarımından bu yana)",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOne": {
+    "message": "Son dışa aktarımınızdan ($WHEN$) bu yana $COUNT$ yeni mesaj — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOther": {
+    "message": "Son dışa aktarımınızdan ($WHEN$) bu yana $COUNT$ yeni mesaj — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupSavedNewMessagesOne": {
+    "message": "✓ $COUNT$ yeni mesaj kaydedildi — İndirilenler klasörünüzü kontrol edin",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupSavedNewMessagesOther": {
+    "message": "✓ $COUNT$ yeni mesaj kaydedildi — İndirilenler klasörünüzü kontrol edin",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeJustNow": {
+    "message": "az önce"
+  },
+  "timeMinutesAgo": {
+    "message": "$1 dk önce",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeHoursAgo": {
+    "message": "$1 sa önce",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeDaysAgo": {
+    "message": "$1 gün önce",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsHeaderTitle": {
+    "message": "Inkpour Ayarları"
+  },
+  "settingsHeaderSubtitle": {
+    "message": "Tercihler tarayıcınızda yerel olarak saklanır"
+  },
+  "settingsBrowserDetecting": {
+    "message": "Algılanıyor…"
+  },
+  "settingsBrowserBadge": {
+    "message": "Otomatik algılandı"
+  },
+  "settingsBrowserFirefoxName": {
+    "message": "Firefox"
+  },
+  "settingsBrowserFirefoxNote": {
+    "message": "Tam destek — tüm dışa aktarma biçimleri"
+  },
+  "settingsBrowserChromeName": {
+    "message": "Chrome / Brave"
+  },
+  "settingsBrowserChromeNote": {
+    "message": "Tam destek — tüm dışa aktarma biçimleri"
+  },
+  "settingsBrowserEdgeName": {
+    "message": "Microsoft Edge"
+  },
+  "settingsBrowserEdgeNote": {
+    "message": "Tam destek — tüm dışa aktarma biçimleri"
+  },
+  "settingsBrowserSafariName": {
+    "message": "Safari"
+  },
+  "settingsBrowserSafariNote": {
+    "message": "Deneysel — PDF farklı davranabilir"
+  },
+  "settingsBrowserUnknownName": {
+    "message": "Bilinmeyen tarayıcı"
+  },
+  "settingsBrowserUnknownNote": {
+    "message": "Çalışabilir — bir sorun olursa bildirin"
+  },
+  "settingsSectionExport": {
+    "message": "Dışa Aktarma"
+  },
+  "settingsSectionIntegrations": {
+    "message": "Entegrasyonlar"
+  },
+  "settingsDefaultFormatLabel": {
+    "message": "Varsayılan biçim"
+  },
+  "settingsDefaultFormatDesc": {
+    "message": "Klavye odağını ilk önce hangi düğmenin alacağı"
+  },
+  "settingsFilenameTemplateLabel": {
+    "message": "Dosya adı şablonu"
+  },
+  "settingsFilenameTemplateDesc": {
+    "message": "Belirteçler: {platform} {title} {date} {time} {url} {words} {msgcount}"
+  },
+  "settingsPdfAutoPrintLabel": {
+    "message": "PDF otomatik yazdırma"
+  },
+  "settingsPdfAutoPrintDesc": {
+    "message": "PDF sekmesi yüklendikten sonra yazdırma penceresini otomatik açar"
+  },
+  "settingsYamlLabel": {
+    "message": "YAML ön bilgisini dahil et"
+  },
+  "settingsYamlDesc": {
+    "message": ".md dosyalarının başına başlık, tarih, platform, URL ekler"
+  },
+  "settingsTocLabel": {
+    "message": "İçindekiler tablosu oluştur"
+  },
+  "settingsTocDesc": {
+    "message": "4'ten fazla mesajı olan sohbetlerin başına tıklanabilir bir içindekiler tablosu ekler"
+  },
+  "settingsSubfolderLabel": {
+    "message": "İndirilenler alt klasörü"
+  },
+  "settingsSubfolderDesc": {
+    "message": "Varsayılan indirilenler klasörünüz içinde isteğe bağlı bir alt yol (örn. AI Chats)"
+  },
+  "settingsSubfolderPlaceholder": {
+    "message": "örn. AI Chats"
+  },
+  "settingsObsidianVaultLabel": {
+    "message": "Obsidian kasa alt klasörü"
+  },
+  "settingsObsidianVaultDesc": {
+    "message": "Ayarlandığında, dışa aktarımlar İndirilenler içindeki bu alt klasöre gider — Obsidian kasaları için kullanışlıdır. Yukarıdaki alt klasör alanını geçersiz kılar."
+  },
+  "settingsObsidianTagsLabel": {
+    "message": "YAML içinde Obsidian etiketleri"
+  },
+  "settingsObsidianTagsDesc": {
+    "message": "Ön bilgiye tags: [ai-chat, {platform}] ekler (YAML'ın etkin olması gerekir)"
+  },
+  "settingsGithubTokenLabel": {
+    "message": "GitHub token'ı"
+  },
+  "settingsGithubTokenDesc": {
+    "message": "gist kapsamına sahip kişisel erişim token'ı — popup'ta \"Gist'e Yükle\" düğmesini etkinleştirir."
+  },
+  "settingsGithubTokenLink": {
+    "message": "Bir tane oluştur →"
+  },
+  "settingsGistVisibilityLabel": {
+    "message": "Gist görünürlüğü"
+  },
+  "settingsGistVisibilityDesc": {
+    "message": "Gizli Gist'ler listelenmez (bağlantıya sahip herkes görüntüleyebilir)"
+  },
+  "settingsGistSecretOption": {
+    "message": "Gizli (listelenmez)"
+  },
+  "settingsGistPublicOption": {
+    "message": "Herkese açık"
+  },
+  "settingsGistTagsLabel": {
+    "message": "Gist etiketleri"
+  },
+  "settingsGistTagsDesc": {
+    "message": "Her Gist dışa aktarımının YAML başlığına eklenen, virgülle ayrılmış ek etiketler. Gist'lerinizi daha sonra GitHub'da user:you \"tag\" ile arayabilirsiniz. ai-chat etiketi ve platform adı her zaman otomatik olarak eklenir."
+  },
+  "settingsGistTagsPlaceholder": {
+    "message": "iş, proje-x, araştırma"
+  },
+  "settingsScrubLabel": {
+    "message": "Yüklemeden önce gizli bilgileri temizle"
+  },
+  "settingsScrubDesc": {
+    "message": "Gist/webhook yüklemelerinden önce olası API anahtarlarını, token'ları ve e-postaları gizler"
+  },
+  "settingsWebhookUrlLabel": {
+    "message": "Webhook URL'si"
+  },
+  "settingsWebhookUrlDesc": {
+    "message": "Her dışa aktarımdan sonra Inkpour buraya dışa aktarım meta verileriyle (başlık, platform, biçim, kelime sayısı) bir POST isteği gönderir. n8n, Zapier, Make.com veya herhangi bir HTTP uç noktasıyla çalışır."
+  },
+  "settingsWebhookContentLabel": {
+    "message": "Webhook'a içeriği dahil et"
+  },
+  "settingsWebhookContentDesc": {
+    "message": "Dışa aktarılan tam metni webhook yüküne gönderir (uzun sohbetlerde yük boyutunu önemli ölçüde artırır)"
+  },
+  "settingsSaveBtn": {
+    "message": "Kaydet"
+  },
+  "settingsSavedStatus": {
+    "message": "✓ Kaydedildi"
+  },
+  "historyHeaderTitle": {
+    "message": "Dışa Aktarma Geçmişi"
+  },
+  "historyHeaderSubtitle": {
+    "message": "Son 20 dışa aktarım — yerel olarak saklanır, asla yüklenmez"
+  },
+  "historySearchPlaceholder": {
+    "message": "Başlık, platform veya konuşma içeriğinde ara…"
+  },
+  "historyClearRecent": {
+    "message": "Son geçmişi temizle"
+  },
+  "historyClearAll": {
+    "message": "Tümünü temizle"
+  },
+  "historyClearStarred": {
+    "message": "★ olanları temizle"
+  },
+  "historyClearRecentTitle": {
+    "message": "Son geçmişi temizle (yıldızlı dışa aktarımlar korunur)"
+  },
+  "historyClearAllTitle": {
+    "message": "Tüm dışa aktarma geçmişini temizle"
+  },
+  "historyEmptyTitle": {
+    "message": "📭"
+  },
+  "historyEmptyBody": {
+    "message": "Henüz dışa aktarım yok. Burada görmek için popup'tan bir sohbeti dışa aktarın."
+  },
+  "historyBackLink": {
+    "message": "← Popup'a dön"
+  },
+  "historyStorageNote": {
+    "message": "İçerik tarayıcı uzantısı deposunda saklanır"
+  },
+  "historyStatExports": {
+    "message": "Dışa aktarımlar"
+  },
+  "historyStatWords": {
+    "message": "Toplam kelime"
+  },
+  "historyStatPlatform": {
+    "message": "En çok kullanılan platform"
+  },
+  "historyStatFormat": {
+    "message": "En çok kullanılan biçim"
+  },
+  "historySectionStarred": {
+    "message": "★ Yıldızlı"
+  },
+  "historySectionRecent": {
+    "message": "Son"
+  },
+  "historyStarPin": {
+    "message": "Yıldızlılara sabitle"
+  },
+  "historyStarUnpin": {
+    "message": "Yıldızlılardan kaldır"
+  },
+  "historyActionSave": {
+    "message": "↓ Kaydet"
+  },
+  "historyActionCopy": {
+    "message": "⎘ Kopyala"
+  },
+  "historyActionCopied": {
+    "message": "✓ Kopyalandı"
+  },
+  "historyActionGist": {
+    "message": "↗ Gist"
+  },
+  "historyNoExportsYet": {
+    "message": "Henüz dışa aktarım yok"
+  },
+  "historyMatchCountOne": {
+    "message": "$2 içinde $1 eşleşme",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyMatchCountOther": {
+    "message": "$2 içinde $1 eşleşme",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyFilteredCount": {
+    "message": "$2 dışa aktarımdan $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyExportCountOne": {
+    "message": "$1 dışa aktarım",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyExportCountOther": {
+    "message": "$1 dışa aktarım",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyLifetimeStatsOne": {
+    "message": "Tüm zamanlar: $1 dışa aktarım$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyLifetimeStatsOther": {
+    "message": "Tüm zamanlar: $1 dışa aktarım$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyConfirmClearRecent": {
+    "message": "Son geçmiş temizlensin mi? Yıldızlı dışa aktarımlar korunacaktır."
+  },
+  "historyConfirmClearAll": {
+    "message": "Tüm dışa aktarma geçmişi temizlensin mi? Bu işlem geri alınamaz."
+  },
+  "historyConfirmClearStarred": {
+    "message": "Yıldızlı tüm dışa aktarımlar kaldırılsın mı? Bu işlem geri alınamaz."
+  },
+  "printLoading": {
+    "message": "Konuşma yükleniyor…"
+  },
+  "printNoContent": {
+    "message": "Inkpour: İçerik bulunamadı. Tekrar dışa aktarmayı deneyin."
+  },
+  "printGenericErrorPrefix": {
+    "message": "Inkpour hatası:"
+  },
+  "contentFabTitle": {
+    "message": "Inkpour — Bu sohbeti dışa aktar"
+  },
+  "contentToastRedactedOne": {
+    "message": "Yüklemeden önce $1 öğe ($2) gizlendi.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastRedactedOther": {
+    "message": "Yüklemeden önce $1 öğe ($2) gizlendi.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastGistFailedNetwork": {
+    "message": "✗ Gist yüklemesi başarısız oldu (ağ hatası)"
+  },
+  "contentToastGistFailed": {
+    "message": "✗ Gist yüklemesi başarısız oldu: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentToastGistCreated": {
+    "message": "✓ Gist oluşturuldu"
+  },
+  "popupSelectCount": {
+    "message": "$2 öğeden $1 seçildi",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupPlatformDetected": {
+    "message": "✓ $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupPlatformCount": {
+    "message": "$1 platform destekleniyor",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentMenuExportMd": {
+    "message": "MD Dışa Aktar"
+  },
+  "contentMenuCopyMd": {
+    "message": "MD Kopyala"
+  },
+  "contentMenuExportHtml": {
+    "message": "HTML Dışa Aktar"
+  },
+  "contentMenuExportDocx": {
+    "message": "DOCX Dışa Aktar"
+  },
+  "contentMenuExportPdf": {
+    "message": "PDF Dışa Aktar"
+  },
+  "contentMenuExportZip": {
+    "message": "ZIP Dışa Aktar"
+  },
+  "contentStatusSaved": {
+    "message": "✓ Kaydedildi!"
+  },
+  "contentStatusCopied": {
+    "message": "✓ Kopyalandı!"
+  },
+  "contentStatusExporting": {
+    "message": "Dışa aktarılıyor…"
+  },
+  "contentStatusExportStarted": {
+    "message": "✓ $1 dışa aktarımı başladı",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentStatusExportFailed": {
+    "message": "Dışa aktarma başarısız oldu"
+  },
+  "contentNoMessagesFound": {
+    "message": "Mesaj bulunamadı"
+  },
+  "settingsPageTitle": {
+    "message": "Inkpour — Ayarlar"
+  },
+  "settingsFormatOptionMd": {
+    "message": "Markdown (.md)"
+  },
+  "settingsFormatOptionPdf": {
+    "message": "PDF"
+  },
+  "settingsFormatOptionHtml": {
+    "message": "HTML"
+  },
+  "settingsFormatOptionJson": {
+    "message": "JSON"
+  },
+  "settingsFormatOptionZip": {
+    "message": "ZIP (sohbet + kod dosyaları)"
+  }
+}

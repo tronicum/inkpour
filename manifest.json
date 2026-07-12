@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Inkpour",
-  "version": "0.4.25.0",
-  "description": "Export AI chat conversations (ChatGPT, Claude, Gemini, Copilot, and more) to Markdown, PDF, HTML, DOCX or ZIP.",
+  "name": "__MSG_extName__",
+  "version": "0.4.26.0",
+  "description": "__MSG_extDescription__",
+  "default_locale": "en",
   "homepage_url": "https://github.com/tronicum/inkpour",
   "author": "tronicum",
 
@@ -60,32 +61,31 @@
   "commands": {
     "export-markdown": {
       "suggested_key": { "default": "Alt+Shift+M", "mac": "Alt+Shift+M" },
-      "description": "Export current chat to Markdown"
+      "description": "__MSG_cmdExportMarkdown__"
     },
     "copy-markdown": {
       "suggested_key": { "default": "Alt+Shift+C", "mac": "Alt+Shift+C" },
-      "description": "Copy current chat as Markdown to clipboard"
+      "description": "__MSG_cmdCopyMarkdown__"
     },
     "export-pdf": {
       "suggested_key": { "default": "Alt+Shift+P", "mac": "Alt+Shift+P" },
-      "description": "Export current chat to PDF"
+      "description": "__MSG_cmdExportPdf__"
     },
     "upload-gist": {
-      "suggested_key": { "default": "Alt+Shift+G", "mac": "Alt+Shift+G" },
-      "description": "Upload current chat to GitHub Gist"
+      "description": "__MSG_cmdUploadGist__"
     },
     "copy-html": {
-      "description": "Copy current chat as standalone HTML to clipboard"
+      "description": "__MSG_cmdCopyHtml__"
     },
     "export-json": {
-      "description": "Export current chat to JSON"
+      "description": "__MSG_cmdExportJson__"
     },
     "export-zip": {
-      "description": "Export current chat as ZIP (chat.md + code files)"
+      "description": "__MSG_cmdExportZip__"
     },
     "export-docx": {
       "suggested_key": { "default": "Alt+Shift+D", "mac": "Alt+Shift+D" },
-      "description": "Export current chat to Word document (.docx)"
+      "description": "__MSG_cmdExportDocx__"
     }
   },
 
@@ -96,7 +96,7 @@
 
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Inkpour",
+    "default_title": "__MSG_extName__",
     "default_icon": {
       "16": "icons/icon-16.png",
       "32": "icons/icon-32.png",

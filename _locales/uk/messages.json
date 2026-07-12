@@ -1,0 +1,857 @@
+{
+  "extName": {
+    "message": "Inkpour",
+    "description": "Extension name shown in browser toolbar and stores"
+  },
+  "extDescription": {
+    "message": "Експортуйте розмови з чат-ботів ШІ (ChatGPT, Claude, Gemini, Copilot та інші) у Markdown, PDF, HTML, DOCX або ZIP.",
+    "description": "Extension description shown in browser stores"
+  },
+  "cmdExportMarkdown": {
+    "message": "Експортувати поточний чат у Markdown",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyMarkdown": {
+    "message": "Скопіювати поточний чат як Markdown у буфер обміну",
+    "description": "Keyboard command description"
+  },
+  "cmdExportPdf": {
+    "message": "Експортувати поточний чат у PDF",
+    "description": "Keyboard command description"
+  },
+  "cmdUploadGist": {
+    "message": "Завантажити поточний чат у GitHub Gist",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyHtml": {
+    "message": "Скопіювати поточний чат як окремий HTML у буфер обміну",
+    "description": "Keyboard command description"
+  },
+  "cmdExportJson": {
+    "message": "Експортувати поточний чат у JSON",
+    "description": "Keyboard command description"
+  },
+  "cmdExportZip": {
+    "message": "Експортувати поточний чат як ZIP (chat.md + файли коду)",
+    "description": "Keyboard command description"
+  },
+  "cmdExportDocx": {
+    "message": "Експортувати поточний чат у документ Word (.docx)",
+    "description": "Keyboard command description"
+  },
+  "popupTagline": {
+    "message": "Експортуйте чати ШІ · MD, PDF, HTML, JSON, ZIP",
+    "description": "Popup header subtitle"
+  },
+  "popupSettingsTitle": {
+    "message": "Налаштування",
+    "description": "Settings gear button tooltip/aria-label in popup"
+  },
+  "popupExportAsLabel": {
+    "message": "Експортувати як",
+    "description": "Section label above the export format buttons"
+  },
+  "popupMdBtnTitle": {
+    "message": "Експортувати у Markdown (Alt+Shift+M)",
+    "description": "MD button tooltip"
+  },
+  "popupPdfBtnTitle": {
+    "message": "Експортувати у PDF",
+    "description": "PDF button tooltip"
+  },
+  "popupHtmlBtnTitle": {
+    "message": "Експортувати у HTML",
+    "description": "HTML button tooltip"
+  },
+  "popupJsonBtnTitle": {
+    "message": "Експортувати у JSON (Alt+Shift+J)",
+    "description": "JSON button tooltip"
+  },
+  "popupDocxBtnTitle": {
+    "message": "Експортувати у документ Word (.docx)",
+    "description": "DOCX button tooltip"
+  },
+  "popupCopyBtnTitle": {
+    "message": "Скопіювати Markdown у буфер обміну (Alt+Shift+C)",
+    "description": "Copy MD button tooltip"
+  },
+  "popupCopyHtmlBtnTitle": {
+    "message": "Скопіювати окремий HTML у буфер обміну (Alt+Shift+H)",
+    "description": "Copy HTML button tooltip"
+  },
+  "popupZipBtnTitle": {
+    "message": "Експортувати ZIP з chat.md + видобутими файлами коду (Alt+Shift+Z)",
+    "description": "ZIP button tooltip"
+  },
+  "popupGistBtnTitle": {
+    "message": "Завантажити Markdown у GitHub Gist",
+    "description": "Gist button tooltip"
+  },
+  "popupAllBtnTitle": {
+    "message": "Експортувати одночасно MD + DOCX + ZIP",
+    "description": "Export All button tooltip"
+  },
+  "popupBtnMd": {
+    "message": "MD"
+  },
+  "popupBtnPdf": {
+    "message": "PDF"
+  },
+  "popupBtnHtml": {
+    "message": "HTML"
+  },
+  "popupBtnJson": {
+    "message": "JSON"
+  },
+  "popupBtnDocx": {
+    "message": "DOCX"
+  },
+  "popupBtnCopyMd": {
+    "message": "Копіювати MD"
+  },
+  "popupBtnCopyHtml": {
+    "message": "Копіювати HTML"
+  },
+  "popupBtnZip": {
+    "message": "ZIP"
+  },
+  "popupBtnGist": {
+    "message": "Gist ↑"
+  },
+  "popupBtnExportAll": {
+    "message": "⬇ Експортувати все (MD + DOCX + ZIP)"
+  },
+  "popupIncrementalBtnTitle": {
+    "message": "Експортувати лише повідомлення, додані після останнього експорту",
+    "description": "Export new only button tooltip"
+  },
+  "popupBtnExportNewOnly": {
+    "message": "Експортувати лише нові"
+  },
+  "popupTitleInputPlaceholder": {
+    "message": "Назва чату…"
+  },
+  "popupNotesPlaceholder": {
+    "message": "Додайте особисті нотатки — будуть додані як цитата на початку експорту…"
+  },
+  "popupNotesToggleAdd": {
+    "message": "+ Додати нотатки"
+  },
+  "popupNotesToggleHide": {
+    "message": "− Сховати нотатки"
+  },
+  "popupSelectToggleOpen": {
+    "message": "☑ Вибрати повідомлення"
+  },
+  "popupSelectToggleClose": {
+    "message": "✕ Закрити вибір"
+  },
+  "popupSelectAll": {
+    "message": "Усі"
+  },
+  "popupSelectNone": {
+    "message": "Жодного"
+  },
+  "popupSelectUserOnly": {
+    "message": "Лише користувач"
+  },
+  "popupSelectAIOnly": {
+    "message": "Лише ШІ"
+  },
+  "popupHistoryBtn": {
+    "message": "⏱ Історія"
+  },
+  "popupSettingsBtn": {
+    "message": "⚙ Налаштування"
+  },
+  "popupStatusExtracting": {
+    "message": "Видобування…"
+  },
+  "popupStatusExtractingMessages": {
+    "message": "Видобування повідомлень…"
+  },
+  "popupStatusLoadingOlder": {
+    "message": "Завантаження старіших повідомлень…"
+  },
+  "popupStatusAiStillGenerating": {
+    "message": "ШІ ще генерує відповідь — експортуйте після завершення"
+  },
+  "popupStatusSavedCheckDownloads": {
+    "message": "✓ Збережено — перевірте папку Завантаження"
+  },
+  "popupStatusMarkdownCopied": {
+    "message": "✓ Markdown скопійовано у буфер обміну"
+  },
+  "popupStatusHtmlCopied": {
+    "message": "✓ HTML скопійовано — вставте у будь-який редактор"
+  },
+  "popupStatusZipSaved": {
+    "message": "✓ ZIP збережено — chat.md",
+    "description": "Prefix; extra code-file count is appended in JS"
+  },
+  "popupCodeFileOne": {
+    "message": " + $1 файл коду",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeFileOther": {
+    "message": " + $1 файлів коду",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupStatusExportAllSaved": {
+    "message": "✓ Збережено MD + DOCX + ZIP"
+  },
+  "popupStatusGistTokenMissing": {
+    "message": "Спочатку додайте токен GitHub у Налаштуваннях."
+  },
+  "popupStatusGistUploading": {
+    "message": "Завантаження у GitHub Gist…"
+  },
+  "popupStatusGistCreated": {
+    "message": "✓ Gist створено"
+  },
+  "popupStatusGistUploadFailed": {
+    "message": "Не вдалося завантажити Gist"
+  },
+  "popupStatusNotSupportedPage": {
+    "message": "Це не підтримувана сторінка чату ШІ. Відкрийте Inkpour на ChatGPT, Claude, Gemini, Google Search або іншій підтримуваній платформі."
+  },
+  "popupStatusRefreshTab": {
+    "message": "Оновіть вкладку чату, а потім спробуйте ще раз. (Скрипт вмісту не працює — вкладка була відкрита до завантаження розширення.)"
+  },
+  "popupStatusNoResponse": {
+    "message": "Немає відповіді від сторінки. Спробуйте оновити вкладку."
+  },
+  "popupStatusNoMessagesFound": {
+    "message": "Повідомлень не знайдено."
+  },
+  "popupStatusCannotAccessTab": {
+    "message": "Не вдається отримати доступ до поточної вкладки."
+  },
+  "popupStatusNoNewMessages": {
+    "message": "Немає нових повідомлень для експорту."
+  },
+  "popupMsgCountOne": {
+    "message": "Готово · $COUNT$ повідомлення$ROLES$ · ~$WORDS$ слів · ~$READMIN$ хв читання$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupMsgCountOther": {
+    "message": "Готово · $COUNT$ повідомлень$ROLES$ · ~$WORDS$ слів · ~$READMIN$ хв читання$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupCodeBlockOne": {
+    "message": " · $1 блок коду",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeBlockOther": {
+    "message": " · $1 блоків коду",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupLastExport": {
+    "message": "Останній: $PLATFORM$ · $COUNT$ повід.$FORMAT$ · $WHEN$",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      },
+      "when": {
+        "content": "$4"
+      }
+    }
+  },
+  "popupLastExportJustNow": {
+    "message": "Останній: $PLATFORM$ · $COUNT$ повід. · $FORMAT$ · щойно",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupNewMessageOne": {
+    "message": "+$COUNT$ нове повідомлення з моменту експорту $WHEN$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupNewMessageOther": {
+    "message": "+$COUNT$ нових повідомлень з моменту експорту $WHEN$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOne": {
+    "message": "$COUNT$ нове повідомлення з часу останнього експорту ($WHEN$) — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOther": {
+    "message": "$COUNT$ нових повідомлень з часу останнього експорту ($WHEN$) — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupSavedNewMessagesOne": {
+    "message": "✓ Збережено $COUNT$ нове повідомлення — перевірте папку Завантаження",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupSavedNewMessagesOther": {
+    "message": "✓ Збережено $COUNT$ нових повідомлень — перевірте папку Завантаження",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeJustNow": {
+    "message": "щойно"
+  },
+  "timeMinutesAgo": {
+    "message": "$1 хв тому",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeHoursAgo": {
+    "message": "$1 год тому",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeDaysAgo": {
+    "message": "$1 дн тому",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsHeaderTitle": {
+    "message": "Налаштування Inkpour"
+  },
+  "settingsHeaderSubtitle": {
+    "message": "Налаштування зберігаються локально у вашому браузері"
+  },
+  "settingsBrowserDetecting": {
+    "message": "Визначення…"
+  },
+  "settingsBrowserBadge": {
+    "message": "Визначено автоматично"
+  },
+  "settingsBrowserFirefoxName": {
+    "message": "Firefox"
+  },
+  "settingsBrowserFirefoxNote": {
+    "message": "Повна підтримка — усі формати експорту"
+  },
+  "settingsBrowserChromeName": {
+    "message": "Chrome / Brave"
+  },
+  "settingsBrowserChromeNote": {
+    "message": "Повна підтримка — усі формати експорту"
+  },
+  "settingsBrowserEdgeName": {
+    "message": "Microsoft Edge"
+  },
+  "settingsBrowserEdgeNote": {
+    "message": "Повна підтримка — усі формати експорту"
+  },
+  "settingsBrowserSafariName": {
+    "message": "Safari"
+  },
+  "settingsBrowserSafariNote": {
+    "message": "Експериментально — PDF може працювати інакше"
+  },
+  "settingsBrowserUnknownName": {
+    "message": "Невідомий браузер"
+  },
+  "settingsBrowserUnknownNote": {
+    "message": "Може працювати — повідомте про проблеми, якщо щось не працює"
+  },
+  "settingsSectionExport": {
+    "message": "Експорт"
+  },
+  "settingsSectionIntegrations": {
+    "message": "Інтеграції"
+  },
+  "settingsDefaultFormatLabel": {
+    "message": "Формат за замовчуванням"
+  },
+  "settingsDefaultFormatDesc": {
+    "message": "Яка кнопка отримує фокус клавіатури першою"
+  },
+  "settingsFilenameTemplateLabel": {
+    "message": "Шаблон імені файлу"
+  },
+  "settingsFilenameTemplateDesc": {
+    "message": "Токени: {platform} {title} {date} {time} {url} {words} {msgcount}"
+  },
+  "settingsPdfAutoPrintLabel": {
+    "message": "Автодрук PDF"
+  },
+  "settingsPdfAutoPrintDesc": {
+    "message": "Автоматично відкривати діалог друку після завантаження вкладки PDF"
+  },
+  "settingsYamlLabel": {
+    "message": "Додати YAML-заголовок"
+  },
+  "settingsYamlDesc": {
+    "message": "Додає назву, дату, платформу, URL на початок файлів .md"
+  },
+  "settingsTocLabel": {
+    "message": "Створити зміст"
+  },
+  "settingsTocDesc": {
+    "message": "Додати клікабельний зміст для чатів з понад 4 повідомленнями"
+  },
+  "settingsSubfolderLabel": {
+    "message": "Підпапка Завантажень"
+  },
+  "settingsSubfolderDesc": {
+    "message": "Необов'язковий підшлях у вашій папці завантажень за замовчуванням (напр. AI Chats)"
+  },
+  "settingsSubfolderPlaceholder": {
+    "message": "напр. AI Chats"
+  },
+  "settingsObsidianVaultLabel": {
+    "message": "Підпапка сховища Obsidian"
+  },
+  "settingsObsidianVaultDesc": {
+    "message": "Якщо встановлено, експорти потраплятимуть у цю підпапку в Завантаженнях — корисно для сховищ Obsidian. Замінює поле підпапки вище."
+  },
+  "settingsObsidianTagsLabel": {
+    "message": "Теги Obsidian у YAML"
+  },
+  "settingsObsidianTagsDesc": {
+    "message": "Додає tags: [ai-chat, {platform}] до заголовка (потребує увімкненого YAML)"
+  },
+  "settingsGithubTokenLabel": {
+    "message": "Токен GitHub"
+  },
+  "settingsGithubTokenDesc": {
+    "message": "Персональний токен доступу з областю gist — вмикає кнопку «Завантажити в Gist» у спливному вікні."
+  },
+  "settingsGithubTokenLink": {
+    "message": "Створити →"
+  },
+  "settingsGistVisibilityLabel": {
+    "message": "Видимість Gist"
+  },
+  "settingsGistVisibilityDesc": {
+    "message": "Секретні Gist не публікуються у списках (переглянути може будь-хто з посиланням)"
+  },
+  "settingsGistSecretOption": {
+    "message": "Секретний (без лістингу)"
+  },
+  "settingsGistPublicOption": {
+    "message": "Публічний"
+  },
+  "settingsGistTagsLabel": {
+    "message": "Теги Gist"
+  },
+  "settingsGistTagsDesc": {
+    "message": "Додаткові теги, додані до YAML-заголовка кожного експорту Gist, розділені комами. Пізніше шукайте свої Gist на GitHub за допомогою user:you \"tag\". Теги ai-chat та назва платформи завжди додаються автоматично."
+  },
+  "settingsGistTagsPlaceholder": {
+    "message": "робота, проєкт-x, дослідження"
+  },
+  "settingsScrubLabel": {
+    "message": "Видаляти секрети перед завантаженням"
+  },
+  "settingsScrubDesc": {
+    "message": "Приховувати ймовірні API-ключі, токени та електронні адреси перед завантаженням у Gist/webhook"
+  },
+  "settingsWebhookUrlLabel": {
+    "message": "URL вебхука"
+  },
+  "settingsWebhookUrlDesc": {
+    "message": "Після кожного експорту Inkpour надсилає сюди POST-запит з метаданими експорту (назва, платформа, формат, кількість слів). Працює з n8n, Zapier, Make.com або будь-якою HTTP-кінцевою точкою."
+  },
+  "settingsWebhookContentLabel": {
+    "message": "Додати вміст до вебхука"
+  },
+  "settingsWebhookContentDesc": {
+    "message": "Надіслати повний експортований текст у корисному навантаженні вебхука (значно збільшує розмір для довгих чатів)"
+  },
+  "settingsSaveBtn": {
+    "message": "Зберегти"
+  },
+  "settingsSavedStatus": {
+    "message": "✓ Збережено"
+  },
+  "historyHeaderTitle": {
+    "message": "Історія експортів"
+  },
+  "historyHeaderSubtitle": {
+    "message": "Останні 20 експортів — зберігаються локально, ніколи не завантажуються"
+  },
+  "historySearchPlaceholder": {
+    "message": "Пошук за назвою, платформою або вмістом розмови…"
+  },
+  "historyClearRecent": {
+    "message": "Очистити нещодавні"
+  },
+  "historyClearAll": {
+    "message": "Очистити все"
+  },
+  "historyClearStarred": {
+    "message": "Очистити ★"
+  },
+  "historyClearRecentTitle": {
+    "message": "Очистити нещодавню історію (відмічені зіркою експорти збережуться)"
+  },
+  "historyClearAllTitle": {
+    "message": "Очистити всю історію експортів"
+  },
+  "historyEmptyTitle": {
+    "message": "📭"
+  },
+  "historyEmptyBody": {
+    "message": "Ще немає експортів. Експортуйте чат зі спливного вікна, щоб побачити його тут."
+  },
+  "historyBackLink": {
+    "message": "← Назад до спливного вікна"
+  },
+  "historyStorageNote": {
+    "message": "Вміст зберігається у сховищі розширення браузера"
+  },
+  "historyStatExports": {
+    "message": "Експорти"
+  },
+  "historyStatWords": {
+    "message": "Усього слів"
+  },
+  "historyStatPlatform": {
+    "message": "Найпопулярніша платформа"
+  },
+  "historyStatFormat": {
+    "message": "Найпопулярніший формат"
+  },
+  "historySectionStarred": {
+    "message": "★ Відмічені зіркою"
+  },
+  "historySectionRecent": {
+    "message": "Нещодавні"
+  },
+  "historyStarPin": {
+    "message": "Закріпити як відмічене зіркою"
+  },
+  "historyStarUnpin": {
+    "message": "Відкріпити від відмічених зіркою"
+  },
+  "historyActionSave": {
+    "message": "↓ Зберегти"
+  },
+  "historyActionCopy": {
+    "message": "⎘ Копіювати"
+  },
+  "historyActionCopied": {
+    "message": "✓ Скопійовано"
+  },
+  "historyActionGist": {
+    "message": "↗ Gist"
+  },
+  "historyNoExportsYet": {
+    "message": "Ще немає експортів"
+  },
+  "historyMatchCountOne": {
+    "message": "$1 з $2 збігається",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyMatchCountOther": {
+    "message": "$1 з $2 збігається",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyFilteredCount": {
+    "message": "$1 з $2 експортів",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyExportCountOne": {
+    "message": "$1 експорт",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyExportCountOther": {
+    "message": "$1 експортів",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyLifetimeStatsOne": {
+    "message": "За весь час: $1 експорт$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyLifetimeStatsOther": {
+    "message": "За весь час: $1 експортів$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyConfirmClearRecent": {
+    "message": "Очистити нещодавню історію? Відмічені зіркою експорти буде збережено."
+  },
+  "historyConfirmClearAll": {
+    "message": "Очистити всю історію експортів? Цю дію не можна скасувати."
+  },
+  "historyConfirmClearStarred": {
+    "message": "Видалити всі відмічені зіркою експорти? Цю дію не можна скасувати."
+  },
+  "printLoading": {
+    "message": "Завантаження розмови…"
+  },
+  "printNoContent": {
+    "message": "Inkpour: Вміст не знайдено. Спробуйте експортувати ще раз."
+  },
+  "printGenericErrorPrefix": {
+    "message": "Помилка Inkpour:"
+  },
+  "contentFabTitle": {
+    "message": "Inkpour — Експортувати цей чат"
+  },
+  "contentToastRedactedOne": {
+    "message": "Приховано $1 елемент ($2) перед завантаженням.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastRedactedOther": {
+    "message": "Приховано $1 елементів ($2) перед завантаженням.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastGistFailedNetwork": {
+    "message": "✗ Не вдалося завантажити Gist (помилка мережі)"
+  },
+  "contentToastGistFailed": {
+    "message": "✗ Не вдалося завантажити Gist: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentToastGistCreated": {
+    "message": "✓ Gist створено"
+  },
+  "popupSelectCount": {
+    "message": "Вибрано $1 з $2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupPlatformDetected": {
+    "message": "✓ $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupPlatformCount": {
+    "message": "Підтримується платформ: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentMenuExportMd": {
+    "message": "Експортувати MD"
+  },
+  "contentMenuCopyMd": {
+    "message": "Копіювати MD"
+  },
+  "contentMenuExportHtml": {
+    "message": "Експортувати HTML"
+  },
+  "contentMenuExportDocx": {
+    "message": "Експортувати DOCX"
+  },
+  "contentMenuExportPdf": {
+    "message": "Експортувати PDF"
+  },
+  "contentMenuExportZip": {
+    "message": "Експортувати ZIP"
+  },
+  "contentStatusSaved": {
+    "message": "✓ Збережено!"
+  },
+  "contentStatusCopied": {
+    "message": "✓ Скопійовано!"
+  },
+  "contentStatusExporting": {
+    "message": "Експортування…"
+  },
+  "contentStatusExportStarted": {
+    "message": "✓ Розпочато експорт $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentStatusExportFailed": {
+    "message": "Не вдалося виконати експорт"
+  },
+  "contentNoMessagesFound": {
+    "message": "Повідомлень не знайдено"
+  },
+  "settingsPageTitle": {
+    "message": "Inkpour — Налаштування"
+  },
+  "settingsFormatOptionMd": {
+    "message": "Markdown (.md)"
+  },
+  "settingsFormatOptionPdf": {
+    "message": "PDF"
+  },
+  "settingsFormatOptionHtml": {
+    "message": "HTML"
+  },
+  "settingsFormatOptionJson": {
+    "message": "JSON"
+  },
+  "settingsFormatOptionZip": {
+    "message": "ZIP (чат + файли коду)"
+  }
+}

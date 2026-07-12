@@ -1,0 +1,857 @@
+{
+  "extName": {
+    "message": "Inkpour",
+    "description": "Extension name shown in browser toolbar and stores"
+  },
+  "extDescription": {
+    "message": "Exporteer AI-chatgesprekken (ChatGPT, Claude, Gemini, Copilot en meer) naar Markdown, PDF, HTML, DOCX of ZIP.",
+    "description": "Extension description shown in browser stores"
+  },
+  "cmdExportMarkdown": {
+    "message": "Huidige chat exporteren naar Markdown",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyMarkdown": {
+    "message": "Huidige chat als Markdown naar klembord kopiëren",
+    "description": "Keyboard command description"
+  },
+  "cmdExportPdf": {
+    "message": "Huidige chat exporteren naar PDF",
+    "description": "Keyboard command description"
+  },
+  "cmdUploadGist": {
+    "message": "Huidige chat uploaden naar GitHub Gist",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyHtml": {
+    "message": "Huidige chat als losstaande HTML naar klembord kopiëren",
+    "description": "Keyboard command description"
+  },
+  "cmdExportJson": {
+    "message": "Huidige chat exporteren naar JSON",
+    "description": "Keyboard command description"
+  },
+  "cmdExportZip": {
+    "message": "Huidige chat exporteren als ZIP (chat.md + codebestanden)",
+    "description": "Keyboard command description"
+  },
+  "cmdExportDocx": {
+    "message": "Huidige chat exporteren naar Word-document (.docx)",
+    "description": "Keyboard command description"
+  },
+  "popupTagline": {
+    "message": "Exporteer AI-chats · MD, PDF, HTML, JSON, ZIP",
+    "description": "Popup header subtitle"
+  },
+  "popupSettingsTitle": {
+    "message": "Instellingen",
+    "description": "Settings gear button tooltip/aria-label in popup"
+  },
+  "popupExportAsLabel": {
+    "message": "Exporteren als",
+    "description": "Section label above the export format buttons"
+  },
+  "popupMdBtnTitle": {
+    "message": "Exporteren naar Markdown (Alt+Shift+M)",
+    "description": "MD button tooltip"
+  },
+  "popupPdfBtnTitle": {
+    "message": "Exporteren naar PDF",
+    "description": "PDF button tooltip"
+  },
+  "popupHtmlBtnTitle": {
+    "message": "Exporteren naar HTML",
+    "description": "HTML button tooltip"
+  },
+  "popupJsonBtnTitle": {
+    "message": "Exporteren naar JSON (Alt+Shift+J)",
+    "description": "JSON button tooltip"
+  },
+  "popupDocxBtnTitle": {
+    "message": "Exporteren naar Word-document (.docx)",
+    "description": "DOCX button tooltip"
+  },
+  "popupCopyBtnTitle": {
+    "message": "Markdown naar klembord kopiëren (Alt+Shift+C)",
+    "description": "Copy MD button tooltip"
+  },
+  "popupCopyHtmlBtnTitle": {
+    "message": "Losstaande HTML naar klembord kopiëren (Alt+Shift+H)",
+    "description": "Copy HTML button tooltip"
+  },
+  "popupZipBtnTitle": {
+    "message": "ZIP exporteren met chat.md + geëxtraheerde codebestanden (Alt+Shift+Z)",
+    "description": "ZIP button tooltip"
+  },
+  "popupGistBtnTitle": {
+    "message": "Markdown uploaden naar GitHub Gist",
+    "description": "Gist button tooltip"
+  },
+  "popupAllBtnTitle": {
+    "message": "MD + DOCX + ZIP tegelijk exporteren",
+    "description": "Export All button tooltip"
+  },
+  "popupBtnMd": {
+    "message": "MD"
+  },
+  "popupBtnPdf": {
+    "message": "PDF"
+  },
+  "popupBtnHtml": {
+    "message": "HTML"
+  },
+  "popupBtnJson": {
+    "message": "JSON"
+  },
+  "popupBtnDocx": {
+    "message": "DOCX"
+  },
+  "popupBtnCopyMd": {
+    "message": "MD kopiëren"
+  },
+  "popupBtnCopyHtml": {
+    "message": "HTML kopiëren"
+  },
+  "popupBtnZip": {
+    "message": "ZIP"
+  },
+  "popupBtnGist": {
+    "message": "Gist ↑"
+  },
+  "popupBtnExportAll": {
+    "message": "⬇ Alles exporteren (MD + DOCX + ZIP)"
+  },
+  "popupIncrementalBtnTitle": {
+    "message": "Exporteer alleen de berichten die zijn toegevoegd sinds je laatste export",
+    "description": "Export new only button tooltip"
+  },
+  "popupBtnExportNewOnly": {
+    "message": "Alleen nieuwe exporteren"
+  },
+  "popupTitleInputPlaceholder": {
+    "message": "Chattitel…"
+  },
+  "popupNotesPlaceholder": {
+    "message": "Voeg persoonlijke notities toe — worden als citaatblok vooraan de export geplaatst…"
+  },
+  "popupNotesToggleAdd": {
+    "message": "+ Notities toevoegen"
+  },
+  "popupNotesToggleHide": {
+    "message": "− Notities verbergen"
+  },
+  "popupSelectToggleOpen": {
+    "message": "☑ Berichten selecteren"
+  },
+  "popupSelectToggleClose": {
+    "message": "✕ Selector sluiten"
+  },
+  "popupSelectAll": {
+    "message": "Alles"
+  },
+  "popupSelectNone": {
+    "message": "Geen"
+  },
+  "popupSelectUserOnly": {
+    "message": "Alleen gebruiker"
+  },
+  "popupSelectAIOnly": {
+    "message": "Alleen AI"
+  },
+  "popupHistoryBtn": {
+    "message": "⏱ Geschiedenis"
+  },
+  "popupSettingsBtn": {
+    "message": "⚙ Instellingen"
+  },
+  "popupStatusExtracting": {
+    "message": "Bezig met extraheren…"
+  },
+  "popupStatusExtractingMessages": {
+    "message": "Berichten worden geëxtraheerd…"
+  },
+  "popupStatusLoadingOlder": {
+    "message": "Oudere berichten worden geladen…"
+  },
+  "popupStatusAiStillGenerating": {
+    "message": "AI genereert nog — exporteer nadat dit is voltooid"
+  },
+  "popupStatusSavedCheckDownloads": {
+    "message": "✓ Opgeslagen — controleer je Downloads-map"
+  },
+  "popupStatusMarkdownCopied": {
+    "message": "✓ Markdown naar klembord gekopieerd"
+  },
+  "popupStatusHtmlCopied": {
+    "message": "✓ HTML gekopieerd — plak in een willekeurige editor"
+  },
+  "popupStatusZipSaved": {
+    "message": "✓ ZIP opgeslagen — chat.md",
+    "description": "Prefix; extra code-file count is appended in JS"
+  },
+  "popupCodeFileOne": {
+    "message": " + $1 codebestand",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeFileOther": {
+    "message": " + $1 codebestanden",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupStatusExportAllSaved": {
+    "message": "✓ MD + DOCX + ZIP opgeslagen"
+  },
+  "popupStatusGistTokenMissing": {
+    "message": "Voeg eerst een GitHub-token toe in Instellingen."
+  },
+  "popupStatusGistUploading": {
+    "message": "Bezig met uploaden naar GitHub Gist…"
+  },
+  "popupStatusGistCreated": {
+    "message": "✓ Gist aangemaakt"
+  },
+  "popupStatusGistUploadFailed": {
+    "message": "Gist-upload mislukt"
+  },
+  "popupStatusNotSupportedPage": {
+    "message": "Dit is geen ondersteunde AI-chatpagina. Open Inkpour op ChatGPT, Claude, Gemini, Google Search of een ander ondersteund platform."
+  },
+  "popupStatusRefreshTab": {
+    "message": "Vernieuw het chattabblad en probeer het opnieuw. (Content-script draait niet — tabblad was al open voordat de extensie werd geladen.)"
+  },
+  "popupStatusNoResponse": {
+    "message": "Geen reactie van de pagina. Probeer het tabblad te vernieuwen."
+  },
+  "popupStatusNoMessagesFound": {
+    "message": "Geen berichten gevonden."
+  },
+  "popupStatusCannotAccessTab": {
+    "message": "Kan geen toegang krijgen tot het huidige tabblad."
+  },
+  "popupStatusNoNewMessages": {
+    "message": "Geen nieuwe berichten om te exporteren."
+  },
+  "popupMsgCountOne": {
+    "message": "Klaar · $COUNT$ bericht$ROLES$ · ~$WORDS$ woorden · ~$READMIN$ min leestijd$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupMsgCountOther": {
+    "message": "Klaar · $COUNT$ berichten$ROLES$ · ~$WORDS$ woorden · ~$READMIN$ min leestijd$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupCodeBlockOne": {
+    "message": " · $1 codeblok",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeBlockOther": {
+    "message": " · $1 codeblokken",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupLastExport": {
+    "message": "Laatst: $PLATFORM$ · $COUNT$ berichten$FORMAT$ · $WHEN$",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      },
+      "when": {
+        "content": "$4"
+      }
+    }
+  },
+  "popupLastExportJustNow": {
+    "message": "Laatst: $PLATFORM$ · $COUNT$ berichten · $FORMAT$ · zojuist",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupNewMessageOne": {
+    "message": "+$COUNT$ nieuw bericht sinds export $WHEN$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupNewMessageOther": {
+    "message": "+$COUNT$ nieuwe berichten sinds export $WHEN$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOne": {
+    "message": "$COUNT$ nieuw bericht sinds je laatste export ($WHEN$) — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOther": {
+    "message": "$COUNT$ nieuwe berichten sinds je laatste export ($WHEN$) — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupSavedNewMessagesOne": {
+    "message": "✓ $COUNT$ nieuw bericht opgeslagen — controleer je Downloads-map",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupSavedNewMessagesOther": {
+    "message": "✓ $COUNT$ nieuwe berichten opgeslagen — controleer je Downloads-map",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeJustNow": {
+    "message": "zojuist"
+  },
+  "timeMinutesAgo": {
+    "message": "$1m geleden",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeHoursAgo": {
+    "message": "$1u geleden",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeDaysAgo": {
+    "message": "$1d geleden",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsHeaderTitle": {
+    "message": "Inkpour-instellingen"
+  },
+  "settingsHeaderSubtitle": {
+    "message": "Voorkeuren worden lokaal opgeslagen in je browser"
+  },
+  "settingsBrowserDetecting": {
+    "message": "Detecteren…"
+  },
+  "settingsBrowserBadge": {
+    "message": "Automatisch gedetecteerd"
+  },
+  "settingsBrowserFirefoxName": {
+    "message": "Firefox"
+  },
+  "settingsBrowserFirefoxNote": {
+    "message": "Volledige ondersteuning — alle exportformaten"
+  },
+  "settingsBrowserChromeName": {
+    "message": "Chrome / Brave"
+  },
+  "settingsBrowserChromeNote": {
+    "message": "Volledige ondersteuning — alle exportformaten"
+  },
+  "settingsBrowserEdgeName": {
+    "message": "Microsoft Edge"
+  },
+  "settingsBrowserEdgeNote": {
+    "message": "Volledige ondersteuning — alle exportformaten"
+  },
+  "settingsBrowserSafariName": {
+    "message": "Safari"
+  },
+  "settingsBrowserSafariNote": {
+    "message": "Experimenteel — PDF kan zich anders gedragen"
+  },
+  "settingsBrowserUnknownName": {
+    "message": "Onbekende browser"
+  },
+  "settingsBrowserUnknownNote": {
+    "message": "Werkt mogelijk — meld problemen als iets niet werkt"
+  },
+  "settingsSectionExport": {
+    "message": "Export"
+  },
+  "settingsSectionIntegrations": {
+    "message": "Integraties"
+  },
+  "settingsDefaultFormatLabel": {
+    "message": "Standaardformaat"
+  },
+  "settingsDefaultFormatDesc": {
+    "message": "Welke knop als eerste toetsenbordfocus krijgt"
+  },
+  "settingsFilenameTemplateLabel": {
+    "message": "Bestandsnaamsjabloon"
+  },
+  "settingsFilenameTemplateDesc": {
+    "message": "Tokens: {platform} {title} {date} {time} {url} {words} {msgcount}"
+  },
+  "settingsPdfAutoPrintLabel": {
+    "message": "PDF automatisch afdrukken"
+  },
+  "settingsPdfAutoPrintDesc": {
+    "message": "Open het afdrukvenster automatisch nadat het PDF-tabblad is geladen"
+  },
+  "settingsYamlLabel": {
+    "message": "YAML-metadata toevoegen"
+  },
+  "settingsYamlDesc": {
+    "message": "Voegt titel, datum, platform en URL toe aan het begin van .md-bestanden"
+  },
+  "settingsTocLabel": {
+    "message": "Inhoudsopgave genereren"
+  },
+  "settingsTocDesc": {
+    "message": "Voeg een klikbare inhoudsopgave toe voor chats met meer dan 4 berichten"
+  },
+  "settingsSubfolderLabel": {
+    "message": "Downloads-submap"
+  },
+  "settingsSubfolderDesc": {
+    "message": "Optioneel subpad binnen je standaard downloadmap (bijv. AI Chats)"
+  },
+  "settingsSubfolderPlaceholder": {
+    "message": "bijv. AI Chats"
+  },
+  "settingsObsidianVaultLabel": {
+    "message": "Obsidian-kluis-submap"
+  },
+  "settingsObsidianVaultDesc": {
+    "message": "Indien ingesteld, gaan exports naar deze submap in Downloads — handig voor Obsidian-kluizen. Overschrijft het submap-veld hierboven."
+  },
+  "settingsObsidianTagsLabel": {
+    "message": "Obsidian-tags in YAML"
+  },
+  "settingsObsidianTagsDesc": {
+    "message": "Voegt tags: [ai-chat, {platform}] toe aan de metadata (vereist ingeschakelde YAML)"
+  },
+  "settingsGithubTokenLabel": {
+    "message": "GitHub-token"
+  },
+  "settingsGithubTokenDesc": {
+    "message": "Persoonlijke toegangstoken met gist-scope — schakelt de knop \"Upload naar Gist\" in de popup in."
+  },
+  "settingsGithubTokenLink": {
+    "message": "Maak er een aan →"
+  },
+  "settingsGistVisibilityLabel": {
+    "message": "Gist-zichtbaarheid"
+  },
+  "settingsGistVisibilityDesc": {
+    "message": "Geheime Gists zijn niet vermeld (iedereen met de link kan ze bekijken)"
+  },
+  "settingsGistSecretOption": {
+    "message": "Geheim (niet vermeld)"
+  },
+  "settingsGistPublicOption": {
+    "message": "Openbaar"
+  },
+  "settingsGistTagsLabel": {
+    "message": "Gist-tags"
+  },
+  "settingsGistTagsDesc": {
+    "message": "Extra tags toegevoegd aan de YAML-header van elke Gist-export, kommagescheiden. Zoek je Gists later op GitHub op met user:you \"tag\". De tags ai-chat en de platformnaam worden altijd automatisch toegevoegd."
+  },
+  "settingsGistTagsPlaceholder": {
+    "message": "werk, project-x, onderzoek"
+  },
+  "settingsScrubLabel": {
+    "message": "Geheimen verwijderen vóór upload"
+  },
+  "settingsScrubDesc": {
+    "message": "Verberg waarschijnlijke API-sleutels, tokens en e-mailadressen vóór Gist/webhook-uploads"
+  },
+  "settingsWebhookUrlLabel": {
+    "message": "Webhook-URL"
+  },
+  "settingsWebhookUrlDesc": {
+    "message": "Na elke export stuurt Inkpour hier een POST-verzoek met exportmetadata (titel, platform, formaat, aantal woorden). Werkt met n8n, Zapier, Make.com of elk ander HTTP-eindpunt."
+  },
+  "settingsWebhookContentLabel": {
+    "message": "Inhoud opnemen in webhook"
+  },
+  "settingsWebhookContentDesc": {
+    "message": "Stuur de volledige geëxporteerde tekst mee in de webhook-payload (vergroot de payload aanzienlijk bij lange chats)"
+  },
+  "settingsSaveBtn": {
+    "message": "Opslaan"
+  },
+  "settingsSavedStatus": {
+    "message": "✓ Opgeslagen"
+  },
+  "historyHeaderTitle": {
+    "message": "Exportgeschiedenis"
+  },
+  "historyHeaderSubtitle": {
+    "message": "Laatste 20 exports — lokaal opgeslagen, nooit geüpload"
+  },
+  "historySearchPlaceholder": {
+    "message": "Zoek op titel, platform of gespreksinhoud…"
+  },
+  "historyClearRecent": {
+    "message": "Recente wissen"
+  },
+  "historyClearAll": {
+    "message": "Alles wissen"
+  },
+  "historyClearStarred": {
+    "message": "★ wissen"
+  },
+  "historyClearRecentTitle": {
+    "message": "Recente geschiedenis wissen (met ster gemarkeerde exports blijven behouden)"
+  },
+  "historyClearAllTitle": {
+    "message": "Volledige exportgeschiedenis wissen"
+  },
+  "historyEmptyTitle": {
+    "message": "📭"
+  },
+  "historyEmptyBody": {
+    "message": "Nog geen exports. Exporteer een chat vanuit de popup om deze hier te zien."
+  },
+  "historyBackLink": {
+    "message": "← Terug naar popup"
+  },
+  "historyStorageNote": {
+    "message": "Inhoud opgeslagen in de opslag van de browserextensie"
+  },
+  "historyStatExports": {
+    "message": "Exports"
+  },
+  "historyStatWords": {
+    "message": "Totaal aantal woorden"
+  },
+  "historyStatPlatform": {
+    "message": "Meest gebruikte platform"
+  },
+  "historyStatFormat": {
+    "message": "Meest gebruikte formaat"
+  },
+  "historySectionStarred": {
+    "message": "★ Met ster"
+  },
+  "historySectionRecent": {
+    "message": "Recent"
+  },
+  "historyStarPin": {
+    "message": "Vastzetten als favoriet"
+  },
+  "historyStarUnpin": {
+    "message": "Losmaken van favorieten"
+  },
+  "historyActionSave": {
+    "message": "↓ Opslaan"
+  },
+  "historyActionCopy": {
+    "message": "⎘ Kopiëren"
+  },
+  "historyActionCopied": {
+    "message": "✓ Gekopieerd"
+  },
+  "historyActionGist": {
+    "message": "↗ Gist"
+  },
+  "historyNoExportsYet": {
+    "message": "Nog geen exports"
+  },
+  "historyMatchCountOne": {
+    "message": "$1 van $2 komt overeen",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyMatchCountOther": {
+    "message": "$1 van $2 komen overeen",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyFilteredCount": {
+    "message": "$1 van $2 exports",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyExportCountOne": {
+    "message": "$1 export",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyExportCountOther": {
+    "message": "$1 exports",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyLifetimeStatsOne": {
+    "message": "Totaal: $1 export$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyLifetimeStatsOther": {
+    "message": "Totaal: $1 exports$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyConfirmClearRecent": {
+    "message": "Recente geschiedenis wissen? Met ster gemarkeerde exports blijven behouden."
+  },
+  "historyConfirmClearAll": {
+    "message": "Volledige exportgeschiedenis wissen? Dit kan niet ongedaan worden gemaakt."
+  },
+  "historyConfirmClearStarred": {
+    "message": "Alle met ster gemarkeerde exports verwijderen? Dit kan niet ongedaan worden gemaakt."
+  },
+  "printLoading": {
+    "message": "Gesprek wordt geladen…"
+  },
+  "printNoContent": {
+    "message": "Inkpour: Geen inhoud gevonden. Probeer opnieuw te exporteren."
+  },
+  "printGenericErrorPrefix": {
+    "message": "Inkpour-fout:"
+  },
+  "contentFabTitle": {
+    "message": "Inkpour — Deze chat exporteren"
+  },
+  "contentToastRedactedOne": {
+    "message": "$1 item ($2) geredigeerd vóór upload.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastRedactedOther": {
+    "message": "$1 items ($2) geredigeerd vóór upload.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastGistFailedNetwork": {
+    "message": "✗ Gist-upload mislukt (netwerkfout)"
+  },
+  "contentToastGistFailed": {
+    "message": "✗ Gist-upload mislukt: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentToastGistCreated": {
+    "message": "✓ Gist aangemaakt"
+  },
+  "popupSelectCount": {
+    "message": "$1 van $2 geselecteerd",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupPlatformDetected": {
+    "message": "✓ $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupPlatformCount": {
+    "message": "$1 platforms ondersteund",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentMenuExportMd": {
+    "message": "MD exporteren"
+  },
+  "contentMenuCopyMd": {
+    "message": "MD kopiëren"
+  },
+  "contentMenuExportHtml": {
+    "message": "HTML exporteren"
+  },
+  "contentMenuExportDocx": {
+    "message": "DOCX exporteren"
+  },
+  "contentMenuExportPdf": {
+    "message": "PDF exporteren"
+  },
+  "contentMenuExportZip": {
+    "message": "ZIP exporteren"
+  },
+  "contentStatusSaved": {
+    "message": "✓ Opgeslagen!"
+  },
+  "contentStatusCopied": {
+    "message": "✓ Gekopieerd!"
+  },
+  "contentStatusExporting": {
+    "message": "Bezig met exporteren…"
+  },
+  "contentStatusExportStarted": {
+    "message": "✓ Export van $1 gestart",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentStatusExportFailed": {
+    "message": "Exporteren mislukt"
+  },
+  "contentNoMessagesFound": {
+    "message": "Geen berichten gevonden"
+  },
+  "settingsPageTitle": {
+    "message": "Inkpour — Instellingen"
+  },
+  "settingsFormatOptionMd": {
+    "message": "Markdown (.md)"
+  },
+  "settingsFormatOptionPdf": {
+    "message": "PDF"
+  },
+  "settingsFormatOptionHtml": {
+    "message": "HTML"
+  },
+  "settingsFormatOptionJson": {
+    "message": "JSON"
+  },
+  "settingsFormatOptionZip": {
+    "message": "ZIP (chat + codebestanden)"
+  }
+}

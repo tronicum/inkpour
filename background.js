@@ -220,9 +220,10 @@ async function doWebhook(settings, format, response, wordCount, tabId) {
     title = cleaned;
     if (findings.length > 0 && tabId != null) {
       const types = [...new Set(findings.map(f => f.type))].join(', ');
+      const key   = findings.length === 1 ? 'contentToastRedactedOne' : 'contentToastRedactedOther';
       api.tabs.sendMessage(tabId, {
         action:  'showToast',
-        text:    `Redacted ${findings.length} item${findings.length === 1 ? '' : 's'} (${types}) before upload.`,
+        text:    api.i18n.getMessage(key, [String(findings.length), types]),
         variant: 'info',
       }).catch(() => {});
     }
@@ -272,9 +273,10 @@ async function doGistUpload(tab, settings, response, sourceUrl, filename) {
     const allFindings = [...bodyResult.findings, ...titleResult.findings];
     if (allFindings.length > 0) {
       const types = [...new Set(allFindings.map(f => f.type))].join(', ');
+      const key   = allFindings.length === 1 ? 'contentToastRedactedOne' : 'contentToastRedactedOther';
       await api.tabs.sendMessage(tab.id, {
         action:  'showToast',
-        text:    `Redacted ${allFindings.length} item${allFindings.length === 1 ? '' : 's'} (${types}) before upload.`,
+        text:    api.i18n.getMessage(key, [String(allFindings.length), types]),
         variant: 'info',
       }).catch(() => {});
     }
@@ -297,7 +299,7 @@ async function doGistUpload(tab, settings, response, sourceUrl, filename) {
     });
   } catch {
     await api.tabs.sendMessage(tab.id, {
-      action: 'showToast', text: '✗ Gist upload failed (network error)', variant: 'error',
+      action: 'showToast', text: api.i18n.getMessage('contentToastGistFailedNetwork'), variant: 'error',
     }).catch(() => {});
     return;
   }
@@ -305,20 +307,28 @@ async function doGistUpload(tab, settings, response, sourceUrl, filename) {
     const errBody = await res.json().catch(() => ({}));
     const msg = errBody.message || `HTTP ${res.status}`;
     await api.tabs.sendMessage(tab.id, {
-      action: 'showToast', text: `✗ Gist upload failed: ${msg}`, variant: 'error',
+      action: 'showToast', text: api.i18n.getMessage('contentToastGistFailed', [msg]), variant: 'error',
     }).catch(() => {});
     return;
   }
   const gist = await res.json();
   api.tabs.create({ url: gist.html_url });
   await api.tabs.sendMessage(tab.id, {
-    action: 'showToast', text: '✓ Gist created', variant: 'success',
+    action: 'showToast', text: api.i18n.getMessage('contentToastGistCreated'), variant: 'success',
   }).catch(() => {});
 }
 
 // ─── Keyboard shortcuts ───────────────────────────────────────────────────
+// Chrome caps manifest.json's "commands" to 4 entries with a pre-suggested
+// default keybinding (5+ triggers "Too many shortcuts specified... Could not
+// load manifest" and the WHOLE extension fails to load in Chrome — unlike
+// Firefox, which has no such cap). "upload-gist" lost its suggested_key for
+// that reason. Its Alt+Shift+G hotkey still works via a content-script
+// keydown listener (src/content.js) that sends a 'runShortcutCommand'
+// runtime message here instead of going through chrome.commands — see
+// runCommand() below, shared by both paths.
 
-api.commands.onCommand.addListener(async (command) => {
+async function runCommand(command) {
   const [tab] = await api.tabs.query({ active: true, currentWindow: true });
   if (!tab) return;
 
@@ -407,6 +417,19 @@ api.commands.onCommand.addListener(async (command) => {
   };
   const fmt = formatMap[command];
   if (fmt) doWebhook(settings, fmt, response, wordCount, tab.id);
+}
+
+api.commands.onCommand.addListener((command) => { runCommand(command); });
+
+// Fallback trigger for commands that don't fit Chrome's 4-shortcut cap
+// (see comment above runCommand). content.js listens for the raw key
+// combo itself and just tells us which command to run.
+api.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+  if (msg?.action === 'runShortcutCommand' && msg.command) {
+    runCommand(msg.command);
+    sendResponse({ ok: true });
+    return true;
+  }
 });
 
 // ─── Action badge — show "ON" on supported AI chat pages ──────────────────

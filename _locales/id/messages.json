@@ -1,0 +1,857 @@
+{
+  "extName": {
+    "message": "Inkpour",
+    "description": "Extension name shown in browser toolbar and stores"
+  },
+  "extDescription": {
+    "message": "Ekspor percakapan chat AI (ChatGPT, Claude, Gemini, Copilot, dan lainnya) ke Markdown, PDF, HTML, DOCX, atau ZIP.",
+    "description": "Extension description shown in browser stores"
+  },
+  "cmdExportMarkdown": {
+    "message": "Ekspor chat saat ini ke Markdown",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyMarkdown": {
+    "message": "Salin chat saat ini sebagai Markdown ke clipboard",
+    "description": "Keyboard command description"
+  },
+  "cmdExportPdf": {
+    "message": "Ekspor chat saat ini ke PDF",
+    "description": "Keyboard command description"
+  },
+  "cmdUploadGist": {
+    "message": "Unggah chat saat ini ke GitHub Gist",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyHtml": {
+    "message": "Salin chat saat ini sebagai HTML mandiri ke clipboard",
+    "description": "Keyboard command description"
+  },
+  "cmdExportJson": {
+    "message": "Ekspor chat saat ini ke JSON",
+    "description": "Keyboard command description"
+  },
+  "cmdExportZip": {
+    "message": "Ekspor chat saat ini sebagai ZIP (chat.md + file kode)",
+    "description": "Keyboard command description"
+  },
+  "cmdExportDocx": {
+    "message": "Ekspor chat saat ini ke dokumen Word (.docx)",
+    "description": "Keyboard command description"
+  },
+  "popupTagline": {
+    "message": "Ekspor chat AI · MD, PDF, HTML, JSON, ZIP",
+    "description": "Popup header subtitle"
+  },
+  "popupSettingsTitle": {
+    "message": "Pengaturan",
+    "description": "Settings gear button tooltip/aria-label in popup"
+  },
+  "popupExportAsLabel": {
+    "message": "Ekspor sebagai",
+    "description": "Section label above the export format buttons"
+  },
+  "popupMdBtnTitle": {
+    "message": "Ekspor ke Markdown (Alt+Shift+M)",
+    "description": "MD button tooltip"
+  },
+  "popupPdfBtnTitle": {
+    "message": "Ekspor ke PDF",
+    "description": "PDF button tooltip"
+  },
+  "popupHtmlBtnTitle": {
+    "message": "Ekspor ke HTML",
+    "description": "HTML button tooltip"
+  },
+  "popupJsonBtnTitle": {
+    "message": "Ekspor ke JSON (Alt+Shift+J)",
+    "description": "JSON button tooltip"
+  },
+  "popupDocxBtnTitle": {
+    "message": "Ekspor ke dokumen Word (.docx)",
+    "description": "DOCX button tooltip"
+  },
+  "popupCopyBtnTitle": {
+    "message": "Salin Markdown ke clipboard (Alt+Shift+C)",
+    "description": "Copy MD button tooltip"
+  },
+  "popupCopyHtmlBtnTitle": {
+    "message": "Salin HTML mandiri ke clipboard (Alt+Shift+H)",
+    "description": "Copy HTML button tooltip"
+  },
+  "popupZipBtnTitle": {
+    "message": "Ekspor ZIP berisi chat.md + file kode yang diekstrak (Alt+Shift+Z)",
+    "description": "ZIP button tooltip"
+  },
+  "popupGistBtnTitle": {
+    "message": "Unggah Markdown ke GitHub Gist",
+    "description": "Gist button tooltip"
+  },
+  "popupAllBtnTitle": {
+    "message": "Ekspor MD + DOCX + ZIP sekaligus",
+    "description": "Export All button tooltip"
+  },
+  "popupBtnMd": {
+    "message": "MD"
+  },
+  "popupBtnPdf": {
+    "message": "PDF"
+  },
+  "popupBtnHtml": {
+    "message": "HTML"
+  },
+  "popupBtnJson": {
+    "message": "JSON"
+  },
+  "popupBtnDocx": {
+    "message": "DOCX"
+  },
+  "popupBtnCopyMd": {
+    "message": "Salin MD"
+  },
+  "popupBtnCopyHtml": {
+    "message": "Salin HTML"
+  },
+  "popupBtnZip": {
+    "message": "ZIP"
+  },
+  "popupBtnGist": {
+    "message": "Gist ↑"
+  },
+  "popupBtnExportAll": {
+    "message": "⬇ Ekspor Semua (MD + DOCX + ZIP)"
+  },
+  "popupIncrementalBtnTitle": {
+    "message": "Ekspor hanya pesan yang ditambahkan sejak ekspor terakhir Anda",
+    "description": "Export new only button tooltip"
+  },
+  "popupBtnExportNewOnly": {
+    "message": "Ekspor yang baru saja"
+  },
+  "popupTitleInputPlaceholder": {
+    "message": "Judul chat…"
+  },
+  "popupNotesPlaceholder": {
+    "message": "Tambahkan catatan pribadi — disisipkan sebagai kutipan di awal hasil ekspor…"
+  },
+  "popupNotesToggleAdd": {
+    "message": "+ Tambah catatan"
+  },
+  "popupNotesToggleHide": {
+    "message": "− Sembunyikan catatan"
+  },
+  "popupSelectToggleOpen": {
+    "message": "☑ Pilih pesan"
+  },
+  "popupSelectToggleClose": {
+    "message": "✕ Tutup pemilih"
+  },
+  "popupSelectAll": {
+    "message": "Semua"
+  },
+  "popupSelectNone": {
+    "message": "Tidak ada"
+  },
+  "popupSelectUserOnly": {
+    "message": "Hanya pengguna"
+  },
+  "popupSelectAIOnly": {
+    "message": "Hanya AI"
+  },
+  "popupHistoryBtn": {
+    "message": "⏱ Riwayat"
+  },
+  "popupSettingsBtn": {
+    "message": "⚙ Pengaturan"
+  },
+  "popupStatusExtracting": {
+    "message": "Mengekstrak…"
+  },
+  "popupStatusExtractingMessages": {
+    "message": "Mengekstrak pesan…"
+  },
+  "popupStatusLoadingOlder": {
+    "message": "Memuat pesan lama…"
+  },
+  "popupStatusAiStillGenerating": {
+    "message": "AI masih menghasilkan respons — ekspor setelah selesai"
+  },
+  "popupStatusSavedCheckDownloads": {
+    "message": "✓ Tersimpan — periksa folder Downloads Anda"
+  },
+  "popupStatusMarkdownCopied": {
+    "message": "✓ Markdown disalin ke clipboard"
+  },
+  "popupStatusHtmlCopied": {
+    "message": "✓ HTML disalin — tempelkan ke editor mana pun"
+  },
+  "popupStatusZipSaved": {
+    "message": "✓ ZIP tersimpan — chat.md",
+    "description": "Prefix; extra code-file count is appended in JS"
+  },
+  "popupCodeFileOne": {
+    "message": " + $1 file kode",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeFileOther": {
+    "message": " + $1 file kode",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupStatusExportAllSaved": {
+    "message": "✓ MD + DOCX + ZIP tersimpan"
+  },
+  "popupStatusGistTokenMissing": {
+    "message": "Tambahkan token GitHub di Pengaturan terlebih dahulu."
+  },
+  "popupStatusGistUploading": {
+    "message": "Mengunggah ke GitHub Gist…"
+  },
+  "popupStatusGistCreated": {
+    "message": "✓ Gist berhasil dibuat"
+  },
+  "popupStatusGistUploadFailed": {
+    "message": "Gagal mengunggah Gist"
+  },
+  "popupStatusNotSupportedPage": {
+    "message": "Ini bukan halaman chat AI yang didukung. Buka Inkpour di ChatGPT, Claude, Gemini, Google Search, atau platform lain yang didukung."
+  },
+  "popupStatusRefreshTab": {
+    "message": "Segarkan tab chat, lalu coba lagi. (Content script tidak berjalan — tab sudah terbuka sebelum ekstensi dimuat.)"
+  },
+  "popupStatusNoResponse": {
+    "message": "Tidak ada respons dari halaman. Coba segarkan tab."
+  },
+  "popupStatusNoMessagesFound": {
+    "message": "Tidak ada pesan yang ditemukan."
+  },
+  "popupStatusCannotAccessTab": {
+    "message": "Tidak dapat mengakses tab saat ini."
+  },
+  "popupStatusNoNewMessages": {
+    "message": "Tidak ada pesan baru untuk diekspor."
+  },
+  "popupMsgCountOne": {
+    "message": "Siap · $COUNT$ pesan$ROLES$ · ~$WORDS$ kata · ~$READMIN$ menit baca$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupMsgCountOther": {
+    "message": "Siap · $COUNT$ pesan$ROLES$ · ~$WORDS$ kata · ~$READMIN$ menit baca$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupCodeBlockOne": {
+    "message": " · $1 blok kode",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeBlockOther": {
+    "message": " · $1 blok kode",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupLastExport": {
+    "message": "Terakhir: $PLATFORM$ · $COUNT$ pesan$FORMAT$ · $WHEN$",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      },
+      "when": {
+        "content": "$4"
+      }
+    }
+  },
+  "popupLastExportJustNow": {
+    "message": "Terakhir: $PLATFORM$ · $COUNT$ pesan · $FORMAT$ · baru saja",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupNewMessageOne": {
+    "message": "+$COUNT$ pesan baru sejak ekspor $WHEN$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupNewMessageOther": {
+    "message": "+$COUNT$ pesan baru sejak ekspor $WHEN$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOne": {
+    "message": "$COUNT$ pesan baru sejak ekspor terakhir Anda ($WHEN$) — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOther": {
+    "message": "$COUNT$ pesan baru sejak ekspor terakhir Anda ($WHEN$) — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupSavedNewMessagesOne": {
+    "message": "✓ $COUNT$ pesan baru tersimpan — periksa folder Downloads Anda",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupSavedNewMessagesOther": {
+    "message": "✓ $COUNT$ pesan baru tersimpan — periksa folder Downloads Anda",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeJustNow": {
+    "message": "baru saja"
+  },
+  "timeMinutesAgo": {
+    "message": "$1 menit lalu",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeHoursAgo": {
+    "message": "$1 jam lalu",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeDaysAgo": {
+    "message": "$1 hari lalu",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsHeaderTitle": {
+    "message": "Pengaturan Inkpour"
+  },
+  "settingsHeaderSubtitle": {
+    "message": "Preferensi disimpan secara lokal di browser Anda"
+  },
+  "settingsBrowserDetecting": {
+    "message": "Mendeteksi…"
+  },
+  "settingsBrowserBadge": {
+    "message": "Terdeteksi otomatis"
+  },
+  "settingsBrowserFirefoxName": {
+    "message": "Firefox"
+  },
+  "settingsBrowserFirefoxNote": {
+    "message": "Dukungan penuh — semua format ekspor"
+  },
+  "settingsBrowserChromeName": {
+    "message": "Chrome / Brave"
+  },
+  "settingsBrowserChromeNote": {
+    "message": "Dukungan penuh — semua format ekspor"
+  },
+  "settingsBrowserEdgeName": {
+    "message": "Microsoft Edge"
+  },
+  "settingsBrowserEdgeNote": {
+    "message": "Dukungan penuh — semua format ekspor"
+  },
+  "settingsBrowserSafariName": {
+    "message": "Safari"
+  },
+  "settingsBrowserSafariNote": {
+    "message": "Eksperimental — PDF mungkin berperilaku berbeda"
+  },
+  "settingsBrowserUnknownName": {
+    "message": "Browser tidak dikenal"
+  },
+  "settingsBrowserUnknownNote": {
+    "message": "Mungkin berfungsi — laporkan masalah jika ada yang tidak berjalan"
+  },
+  "settingsSectionExport": {
+    "message": "Ekspor"
+  },
+  "settingsSectionIntegrations": {
+    "message": "Integrasi"
+  },
+  "settingsDefaultFormatLabel": {
+    "message": "Format default"
+  },
+  "settingsDefaultFormatDesc": {
+    "message": "Tombol mana yang mendapat fokus keyboard terlebih dahulu"
+  },
+  "settingsFilenameTemplateLabel": {
+    "message": "Template nama file"
+  },
+  "settingsFilenameTemplateDesc": {
+    "message": "Token: {platform} {title} {date} {time} {url} {words} {msgcount}"
+  },
+  "settingsPdfAutoPrintLabel": {
+    "message": "Cetak otomatis PDF"
+  },
+  "settingsPdfAutoPrintDesc": {
+    "message": "Buka kotak dialog cetak secara otomatis setelah tab PDF dimuat"
+  },
+  "settingsYamlLabel": {
+    "message": "Sertakan front matter YAML"
+  },
+  "settingsYamlDesc": {
+    "message": "Menambahkan judul, tanggal, platform, dan URL di bagian atas file .md"
+  },
+  "settingsTocLabel": {
+    "message": "Buat daftar isi"
+  },
+  "settingsTocDesc": {
+    "message": "Menambahkan daftar isi yang dapat diklik untuk chat dengan lebih dari 4 pesan"
+  },
+  "settingsSubfolderLabel": {
+    "message": "Subfolder Downloads"
+  },
+  "settingsSubfolderDesc": {
+    "message": "Sub-path opsional di dalam folder unduhan default Anda (mis. AI Chats)"
+  },
+  "settingsSubfolderPlaceholder": {
+    "message": "mis. AI Chats"
+  },
+  "settingsObsidianVaultLabel": {
+    "message": "Subfolder vault Obsidian"
+  },
+  "settingsObsidianVaultDesc": {
+    "message": "Jika diatur, hasil ekspor akan masuk ke subfolder ini di Downloads — berguna untuk vault Obsidian. Menggantikan kolom subfolder di atas."
+  },
+  "settingsObsidianTagsLabel": {
+    "message": "Tag Obsidian dalam YAML"
+  },
+  "settingsObsidianTagsDesc": {
+    "message": "Menambahkan tag: [ai-chat, {platform}] ke front matter (memerlukan YAML diaktifkan)"
+  },
+  "settingsGithubTokenLabel": {
+    "message": "Token GitHub"
+  },
+  "settingsGithubTokenDesc": {
+    "message": "Token akses pribadi dengan scope gist — mengaktifkan tombol \"Unggah ke Gist\" di popup."
+  },
+  "settingsGithubTokenLink": {
+    "message": "Buat satu →"
+  },
+  "settingsGistVisibilityLabel": {
+    "message": "Visibilitas Gist"
+  },
+  "settingsGistVisibilityDesc": {
+    "message": "Gist rahasia tidak terdaftar publik (siapa pun dengan link dapat melihatnya)"
+  },
+  "settingsGistSecretOption": {
+    "message": "Rahasia (tidak terdaftar)"
+  },
+  "settingsGistPublicOption": {
+    "message": "Publik"
+  },
+  "settingsGistTagsLabel": {
+    "message": "Tag Gist"
+  },
+  "settingsGistTagsDesc": {
+    "message": "Tag tambahan yang ditambahkan ke header YAML setiap ekspor Gist, dipisahkan koma. Cari Gist Anda nanti di GitHub dengan user:you \"tag\". Tag ai-chat dan nama platform selalu disertakan secara otomatis."
+  },
+  "settingsGistTagsPlaceholder": {
+    "message": "kerja, proyek-x, riset"
+  },
+  "settingsScrubLabel": {
+    "message": "Hapus data rahasia sebelum unggah"
+  },
+  "settingsScrubDesc": {
+    "message": "Menyamarkan kemungkinan kunci API, token & email sebelum unggah ke Gist/webhook"
+  },
+  "settingsWebhookUrlLabel": {
+    "message": "URL Webhook"
+  },
+  "settingsWebhookUrlDesc": {
+    "message": "Setelah setiap ekspor, Inkpour mengirim permintaan POST ke sini dengan metadata ekspor (judul, platform, format, jumlah kata). Berfungsi dengan n8n, Zapier, Make.com, atau endpoint HTTP apa pun."
+  },
+  "settingsWebhookContentLabel": {
+    "message": "Sertakan konten dalam webhook"
+  },
+  "settingsWebhookContentDesc": {
+    "message": "Mengirim teks lengkap hasil ekspor dalam payload webhook (meningkatkan ukuran payload secara signifikan untuk chat panjang)"
+  },
+  "settingsSaveBtn": {
+    "message": "Simpan"
+  },
+  "settingsSavedStatus": {
+    "message": "✓ Tersimpan"
+  },
+  "historyHeaderTitle": {
+    "message": "Riwayat Ekspor"
+  },
+  "historyHeaderSubtitle": {
+    "message": "20 ekspor terakhir — disimpan secara lokal, tidak pernah diunggah"
+  },
+  "historySearchPlaceholder": {
+    "message": "Cari judul, platform, atau isi percakapan…"
+  },
+  "historyClearRecent": {
+    "message": "Hapus terbaru"
+  },
+  "historyClearAll": {
+    "message": "Hapus semua"
+  },
+  "historyClearStarred": {
+    "message": "Hapus ★"
+  },
+  "historyClearRecentTitle": {
+    "message": "Hapus riwayat terbaru (ekspor berbintang tetap disimpan)"
+  },
+  "historyClearAllTitle": {
+    "message": "Hapus semua riwayat ekspor"
+  },
+  "historyEmptyTitle": {
+    "message": "📭"
+  },
+  "historyEmptyBody": {
+    "message": "Belum ada ekspor. Ekspor chat dari popup untuk melihatnya di sini."
+  },
+  "historyBackLink": {
+    "message": "← Kembali ke popup"
+  },
+  "historyStorageNote": {
+    "message": "Konten disimpan dalam penyimpanan ekstensi browser"
+  },
+  "historyStatExports": {
+    "message": "Ekspor"
+  },
+  "historyStatWords": {
+    "message": "Total kata"
+  },
+  "historyStatPlatform": {
+    "message": "Platform teratas"
+  },
+  "historyStatFormat": {
+    "message": "Format teratas"
+  },
+  "historySectionStarred": {
+    "message": "★ Berbintang"
+  },
+  "historySectionRecent": {
+    "message": "Terbaru"
+  },
+  "historyStarPin": {
+    "message": "Sematkan ke berbintang"
+  },
+  "historyStarUnpin": {
+    "message": "Lepas dari berbintang"
+  },
+  "historyActionSave": {
+    "message": "↓ Simpan"
+  },
+  "historyActionCopy": {
+    "message": "⎘ Salin"
+  },
+  "historyActionCopied": {
+    "message": "✓ Disalin"
+  },
+  "historyActionGist": {
+    "message": "↗ Gist"
+  },
+  "historyNoExportsYet": {
+    "message": "Belum ada ekspor"
+  },
+  "historyMatchCountOne": {
+    "message": "$1 dari $2 cocok",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyMatchCountOther": {
+    "message": "$1 dari $2 cocok",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyFilteredCount": {
+    "message": "$1 dari $2 ekspor",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyExportCountOne": {
+    "message": "$1 ekspor",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyExportCountOther": {
+    "message": "$1 ekspor",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyLifetimeStatsOne": {
+    "message": "Sepanjang waktu: $1 ekspor$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyLifetimeStatsOther": {
+    "message": "Sepanjang waktu: $1 ekspor$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyConfirmClearRecent": {
+    "message": "Hapus riwayat terbaru? Ekspor berbintang akan tetap disimpan."
+  },
+  "historyConfirmClearAll": {
+    "message": "Hapus semua riwayat ekspor? Tindakan ini tidak dapat dibatalkan."
+  },
+  "historyConfirmClearStarred": {
+    "message": "Hapus semua ekspor berbintang? Tindakan ini tidak dapat dibatalkan."
+  },
+  "printLoading": {
+    "message": "Memuat percakapan…"
+  },
+  "printNoContent": {
+    "message": "Inkpour: Konten tidak ditemukan. Coba ekspor lagi."
+  },
+  "printGenericErrorPrefix": {
+    "message": "Kesalahan Inkpour:"
+  },
+  "contentFabTitle": {
+    "message": "Inkpour — Ekspor chat ini"
+  },
+  "contentToastRedactedOne": {
+    "message": "$1 item disamarkan ($2) sebelum diunggah.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastRedactedOther": {
+    "message": "$1 item disamarkan ($2) sebelum diunggah.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastGistFailedNetwork": {
+    "message": "✗ Gagal mengunggah Gist (kesalahan jaringan)"
+  },
+  "contentToastGistFailed": {
+    "message": "✗ Gagal mengunggah Gist: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentToastGistCreated": {
+    "message": "✓ Gist berhasil dibuat"
+  },
+  "popupSelectCount": {
+    "message": "$1 dari $2 dipilih",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupPlatformDetected": {
+    "message": "✓ $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupPlatformCount": {
+    "message": "$1 platform didukung",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentMenuExportMd": {
+    "message": "Ekspor MD"
+  },
+  "contentMenuCopyMd": {
+    "message": "Salin MD"
+  },
+  "contentMenuExportHtml": {
+    "message": "Ekspor HTML"
+  },
+  "contentMenuExportDocx": {
+    "message": "Ekspor DOCX"
+  },
+  "contentMenuExportPdf": {
+    "message": "Ekspor PDF"
+  },
+  "contentMenuExportZip": {
+    "message": "Ekspor ZIP"
+  },
+  "contentStatusSaved": {
+    "message": "✓ Tersimpan!"
+  },
+  "contentStatusCopied": {
+    "message": "✓ Disalin!"
+  },
+  "contentStatusExporting": {
+    "message": "Mengekspor…"
+  },
+  "contentStatusExportStarted": {
+    "message": "✓ Ekspor $1 dimulai",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentStatusExportFailed": {
+    "message": "Ekspor gagal"
+  },
+  "contentNoMessagesFound": {
+    "message": "Tidak ada pesan yang ditemukan"
+  },
+  "settingsPageTitle": {
+    "message": "Inkpour — Pengaturan"
+  },
+  "settingsFormatOptionMd": {
+    "message": "Markdown (.md)"
+  },
+  "settingsFormatOptionPdf": {
+    "message": "PDF"
+  },
+  "settingsFormatOptionHtml": {
+    "message": "HTML"
+  },
+  "settingsFormatOptionJson": {
+    "message": "JSON"
+  },
+  "settingsFormatOptionZip": {
+    "message": "ZIP (chat + file kode)"
+  }
+}

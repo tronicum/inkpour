@@ -1,0 +1,857 @@
+{
+  "extName": {
+    "message": "Inkpour",
+    "description": "Extension name shown in browser toolbar and stores"
+  },
+  "extDescription": {
+    "message": "خروجی گرفتن از گفتگوهای چت هوش مصنوعی (ChatGPT، Claude، Gemini، Copilot و موارد دیگر) به‌صورت Markdown، PDF، HTML، DOCX یا ZIP.",
+    "description": "Extension description shown in browser stores"
+  },
+  "cmdExportMarkdown": {
+    "message": "خروجی گرفتن از چت فعلی به Markdown",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyMarkdown": {
+    "message": "کپی کردن چت فعلی به‌صورت Markdown در کلیپ‌بورد",
+    "description": "Keyboard command description"
+  },
+  "cmdExportPdf": {
+    "message": "خروجی گرفتن از چت فعلی به PDF",
+    "description": "Keyboard command description"
+  },
+  "cmdUploadGist": {
+    "message": "بارگذاری چت فعلی در GitHub Gist",
+    "description": "Keyboard command description"
+  },
+  "cmdCopyHtml": {
+    "message": "کپی کردن چت فعلی به‌صورت HTML مستقل در کلیپ‌بورد",
+    "description": "Keyboard command description"
+  },
+  "cmdExportJson": {
+    "message": "خروجی گرفتن از چت فعلی به JSON",
+    "description": "Keyboard command description"
+  },
+  "cmdExportZip": {
+    "message": "خروجی گرفتن از چت فعلی به‌صورت ZIP (chat.md + فایل‌های کد)",
+    "description": "Keyboard command description"
+  },
+  "cmdExportDocx": {
+    "message": "خروجی گرفتن از چت فعلی به سند Word (.docx)",
+    "description": "Keyboard command description"
+  },
+  "popupTagline": {
+    "message": "خروجی گرفتن از چت‌های هوش مصنوعی · MD، PDF، HTML، JSON، ZIP",
+    "description": "Popup header subtitle"
+  },
+  "popupSettingsTitle": {
+    "message": "تنظیمات",
+    "description": "Settings gear button tooltip/aria-label in popup"
+  },
+  "popupExportAsLabel": {
+    "message": "خروجی به‌صورت",
+    "description": "Section label above the export format buttons"
+  },
+  "popupMdBtnTitle": {
+    "message": "خروجی به Markdown (Alt+Shift+M)",
+    "description": "MD button tooltip"
+  },
+  "popupPdfBtnTitle": {
+    "message": "خروجی به PDF",
+    "description": "PDF button tooltip"
+  },
+  "popupHtmlBtnTitle": {
+    "message": "خروجی به HTML",
+    "description": "HTML button tooltip"
+  },
+  "popupJsonBtnTitle": {
+    "message": "خروجی به JSON (Alt+Shift+J)",
+    "description": "JSON button tooltip"
+  },
+  "popupDocxBtnTitle": {
+    "message": "خروجی به سند Word (.docx)",
+    "description": "DOCX button tooltip"
+  },
+  "popupCopyBtnTitle": {
+    "message": "کپی کردن Markdown در کلیپ‌بورد (Alt+Shift+C)",
+    "description": "Copy MD button tooltip"
+  },
+  "popupCopyHtmlBtnTitle": {
+    "message": "کپی کردن HTML مستقل در کلیپ‌بورد (Alt+Shift+H)",
+    "description": "Copy HTML button tooltip"
+  },
+  "popupZipBtnTitle": {
+    "message": "خروجی ZIP همراه با chat.md و فایل‌های کد استخراج‌شده (Alt+Shift+Z)",
+    "description": "ZIP button tooltip"
+  },
+  "popupGistBtnTitle": {
+    "message": "بارگذاری Markdown در GitHub Gist",
+    "description": "Gist button tooltip"
+  },
+  "popupAllBtnTitle": {
+    "message": "خروجی هم‌زمان MD + DOCX + ZIP",
+    "description": "Export All button tooltip"
+  },
+  "popupBtnMd": {
+    "message": "MD"
+  },
+  "popupBtnPdf": {
+    "message": "PDF"
+  },
+  "popupBtnHtml": {
+    "message": "HTML"
+  },
+  "popupBtnJson": {
+    "message": "JSON"
+  },
+  "popupBtnDocx": {
+    "message": "DOCX"
+  },
+  "popupBtnCopyMd": {
+    "message": "کپی MD"
+  },
+  "popupBtnCopyHtml": {
+    "message": "کپی HTML"
+  },
+  "popupBtnZip": {
+    "message": "ZIP"
+  },
+  "popupBtnGist": {
+    "message": "Gist ↑"
+  },
+  "popupBtnExportAll": {
+    "message": "⬇ خروجی همه (MD + DOCX + ZIP)"
+  },
+  "popupIncrementalBtnTitle": {
+    "message": "فقط پیام‌های افزوده‌شده از آخرین خروجی گرفتن را خروجی می‌گیرد",
+    "description": "Export new only button tooltip"
+  },
+  "popupBtnExportNewOnly": {
+    "message": "فقط موارد جدید را خروجی بگیر"
+  },
+  "popupTitleInputPlaceholder": {
+    "message": "عنوان چت…"
+  },
+  "popupNotesPlaceholder": {
+    "message": "افزودن یادداشت شخصی — به‌صورت نقل‌قول در ابتدای خروجی درج می‌شود…"
+  },
+  "popupNotesToggleAdd": {
+    "message": "+ افزودن یادداشت"
+  },
+  "popupNotesToggleHide": {
+    "message": "− پنهان کردن یادداشت"
+  },
+  "popupSelectToggleOpen": {
+    "message": "☑ انتخاب پیام‌ها"
+  },
+  "popupSelectToggleClose": {
+    "message": "✕ بستن انتخابگر"
+  },
+  "popupSelectAll": {
+    "message": "همه"
+  },
+  "popupSelectNone": {
+    "message": "هیچ‌کدام"
+  },
+  "popupSelectUserOnly": {
+    "message": "فقط کاربر"
+  },
+  "popupSelectAIOnly": {
+    "message": "فقط هوش مصنوعی"
+  },
+  "popupHistoryBtn": {
+    "message": "⏱ تاریخچه"
+  },
+  "popupSettingsBtn": {
+    "message": "⚙ تنظیمات"
+  },
+  "popupStatusExtracting": {
+    "message": "در حال استخراج…"
+  },
+  "popupStatusExtractingMessages": {
+    "message": "در حال استخراج پیام‌ها…"
+  },
+  "popupStatusLoadingOlder": {
+    "message": "در حال بارگذاری پیام‌های قدیمی‌تر…"
+  },
+  "popupStatusAiStillGenerating": {
+    "message": "هوش مصنوعی هنوز در حال تولید پاسخ است — پس از پایان خروجی بگیرید"
+  },
+  "popupStatusSavedCheckDownloads": {
+    "message": "✓ ذخیره شد — پوشه دانلودهای خود را بررسی کنید"
+  },
+  "popupStatusMarkdownCopied": {
+    "message": "✓ Markdown در کلیپ‌بورد کپی شد"
+  },
+  "popupStatusHtmlCopied": {
+    "message": "✓ HTML کپی شد — آن را در هر ویرایشگری جای‌گذاری کنید"
+  },
+  "popupStatusZipSaved": {
+    "message": "✓ ZIP ذخیره شد — chat.md",
+    "description": "Prefix; extra code-file count is appended in JS"
+  },
+  "popupCodeFileOne": {
+    "message": " + $1 فایل کد",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeFileOther": {
+    "message": " + $1 فایل کد",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupStatusExportAllSaved": {
+    "message": "✓ MD + DOCX + ZIP ذخیره شد"
+  },
+  "popupStatusGistTokenMissing": {
+    "message": "ابتدا یک توکن GitHub در تنظیمات اضافه کنید."
+  },
+  "popupStatusGistUploading": {
+    "message": "در حال بارگذاری در GitHub Gist…"
+  },
+  "popupStatusGistCreated": {
+    "message": "✓ Gist ایجاد شد"
+  },
+  "popupStatusGistUploadFailed": {
+    "message": "بارگذاری Gist ناموفق بود"
+  },
+  "popupStatusNotSupportedPage": {
+    "message": "این یک صفحه چت هوش مصنوعی پشتیبانی‌شده نیست. Inkpour را در ChatGPT، Claude، Gemini، Google Search یا پلتفرم پشتیبانی‌شده دیگری باز کنید."
+  },
+  "popupStatusRefreshTab": {
+    "message": "تب چت را تازه‌سازی کنید و دوباره تلاش کنید. (Content script در حال اجرا نیست — این تب پیش از بارگذاری افزونه باز بوده است.)"
+  },
+  "popupStatusNoResponse": {
+    "message": "پاسخی از صفحه دریافت نشد. تازه‌سازی تب را امتحان کنید."
+  },
+  "popupStatusNoMessagesFound": {
+    "message": "هیچ پیامی یافت نشد."
+  },
+  "popupStatusCannotAccessTab": {
+    "message": "دسترسی به تب فعلی ممکن نیست."
+  },
+  "popupStatusNoNewMessages": {
+    "message": "پیام جدیدی برای خروجی گرفتن وجود ندارد."
+  },
+  "popupMsgCountOne": {
+    "message": "آماده · $COUNT$ پیام$ROLES$ · حدود $WORDS$ کلمه · حدود $READMIN$ دقیقه مطالعه$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupMsgCountOther": {
+    "message": "آماده · $COUNT$ پیام$ROLES$ · حدود $WORDS$ کلمه · حدود $READMIN$ دقیقه مطالعه$CODE$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "roles": {
+        "content": "$2"
+      },
+      "words": {
+        "content": "$3"
+      },
+      "readmin": {
+        "content": "$4"
+      },
+      "code": {
+        "content": "$5"
+      }
+    }
+  },
+  "popupCodeBlockOne": {
+    "message": " · $1 بلوک کد",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCodeBlockOther": {
+    "message": " · $1 بلوک کد",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupLastExport": {
+    "message": "آخرین: $PLATFORM$ · $COUNT$ پیام$FORMAT$ · $WHEN$",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      },
+      "when": {
+        "content": "$4"
+      }
+    }
+  },
+  "popupLastExportJustNow": {
+    "message": "آخرین: $PLATFORM$ · $COUNT$ پیام · $FORMAT$ · همین الان",
+    "placeholders": {
+      "platform": {
+        "content": "$1"
+      },
+      "count": {
+        "content": "$2"
+      },
+      "format": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupNewMessageOne": {
+    "message": "+$COUNT$ پیام جدید از زمان خروجی گرفتن $WHEN$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupNewMessageOther": {
+    "message": "+$COUNT$ پیام جدید از زمان خروجی گرفتن $WHEN$",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOne": {
+    "message": "$COUNT$ پیام جدید از آخرین خروجی‌گیری شما ($WHEN$) — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupIncrementalHintOther": {
+    "message": "$COUNT$ پیام جدید از آخرین خروجی‌گیری شما ($WHEN$) — ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "when": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupSavedNewMessagesOne": {
+    "message": "✓ $COUNT$ پیام جدید ذخیره شد — پوشه دانلودهای خود را بررسی کنید",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupSavedNewMessagesOther": {
+    "message": "✓ $COUNT$ پیام جدید ذخیره شد — پوشه دانلودهای خود را بررسی کنید",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeJustNow": {
+    "message": "همین الان"
+  },
+  "timeMinutesAgo": {
+    "message": "$1 دقیقه پیش",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeHoursAgo": {
+    "message": "$1 ساعت پیش",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeDaysAgo": {
+    "message": "$1 روز پیش",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsHeaderTitle": {
+    "message": "تنظیمات Inkpour"
+  },
+  "settingsHeaderSubtitle": {
+    "message": "تنظیمات به‌صورت محلی در مرورگر شما ذخیره می‌شود"
+  },
+  "settingsBrowserDetecting": {
+    "message": "در حال تشخیص…"
+  },
+  "settingsBrowserBadge": {
+    "message": "به‌طور خودکار تشخیص داده شد"
+  },
+  "settingsBrowserFirefoxName": {
+    "message": "Firefox"
+  },
+  "settingsBrowserFirefoxNote": {
+    "message": "پشتیبانی کامل — همه فرمت‌های خروجی"
+  },
+  "settingsBrowserChromeName": {
+    "message": "Chrome / Brave"
+  },
+  "settingsBrowserChromeNote": {
+    "message": "پشتیبانی کامل — همه فرمت‌های خروجی"
+  },
+  "settingsBrowserEdgeName": {
+    "message": "Microsoft Edge"
+  },
+  "settingsBrowserEdgeNote": {
+    "message": "پشتیبانی کامل — همه فرمت‌های خروجی"
+  },
+  "settingsBrowserSafariName": {
+    "message": "Safari"
+  },
+  "settingsBrowserSafariNote": {
+    "message": "آزمایشی — ممکن است رفتار PDF متفاوت باشد"
+  },
+  "settingsBrowserUnknownName": {
+    "message": "مرورگر ناشناخته"
+  },
+  "settingsBrowserUnknownNote": {
+    "message": "ممکن است کار کند — در صورت بروز مشکل گزارش دهید"
+  },
+  "settingsSectionExport": {
+    "message": "خروجی گرفتن"
+  },
+  "settingsSectionIntegrations": {
+    "message": "یکپارچه‌سازی‌ها"
+  },
+  "settingsDefaultFormatLabel": {
+    "message": "فرمت پیش‌فرض"
+  },
+  "settingsDefaultFormatDesc": {
+    "message": "کدام دکمه ابتدا فوکوس صفحه‌کلید را دریافت می‌کند"
+  },
+  "settingsFilenameTemplateLabel": {
+    "message": "قالب نام فایل"
+  },
+  "settingsFilenameTemplateDesc": {
+    "message": "نشانه‌ها: {platform} {title} {date} {time} {url} {words} {msgcount}"
+  },
+  "settingsPdfAutoPrintLabel": {
+    "message": "چاپ خودکار PDF"
+  },
+  "settingsPdfAutoPrintDesc": {
+    "message": "پس از بارگذاری تب PDF، پنجره چاپ به‌طور خودکار باز می‌شود"
+  },
+  "settingsYamlLabel": {
+    "message": "افزودن سرصفحه YAML"
+  },
+  "settingsYamlDesc": {
+    "message": "عنوان، تاریخ، پلتفرم و آدرس URL را به ابتدای فایل‌های ‎.md‎ اضافه می‌کند"
+  },
+  "settingsTocLabel": {
+    "message": "ایجاد فهرست مطالب"
+  },
+  "settingsTocDesc": {
+    "message": "برای چت‌های با بیش از ۴ پیام، فهرست مطالبی قابل‌کلیک در ابتدا اضافه می‌کند"
+  },
+  "settingsSubfolderLabel": {
+    "message": "زیرپوشه دانلودها"
+  },
+  "settingsSubfolderDesc": {
+    "message": "مسیر فرعی اختیاری در پوشه دانلود پیش‌فرض شما (مثلاً AI Chats)"
+  },
+  "settingsSubfolderPlaceholder": {
+    "message": "مثلاً AI Chats"
+  },
+  "settingsObsidianVaultLabel": {
+    "message": "زیرپوشه مخزن Obsidian"
+  },
+  "settingsObsidianVaultDesc": {
+    "message": "در صورت تنظیم، خروجی‌ها به این زیرپوشه در Downloads می‌روند — برای مخازن Obsidian مفید است. جایگزین فیلد زیرپوشه بالا می‌شود."
+  },
+  "settingsObsidianTagsLabel": {
+    "message": "برچسب‌های Obsidian در YAML"
+  },
+  "settingsObsidianTagsDesc": {
+    "message": "tags: [ai-chat, {platform}] را به سرصفحه اضافه می‌کند (نیازمند فعال بودن YAML)"
+  },
+  "settingsGithubTokenLabel": {
+    "message": "توکن GitHub"
+  },
+  "settingsGithubTokenDesc": {
+    "message": "توکن دسترسی شخصی با دامنه gist — دکمه «بارگذاری در Gist» را در پاپ‌آپ فعال می‌کند."
+  },
+  "settingsGithubTokenLink": {
+    "message": "ساخت یک توکن →"
+  },
+  "settingsGistVisibilityLabel": {
+    "message": "قابلیت مشاهده Gist"
+  },
+  "settingsGistVisibilityDesc": {
+    "message": "Gistهای مخفی در فهرست عمومی نمایش داده نمی‌شوند (هرکسی که لینک را داشته باشد می‌تواند آن را ببیند)"
+  },
+  "settingsGistSecretOption": {
+    "message": "مخفی (فهرست نشده)"
+  },
+  "settingsGistPublicOption": {
+    "message": "عمومی"
+  },
+  "settingsGistTagsLabel": {
+    "message": "برچسب‌های Gist"
+  },
+  "settingsGistTagsDesc": {
+    "message": "برچسب‌های اضافی که با کاما جدا می‌شوند و به سرصفحه YAML هر خروجی Gist افزوده می‌شوند. بعداً می‌توانید Gistهای خود را در GitHub با user:you \"tag\" جستجو کنید. برچسب ai-chat و نام پلتفرم همیشه به‌طور خودکار اضافه می‌شوند."
+  },
+  "settingsGistTagsPlaceholder": {
+    "message": "کار، پروژه-ایکس، پژوهش"
+  },
+  "settingsScrubLabel": {
+    "message": "پاک‌سازی اطلاعات حساس پیش از بارگذاری"
+  },
+  "settingsScrubDesc": {
+    "message": "کلیدهای API، توکن‌ها و ایمیل‌های احتمالی را پیش از بارگذاری در Gist/webhook پنهان می‌کند"
+  },
+  "settingsWebhookUrlLabel": {
+    "message": "آدرس Webhook"
+  },
+  "settingsWebhookUrlDesc": {
+    "message": "پس از هر خروجی، Inkpour یک درخواست POST همراه با ابرداده‌های خروجی (عنوان، پلتفرم، فرمت، تعداد کلمات) به این آدرس ارسال می‌کند. با n8n، Zapier، Make.com یا هر نقطه پایانی HTTP دیگری کار می‌کند."
+  },
+  "settingsWebhookContentLabel": {
+    "message": "گنجاندن محتوا در webhook"
+  },
+  "settingsWebhookContentDesc": {
+    "message": "متن کامل خروجی را در بار داده webhook ارسال می‌کند (برای چت‌های طولانی حجم بار داده را به‌طور قابل‌توجهی افزایش می‌دهد)"
+  },
+  "settingsSaveBtn": {
+    "message": "ذخیره"
+  },
+  "settingsSavedStatus": {
+    "message": "✓ ذخیره شد"
+  },
+  "historyHeaderTitle": {
+    "message": "تاریخچه خروجی‌ها"
+  },
+  "historyHeaderSubtitle": {
+    "message": "۲۰ خروجی اخیر — ذخیره‌شده به‌صورت محلی و هرگز بارگذاری‌نشده"
+  },
+  "historySearchPlaceholder": {
+    "message": "جستجوی عنوان، پلتفرم یا محتوای گفتگو…"
+  },
+  "historyClearRecent": {
+    "message": "پاک کردن موارد اخیر"
+  },
+  "historyClearAll": {
+    "message": "پاک کردن همه"
+  },
+  "historyClearStarred": {
+    "message": "پاک کردن ★"
+  },
+  "historyClearRecentTitle": {
+    "message": "پاک کردن تاریخچه اخیر (خروجی‌های ستاره‌دار حفظ می‌شوند)"
+  },
+  "historyClearAllTitle": {
+    "message": "پاک کردن کل تاریخچه خروجی‌ها"
+  },
+  "historyEmptyTitle": {
+    "message": "📭"
+  },
+  "historyEmptyBody": {
+    "message": "هنوز هیچ خروجی‌ای وجود ندارد. برای مشاهده در اینجا، یک چت را از پاپ‌آپ خروجی بگیرید."
+  },
+  "historyBackLink": {
+    "message": "← بازگشت به پاپ‌آپ"
+  },
+  "historyStorageNote": {
+    "message": "محتوا در فضای ذخیره‌سازی افزونه مرورگر نگهداری می‌شود"
+  },
+  "historyStatExports": {
+    "message": "خروجی‌ها"
+  },
+  "historyStatWords": {
+    "message": "مجموع کلمات"
+  },
+  "historyStatPlatform": {
+    "message": "پرکاربردترین پلتفرم"
+  },
+  "historyStatFormat": {
+    "message": "پرکاربردترین فرمت"
+  },
+  "historySectionStarred": {
+    "message": "★ ستاره‌دار"
+  },
+  "historySectionRecent": {
+    "message": "اخیر"
+  },
+  "historyStarPin": {
+    "message": "افزودن به ستاره‌دارها"
+  },
+  "historyStarUnpin": {
+    "message": "حذف از ستاره‌دارها"
+  },
+  "historyActionSave": {
+    "message": "↓ ذخیره"
+  },
+  "historyActionCopy": {
+    "message": "⎘ کپی"
+  },
+  "historyActionCopied": {
+    "message": "✓ کپی شد"
+  },
+  "historyActionGist": {
+    "message": "↗ Gist"
+  },
+  "historyNoExportsYet": {
+    "message": "هنوز هیچ خروجی‌ای وجود ندارد"
+  },
+  "historyMatchCountOne": {
+    "message": "$1 از $2 مورد منطبق",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyMatchCountOther": {
+    "message": "$1 از $2 مورد منطبق",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyFilteredCount": {
+    "message": "$1 از $2 خروجی",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyExportCountOne": {
+    "message": "$1 خروجی",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyExportCountOther": {
+    "message": "$1 خروجی",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "historyLifetimeStatsOne": {
+    "message": "مجموع کل: $1 خروجی$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyLifetimeStatsOther": {
+    "message": "مجموع کل: $1 خروجی$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "historyConfirmClearRecent": {
+    "message": "تاریخچه اخیر پاک شود؟ خروجی‌های ستاره‌دار حفظ خواهند شد."
+  },
+  "historyConfirmClearAll": {
+    "message": "کل تاریخچه خروجی‌ها پاک شود؟ این عملیات قابل بازگشت نیست."
+  },
+  "historyConfirmClearStarred": {
+    "message": "همه خروجی‌های ستاره‌دار حذف شوند؟ این عملیات قابل بازگشت نیست."
+  },
+  "printLoading": {
+    "message": "در حال بارگذاری گفتگو…"
+  },
+  "printNoContent": {
+    "message": "Inkpour: محتوایی یافت نشد. دوباره خروجی بگیرید."
+  },
+  "printGenericErrorPrefix": {
+    "message": "خطای Inkpour:"
+  },
+  "contentFabTitle": {
+    "message": "Inkpour — خروجی گرفتن از این چت"
+  },
+  "contentToastRedactedOne": {
+    "message": "$1 مورد ($2) پیش از بارگذاری پنهان شد.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastRedactedOther": {
+    "message": "$1 مورد ($2) پیش از بارگذاری پنهان شد.",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "contentToastGistFailedNetwork": {
+    "message": "✗ بارگذاری Gist ناموفق بود (خطای شبکه)"
+  },
+  "contentToastGistFailed": {
+    "message": "✗ بارگذاری Gist ناموفق بود: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentToastGistCreated": {
+    "message": "✓ Gist ایجاد شد"
+  },
+  "popupSelectCount": {
+    "message": "$1 از $2 انتخاب شد",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupPlatformDetected": {
+    "message": "✓ $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupPlatformCount": {
+    "message": "$1 پلتفرم پشتیبانی می‌شود",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentMenuExportMd": {
+    "message": "خروجی MD"
+  },
+  "contentMenuCopyMd": {
+    "message": "کپی MD"
+  },
+  "contentMenuExportHtml": {
+    "message": "خروجی HTML"
+  },
+  "contentMenuExportDocx": {
+    "message": "خروجی DOCX"
+  },
+  "contentMenuExportPdf": {
+    "message": "خروجی PDF"
+  },
+  "contentMenuExportZip": {
+    "message": "خروجی ZIP"
+  },
+  "contentStatusSaved": {
+    "message": "✓ ذخیره شد!"
+  },
+  "contentStatusCopied": {
+    "message": "✓ کپی شد!"
+  },
+  "contentStatusExporting": {
+    "message": "در حال خروجی گرفتن…"
+  },
+  "contentStatusExportStarted": {
+    "message": "✓ خروجی $1 آغاز شد",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentStatusExportFailed": {
+    "message": "خروجی گرفتن ناموفق بود"
+  },
+  "contentNoMessagesFound": {
+    "message": "هیچ پیامی یافت نشد"
+  },
+  "settingsPageTitle": {
+    "message": "Inkpour — تنظیمات"
+  },
+  "settingsFormatOptionMd": {
+    "message": "Markdown (.md)"
+  },
+  "settingsFormatOptionPdf": {
+    "message": "PDF"
+  },
+  "settingsFormatOptionHtml": {
+    "message": "HTML"
+  },
+  "settingsFormatOptionJson": {
+    "message": "JSON"
+  },
+  "settingsFormatOptionZip": {
+    "message": "ZIP (چت + فایل‌های کد)"
+  }
+}

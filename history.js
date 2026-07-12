@@ -7,6 +7,9 @@
   'use strict';
 
   const api = (typeof browser !== 'undefined') ? browser : chrome;
+  const t = (key, subs) => (typeof InkpourI18n !== 'undefined' ? InkpourI18n : window.InkpourI18n).t(key, subs);
+  (typeof InkpourI18n !== 'undefined' ? InkpourI18n : window.InkpourI18n).applyI18n(document);
+  (typeof InkpourI18n !== 'undefined' ? InkpourI18n : window.InkpourI18n).applyDirection(document);
 
   const historyList     = document.getElementById('historyList');
   const emptyState      = document.getElementById('emptyState');
@@ -46,12 +49,12 @@
   function formatRelativeTime(isoString) {
     const diff    = Date.now() - new Date(isoString).getTime();
     const minutes = Math.floor(diff / 60_000);
-    if (minutes < 1)  return 'just now';
-    if (minutes < 60) return `${minutes}m ago`;
+    if (minutes < 1)  return t('timeJustNow');
+    if (minutes < 60) return t('timeMinutesAgo', [String(minutes)]);
     const hours = Math.floor(minutes / 60);
-    if (hours < 24)   return `${hours}h ago`;
+    if (hours < 24)   return t('timeHoursAgo', [String(hours)]);
     const days = Math.floor(hours / 24);
-    if (days < 7)     return `${days}d ago`;
+    if (days < 7)     return t('timeDaysAgo', [String(days)]);
     return new Date(isoString).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
   }
 
@@ -147,31 +150,91 @@
     const msgs  = entry.messageCount ? `${entry.messageCount} msgs` : '';
     const stats = [msgs, words].filter(Boolean).join(' · ');
 
-    const isCopy     = entry.format.startsWith('copy-');
     const isGist     = entry.format === 'gist';
     const hasContent = !!entry.content;
     const isStarred  = starredIds.has(entry.id);
     const starLabel  = isStarred ? '★' : '☆';
-    const starTitle  = isStarred ? 'Unpin from starred' : 'Pin to starred';
+    const starTitle  = isStarred ? t('historyStarUnpin') : t('historyStarPin');
 
-    el.innerHTML = /* safe: all user fields HTML-escaped inline (title via replace, platform/format are enum values, gistUrl validated as https:// URL) */ `
-      <div class="entry-icon">${icon}</div>
-      <div class="entry-meta">
-        <div class="entry-title" title="${entry.title.replace(/"/g, '&quot;')}">${entry.title}</div>
-        <div class="entry-details">
-          <span class="badge">${entry.platform}</span>
-          <span class="badge ${fmtClass}">${fmtLabel}</span>
-          ${stats ? `<span>${stats}</span>` : ''}
-          <span>${when}</span>
-        </div>
-      </div>
-      <div class="entry-actions">
-        <button class="btn-action star-btn ${isStarred ? 'starred' : ''}" data-action="star" title="${starTitle}">${starLabel}</button>
-        ${isGist && entry.gistUrl && entry.gistUrl.startsWith('https://')
-          ? `<a class="btn-action" href="${entry.gistUrl}" target="_blank" rel="noopener" style="text-decoration:none">↗ Gist</a>`
-          : hasContent ? `<button class="btn-action" data-action="download">↓ Save</button>` : ''}
-        ${hasContent ? `<button class="btn-action secondary" data-action="copy">⎘ Copy</button>` : ''}
-      </div>`;
+    // ── entry-icon ──
+    const iconEl = document.createElement('div');
+    iconEl.className = 'entry-icon';
+    iconEl.textContent = icon;
+
+    // ── entry-meta ──
+    const metaEl = document.createElement('div');
+    metaEl.className = 'entry-meta';
+
+    const titleEl = document.createElement('div');
+    titleEl.className = 'entry-title';
+    titleEl.title = entry.title;
+    titleEl.textContent = entry.title;
+
+    const detailsEl = document.createElement('div');
+    detailsEl.className = 'entry-details';
+
+    const platformBadge = document.createElement('span');
+    platformBadge.className = 'badge';
+    platformBadge.textContent = entry.platform;
+    detailsEl.appendChild(platformBadge);
+
+    const formatBadge = document.createElement('span');
+    formatBadge.className = `badge ${fmtClass}`;
+    formatBadge.textContent = fmtLabel;
+    detailsEl.appendChild(formatBadge);
+
+    if (stats) {
+      const statsSpan = document.createElement('span');
+      statsSpan.textContent = stats;
+      detailsEl.appendChild(statsSpan);
+    }
+
+    const whenSpan = document.createElement('span');
+    whenSpan.textContent = when;
+    detailsEl.appendChild(whenSpan);
+
+    metaEl.appendChild(titleEl);
+    metaEl.appendChild(detailsEl);
+
+    // ── entry-actions ──
+    const actionsEl = document.createElement('div');
+    actionsEl.className = 'entry-actions';
+
+    const starBtn = document.createElement('button');
+    starBtn.className = `btn-action star-btn ${isStarred ? 'starred' : ''}`;
+    starBtn.dataset.action = 'star';
+    starBtn.title = starTitle;
+    starBtn.textContent = starLabel;
+    actionsEl.appendChild(starBtn);
+
+    if (isGist && entry.gistUrl && entry.gistUrl.startsWith('https://')) {
+      const gistLink = document.createElement('a');
+      gistLink.className = 'btn-action';
+      gistLink.href = entry.gistUrl;
+      gistLink.target = '_blank';
+      gistLink.rel = 'noopener';
+      gistLink.style.textDecoration = 'none';
+      gistLink.textContent = t('historyActionGist');
+      actionsEl.appendChild(gistLink);
+    } else if (hasContent) {
+      const downloadBtn = document.createElement('button');
+      downloadBtn.className = 'btn-action';
+      downloadBtn.dataset.action = 'download';
+      downloadBtn.textContent = t('historyActionSave');
+      actionsEl.appendChild(downloadBtn);
+    }
+
+    if (hasContent) {
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'btn-action secondary';
+      copyBtn.dataset.action = 'copy';
+      copyBtn.textContent = t('historyActionCopy');
+      actionsEl.appendChild(copyBtn);
+    }
+
+    el.appendChild(iconEl);
+    el.appendChild(metaEl);
+    el.appendChild(actionsEl);
 
     el.querySelector('[data-action="star"]').addEventListener('click', async (e) => {
       e.stopPropagation();
@@ -186,7 +249,7 @@
       await copyContent(entry);
       const btn = e.currentTarget;
       const orig = btn.textContent;
-      btn.textContent = '✓ Copied';
+      btn.textContent = t('historyActionCopied');
       setTimeout(() => { btn.textContent = orig; }, 1500);
     });
 
@@ -255,30 +318,33 @@
     const totalFiltered = totalStarred + filteredRecent.length;
     const totalAll      = starredOnly.length + allEntries.length;
 
-    historyList.innerHTML = '';
+    historyList.textContent = '';
     if (totalFiltered === 0 && totalAll === 0) {
       emptyState.hidden = false;
-      countLabel.textContent = 'No exports yet';
+      countLabel.textContent = t('historyNoExportsYet');
       return;
     }
     if (totalFiltered === 0 && q) {
       emptyState.hidden = false;
-      countLabel.textContent = `0 of ${totalAll} match`;
+      countLabel.textContent = t(
+        totalAll === 1 ? 'historyMatchCountOne' : 'historyMatchCountOther',
+        ['0', String(totalAll)]
+      );
       return;
     }
 
     emptyState.hidden = true;
     countLabel.textContent = q
-      ? `${totalFiltered} of ${totalAll} exports`
-      : `${totalAll} export${totalAll !== 1 ? 's' : ''}`;
+      ? t('historyFilteredCount', [String(totalFiltered), String(totalAll)])
+      : t(totalAll === 1 ? 'historyExportCountOne' : 'historyExportCountOther', [String(totalAll)]);
 
     // Starred section (pinned-only first, then starred-recent)
     if (totalStarred > 0) {
-      renderSection('★ Starred', [...filteredStarredOnly, ...filteredStarredRecent], true);
+      renderSection(t('historySectionStarred'), [...filteredStarredOnly, ...filteredStarredRecent], true);
     }
     // Recent section
     if (filteredRecent.length > 0) {
-      if (totalStarred > 0) renderSection('Recent', filteredRecent, false);
+      if (totalStarred > 0) renderSection(t('historySectionRecent'), filteredRecent, false);
       else for (const entry of filteredRecent) historyList.appendChild(renderEntry(entry));
     }
   }
@@ -334,7 +400,10 @@
     note.style.marginTop = '8px';
     note.style.fontSize  = '11px';
     note.style.color     = 'var(--subtext)';
-    note.textContent = `All time: ${ls.exports} export${ls.exports !== 1 ? 's' : ''}${wordsNote}`;
+    note.textContent = t(
+      ls.exports === 1 ? 'historyLifetimeStatsOne' : 'historyLifetimeStatsOther',
+      [String(ls.exports), wordsNote]
+    );
     footer.appendChild(note);
   }
 
@@ -347,10 +416,10 @@
     starredIds   = new Set(starredStore.map(r => r.id));
 
     clearBtn.disabled   = allEntries.length === 0;
-    clearBtn.textContent = starredStore.length > 0 ? 'Clear recent' : 'Clear all';
+    clearBtn.textContent = starredStore.length > 0 ? t('historyClearRecent') : t('historyClearAll');
     clearBtn.title      = starredStore.length > 0
-      ? 'Clear recent history (starred exports are kept)'
-      : 'Clear all export history';
+      ? t('historyClearRecentTitle')
+      : t('historyClearAllTitle');
     if (clearStarredBtn) clearStarredBtn.hidden = starredStore.length === 0;
     renderStats([...allEntries, ...starredStore.filter(e => !new Set(allEntries.map(x=>x.id)).has(e.id))]);
     applyFilter(searchBox?.value ?? '');
@@ -366,13 +435,13 @@
   clearBtn.addEventListener('click', async () => {
     const hasStarred = starredStore.length > 0;
     const msg = hasStarred
-      ? 'Clear recent history? Starred exports will be kept.'
-      : 'Clear all export history? This cannot be undone.';
+      ? t('historyConfirmClearRecent')
+      : t('historyConfirmClearAll');
     if (!confirm(msg)) return;
     await api.storage.local.remove('inkpour_history');
     allEntries = [];
     clearBtn.disabled    = true;
-    clearBtn.textContent = starredStore.length > 0 ? 'Clear recent' : 'Clear all';
+    clearBtn.textContent = starredStore.length > 0 ? t('historyClearRecent') : t('historyClearAll');
     if (searchBox) searchBox.value = '';
     starredIds = new Set(starredStore.map(r => r.id));
     renderStats(starredStore);
@@ -382,7 +451,7 @@
   // ─── Clear starred ─────────────────────────────────────────────────────────
 
   clearStarredBtn?.addEventListener('click', async () => {
-    if (!confirm('Remove all starred exports? This cannot be undone.')) return;
+    if (!confirm(t('historyConfirmClearStarred'))) return;
     await api.storage.local.remove('inkpour_starred');
     starredStore = [];
     starredIds   = new Set();
