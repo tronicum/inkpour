@@ -62,6 +62,16 @@
   // Used by the "Export new only" button to know where to slice from.
   let incrementalPrevEntry = null;
 
+  // Storage key for a pending clipboard import (see "Import from clipboard"
+  // below). Declared here, ahead of the pending-import-restore IIFE further
+  // down that reads it via loadImportState()/clearImportState() — those are
+  // hoisted function declarations so they're callable early, but this `const`
+  // is not: reading it before this line executes throws "Cannot access
+  // 'PENDING_IMPORT_KEY' before initialization", which the try/catch inside
+  // loadImportState() was silently swallowing, making the whole
+  // restore-pending-import-on-reopen feature a no-op on every popup load.
+  const PENDING_IMPORT_KEY = 'inkpour_pending_import';
+
   const SETTING_DEFAULTS = {
     defaultFormat:      'md',
     yamlFrontMatter:    false,
@@ -366,9 +376,30 @@
   });
 
   // A pending import survives popup close/reopen (see "Import from
-  // clipboard" below) and takes priority on load — only fall back to a live
-  // page peek when there's nothing pending.
+  // clipboard" below) purely so a quick focus-loss right after pasting
+  // (switching windows, taking a screenshot) doesn't wipe out unsaved work.
+  // It must NEVER outrank a live, supported chat tab — otherwise, once you've
+  // ever imported anything, every future popup open on ChatGPT/Gemini/Google/
+  // etc. would keep re-showing that same stale imported chat forever instead
+  // of the page you're actually looking at (this exact regression is what
+  // broke every export across every site after the History-persistence fix
+  // made this restore path actually fire for the first time — previously a
+  // TDZ bug silently no-op'd it, which is why it went unnoticed until now).
+  // So: only fall back to a pending import when the current tab is NOT
+  // itself a live chat page Inkpour can extract from.
   (async () => {
+    let onSupportedHost = false;
+    try {
+      const [tab] = await api.tabs.query({ active: true, currentWindow: true });
+      onSupportedHost = !!(tab?.url && isSupportedHost(tab.url));
+    } catch { /* ignore — treat as not-supported */ }
+
+    if (onSupportedHost) {
+      await clearImportState(); // live page wins; drop any stale pending import
+      runPeek();
+      return;
+    }
+
     const pending = await loadImportState();
     if (pending?.messages?.length) {
       restoreImportState(pending);
@@ -407,8 +438,6 @@
   // written to storage.local and restored on the next popup open, taking
   // priority over a fresh live-page peek until the user explicitly imports
   // something new or clicks the status bar to force a live refresh.
-
-  const PENDING_IMPORT_KEY = 'inkpour_pending_import';
 
   async function saveImportState(data) {
     try { await api.storage.local.set({ [PENDING_IMPORT_KEY]: data }); } catch { /* ignore */ }
