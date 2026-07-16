@@ -1059,6 +1059,310 @@ ${body}
   ]);
 }
 
+// ─── Import parsing ───────────────────────────────────────────────────────────
+// Turns raw pasted text (e.g. copied out of Apple Notes from a mobile chat
+// app) into the same {role, content} message shape every live extractor in
+// src/content.js produces, so imported conversations flow through the exact
+// same export/history pipeline as a captured page. This is a first-pass
+// heuristic — expected to be tweaked against real-world paste samples.
+
+// ─── Rich-text (HTML) clipboard → Markdown ───────────────────────────────────
+// When the paste event carries a "text/html" payload (copying directly out of
+// a browser tab, or out of an app whose share/paste channel preserves rich
+// text — Notes' behavior here varies by version/source), tables and bold/
+// italic formatting survive, where a plain-text paste would flatten a table
+// into an unreadable run of cell text. Regex-based on purpose (no DOMParser),
+// since this file is shared with background.js's service-worker context,
+// which has no DOM — same constraint mdToHTML() above already works under.
+
+function _htmlEntitiesDecode(s) {
+  return String(s)
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g,  '&')
+    .replace(/&lt;/g,   '<')
+    .replace(/&gt;/g,   '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g,  "'");
+}
+
+/** Inline HTML (bold/italic/code/links/br) → Markdown, for use inside a block. */
+function _htmlInlineToMarkdown(html) {
+  let s = String(html);
+  s = s.replace(/<br\s*\/?>/gi, '\n');
+  s = s.replace(/<(strong|b)>([\s\S]*?)<\/\1>/gi, '**$2**');
+  s = s.replace(/<(em|i)>([\s\S]*?)<\/\1>/gi, '*$2*');
+  s = s.replace(/<code>([\s\S]*?)<\/code>/gi, '`$1`');
+  s = s.replace(/<del>([\s\S]*?)<\/del>/gi, '~~$1~~');
+  s = s.replace(/<a\s+[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, '[$2]($1)');
+  s = s.replace(/<[^>]+>/g, ''); // drop any remaining span/font/etc. wrappers
+  return _htmlEntitiesDecode(s).trim();
+}
+
+/** One <table>...</table> → a Markdown pipe table. */
+function _htmlTableToMarkdown(tableHtml) {
+  const rows = [];
+  for (const trM of tableHtml.matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/gi)) {
+    const cells = [...trM[1].matchAll(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi)]
+      .map(m => _htmlInlineToMarkdown(m[1]).replace(/\|/g, '\\|').replace(/\n+/g, ' '));
+    if (cells.length) rows.push(cells);
+  }
+  if (!rows.length) return '';
+
+  const numCols = Math.max(...rows.map(r => r.length));
+  const pad = r => { while (r.length < numCols) r.push(''); return r; };
+  const [header, ...body] = rows.map(pad);
+  const line = cells => `| ${cells.join(' | ')} |`;
+  const sep  = `| ${Array(numCols).fill('---').join(' | ')} |`;
+  return [line(header), sep, ...body.map(line)].join('\n');
+}
+
+/**
+ * Converts clipboard HTML (from a "paste" event's text/html data) into
+ * Markdown text: tables, headings, bold/italic/code/links, lists, and
+ * paragraph breaks. Falls back gracefully — unrecognized tags are just
+ * stripped, so worst case you get plain text back, same as a normal paste.
+ * @param {string} html
+ * @returns {string}
+ */
+function htmlPasteToMarkdown(html) {
+  let s = String(html || '');
+  s = s.replace(/<!--[\s\S]*?-->/g, '');
+  s = s.replace(/<(script|style)[\s\S]*?<\/\1>/gi, '');
+
+  const blocks = [];
+
+  // Tables first (they contain their own <tr>/<td>, must not be touched by
+  // the later paragraph/list passes).
+  s = s.replace(/<table[^>]*>([\s\S]*?)<\/table>/gi, (_, inner) => {
+    const md = _htmlTableToMarkdown(inner);
+    blocks.push(md);
+    return `\x00BLOCK${blocks.length - 1}\x00`;
+  });
+
+  // Fenced code blocks.
+  s = s.replace(/<pre[^>]*>([\s\S]*?)<\/pre>/gi, (_, preInner) => {
+    const codeM = preInner.match(/<code([^>]*)>([\s\S]*?)<\/code>/i);
+    const attrs = codeM ? codeM[1] : '';
+    const code  = codeM ? codeM[2] : preInner;
+    const langM = attrs.match(/lang(?:uage)?-(\w+)/i);
+    blocks.push('```' + (langM ? langM[1] : '') + '\n' + _htmlEntitiesDecode(code.replace(/<[^>]+>/g, '')).trimEnd() + '\n```');
+    return `\x00BLOCK${blocks.length - 1}\x00`;
+  });
+
+  // Headings.
+  s = s.replace(/<h([1-6])[^>]*>([\s\S]*?)<\/h\1>/gi, (_, n, inner) =>
+    `\n\n${'#'.repeat(+n)} ${_htmlInlineToMarkdown(inner)}\n\n`);
+
+  // Lists — one line per <li>, "- " for <ul>, "1. " for <ol>.
+  s = s.replace(/<ul[^>]*>([\s\S]*?)<\/ul>/gi, (_, inner) =>
+    '\n\n' + [...inner.matchAll(/<li[^>]*>([\s\S]*?)<\/li>/gi)]
+      .map(m => `- ${_htmlInlineToMarkdown(m[1])}`).join('\n') + '\n\n');
+  s = s.replace(/<ol[^>]*>([\s\S]*?)<\/ol>/gi, (_, inner) => {
+    let i = 0;
+    return '\n\n' + [...inner.matchAll(/<li[^>]*>([\s\S]*?)<\/li>/gi)]
+      .map(m => `${++i}. ${_htmlInlineToMarkdown(m[1])}`).join('\n') + '\n\n';
+  });
+
+  // Blockquotes.
+  s = s.replace(/<blockquote[^>]*>([\s\S]*?)<\/blockquote>/gi, (_, inner) =>
+    `\n\n> ${_htmlInlineToMarkdown(inner).replace(/\n/g, '\n> ')}\n\n`);
+
+  // Paragraph/div/section boundaries → blank-line-separated blocks.
+  s = s.replace(/<\/(p|div|section|li)>/gi, '\n\n');
+  s = s.replace(/<(p|div|section)[^>]*>/gi, '');
+
+  // Whatever inline markup remains (bold/italic/code/links/br) outside blocks.
+  s = _htmlInlineToMarkdown(s);
+
+  // Restore extracted blocks (tables/code), then collapse excess blank lines.
+  s = s.replace(/\x00BLOCK(\d+)\x00/g, (_, i) => `\n\n${blocks[+i]}\n\n`);
+  s = s.split(/\n{3,}/).join('\n\n').trim();
+
+  return s;
+}
+
+// ─── Gemini / Google AI paste cleanup ─────────────────────────────────────────
+// Recognizes the boilerplate chrome that Gemini/Google AI answers leave behind
+// when copy-pasted as plain text (e.g. via a phone's share sheet into Apple
+// Notes): a disclaimer line after every answer ("AI responses may contain
+// mistakes" / German "KI-Antworten können Fehler enthalten..."), a
+// "Use code with caution" label after every code snippet, numbered "N
+// Websites" source-panel headers, video timestamps, and the U+FFFC object-
+// replacement character left behind by stripped images/icons.
+
+const GEMINI_DISCLAIMER_RE    = /^(ki-antworten können fehler enthalten|ai responses (?:may|can) (?:include|contain) mistakes)\.?\s*(weitere informationen|for more information)?\.?\s*$/i;
+const GEMINI_CODE_CAUTION_RE  = /^(verwende code mit vorsicht|use code with caution)\.?\s*(\[[\d,\s]+\])?\s*$/i;
+const GEMINI_SOURCES_HEADER_RE = /^\d+\s+(websites|quellen|sources)\s*$/i;
+const GEMINI_TIMESTAMP_RE     = /^\d{1,2}:\d{2}$/;
+const CITATION_BRACKET_RE     = /\[\d+(?:,\s*\d+)*\]/;
+
+// Bare language-name lines Gemini leaves before a code snippet (the fenced
+// ```lang wrapper itself doesn't survive plain-text copy, just the label).
+const CODE_LANG_NAMES = new Set([
+  'python', 'bash', 'shell', 'sh', 'zsh', 'javascript', 'js', 'typescript', 'ts',
+  'jsx', 'tsx', 'json', 'yaml', 'yml', 'xml', 'html', 'css', 'scss', 'sql', 'java',
+  'go', 'rust', 'ruby', 'rb', 'php', 'c', 'cpp', 'kotlin', 'swift', 'csharp', 'cs',
+  'markdown', 'md',
+]);
+const INLINE_CODE_LANG_RE = /^(.*?):(python|bash|shell|sh|zsh|javascript|js|typescript|ts|json|yaml|yml|xml|html|css|sql|java|go|rust|ruby|rb|php)\s{1,4}(.+)$/i;
+
+/** True if the text carries at least one recognizable Gemini/Google AI paste marker. */
+function looksLikeGeminiPaste(text) {
+  if (GEMINI_DISCLAIMER_RE.test(text.trim())) return true;
+  return text.split(/\r?\n/).some(l => {
+    const t = l.trim();
+    return GEMINI_DISCLAIMER_RE.test(t) || GEMINI_CODE_CAUTION_RE.test(t) || GEMINI_SOURCES_HEADER_RE.test(t);
+  });
+}
+
+/**
+ * Strips Gemini/Google AI boilerplate and reconstructs fenced code blocks
+ * from the bare "language name + code lines + caution label" pattern plain-
+ * text copy leaves behind. Each removed disclaimer is replaced with a ' '
+ * marker so callers can split turns around where an AI answer ended.
+ */
+function cleanGeminiPaste(raw) {
+  const lines = raw.replace(/￼/g, '').split(/\r?\n/);
+  const out = [];
+  let inCode = false, codeLang = '', codeBuf = [];
+
+  const flushCode = () => {
+    if (codeBuf.length) out.push('```' + codeLang, ...codeBuf, '```');
+    inCode = false; codeLang = ''; codeBuf = [];
+  };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+
+    if (inCode) {
+      if (GEMINI_CODE_CAUTION_RE.test(trimmed)) { flushCode(); }
+      else codeBuf.push(line);
+      continue;
+    }
+
+    if (CODE_LANG_NAMES.has(trimmed.toLowerCase()) && trimmed.length < 15) {
+      inCode = true; codeLang = trimmed.toLowerCase(); codeBuf = [];
+      continue;
+    }
+
+    const inlineM = line.match(INLINE_CODE_LANG_RE);
+    if (inlineM) {
+      out.push(inlineM[1] + ':', '```' + inlineM[2].toLowerCase(), inlineM[3], '```');
+      continue;
+    }
+
+    if (GEMINI_DISCLAIMER_RE.test(trimmed))     { out.push(' '); continue; }
+    if (GEMINI_CODE_CAUTION_RE.test(trimmed))   continue;
+    if (GEMINI_SOURCES_HEADER_RE.test(trimmed)) continue;
+    if (GEMINI_TIMESTAMP_RE.test(trimmed))      continue;
+
+    out.push(line);
+  }
+  flushCode();
+
+  return out.join('\n');
+}
+
+/**
+ * Splits a cleaned Gemini/Google AI paste into {role, content} turns. Each
+ * segment between disclaimer markers is one AI answer; within every segment
+ * after the first, a short leading paragraph with no citation brackets is
+ * treated as the user's next question (Gemini/Google AI answers reliably end
+ * sentences with citation brackets like "[1, 2]", real user prompts don't).
+ * The very first segment is assumed to be pure AI content, since a paste like
+ * this is usually a mid-conversation excerpt starting on an answer already in
+ * progress rather than the user's original opening prompt.
+ */
+function parseGeminiPaste(raw) {
+  const cleaned  = cleanGeminiPaste(raw);
+  const segments = cleaned.split(' ').map(s => s.trim()).filter(Boolean);
+  if (!segments.length) return [];
+
+  const messages = [];
+  segments.forEach((segment, i) => {
+    const paragraphs = segment.split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
+    const first = paragraphs[0] || '';
+    const looksLikeUserQuestion = i > 0 && paragraphs.length > 1 &&
+      !CITATION_BRACKET_RE.test(first) && first.split(/\s+/).length <= 45;
+
+    if (looksLikeUserQuestion) {
+      messages.push({ role: 'You', content: first });
+      messages.push({ role: 'Gemini', content: paragraphs.slice(1).join('\n\n') });
+    } else {
+      messages.push({ role: 'Gemini', content: segment });
+    }
+  });
+  return messages;
+}
+
+/**
+ * @param {string} raw
+ * @returns {Array<{role:string, content:string}>}
+ */
+function parseImportedText(raw) {
+  const text = String(raw || '').trim();
+  if (!text) return [];
+
+  // 1. Explicit speaker labels at the start of a line, e.g. "You: ..." /
+  //    "Gemini: ..." / "Q: ..." / "A: ...". The matched label (if longer than
+  //    2 chars) becomes the role name as-is, so "Gemini:" → role "Gemini",
+  //    "Google:" → role "Google", etc. Short/ambiguous labels ("a", "q")
+  //    fall back to a generic "Assistant" role.
+  const USER_LABEL = /^(you|me|user|prompt|question|q)\s*:\s*/i;
+  const AI_LABEL   = /^(gemini|bard|google|ai|assistant|bot|chatgpt|claude|copilot|answer|a|response)\s*:\s*/i;
+
+  const lines = text.split(/\r?\n/);
+  const turns = [];
+  let current = null;
+
+  for (const line of lines) {
+    const userM = line.match(USER_LABEL);
+    const aiM   = !userM && line.match(AI_LABEL);
+    if (userM) {
+      if (current) turns.push(current);
+      current = { role: 'You', content: line.slice(userM[0].length) };
+    } else if (aiM) {
+      if (current) turns.push(current);
+      const label = aiM[1];
+      const role  = label.length <= 2 ? 'Assistant' : label.charAt(0).toUpperCase() + label.slice(1).toLowerCase();
+      current = { role, content: line.slice(aiM[0].length) };
+    } else if (current) {
+      current.content += (current.content ? '\n' : '') + line;
+    } else {
+      // Text before any recognized label — start an implicit "You" turn so
+      // nothing gets silently dropped.
+      current = { role: 'You', content: line };
+    }
+  }
+  if (current) turns.push(current);
+
+  const labeled = turns.map(m => ({ role: m.role, content: m.content.trim() })).filter(m => m.content);
+  if (labeled.length >= 2) return labeled;
+
+  // 2. Gemini/Google AI paste — recognizable boilerplate markers present.
+  if (looksLikeGeminiPaste(text)) {
+    const geminiMsgs = parseGeminiPaste(text);
+    // Trust this over the generic paragraph-alternation fallback even for a
+    // single resulting message — we've already recognized real Gemini/Google
+    // AI boilerplate here, so falling back would just leave disclaimer/
+    // caution-label junk sitting in the output as fake "turns".
+    if (geminiMsgs.length >= 1) return geminiMsgs;
+  }
+
+  // 3. No explicit labels found — split on blank-line-separated paragraphs
+  //    and alternate turns, assuming the paste starts with the user's prompt.
+  const paragraphs = text.split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
+  if (paragraphs.length >= 2) {
+    return paragraphs.map((content, i) => ({
+      role: i % 2 === 0 ? 'You' : 'Assistant',
+      content,
+    }));
+  }
+
+  // 4. Last resort: the whole paste becomes a single message.
+  return [{ role: 'You', content: text }];
+}
+
 // ─── Personal notes block ─────────────────────────────────────────────────────
 // Returns a Markdown blockquote block to prepend to exports when the user has
 // typed notes in the popup. Returns an empty string if notes is empty.

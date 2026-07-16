@@ -100,6 +100,55 @@
       height: 16px;
     }
 
+    /* ── Import button (sits just before the settings gear) ── */
+    .import-btn {
+      inset-inline-end: 30px;
+    }
+
+    /* ── Import panel ── */
+    #import-section {
+      margin-bottom: 12px;
+      padding: 10px;
+      border: 1.5px solid var(--accent);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+    #import-section textarea,
+    #import-section input {
+      width: 100%;
+      font-size: 12px;
+      padding: 7px 9px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+    #import-section textarea {
+      resize: vertical;
+      line-height: 1.45;
+    }
+    #import-section input {
+      margin-top: 6px;
+    }
+    #importError {
+      margin-top: 5px;
+      font-size: 11px;
+      color: var(--error);
+      min-height: 14px;
+    }
+    .import-actions {
+      display: flex;
+      gap: 7px;
+      margin-top: 6px;
+    }
+    .import-actions .btn {
+      padding: 7px 6px;
+      font-size: 12px;
+    }
+
     /* ── Divider ── */
     hr {
       border: none;
@@ -226,6 +275,22 @@
       word-break: break-all;
     }
     #gist-link a:hover { text-decoration: underline; }
+    .gist-link-actions {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .gist-link-btn {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-size: 10.5px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 1px 3px;
+    }
+    .gist-link-btn:hover { text-decoration: underline; }
 
     /* ── Last export hint ── */
     #last-export {
@@ -301,6 +366,13 @@
       <h1>Inkpour</h1>
       <p data-i18n="popupTagline">Export AI chats · MD, PDF, HTML, JSON, ZIP</p>
     </div>
+    <button class="settings-btn import-btn" id="importBtn" data-i18n-title="popupImportBtnTitle" data-i18n-aria-label="popupImportBtnTitle" title="Import from clipboard" aria-label="Import from clipboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3v11"/>
+        <path d="M7 10l5 5 5-5"/>
+        <path d="M4 20h16"/>
+      </svg>
+    </button>
     <button class="settings-btn" id="settingsBtn" data-i18n-title="popupSettingsTitle" data-i18n-aria-label="popupSettingsTitle" title="Settings" aria-label="Settings">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="3"/>
@@ -310,6 +382,16 @@
   </div>
 
   <hr />
+
+  <div id="import-section" hidden style="display:none;">
+    <textarea id="importText" rows="5" data-i18n-placeholder="popupImportTextPlaceholder" placeholder="Paste a copied conversation here…"></textarea>
+    <input id="importTitleInput" type="text" data-i18n-placeholder="popupImportTitlePlaceholder" placeholder="Title (optional)…" />
+    <div id="importError"></div>
+    <div class="import-actions">
+      <button class="btn" id="importCancelBtn" style="border-color:var(--border);color:var(--subtext);" data-i18n="popupImportCancelBtn">Cancel</button>
+      <button class="btn" id="importSubmitBtn" style="background:var(--accent);color:var(--accent-text);" data-i18n="popupImportSubmitBtn">Import</button>
+    </div>
+  </div>
 
   <p class="platform-indicator" id="platformIndicator"></p>
 

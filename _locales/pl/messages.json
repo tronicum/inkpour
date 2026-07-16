@@ -853,5 +853,53 @@
   },
   "settingsFormatOptionZip": {
     "message": "ZIP (czat + pliki kodu)"
+  },
+  "settingsSectionLanguage": {
+    "message": "Język"
+  },
+  "settingsLanguageLabel": {
+    "message": "Język wyświetlania"
+  },
+  "settingsLanguageDesc": {
+    "message": "Zastępuje język przeglądarki tylko na własnych ekranach Inkpour"
+  },
+  "settingsLanguageAuto": {
+    "message": "Użyj języka przeglądarki (automatycznie)"
+  },
+  "popupImportBtnTitle": {
+    "message": "Importuj ze schowka"
+  },
+  "popupImportTextPlaceholder": {
+    "message": "Wklej tutaj skopiowaną rozmowę…"
+  },
+  "popupImportTitlePlaceholder": {
+    "message": "Tytuł (opcjonalnie)…"
+  },
+  "popupImportCancelBtn": {
+    "message": "Anuluj"
+  },
+  "popupImportSubmitBtn": {
+    "message": "Importuj"
+  },
+  "popupImportEmptyError": {
+    "message": "Najpierw wklej jakiś tekst"
+  },
+  "popupImportDefaultTitle": {
+    "message": "Zaimportowany czat"
+  },
+  "popupStatusImportedOne": {
+    "message": "✓ Zaimportowano $1 wiadomość — wybierz format poniżej"
+  },
+  "popupStatusImportedOther": {
+    "message": "✓ Zaimportowano $1 wiadomości — wybierz format poniżej"
+  },
+  "popupGistCopyLinkBtn": {
+    "message": "Kopiuj link"
+  },
+  "popupGistShareBtn": {
+    "message": "Udostępnij…"
+  },
+  "popupStatusGistLinkCopied": {
+    "message": "✓ Link skopiowany do schowka"
   }
 }

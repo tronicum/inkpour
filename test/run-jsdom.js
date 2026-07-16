@@ -1466,6 +1466,146 @@ async function main() {
     assert(cleanUrl(raw) === 'https://chatgpt.com/', `got: ${cleanUrl(raw)}`);
   });
 
+  // ─── parseImportedText — clipboard-paste import heuristics ────────────────
+  console.log('\nparseImportedText — clipboard-paste import heuristics');
+
+  await test('returns empty array for empty/whitespace input', () => {
+    assert(parseImportedText('').length === 0, 'expected []');
+    assert(parseImportedText('   \n  ').length === 0, 'expected []');
+  });
+
+  await test('splits explicit "You:"/"Gemini:" labels into alternating turns', () => {
+    const raw = 'You: What is the capital of France?\nGemini: The capital of France is Paris.';
+    const msgs = parseImportedText(raw);
+    assert(msgs.length === 2, `expected 2 messages, got ${msgs.length}`);
+    assert(msgs[0].role === 'You', `got role "${msgs[0].role}"`);
+    assert(msgs[0].content === 'What is the capital of France?', `got "${msgs[0].content}"`);
+    assert(msgs[1].role === 'Gemini', `got role "${msgs[1].role}"`);
+    assert(msgs[1].content === 'The capital of France is Paris.', `got "${msgs[1].content}"`);
+  });
+
+  await test('multi-line content stays attached to its own turn until the next label', () => {
+    const raw = 'Me: first line\nsecond line\nAI: reply line one\nreply line two';
+    const msgs = parseImportedText(raw);
+    assert(msgs.length === 2, `expected 2 messages, got ${msgs.length}`);
+    assert(msgs[0].content === 'first line\nsecond line', `got "${msgs[0].content}"`);
+    assert(msgs[1].content === 'reply line one\nreply line two', `got "${msgs[1].content}"`);
+  });
+
+  await test('short "Q:"/"A:" labels resolve to You / Assistant', () => {
+    const raw = 'Q: hello\nA: hi there';
+    const msgs = parseImportedText(raw);
+    assert(msgs[0].role === 'You', `got role "${msgs[0].role}"`);
+    assert(msgs[1].role === 'Assistant', `got role "${msgs[1].role}"`);
+  });
+
+  await test('falls back to alternating blank-line-separated paragraphs when no labels are found', () => {
+    const raw = 'First paragraph, a question.\n\nSecond paragraph, the answer.\n\nThird paragraph, a follow-up.';
+    const msgs = parseImportedText(raw);
+    assert(msgs.length === 3, `expected 3 messages, got ${msgs.length}`);
+    assert(msgs[0].role === 'You' && msgs[1].role === 'Assistant' && msgs[2].role === 'You',
+      `got roles: ${msgs.map(m => m.role).join(', ')}`);
+  });
+
+  await test('single unlabeled block becomes one "You" message', () => {
+    const raw = 'Just one plain note with no structure at all.';
+    const msgs = parseImportedText(raw);
+    assert(msgs.length === 1, `expected 1 message, got ${msgs.length}`);
+    assert(msgs[0].role === 'You', `got role "${msgs[0].role}"`);
+    assert(msgs[0].content === raw, `got "${msgs[0].content}"`);
+  });
+
+  await test('Gemini/Google AI paste: strips boilerplate, splits on disclaimer + citation-bracket heuristic, rebuilds code fences', () => {
+    // Mirrors the real shape of a Gemini answer copied via a phone's share
+    // sheet into Apple Notes: disclaimer after each answer, a bare language
+    // name + code + "Verwende Code mit Vorsicht." around code snippets, a
+    // "N Websites" source-panel header, and citation brackets on AI
+    // sentences that real user prompts don't carry.
+    const raw = [
+      'Some intro text with a source. [1, 2]',
+      'This is the first AI answer paragraph, citing sources. [1]',
+      '3 Websites',
+      '',
+      'KI-Antworten können Fehler enthalten. Weitere Informationen',
+      '',
+      'a short question with no citations and few words',
+      '',
+      'Here is the second AI answer, also citing something. [2]',
+      'python',
+      'print("hello")',
+      'Verwende Code mit Vorsicht.',
+      '',
+      'KI-Antworten können Fehler enthalten. Weitere Informationen',
+    ].join('\n');
+
+    const msgs = parseImportedText(raw);
+    assert(msgs.length === 3, `expected 3 messages, got ${msgs.length}: ${JSON.stringify(msgs)}`);
+    assert(msgs[0].role === 'Gemini', `got role "${msgs[0].role}"`);
+    assert(msgs[1].role === 'You' && msgs[1].content === 'a short question with no citations and few words',
+      `got ${JSON.stringify(msgs[1])}`);
+    assert(msgs[2].role === 'Gemini', `got role "${msgs[2].role}"`);
+    assert(msgs[2].content.includes('```python'), 'expected reconstructed python fence');
+    assert(msgs[2].content.includes('print("hello")'), 'expected code content preserved');
+    const full = msgs.map(m => m.content).join('\n');
+    assert(!full.includes('Verwende Code'), 'code-caution label leaked into content');
+    assert(!full.includes('KI-Antworten'), 'disclaimer leaked into content');
+    assert(!/\d+\s+Websites/.test(full), 'sources-header leaked into content');
+  });
+
+  await test('Gemini/Google AI paste: inline "prose:bash  code" form is rebuilt as a fenced block', () => {
+    const raw = [
+      'Run the setup script using:bash  ./setup.sh --init',
+      '   Verwende Code mit Vorsicht.     ',
+      'Then verify it worked. [1]',
+      '',
+      'KI-Antworten können Fehler enthalten. Weitere Informationen',
+    ].join('\n');
+
+    const msgs = parseImportedText(raw);
+    assert(msgs.length === 1, `expected 1 message, got ${msgs.length}: ${JSON.stringify(msgs)}`);
+    assert(msgs[0].content.includes('```bash\n./setup.sh --init\n```'), `got: ${msgs[0].content}`);
+    assert(!msgs[0].content.includes('Verwende Code'), 'code-caution label leaked into content');
+  });
+
+  // ─── htmlPasteToMarkdown — rich-text clipboard paste ───────────────────────
+  console.log('\nhtmlPasteToMarkdown — rich-text clipboard paste');
+
+  await test('converts a table + bold/italic/code + list to Markdown', () => {
+    const html = '<p>Here is a <strong>comparison</strong> table:</p>' +
+      '<table><tr><th>Feature</th><th>Status</th></tr>' +
+      '<tr><td>DOM Parsing</td><td>Done</td></tr>' +
+      '<tr><td>Style Injection</td><td><em>Pending</em></td></tr></table>' +
+      '<p>And some <code>inline code</code> plus a list:</p>' +
+      '<ul><li>First item</li><li>Second item</li></ul>';
+
+    const md = htmlPasteToMarkdown(html);
+    assert(md.includes('Here is a **comparison** table:'), `got: ${md}`);
+    assert(md.includes('| Feature | Status |'), `missing table header: ${md}`);
+    assert(md.includes('| --- | --- |'), `missing table separator: ${md}`);
+    assert(md.includes('| DOM Parsing | Done |'), `missing table row: ${md}`);
+    assert(md.includes('| Style Injection | *Pending* |'), `missing italic table cell: ${md}`);
+    assert(md.includes('`inline code`'), `missing inline code: ${md}`);
+    assert(md.includes('- First item') && md.includes('- Second item'), `missing list items: ${md}`);
+  });
+
+  await test('escapes pipe characters inside table cells', () => {
+    const html = '<table><tr><td>a|b</td><td>plain</td></tr></table>';
+    const md = htmlPasteToMarkdown(html);
+    assert(md.includes('a\\|b'), `expected escaped pipe, got: ${md}`);
+  });
+
+  await test('reconstructs a fenced code block from <pre><code class="language-...">', () => {
+    const html = '<pre><code class="language-python">print(&quot;hi&quot;)</code></pre>';
+    const md = htmlPasteToMarkdown(html);
+    assert(md.includes('```python'), `got: ${md}`);
+    assert(md.includes('print("hi")'), `got: ${md}`);
+  });
+
+  await test('falls back to plain text when no recognized tags are present', () => {
+    const html = 'Just plain text, no markup at all.';
+    assert(htmlPasteToMarkdown(html) === 'Just plain text, no markup at all.');
+  });
+
   // ─── Firefox AMO manifest validation ─────────────────────────────────────
   console.log('\nFirefox AMO manifest validation');
 
@@ -1606,6 +1746,21 @@ async function main() {
           `${locale}/messages.json key "${key}" has an empty message`);
       }
     }
+  });
+
+  await test('src/i18n.js SUPPORTED_LOCALES matches the _locales/ directory exactly', () => {
+    // Regression coverage for the manual language-override picker: if a new
+    // locale directory is added (or removed) without updating SUPPORTED_LOCALES,
+    // the Settings dropdown silently drifts out of sync with what's shippable.
+    const i18nSrc = fs.readFileSync(path.resolve(__dirname, '../src/i18n.js'), 'utf8');
+    const supportedCodes = new Set(
+      [...i18nSrc.matchAll(/code:\s*'([^']+)'/g)].map(m => m[1])
+    );
+    const dirCodes = new Set(ALL_LOCALES);
+    const missingFromSrc = [...dirCodes].filter(c => !supportedCodes.has(c));
+    const missingFromDir = [...supportedCodes].filter(c => !dirCodes.has(c));
+    assert(missingFromSrc.length === 0 && missingFromDir.length === 0,
+      `dir-only: ${missingFromSrc.join(', ') || 'none'}; SUPPORTED_LOCALES-only: ${missingFromDir.join(', ') || 'none'}`);
   });
 
   // ─── Results ───────────────────────────────────────────────────────────────

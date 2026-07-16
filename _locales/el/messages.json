@@ -853,5 +853,53 @@
   },
   "settingsFormatOptionZip": {
     "message": "ZIP (συνομιλία + αρχεία κώδικα)"
+  },
+  "settingsSectionLanguage": {
+    "message": "Γλώσσα"
+  },
+  "settingsLanguageLabel": {
+    "message": "Γλώσσα εμφάνισης"
+  },
+  "settingsLanguageDesc": {
+    "message": "Παρακάμπτει τη γλώσσα του προγράμματος περιήγησής σας μόνο για τις δικές του οθόνες του Inkpour"
+  },
+  "settingsLanguageAuto": {
+    "message": "Ακολούθηση γλώσσας προγράμματος περιήγησης (αυτόματα)"
+  },
+  "popupImportBtnTitle": {
+    "message": "Εισαγωγή από το πρόχειρο"
+  },
+  "popupImportTextPlaceholder": {
+    "message": "Επικολλήστε εδώ μια αντιγραμμένη συνομιλία…"
+  },
+  "popupImportTitlePlaceholder": {
+    "message": "Τίτλος (προαιρετικό)…"
+  },
+  "popupImportCancelBtn": {
+    "message": "Ακύρωση"
+  },
+  "popupImportSubmitBtn": {
+    "message": "Εισαγωγή"
+  },
+  "popupImportEmptyError": {
+    "message": "Επικολλήστε πρώτα κείμενο"
+  },
+  "popupImportDefaultTitle": {
+    "message": "Εισαγόμενη συνομιλία"
+  },
+  "popupStatusImportedOne": {
+    "message": "✓ Εισήχθη $1 μήνυμα — επιλέξτε μορφή παρακάτω"
+  },
+  "popupStatusImportedOther": {
+    "message": "✓ Εισήχθησαν $1 μηνύματα — επιλέξτε μορφή παρακάτω"
+  },
+  "popupGistCopyLinkBtn": {
+    "message": "Αντιγραφή συνδέσμου"
+  },
+  "popupGistShareBtn": {
+    "message": "Κοινοποίηση…"
+  },
+  "popupStatusGistLinkCopied": {
+    "message": "✓ Ο σύνδεσμος αντιγράφηκε στο πρόχειρο"
   }
 }

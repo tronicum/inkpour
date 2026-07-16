@@ -853,5 +853,53 @@
   },
   "settingsFormatOptionZip": {
     "message": "ZIP (chat + các tệp mã)"
+  },
+  "settingsSectionLanguage": {
+    "message": "Ngôn ngữ"
+  },
+  "settingsLanguageLabel": {
+    "message": "Ngôn ngữ hiển thị"
+  },
+  "settingsLanguageDesc": {
+    "message": "Ghi đè ngôn ngữ trình duyệt của bạn chỉ cho các màn hình riêng của Inkpour"
+  },
+  "settingsLanguageAuto": {
+    "message": "Theo ngôn ngữ trình duyệt (tự động)"
+  },
+  "popupImportBtnTitle": {
+    "message": "Nhập từ khay nhớ tạm"
+  },
+  "popupImportTextPlaceholder": {
+    "message": "Dán đoạn hội thoại đã sao chép vào đây…"
+  },
+  "popupImportTitlePlaceholder": {
+    "message": "Tiêu đề (tùy chọn)…"
+  },
+  "popupImportCancelBtn": {
+    "message": "Hủy"
+  },
+  "popupImportSubmitBtn": {
+    "message": "Nhập"
+  },
+  "popupImportEmptyError": {
+    "message": "Hãy dán một số văn bản trước"
+  },
+  "popupImportDefaultTitle": {
+    "message": "Cuộc trò chuyện đã nhập"
+  },
+  "popupStatusImportedOne": {
+    "message": "✓ Đã nhập $1 tin nhắn — chọn định dạng bên dưới"
+  },
+  "popupStatusImportedOther": {
+    "message": "✓ Đã nhập $1 tin nhắn — chọn định dạng bên dưới"
+  },
+  "popupGistCopyLinkBtn": {
+    "message": "Sao chép liên kết"
+  },
+  "popupGistShareBtn": {
+    "message": "Chia sẻ…"
+  },
+  "popupStatusGistLinkCopied": {
+    "message": "✓ Đã sao chép liên kết vào khay nhớ tạm"
   }
 }

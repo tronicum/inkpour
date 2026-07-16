@@ -853,5 +853,53 @@
   },
   "settingsFormatOptionZip": {
     "message": "ZIP (chatt + kodfiler)"
+  },
+  "settingsSectionLanguage": {
+    "message": "Språk"
+  },
+  "settingsLanguageLabel": {
+    "message": "Visningsspråk"
+  },
+  "settingsLanguageDesc": {
+    "message": "Åsidosätter din webbläsares språk endast för Inkpours egna vyer"
+  },
+  "settingsLanguageAuto": {
+    "message": "Följ webbläsarens språk (automatiskt)"
+  },
+  "popupImportBtnTitle": {
+    "message": "Importera från urklipp"
+  },
+  "popupImportTextPlaceholder": {
+    "message": "Klistra in en kopierad konversation här…"
+  },
+  "popupImportTitlePlaceholder": {
+    "message": "Titel (valfritt)…"
+  },
+  "popupImportCancelBtn": {
+    "message": "Avbryt"
+  },
+  "popupImportSubmitBtn": {
+    "message": "Importera"
+  },
+  "popupImportEmptyError": {
+    "message": "Klistra in text först"
+  },
+  "popupImportDefaultTitle": {
+    "message": "Importerad chatt"
+  },
+  "popupStatusImportedOne": {
+    "message": "✓ $1 meddelande importerat — välj ett format nedan"
+  },
+  "popupStatusImportedOther": {
+    "message": "✓ $1 meddelanden importerade — välj ett format nedan"
+  },
+  "popupGistCopyLinkBtn": {
+    "message": "Kopiera länk"
+  },
+  "popupGistShareBtn": {
+    "message": "Dela…"
+  },
+  "popupStatusGistLinkCopied": {
+    "message": "✓ Länk kopierad till urklipp"
   }
 }
