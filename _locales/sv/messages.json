@@ -901,5 +901,50 @@
   },
   "popupStatusGistLinkCopied": {
     "message": "✓ Länk kopierad till urklipp"
+  },
+  "settingsGithubTokenFineprint": {
+    "message": "⚠ Lagras som klartext i webbläsarens lokala tilläggslagring — behandla den som ett lösenord. Begränsa den enbart till scopet \"gist\", aldrig bredare repo-/kontoåtkomst, för att minska skadan om den läcker."
+  },
+  "settingsSectionAdvanced": {
+    "message": "Avancerat"
+  },
+  "settingsDebugModeLabel": {
+    "message": "Felsökningsläge"
+  },
+  "settingsDebugModeDesc": {
+    "message": "Lägger till knapparna \"Kopiera felsökningsinfo\" och \"Rapportera bugg\" i popupen — innehåller aldrig chattinnehåll, endast sidstruktur (tagg-/klassnamn, ingen text), väljardiagnostik och en generaliserad URL."
+  },
+  "settingsDebugAttachGistLabel": {
+    "message": "Bifoga fullständig felsökningsinfo som en hemlig Gist (för utvecklare)"
+  },
+  "settingsDebugAttachGistDesc": {
+    "message": "Kräver GitHub-token ovan. \"Rapportera bugg\" laddar också upp samma innehållsfria diagnostik som en hemlig Gist och länkar den i den förifyllda rapporten, utan att du behöver klistra in något manuellt."
+  },
+  "settingsDevToolsLabel": {
+    "message": "Lokala felsöknings-/fuzzingverktyg"
+  },
+  "settingsDevToolsDesc": {
+    "message": "Fristående sidor för att testa importparsern — ingår inte i den paketerade tillägget, finns bara vid opaketerad inläsning för utveckling."
+  },
+  "settingsDevToolsImportDebug": {
+    "message": "Felsökningsverktyg för importparser →"
+  },
+  "settingsDevToolsPdfFuzzer": {
+    "message": "PDF-import-fuzzer →"
+  },
+  "popupDebugDomBtnTitle": {
+    "message": "Kopiera felsökningsinfo (utan chattinnehåll)"
+  },
+  "popupBtnDebugDom": {
+    "message": "Kopiera felsökningsinfo"
+  },
+  "popupStatusDomCopied": {
+    "message": "✓ Felsökningsinfo kopierad till urklipp"
+  },
+  "popupReportBugBtnTitle": {
+    "message": "Rapportera en bugg på GitHub (utan chattinnehåll)"
+  },
+  "popupBtnReportBug": {
+    "message": "Rapportera bugg"
   }
 }

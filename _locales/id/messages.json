@@ -901,5 +901,50 @@
   },
   "popupStatusGistLinkCopied": {
     "message": "✓ Tautan disalin ke papan klip"
+  },
+  "settingsGithubTokenFineprint": {
+    "message": "⚠ Disimpan sebagai teks biasa di penyimpanan ekstensi lokal browser — perlakukan seperti kata sandi. Batasi hanya pada scope \"gist\", jangan pernah akses repo/akun yang lebih luas, untuk membatasi kerusakan jika bocor."
+  },
+  "settingsSectionAdvanced": {
+    "message": "Lanjutan"
+  },
+  "settingsDebugModeLabel": {
+    "message": "Mode debug"
+  },
+  "settingsDebugModeDesc": {
+    "message": "Menambahkan tombol \"Salin info debug\" dan \"Laporkan bug\" ke popup — tidak pernah menyertakan konten obrolan, hanya struktur halaman (nama tag/kelas, tanpa teks), diagnostik selektor, dan URL yang digeneralisasi."
+  },
+  "settingsDebugAttachGistLabel": {
+    "message": "Lampirkan info debug lengkap sebagai Gist rahasia (untuk pengembang)"
+  },
+  "settingsDebugAttachGistDesc": {
+    "message": "Memerlukan token GitHub di atas. \"Laporkan bug\" juga mengunggah diagnostik bebas konten yang sama sebagai Gist rahasia dan menautkannya di laporan yang telah diisi sebelumnya, tanpa perlu menempel apa pun secara manual."
+  },
+  "settingsDevToolsLabel": {
+    "message": "Alat debug/fuzzing lokal"
+  },
+  "settingsDevToolsDesc": {
+    "message": "Halaman mandiri untuk menguji parser impor — tidak disertakan dalam ekstensi yang dikemas, hanya ada saat dimuat tanpa dikemas untuk pengembangan."
+  },
+  "settingsDevToolsImportDebug": {
+    "message": "Alat debug parser impor →"
+  },
+  "settingsDevToolsPdfFuzzer": {
+    "message": "Fuzzer impor PDF →"
+  },
+  "popupDebugDomBtnTitle": {
+    "message": "Salin info debug (tanpa konten obrolan)"
+  },
+  "popupBtnDebugDom": {
+    "message": "Salin info debug"
+  },
+  "popupStatusDomCopied": {
+    "message": "✓ Info debug disalin ke clipboard"
+  },
+  "popupReportBugBtnTitle": {
+    "message": "Laporkan bug di GitHub (tanpa konten obrolan)"
+  },
+  "popupBtnReportBug": {
+    "message": "Laporkan bug"
   }
 }

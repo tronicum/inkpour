@@ -20,6 +20,9 @@
   const docxBtn     = document.getElementById('docxBtn');
   const zipBtn      = document.getElementById('zipBtn');
   const gistBtn     = document.getElementById('gistBtn');
+  const debugGroupEl = document.getElementById('debug-group');
+  const debugDomBtn  = document.getElementById('debugDomBtn');
+  const reportBugBtn = document.getElementById('reportBugBtn');
   const allBtn      = document.getElementById('allBtn');
   const settingsBtn  = document.getElementById('settingsBtn');
   const historyBtn   = document.getElementById('historyBtn');
@@ -84,6 +87,8 @@
     gistTags:              '', // comma-separated extra tags for Gist YAML (e.g. "work, project-x")
     webhookUrl:            '',
     webhookIncludeContent: false,
+    debugMode:             false,
+    debugAttachGist:       false,
   };
   let userSettings = { ...SETTING_DEFAULTS };
 
@@ -95,6 +100,14 @@
     if (defaultBtn) defaultBtn.classList.add('default-format');
     // Show Gist button only when a token is configured
     if (gistBtn && userSettings.githubToken) gistBtn.hidden = false;
+    // Debug-mode buttons — "Copy debug info" needs no token (opens/copies
+    // locally); "Report bug" also works without one (opens a pre-filled
+    // GitHub issue the user reviews and submits themselves), so both show
+    // together under the same Debug mode toggle regardless of token state.
+    if (debugGroupEl && userSettings.debugMode) {
+      debugGroupEl.hidden = false;
+      debugGroupEl.style.display = 'flex';
+    }
   });
 
   // ─── Platform indicator — single line replacing the old chip list ────────
@@ -589,6 +602,13 @@
       saveLastExport('pdf', { ...data, messages: msgs }, bodyContent);
     } catch (err) {
       setStatus(err.message, err.streaming ? 'warning' : 'error');
+    } finally {
+      // Every other export handler clears loading state in a `finally` so it
+      // fires on success too, not just errors — this one only cleared it in
+      // `catch`, so a *successful* PDF export left the button permanently
+      // disabled/spinning until the popup was closed and reopened. Found via
+      // a codebase audit, not a user report — reload the extension to pick
+      // this up before it becomes one.
       setLoading(pdfBtn, false);
     }
   });
@@ -901,6 +921,112 @@
       setStatus(err.message || t('popupStatusGistUploadFailed'), 'error');
     } finally {
       setLoading(gistBtn, false);
+    }
+  });
+
+  // ─── Debug mode (Settings → Advanced → Debug mode) ────────────────────────
+  // Both buttons below only ever handle the content-free report content.js
+  // builds in buildDebugReport() — page structure, selector-hit counts, and a
+  // generalized URL. Never the chat content itself. Inkpour stays local-first
+  // even for its own bug reports.
+
+  const INKPOUR_REPO = 'tronicum/inkpour'; // matches manifest.json's homepage_url
+
+  async function getDebugReport() {
+    let tab;
+    try {
+      [tab] = await api.tabs.query({ active: true, currentWindow: true });
+    } catch {
+      throw new Error(t('popupStatusCannotAccessTab'));
+    }
+    const response = await api.tabs.sendMessage(tab.id, { action: 'debugDom' }).catch(() => null);
+    if (!response) throw new Error(t('popupStatusRefreshTab'));
+    if (response.error) throw new Error(response.error);
+    return response.report;
+  }
+
+  function formatDebugReportMarkdown(report) {
+    const counts = Object.entries(report.selectorCounts)
+      .map(([sel, n]) => `| \`${sel}\` | ${n === null ? 'error' : n} |`)
+      .join('\n');
+    return [
+      `**Platform detected:** ${report.detectedPlatform || '(none)'}`,
+      `**URL:** ${report.url.hostname}${report.url.path}`,
+      `**Timestamp:** ${report.timestamp}`,
+      '',
+      '**Selector diagnostics**',
+      '| selector | matches |',
+      '| --- | --- |',
+      counts,
+      '',
+      '<details><summary>DOM skeleton (structure only — tag/class names, no chat content)</summary>',
+      '',
+      '```',
+      report.domSkeleton,
+      '```',
+      '</details>',
+    ].join('\n');
+  }
+
+  debugDomBtn?.addEventListener('click', async () => {
+    clearStatus();
+    setLoading(debugDomBtn, true);
+    try {
+      const report = await getDebugReport();
+      await navigator.clipboard.writeText(formatDebugReportMarkdown(report));
+      setStatus(t('popupStatusDomCopied'), 'success');
+    } catch (err) {
+      setStatus(err.message, 'error');
+    } finally {
+      setLoading(debugDomBtn, false);
+    }
+  });
+
+  reportBugBtn?.addEventListener('click', async () => {
+    clearStatus();
+    setLoading(reportBugBtn, true);
+    try {
+      const report = await getDebugReport();
+      const title  = `Extraction issue: ${report.detectedPlatform || 'unknown platform'} (${report.url.hostname})`;
+      let   body   = formatDebugReportMarkdown(report);
+
+      // "For developers" — attach the full report as a secret Gist and swap
+      // the inline skeleton for a link, keeping the issue body short (GitHub's
+      // new-issue URL has a practical length ceiling around 8k characters).
+      if (userSettings.debugAttachGist && userSettings.githubToken) {
+        try {
+          setStatus(t('popupStatusGistUploading'));
+          const res = await fetch('https://api.github.com/gists', {
+            method: 'POST',
+            headers: {
+              'Authorization': `token ${userSettings.githubToken}`,
+              'Accept':        'application/vnd.github.v3+json',
+              'Content-Type':  'application/json',
+            },
+            body: JSON.stringify({
+              description: title,
+              public:      false,
+              files: { 'inkpour-debug-report.json': { content: JSON.stringify(report, null, 2) } },
+            }),
+          });
+          if (res.ok) {
+            const gist = await res.json();
+            body = formatDebugReportMarkdown({ ...report, domSkeleton: `(full report: ${gist.html_url})` });
+          }
+          // A failed Gist upload isn't fatal here — the issue still opens with
+          // the inline (truncated-by-length, not content) report either way.
+        } catch { /* fall through with the inline report */ }
+      }
+
+      const url = `https://github.com/${INKPOUR_REPO}/issues/new`
+        + `?title=${encodeURIComponent(title)}`
+        + `&body=${encodeURIComponent(body)}`;
+      await api.tabs.create({ url });
+      clearStatus();
+    } catch (err) {
+      setStatus(err.message, 'error');
+    } finally {
+      setLoading(reportBugBtn, false);
     }
   });
 

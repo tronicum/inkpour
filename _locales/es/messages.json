@@ -901,5 +901,50 @@
   },
   "popupStatusGistLinkCopied": {
     "message": "✓ Enlace copiado al portapapeles"
+  },
+  "settingsGithubTokenFineprint": {
+    "message": "⚠ Se guarda en texto plano en el almacenamiento local de la extensión — trátalo como una contraseña. Límitalo al alcance \"gist\" únicamente, nunca a un acceso más amplio de repos/cuenta, para reducir el daño si llega a filtrarse."
+  },
+  "settingsSectionAdvanced": {
+    "message": "Avanzado"
+  },
+  "settingsDebugModeLabel": {
+    "message": "Modo depuración"
+  },
+  "settingsDebugModeDesc": {
+    "message": "Añade los botones \"Copiar info de depuración\" e \"Informar de un error\" al popup — nunca incluye el contenido del chat, solo la estructura de la página (nombres de etiquetas/clases, sin texto), diagnósticos de selectores y una URL generalizada."
+  },
+  "settingsDebugAttachGistLabel": {
+    "message": "Adjuntar la info de depuración completa como Gist secreto (para desarrolladores)"
+  },
+  "settingsDebugAttachGistDesc": {
+    "message": "Requiere el token de GitHub de arriba. \"Informar de un error\" también sube el mismo diagnóstico sin contenido como Gist secreto y lo enlaza en el informe prellenado, sin necesidad de pegar nada manualmente."
+  },
+  "settingsDevToolsLabel": {
+    "message": "Herramientas locales de depuración/fuzzing"
+  },
+  "settingsDevToolsDesc": {
+    "message": "Páginas independientes para probar el analizador de importación — no se incluyen en la extensión empaquetada, solo están presentes al cargarla sin empaquetar para desarrollo."
+  },
+  "settingsDevToolsImportDebug": {
+    "message": "Herramienta de depuración del analizador de importación →"
+  },
+  "settingsDevToolsPdfFuzzer": {
+    "message": "Fuzzer de importación de PDF →"
+  },
+  "popupDebugDomBtnTitle": {
+    "message": "Copiar info de depuración (sin contenido del chat)"
+  },
+  "popupBtnDebugDom": {
+    "message": "Copiar info de depuración"
+  },
+  "popupStatusDomCopied": {
+    "message": "✓ Info de depuración copiada al portapapeles"
+  },
+  "popupReportBugBtnTitle": {
+    "message": "Informar de un error en GitHub (sin contenido del chat)"
+  },
+  "popupBtnReportBug": {
+    "message": "Informar de un error"
   }
 }

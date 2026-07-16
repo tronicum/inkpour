@@ -901,5 +901,50 @@
   },
   "popupStatusGistLinkCopied": {
     "message": "✓ Link copiado para a área de transferência"
+  },
+  "settingsGithubTokenFineprint": {
+    "message": "⚠ Armazenado como texto simples no armazenamento local da extensão — trate como uma senha. Limite ao escopo \"gist\" apenas, nunca a um acesso mais amplo de repositório/conta, para reduzir o dano caso vaze."
+  },
+  "settingsSectionAdvanced": {
+    "message": "Avançado"
+  },
+  "settingsDebugModeLabel": {
+    "message": "Modo de depuração"
+  },
+  "settingsDebugModeDesc": {
+    "message": "Adiciona os botões \"Copiar info de depuração\" e \"Reportar bug\" ao popup — nunca inclui o conteúdo do chat, apenas a estrutura da página (nomes de tags/classes, sem texto), diagnósticos de seletores e uma URL generalizada."
+  },
+  "settingsDebugAttachGistLabel": {
+    "message": "Anexar info de depuração completa como Gist secreto (para desenvolvedores)"
+  },
+  "settingsDebugAttachGistDesc": {
+    "message": "Requer o token do GitHub acima. \"Reportar bug\" também envia o mesmo diagnóstico sem conteúdo como Gist secreto e o vincula no relatório pré-preenchido, sem precisar colar nada manualmente."
+  },
+  "settingsDevToolsLabel": {
+    "message": "Ferramentas locais de depuração/fuzzing"
+  },
+  "settingsDevToolsDesc": {
+    "message": "Páginas independentes para testar o parser de importação — não incluídas na extensão empacotada, presentes apenas ao carregar sem empacotar para desenvolvimento."
+  },
+  "settingsDevToolsImportDebug": {
+    "message": "Ferramenta de depuração do parser de importação →"
+  },
+  "settingsDevToolsPdfFuzzer": {
+    "message": "Fuzzer de importação de PDF →"
+  },
+  "popupDebugDomBtnTitle": {
+    "message": "Copiar info de depuração (sem conteúdo do chat)"
+  },
+  "popupBtnDebugDom": {
+    "message": "Copiar info de depuração"
+  },
+  "popupStatusDomCopied": {
+    "message": "✓ Info de depuração copiada para a área de transferência"
+  },
+  "popupReportBugBtnTitle": {
+    "message": "Reportar um bug no GitHub (sem conteúdo do chat)"
+  },
+  "popupBtnReportBug": {
+    "message": "Reportar bug"
   }
 }

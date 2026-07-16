@@ -901,5 +901,50 @@
   },
   "popupStatusGistLinkCopied": {
     "message": "✓ Link skopiowany do schowka"
+  },
+  "settingsGithubTokenFineprint": {
+    "message": "⚠ Przechowywany jako zwykły tekst w lokalnym magazynie rozszerzenia — traktuj go jak hasło. Ogranicz zakres wyłącznie do \"gist\", nigdy do szerszego dostępu do repozytorium/konta, aby ograniczyć szkody w razie wycieku."
+  },
+  "settingsSectionAdvanced": {
+    "message": "Zaawansowane"
+  },
+  "settingsDebugModeLabel": {
+    "message": "Tryb debugowania"
+  },
+  "settingsDebugModeDesc": {
+    "message": "Dodaje przyciski \"Kopiuj informacje debugowania\" i \"Zgłoś błąd\" do wyskakującego okna — nigdy nie zawiera treści czatu, tylko strukturę strony (nazwy tagów/klas, bez tekstu), diagnostykę selektorów i uogólniony URL."
+  },
+  "settingsDebugAttachGistLabel": {
+    "message": "Dołącz pełne informacje debugowania jako tajny Gist (dla programistów)"
+  },
+  "settingsDebugAttachGistDesc": {
+    "message": "Wymaga tokenu GitHub powyżej. \"Zgłoś błąd\" przesyła również tę samą, pozbawioną treści diagnostykę jako tajny Gist i linkuje ją w wstępnie wypełnionym zgłoszeniu, bez konieczności ręcznego wklejania czegokolwiek."
+  },
+  "settingsDevToolsLabel": {
+    "message": "Lokalne narzędzia debugowania/fuzzingu"
+  },
+  "settingsDevToolsDesc": {
+    "message": "Samodzielne strony do testowania parsera importu — nieuwzględnione w spakowanym rozszerzeniu, obecne tylko przy wczytywaniu niespakowanym do celów rozwojowych."
+  },
+  "settingsDevToolsImportDebug": {
+    "message": "Narzędzie debugowania parsera importu →"
+  },
+  "settingsDevToolsPdfFuzzer": {
+    "message": "Fuzzer importu PDF →"
+  },
+  "popupDebugDomBtnTitle": {
+    "message": "Kopiuj informacje debugowania (bez treści czatu)"
+  },
+  "popupBtnDebugDom": {
+    "message": "Kopiuj informacje debugowania"
+  },
+  "popupStatusDomCopied": {
+    "message": "✓ Informacje debugowania skopiowane do schowka"
+  },
+  "popupReportBugBtnTitle": {
+    "message": "Zgłoś błąd na GitHub (bez treści czatu)"
+  },
+  "popupBtnReportBug": {
+    "message": "Zgłoś błąd"
   }
 }

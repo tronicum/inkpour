@@ -876,5 +876,50 @@
   },
   "popupStatusGistLinkCopied": {
     "message": "✓ ਲਿੰਕ ਕਲਿੱਪਬੋਰਡ ਵਿੱਚ ਕਾਪੀ ਕੀਤਾ ਗਿਆ"
+  },
+  "settingsGithubTokenFineprint": {
+    "message": "⚠ ਬ੍ਰਾਊਜ਼ਰ ਦੇ ਸਥਾਨਕ ਐਕਸਟੈਂਸ਼ਨ ਸਟੋਰੇਜ ਵਿੱਚ ਸਾਦੇ ਟੈਕਸਟ ਵਜੋਂ ਸਟੋਰ ਕੀਤਾ ਜਾਂਦਾ ਹੈ — ਇਸਨੂੰ ਪਾਸਵਰਡ ਵਾਂਗ ਸਮਝੋ। ਲੀਕ ਹੋਣ ਦੀ ਸੂਰਤ ਵਿੱਚ ਨੁਕਸਾਨ ਸੀਮਤ ਕਰਨ ਲਈ ਇਸਨੂੰ ਸਿਰਫ਼ \"gist\" ਸਕੋਪ ਤੱਕ ਸੀਮਤ ਰੱਖੋ, ਕਦੇ ਵੀ ਵਿਆਪਕ ਰਿਪੋ/ਖਾਤਾ ਪਹੁੰਚ ਨਾ ਦਿਓ।"
+  },
+  "settingsSectionAdvanced": {
+    "message": "ਐਡਵਾਂਸਡ"
+  },
+  "settingsDebugModeLabel": {
+    "message": "ਡੀਬੱਗ ਮੋਡ"
+  },
+  "settingsDebugModeDesc": {
+    "message": "ਪੌਪਅੱਪ ਵਿੱਚ \"ਡੀਬੱਗ ਜਾਣਕਾਰੀ ਕਾਪੀ ਕਰੋ\" ਅਤੇ \"ਬੱਗ ਰਿਪੋਰਟ ਕਰੋ\" ਬਟਨ ਜੋੜਦਾ ਹੈ — ਇਸ ਵਿੱਚ ਕਦੇ ਵੀ ਚੈਟ ਸਮੱਗਰੀ ਸ਼ਾਮਲ ਨਹੀਂ ਹੁੰਦੀ, ਸਿਰਫ਼ ਪੇਜ ਬਣਤਰ (ਟੈਗ/ਕਲਾਸ ਨਾਮ, ਟੈਕਸਟ ਤੋਂ ਬਿਨਾਂ), ਸਿਲੈਕਟਰ ਡਾਇਗਨੌਸਟਿਕਸ ਅਤੇ ਇੱਕ ਆਮ ਕੀਤਾ URL।"
+  },
+  "settingsDebugAttachGistLabel": {
+    "message": "ਪੂਰੀ ਡੀਬੱਗ ਜਾਣਕਾਰੀ ਨੂੰ ਗੁਪਤ Gist ਵਜੋਂ ਜੋੜੋ (ਡਿਵੈਲਪਰਾਂ ਲਈ)"
+  },
+  "settingsDebugAttachGistDesc": {
+    "message": "ਉੱਪਰ ਦਿੱਤੇ GitHub ਟੋਕਨ ਦੀ ਲੋੜ ਹੈ। \"ਬੱਗ ਰਿਪੋਰਟ ਕਰੋ\" ਉਹੀ ਸਮੱਗਰੀ-ਰਹਿਤ ਡਾਇਗਨੌਸਟਿਕ ਨੂੰ ਗੁਪਤ Gist ਵਜੋਂ ਵੀ ਅੱਪਲੋਡ ਕਰਦਾ ਹੈ ਅਤੇ ਇਸਨੂੰ ਪਹਿਲਾਂ ਤੋਂ ਭਰੀ ਰਿਪੋਰਟ ਵਿੱਚ ਲਿੰਕ ਕਰਦਾ ਹੈ, ਜਿਸ ਨਾਲ ਹੱਥੀਂ ਕੁਝ ਵੀ ਪੇਸਟ ਕਰਨ ਦੀ ਲੋੜ ਨਹੀਂ ਪੈਂਦੀ।"
+  },
+  "settingsDevToolsLabel": {
+    "message": "ਸਥਾਨਕ ਡੀਬੱਗ/ਫਜ਼ਿੰਗ ਟੂਲ"
+  },
+  "settingsDevToolsDesc": {
+    "message": "ਇੰਪੋਰਟ ਪਾਰਸਰ ਦੀ ਜਾਂਚ ਲਈ ਸੁਤੰਤਰ ਪੰਨੇ — ਪੈਕੇਜਡ ਐਕਸਟੈਂਸ਼ਨ ਵਿੱਚ ਸ਼ਾਮਲ ਨਹੀਂ, ਸਿਰਫ਼ ਵਿਕਾਸ ਲਈ ਅਨਪੈਕਡ ਲੋਡ ਹੋਣ 'ਤੇ ਮੌਜੂਦ ਹੁੰਦੇ ਹਨ।"
+  },
+  "settingsDevToolsImportDebug": {
+    "message": "ਇੰਪੋਰਟ ਪਾਰਸਰ ਡੀਬੱਗ ਟੂਲ →"
+  },
+  "settingsDevToolsPdfFuzzer": {
+    "message": "PDF ਇੰਪੋਰਟ ਫਜ਼ਰ →"
+  },
+  "popupDebugDomBtnTitle": {
+    "message": "ਡੀਬੱਗ ਜਾਣਕਾਰੀ ਕਾਪੀ ਕਰੋ (ਚੈਟ ਸਮੱਗਰੀ ਤੋਂ ਬਿਨਾਂ)"
+  },
+  "popupBtnDebugDom": {
+    "message": "ਡੀਬੱਗ ਜਾਣਕਾਰੀ ਕਾਪੀ ਕਰੋ"
+  },
+  "popupStatusDomCopied": {
+    "message": "✓ ਡੀਬੱਗ ਜਾਣਕਾਰੀ ਕਲਿੱਪਬੋਰਡ ਵਿੱਚ ਕਾਪੀ ਕੀਤੀ ਗਈ"
+  },
+  "popupReportBugBtnTitle": {
+    "message": "GitHub 'ਤੇ ਬੱਗ ਰਿਪੋਰਟ ਕਰੋ (ਚੈਟ ਸਮੱਗਰੀ ਤੋਂ ਬਿਨਾਂ)"
+  },
+  "popupBtnReportBug": {
+    "message": "ਬੱਗ ਰਿਪੋਰਟ ਕਰੋ"
   }
 }

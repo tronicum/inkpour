@@ -901,5 +901,50 @@
   },
   "popupStatusGistLinkCopied": {
     "message": "✓ 链接已复制到剪贴板"
+  },
+  "settingsGithubTokenFineprint": {
+    "message": "⚠ 以明文形式存储在浏览器本地扩展存储中——请像对待密码一样对待它。仅授予 gist 权限范围，切勿使用更大范围的仓库/账户权限，以在泄露时降低风险。"
+  },
+  "settingsSectionAdvanced": {
+    "message": "高级"
+  },
+  "settingsDebugModeLabel": {
+    "message": "调试模式"
+  },
+  "settingsDebugModeDesc": {
+    "message": "在弹出窗口中添加“复制调试信息”和“报告问题”按钮——绝不包含聊天内容，仅包含页面结构（标签/类名，无文本）、选择器诊断信息和已泛化的 URL。"
+  },
+  "settingsDebugAttachGistLabel": {
+    "message": "将完整调试信息作为私密 Gist 附加（面向开发者）"
+  },
+  "settingsDebugAttachGistDesc": {
+    "message": "需要上方的 GitHub 令牌。“报告问题”还会将相同的不含内容的诊断信息上传为私密 Gist，并在预填报告中附上链接，无需手动粘贴。"
+  },
+  "settingsDevToolsLabel": {
+    "message": "本地调试/模糊测试工具"
+  },
+  "settingsDevToolsDesc": {
+    "message": "用于测试导入解析器的独立页面——不会打包进正式扩展，仅在以解包方式加载开发版本时存在。"
+  },
+  "settingsDevToolsImportDebug": {
+    "message": "导入解析器调试工具 →"
+  },
+  "settingsDevToolsPdfFuzzer": {
+    "message": "PDF 导入模糊测试工具 →"
+  },
+  "popupDebugDomBtnTitle": {
+    "message": "复制调试信息（不含聊天内容）"
+  },
+  "popupBtnDebugDom": {
+    "message": "复制调试信息"
+  },
+  "popupStatusDomCopied": {
+    "message": "✓ 调试信息已复制到剪贴板"
+  },
+  "popupReportBugBtnTitle": {
+    "message": "在 GitHub 上报告问题（不含聊天内容）"
+  },
+  "popupBtnReportBug": {
+    "message": "报告问题"
   }
 }

@@ -45,7 +45,8 @@ jobs:
             --exclude '.git/*' \
             --exclude '.github/*' \
             --exclude '*.lock' \
-            --exclude 'planning.md'
+            --exclude 'planning.md' \
+            --exclude 'debug/*'
           echo "✓ Built ${{ steps.meta.outputs.zip }} ($(du -sh ${{ steps.meta.outputs.zip }} | cut -f1))"
 
       - name: Create GitHub Release

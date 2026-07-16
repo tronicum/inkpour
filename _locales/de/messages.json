@@ -901,5 +901,50 @@
   },
   "popupStatusGistLinkCopied": {
     "message": "✓ Link in die Zwischenablage kopiert"
+  },
+  "settingsGithubTokenFineprint": {
+    "message": "⚠ Wird unverschlüsselt im lokalen Speicher der Erweiterung abgelegt — wie ein Passwort behandeln. Nur auf den Scope \"gist\" beschränken, niemals breiteren Repo-/Konto-Zugriff, um den Schaden bei einem Leak zu begrenzen."
+  },
+  "settingsSectionAdvanced": {
+    "message": "Erweitert"
+  },
+  "settingsDebugModeLabel": {
+    "message": "Debug-Modus"
+  },
+  "settingsDebugModeDesc": {
+    "message": "Fügt der Popup-Oberfläche die Buttons \"Debug-Infos kopieren\" und \"Fehler melden\" hinzu — enthält niemals Chat-Inhalte, nur Seitenstruktur (Tag-/Klassennamen, kein Text), Selektor-Diagnosen und eine anonymisierte URL."
+  },
+  "settingsDebugAttachGistLabel": {
+    "message": "Vollständige Debug-Infos als geheimes Gist anhängen (für Entwickler)"
+  },
+  "settingsDebugAttachGistDesc": {
+    "message": "Erfordert den GitHub-Token oben. \"Fehler melden\" lädt zusätzlich dieselbe inhaltsfreie Diagnose als geheimes Gist hoch und verlinkt sie im vorausgefüllten Bericht, sodass nichts manuell eingefügt werden muss."
+  },
+  "settingsDevToolsLabel": {
+    "message": "Lokale Debug-/Fuzzing-Werkzeuge"
+  },
+  "settingsDevToolsDesc": {
+    "message": "Eigenständige Seiten zum Testen des Import-Parsers — nicht Teil der veröffentlichten Erweiterung, nur vorhanden bei ungepackter Entwicklungs-Installation."
+  },
+  "settingsDevToolsImportDebug": {
+    "message": "Import-Parser-Debug-Tool →"
+  },
+  "settingsDevToolsPdfFuzzer": {
+    "message": "PDF-Import-Fuzzer →"
+  },
+  "popupDebugDomBtnTitle": {
+    "message": "Debug-Infos kopieren (ohne Chat-Inhalte)"
+  },
+  "popupBtnDebugDom": {
+    "message": "Debug-Infos kopieren"
+  },
+  "popupStatusDomCopied": {
+    "message": "✓ Debug-Infos in die Zwischenablage kopiert"
+  },
+  "popupReportBugBtnTitle": {
+    "message": "Einen Fehler auf GitHub melden (ohne Chat-Inhalte)"
+  },
+  "popupBtnReportBug": {
+    "message": "Fehler melden"
   }
 }

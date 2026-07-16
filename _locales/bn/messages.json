@@ -901,5 +901,50 @@
   },
   "popupStatusGistLinkCopied": {
     "message": "✓ লিঙ্ক ক্লিপবোর্ডে কপি করা হয়েছে"
+  },
+  "settingsGithubTokenFineprint": {
+    "message": "⚠ ব্রাউজারের স্থানীয় এক্সটেনশন স্টোরেজে প্লেইন টেক্সট হিসেবে সংরক্ষিত হয় — এটিকে পাসওয়ার্ডের মতো বিবেচনা করুন। ফাঁস হলে ক্ষতি সীমিত রাখতে শুধু \"gist\" স্কোপে সীমাবদ্ধ রাখুন, কখনো বিস্তৃত রিপো/অ্যাকাউন্ট অ্যাক্সেস দেবেন না।"
+  },
+  "settingsSectionAdvanced": {
+    "message": "উন্নত"
+  },
+  "settingsDebugModeLabel": {
+    "message": "ডিবাগ মোড"
+  },
+  "settingsDebugModeDesc": {
+    "message": "পপআপে \"ডিবাগ তথ্য কপি করুন\" এবং \"বাগ রিপোর্ট করুন\" বোতাম যোগ করে — এতে কখনো চ্যাট কনটেন্ট থাকে না, শুধু পেজ কাঠামো (ট্যাগ/ক্লাস নাম, টেক্সট ছাড়া), সিলেক্টর ডায়াগনস্টিকস এবং একটি সাধারণীকৃত URL।"
+  },
+  "settingsDebugAttachGistLabel": {
+    "message": "সম্পূর্ণ ডিবাগ তথ্য গোপন Gist হিসেবে সংযুক্ত করুন (ডেভেলপারদের জন্য)"
+  },
+  "settingsDebugAttachGistDesc": {
+    "message": "উপরের GitHub টোকেন প্রয়োজন। \"বাগ রিপোর্ট করুন\" একই কনটেন্ট-মুক্ত ডায়াগনস্টিক গোপন Gist হিসেবেও আপলোড করে এবং প্রি-ফিল্ড রিপোর্টে লিঙ্ক করে, ফলে ম্যানুয়ালি কিছু পেস্ট করার প্রয়োজন হয় না।"
+  },
+  "settingsDevToolsLabel": {
+    "message": "স্থানীয় ডিবাগ/ফাজিং টুলস"
+  },
+  "settingsDevToolsDesc": {
+    "message": "ইম্পোর্ট পার্সার পরীক্ষার জন্য স্বতন্ত্র পৃষ্ঠা — প্যাকেজড এক্সটেনশনে অন্তর্ভুক্ত নয়, শুধু ডেভেলপমেন্টের জন্য আনপ্যাকড লোড করা হলে উপস্থিত থাকে।"
+  },
+  "settingsDevToolsImportDebug": {
+    "message": "ইম্পোর্ট পার্সার ডিবাগ টুল →"
+  },
+  "settingsDevToolsPdfFuzzer": {
+    "message": "PDF ইম্পোর্ট ফাজার →"
+  },
+  "popupDebugDomBtnTitle": {
+    "message": "ডিবাগ তথ্য কপি করুন (চ্যাট কনটেন্ট ছাড়া)"
+  },
+  "popupBtnDebugDom": {
+    "message": "ডিবাগ তথ্য কপি করুন"
+  },
+  "popupStatusDomCopied": {
+    "message": "✓ ডিবাগ তথ্য ক্লিপবোর্ডে কপি করা হয়েছে"
+  },
+  "popupReportBugBtnTitle": {
+    "message": "GitHub-এ বাগ রিপোর্ট করুন (চ্যাট কনটেন্ট ছাড়া)"
+  },
+  "popupBtnReportBug": {
+    "message": "বাগ রিপোর্ট করুন"
   }
 }

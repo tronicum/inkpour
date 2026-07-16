@@ -1216,6 +1216,93 @@
     }).filter(m => m.content);
   }
 
+  // ─── Google AI Mode: geometry-based turn extraction ───────────────────────
+  // AI Mode's own CSS classes and jsname hooks have already changed at least
+  // twice in the short time this extension has tracked them (confirmed live,
+  // 2026-07: every old selector below returned zero matches). Chasing new
+  // obfuscated names every time Google ships a build is a losing game, so
+  // this instead locates turns by structure that's expensive for Google to
+  // casually break:
+  //   - Every user turn (the original query AND any follow-ups) renders as
+  //     an accessible heading, `[role="heading"][aria-level="2"]` — an a11y
+  //     attribute Google has real reason to keep for screen readers, unlike
+  //     a styling class hash.
+  //   - Each turn's answer is bounded by actual on-screen position (Y band
+  //     from just below its heading to just above the next turn/follow-up
+  //     box), not DOM tree order — this page's tree order does NOT reliably
+  //     match reading order (confirmed live: the follow-up input box sits
+  //     earlier in the tree than a later turn's own heading), almost
+  //     certainly from hidden/duplicate a11y nodes and portal-style
+  //     rendering, so tree-order walking overshoots unpredictably.
+  //   - The right-hand sources sidebar can vertically overlap an answer's Y
+  //     band (two-column layout), so an X-position budget relative to the
+  //     first turn's own left edge keeps it out without hardcoding pixels.
+  //   - The real "ask a follow-up" box is picked by position (bottommost
+  //     visible textarea/input/contenteditable) rather than by placeholder
+  //     text, since placeholder text is locale-specific and this page also
+  //     has decoy per-answer "give more detail" boxes above the real one.
+  function isVisibleForExtraction(el) {
+    if (!(el instanceof Element)) return false;
+    const cs = getComputedStyle(el);
+    if (cs.display === 'none' || cs.visibility === 'hidden' || Number(cs.opacity) === 0) return false;
+    if (el.offsetParent === null && cs.position !== 'fixed') return false;
+    const r = el.getBoundingClientRect();
+    return r.width > 0 && r.height > 0;
+  }
+
+  function extractGoogleAiModeTurnsByGeometry() {
+    const turnHeadings = Array.from(document.querySelectorAll('[role="heading"][aria-level="2"]'))
+      .filter(isVisibleForExtraction);
+    if (!turnHeadings.length) return null;
+
+    const inputCandidates = Array.from(document.querySelectorAll('textarea, input[type="text"], [contenteditable="true"]'))
+      .filter(isVisibleForExtraction);
+    const top    = el => el.getBoundingClientRect().top + window.scrollY;
+    const bottom = el => el.getBoundingClientRect().bottom + window.scrollY;
+    const left   = el => el.getBoundingClientRect().left;
+
+    // Bottommost visible input wins — locale-independent, and the real
+    // follow-up box is always positioned below every per-answer decoy box.
+    const followUpBox = inputCandidates.length
+      ? inputCandidates.reduce((a, b) => (top(b) > top(a) ? b : a))
+      : null;
+
+    const colLeft      = left(turnHeadings[0]);
+    const colRightEdge = colLeft + 500; // conversation column width budget — keeps the sources sidebar out
+    const boundaries   = turnHeadings.slice(1).map(top).concat([followUpBox ? top(followUpBox) : Infinity]);
+
+    const messages = [];
+    turnHeadings.forEach((headingEl, i) => {
+      const userText = htmlToMarkdown(headingEl).trim();
+      if (userText) messages.push({ role: 'You', content: userText });
+
+      const startY = bottom(headingEl);
+      const endY   = boundaries[i];
+
+      // Collect visible top-level blocks in this turn's on-screen band,
+      // skipping any element whose ancestor was already collected (avoids
+      // pulling both a wrapper and its own children in separately).
+      const wrapper = document.createElement('div');
+      const collected = [];
+      document.querySelectorAll('body *').forEach((el) => {
+        if (headingEl.contains(el) || el.contains(headingEl)) return;
+        if (!isVisibleForExtraction(el)) return;
+        const rect = el.getBoundingClientRect();
+        const y = rect.top + window.scrollY;
+        if (y < startY || y >= endY) return;
+        if (left(el) > colRightEdge) return; // right-column sources sidebar
+        if (collected.some(prev => prev.contains(el))) return;
+        collected.push(el);
+      });
+      collected.forEach(el => wrapper.appendChild(el.cloneNode(true)));
+
+      const answer = htmlToMarkdown(wrapper).trim();
+      if (answer) messages.push({ role: 'Gemini', content: answer });
+    });
+
+    return messages.length ? messages : null;
+  }
+
   // Google Search — AI Overviews and AI Mode (google.com/search)
   // Handles two variants:
   //   - Standard search with AI Overview (appears above organic results)
@@ -1229,7 +1316,9 @@
 
     if (isAIMode) {
       // AI Mode: multi-turn conversational interface.
-      // Google uses various selectors; try the most specific first.
+      // Legacy selectors first, kept in case Google reverts/A-B-tests an
+      // older build — but these have already gone stale once (2026-07), so
+      // don't rely on them alone.
       const userEls = document.querySelectorAll(
         '[data-turn-query], [jsname="IWGqac"], .user-query-text, [aria-label*="Your question"]'
       );
@@ -1251,7 +1340,16 @@
         }
       }
 
-      // Fallback: look for any message-like containers inside the AI Mode UI
+      // Current build (2026-07): geometry-based extraction — see comment
+      // block above extractGoogleAiModeTurnsByGeometry() for why.
+      if (!messages.length) {
+        try {
+          const geo = extractGoogleAiModeTurnsByGeometry();
+          if (geo) messages.push(...geo);
+        } catch { /* fall through to the generic fallback below */ }
+      }
+
+      // Last-resort fallback: look for any message-like containers inside the AI Mode UI
       if (!messages.length) {
         const turns = document.querySelectorAll('[data-q], [data-message-role], [class*="conversation-turn"]');
         turns.forEach(el => {
@@ -1883,11 +1981,131 @@
     }, 2800);
   }
 
+  // ─── Debug info (Settings → Debug mode) ───────────────────────────────────
+  // Produces a diagnostic report to help fix extraction bugs on sites Inkpour
+  // doesn't yet recognize correctly ("No messages found" etc.) — deliberately
+  // NEVER includes chat content. Inkpour is local-first: nothing leaves your
+  // machine on its own, and a debug report is no exception. It contains only:
+  // page structure (tag/class/attribute names, no text), counts of how many
+  // elements match each selector the real extractors already look for, and a
+  // generalized URL (hostname + path with ID-like segments blanked out, query
+  // string dropped entirely — a Google search URL's "?q=" IS the search text).
+
+  /** Curated list of selectors used across the real extractors in this file, for diagnostics. */
+  const DEBUG_SELECTOR_CHECKLIST = [
+    '[data-message-author-role]', '[data-message-role]', '[data-role]', '[data-message-type]',
+    '[data-author-name]', '[data-message-author]', '[data-author]', '[data-testid]',
+    'user-query', 'model-response', 'ai-overview', '[data-turn-query]', '[data-turn-response]',
+    '[jsname="IWGqac"]', '[jsname="rfDRyf"]', '.user-query-text', '.ai-response-container',
+    '[aria-label*="Your question"]', '[aria-label*="AI response"]',
+    '.prose', '.markdown-body', '.chat-user', '.chat-assistant', '.bot', '.user',
+    'div.message.user', 'div.message.bot', 'cib-chat-turn', 'ms-chat-turn',
+    '[class*="conversation-turn"]', '[class*="message-bubble"]', '[class*="chat-bubble"]',
+    '[class*="ChatMessage"]', '[class*="message-content"]',
+    '[role="region"][aria-label*="AI Overview"]', '[data-attrid*="description"]',
+    '[class*="overview"]', '[class*="Overview"]',
+  ];
+
+  /** hostname + path only, with opaque/long ID-like segments blanked — never the query string. */
+  function sanitizeUrlForDebug(urlStr) {
+    try {
+      const u = new URL(urlStr);
+      const path = u.pathname.split('/').map((seg) => {
+        if (!seg) return seg;
+        if (seg.length > 20 || /^[0-9a-f-]{8,}$/i.test(seg)) return '<id>';
+        return seg;
+      }).join('/');
+      return { hostname: u.hostname, path };
+    } catch {
+      return { hostname: '', path: '' };
+    }
+  }
+
+  /**
+   * Structural skeleton of the DOM: tag names, class names, and a safe subset
+   * of attributes (data-, aria-, role, id — the kind of thing selectors match
+   * against), with every attribute value over 40 chars or containing
+   * sentence-like spacing blanked to just its name, and every text node
+   * reduced to a bare character count. No message content, ever. Depth- and
+   * size-capped so pasting it somewhere (or a future bot parsing it) stays
+   * manageable on very long chats.
+   */
+  function buildDomSkeleton(root, maxDepth = 25, maxChars = 150000) {
+    let out = '';
+    let truncated = false;
+
+    function safeAttrs(el) {
+      const parts = [];
+      for (const attr of el.attributes) {
+        if (attr.name === 'class') continue; // handled separately below
+        if (!/^(data-|aria-|role$|id$)/i.test(attr.name)) continue;
+        const looksSafe = attr.value.length <= 40 && !/\s{2,}|[.!?](?:\s|$)/.test(attr.value);
+        parts.push(looksSafe && attr.value ? `${attr.name}="${attr.value}"` : attr.name);
+      }
+      return parts.join(' ');
+    }
+
+    function walk(node, depth) {
+      if (truncated) return;
+      if (out.length > maxChars) { truncated = true; return; }
+
+      if (node.nodeType === Node.TEXT_NODE) {
+        const len = node.textContent.trim().length;
+        if (len) out += '  '.repeat(depth) + `#text(${len})\n`;
+        return;
+      }
+      if (node.nodeType !== Node.ELEMENT_NODE) return;
+
+      const tag = node.tagName.toLowerCase();
+      if (tag === 'script' || tag === 'style' || tag === 'noscript' || tag === 'svg') {
+        out += '  '.repeat(depth) + `<${tag} />\n`;
+        return;
+      }
+
+      const cls = (typeof node.className === 'string' && node.className.trim())
+        ? '.' + node.className.trim().split(/\s+/).slice(0, 6).join('.')
+        : '';
+      const attrs = safeAttrs(node);
+      out += '  '.repeat(depth) + `<${tag}${cls}${attrs ? ' ' + attrs : ''}>\n`;
+
+      if (depth < maxDepth) {
+        for (const child of node.childNodes) walk(child, depth + 1);
+      }
+    }
+
+    walk(root, 0);
+    if (truncated) out += '\n… [truncated]\n';
+    return out;
+  }
+
+  function buildDebugReport() {
+    const selectorCounts = {};
+    for (const sel of DEBUG_SELECTOR_CHECKLIST) {
+      try { selectorCounts[sel] = document.querySelectorAll(sel).length; } catch { selectorCounts[sel] = null; }
+    }
+    return {
+      url:               sanitizeUrlForDebug(location.href),
+      detectedPlatform:  detectSite(),
+      timestamp:         new Date().toISOString(),
+      selectorCounts,
+      domSkeleton:       buildDomSkeleton(document.body),
+    };
+  }
+
   // ─── Message listener ─────────────────────────────────────────────────────
 
   // Chrome requires the sendResponse + return true pattern for async handlers.
   // Returning a Promise works in Firefox but is unreliable in Chrome MV3.
   api.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+    if (msg.action === 'debugDom') {
+      try {
+        sendResponse({ report: buildDebugReport() });
+      } catch (err) {
+        sendResponse({ error: err.message });
+      }
+      return;
+    }
+
     if (msg.action === 'showToast') {
       showToast(msg.text, msg.variant);
       sendResponse({ ok: true });

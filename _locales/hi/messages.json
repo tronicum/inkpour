@@ -901,5 +901,50 @@
   },
   "popupStatusGistLinkCopied": {
     "message": "✓ लिंक क्लिपबोर्ड पर कॉपी किया गया"
+  },
+  "settingsGithubTokenFineprint": {
+    "message": "⚠ यह ब्राउज़र के स्थानीय एक्सटेंशन स्टोरेज में सादे टेक्स्ट के रूप में सहेजा जाता है — इसे पासवर्ड की तरह मानें। लीक होने पर नुकसान सीमित करने के लिए इसे केवल \"gist\" स्कोप तक सीमित रखें, कभी भी व्यापक रिपॉज़िटरी/खाता एक्सेस न दें।"
+  },
+  "settingsSectionAdvanced": {
+    "message": "उन्नत"
+  },
+  "settingsDebugModeLabel": {
+    "message": "डीबग मोड"
+  },
+  "settingsDebugModeDesc": {
+    "message": "पॉपअप में \"डीबग जानकारी कॉपी करें\" और \"बग रिपोर्ट करें\" बटन जोड़ता है — इसमें कभी भी चैट सामग्री शामिल नहीं होती, केवल पेज संरचना (टैग/क्लास नाम, बिना टेक्स्ट), सेलेक्टर डायग्नोस्टिक्स और एक सामान्यीकृत URL।"
+  },
+  "settingsDebugAttachGistLabel": {
+    "message": "पूरी डीबग जानकारी को गुप्त Gist के रूप में जोड़ें (डेवलपर्स के लिए)"
+  },
+  "settingsDebugAttachGistDesc": {
+    "message": "ऊपर दिए गए GitHub टोकन की आवश्यकता है। \"बग रिपोर्ट करें\" वही सामग्री-रहित निदान गुप्त Gist के रूप में भी अपलोड करता है और इसे पहले से भरी रिपोर्ट में लिंक करता है, जिससे मैन्युअल रूप से कुछ भी पेस्ट करने की आवश्यकता नहीं पड़ती।"
+  },
+  "settingsDevToolsLabel": {
+    "message": "स्थानीय डीबग/फ़ज़िंग टूल"
+  },
+  "settingsDevToolsDesc": {
+    "message": "इम्पोर्ट पार्सर का परीक्षण करने के लिए स्वतंत्र पेज — पैकेज्ड एक्सटेंशन में शामिल नहीं, केवल विकास हेतु अनपैक्ड लोड होने पर मौजूद होते हैं।"
+  },
+  "settingsDevToolsImportDebug": {
+    "message": "इम्पोर्ट पार्सर डीबग टूल →"
+  },
+  "settingsDevToolsPdfFuzzer": {
+    "message": "PDF इम्पोर्ट फ़ज़र →"
+  },
+  "popupDebugDomBtnTitle": {
+    "message": "डीबग जानकारी कॉपी करें (चैट सामग्री रहित)"
+  },
+  "popupBtnDebugDom": {
+    "message": "डीबग जानकारी कॉपी करें"
+  },
+  "popupStatusDomCopied": {
+    "message": "✓ डीबग जानकारी क्लिपबोर्ड पर कॉपी की गई"
+  },
+  "popupReportBugBtnTitle": {
+    "message": "GitHub पर बग रिपोर्ट करें (चैट सामग्री रहित)"
+  },
+  "popupBtnReportBug": {
+    "message": "बग रिपोर्ट करें"
   }
 }

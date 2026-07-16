@@ -901,5 +901,50 @@
   },
   "popupStatusGistLinkCopied": {
     "message": "✓ تم نسخ الرابط إلى الحافظة"
+  },
+  "settingsGithubTokenFineprint": {
+    "message": "⚠ يُخزَّن كنص عادي في مساحة التخزين المحلية للإضافة في المتصفح — تعامل معه مثل كلمة المرور. اقصره على نطاق \"gist\" فقط، ولا تمنحه أبدًا صلاحية وصول أوسع للمستودعات/الحساب، لتقليل الضرر في حال تسريبه."
+  },
+  "settingsSectionAdvanced": {
+    "message": "متقدم"
+  },
+  "settingsDebugModeLabel": {
+    "message": "وضع التصحيح"
+  },
+  "settingsDebugModeDesc": {
+    "message": "يضيف زري \"نسخ معلومات التصحيح\" و\"الإبلاغ عن خطأ\" إلى النافذة المنبثقة — لا يتضمن أبدًا محتوى المحادثة، بل بنية الصفحة فقط (أسماء العلامات/الفئات، بدون نص)، وتشخيصات المحددات، وعنوان URL معمَّم."
+  },
+  "settingsDebugAttachGistLabel": {
+    "message": "إرفاق معلومات التصحيح الكاملة كـ Gist سري (للمطورين)"
+  },
+  "settingsDebugAttachGistDesc": {
+    "message": "يتطلب رمز GitHub أعلاه. \"الإبلاغ عن خطأ\" يقوم أيضًا برفع نفس التشخيص الخالي من المحتوى كـ Gist سري ويربطه في التقرير المُعبأ مسبقًا، دون الحاجة للصق أي شيء يدويًا."
+  },
+  "settingsDevToolsLabel": {
+    "message": "أدوات التصحيح/الفَزّ المحلية"
+  },
+  "settingsDevToolsDesc": {
+    "message": "صفحات مستقلة لاختبار محلل الاستيراد — غير مضمّنة في الإضافة المُعبأة، وتظهر فقط عند التحميل غير المُعبأ لأغراض التطوير."
+  },
+  "settingsDevToolsImportDebug": {
+    "message": "أداة تصحيح محلل الاستيراد ←"
+  },
+  "settingsDevToolsPdfFuzzer": {
+    "message": "أداة فَزّ استيراد PDF ←"
+  },
+  "popupDebugDomBtnTitle": {
+    "message": "نسخ معلومات التصحيح (بدون محتوى المحادثة)"
+  },
+  "popupBtnDebugDom": {
+    "message": "نسخ معلومات التصحيح"
+  },
+  "popupStatusDomCopied": {
+    "message": "✓ تم نسخ معلومات التصحيح إلى الحافظة"
+  },
+  "popupReportBugBtnTitle": {
+    "message": "الإبلاغ عن خطأ على GitHub (بدون محتوى المحادثة)"
+  },
+  "popupBtnReportBug": {
+    "message": "الإبلاغ عن خطأ"
   }
 }

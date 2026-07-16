@@ -876,5 +876,50 @@
   },
   "popupStatusGistLinkCopied": {
     "message": "✓ Odkaz zkopírován do schránky"
+  },
+  "settingsGithubTokenFineprint": {
+    "message": "⚠ Ukládá se jako prostý text v místním úložišti rozšíření — zacházejte s ním jako s heslem. Omezte jej pouze na rozsah \"gist\", nikdy na širší přístup k repozitáři/účtu, aby se omezily škody v případě úniku."
+  },
+  "settingsSectionAdvanced": {
+    "message": "Pokročilé"
+  },
+  "settingsDebugModeLabel": {
+    "message": "Režim ladění"
+  },
+  "settingsDebugModeDesc": {
+    "message": "Přidá do vyskakovacího okna tlačítka \"Kopírovat ladicí informace\" a \"Nahlásit chybu\" — nikdy neobsahuje obsah chatu, pouze strukturu stránky (názvy tagů/tříd, bez textu), diagnostiku selektorů a zobecněnou URL."
+  },
+  "settingsDebugAttachGistLabel": {
+    "message": "Připojit kompletní ladicí informace jako tajný Gist (pro vývojáře)"
+  },
+  "settingsDebugAttachGistDesc": {
+    "message": "Vyžaduje výše uvedený token GitHub. \"Nahlásit chybu\" také nahraje stejnou diagnostiku bez obsahu jako tajný Gist a odkáže na ni v předvyplněném hlášení, takže nemusíte nic ručně vkládat."
+  },
+  "settingsDevToolsLabel": {
+    "message": "Místní nástroje pro ladění/fuzzing"
+  },
+  "settingsDevToolsDesc": {
+    "message": "Samostatné stránky pro testování importního parseru — nejsou součástí zabaleného rozšíření, existují pouze při načtení nezabaleného rozšíření pro vývoj."
+  },
+  "settingsDevToolsImportDebug": {
+    "message": "Nástroj pro ladění importního parseru →"
+  },
+  "settingsDevToolsPdfFuzzer": {
+    "message": "Fuzzer pro import PDF →"
+  },
+  "popupDebugDomBtnTitle": {
+    "message": "Kopírovat ladicí informace (bez obsahu chatu)"
+  },
+  "popupBtnDebugDom": {
+    "message": "Kopírovat ladicí informace"
+  },
+  "popupStatusDomCopied": {
+    "message": "✓ Ladicí informace zkopírovány do schránky"
+  },
+  "popupReportBugBtnTitle": {
+    "message": "Nahlásit chybu na GitHubu (bez obsahu chatu)"
+  },
+  "popupBtnReportBug": {
+    "message": "Nahlásit chybu"
   }
 }

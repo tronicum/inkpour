@@ -901,5 +901,50 @@
   },
   "popupStatusGistLinkCopied": {
     "message": "✓ リンクをクリップボードにコピーしました"
+  },
+  "settingsGithubTokenFineprint": {
+    "message": "⚠ ブラウザのローカル拡張機能ストレージに平文で保存されます — パスワードと同様に扱ってください。漏洩時の被害を抑えるため、スコープは gist のみに限定し、より広いリポジトリ/アカウントアクセス権は付与しないでください。"
+  },
+  "settingsSectionAdvanced": {
+    "message": "詳細設定"
+  },
+  "settingsDebugModeLabel": {
+    "message": "デバッグモード"
+  },
+  "settingsDebugModeDesc": {
+    "message": "ポップアップに「デバッグ情報をコピー」と「バグを報告」ボタンを追加します — チャット内容は一切含まれず、ページ構造（タグ/クラス名、テキストなし）、セレクター診断、一般化されたURLのみを含みます。"
+  },
+  "settingsDebugAttachGistLabel": {
+    "message": "完全なデバッグ情報をシークレットGistとして添付（開発者向け）"
+  },
+  "settingsDebugAttachGistDesc": {
+    "message": "上記のGitHubトークンが必要です。「バグを報告」は同じ内容を含まない診断情報をシークレットGistとしてもアップロードし、事前入力されたレポートにリンクするため、手動で貼り付ける必要がありません。"
+  },
+  "settingsDevToolsLabel": {
+    "message": "ローカルデバッグ/ファジングツール"
+  },
+  "settingsDevToolsDesc": {
+    "message": "インポートパーサーをテストするためのスタンドアロンページです — パッケージ化された拡張機能には含まれず、開発用に非パッケージ状態で読み込んだ場合のみ存在します。"
+  },
+  "settingsDevToolsImportDebug": {
+    "message": "インポートパーサー デバッグツール →"
+  },
+  "settingsDevToolsPdfFuzzer": {
+    "message": "PDFインポート ファザー →"
+  },
+  "popupDebugDomBtnTitle": {
+    "message": "デバッグ情報をコピー（チャット内容は含まれません）"
+  },
+  "popupBtnDebugDom": {
+    "message": "デバッグ情報をコピー"
+  },
+  "popupStatusDomCopied": {
+    "message": "✓ デバッグ情報をクリップボードにコピーしました"
+  },
+  "popupReportBugBtnTitle": {
+    "message": "GitHubでバグを報告（チャット内容は含まれません）"
+  },
+  "popupBtnReportBug": {
+    "message": "バグを報告"
   }
 }
