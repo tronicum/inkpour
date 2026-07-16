@@ -853,5 +853,53 @@
   },
   "settingsFormatOptionZip": {
     "message": "ZIP (채팅 + 코드 파일)"
+  },
+  "settingsSectionLanguage": {
+    "message": "언어"
+  },
+  "settingsLanguageLabel": {
+    "message": "표시 언어"
+  },
+  "settingsLanguageDesc": {
+    "message": "Inkpour 자체 화면에만 브라우저 언어를 재정의합니다"
+  },
+  "settingsLanguageAuto": {
+    "message": "브라우저 언어 따르기(자동)"
+  },
+  "popupImportBtnTitle": {
+    "message": "클립보드에서 가져오기"
+  },
+  "popupImportTextPlaceholder": {
+    "message": "복사한 대화를 여기에 붙여넣으세요…"
+  },
+  "popupImportTitlePlaceholder": {
+    "message": "제목(선택 사항)…"
+  },
+  "popupImportCancelBtn": {
+    "message": "취소"
+  },
+  "popupImportSubmitBtn": {
+    "message": "가져오기"
+  },
+  "popupImportEmptyError": {
+    "message": "먼저 텍스트를 붙여넣으세요"
+  },
+  "popupImportDefaultTitle": {
+    "message": "가져온 채팅"
+  },
+  "popupStatusImportedOne": {
+    "message": "✓ 메시지 $1개를 가져왔습니다 — 아래에서 형식을 선택하세요"
+  },
+  "popupStatusImportedOther": {
+    "message": "✓ 메시지 $1개를 가져왔습니다 — 아래에서 형식을 선택하세요"
+  },
+  "popupGistCopyLinkBtn": {
+    "message": "링크 복사"
+  },
+  "popupGistShareBtn": {
+    "message": "공유…"
+  },
+  "popupStatusGistLinkCopied": {
+    "message": "✓ 링크가 클립보드에 복사되었습니다"
   }
 }

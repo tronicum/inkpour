@@ -853,5 +853,53 @@
   },
   "settingsFormatOptionZip": {
     "message": "ZIP (चैट + कोड फ़ाइलें)"
+  },
+  "settingsSectionLanguage": {
+    "message": "भाषा"
+  },
+  "settingsLanguageLabel": {
+    "message": "प्रदर्शन भाषा"
+  },
+  "settingsLanguageDesc": {
+    "message": "यह केवल Inkpour की अपनी स्क्रीन के लिए आपके ब्राउज़र की भाषा को अधिरोहित करता है"
+  },
+  "settingsLanguageAuto": {
+    "message": "ब्राउज़र की भाषा अनुसरण करें (स्वचालित)"
+  },
+  "popupImportBtnTitle": {
+    "message": "क्लिपबोर्ड से आयात करें"
+  },
+  "popupImportTextPlaceholder": {
+    "message": "यहाँ कॉपी की गई बातचीत पेस्ट करें…"
+  },
+  "popupImportTitlePlaceholder": {
+    "message": "शीर्षक (वैकल्पिक)…"
+  },
+  "popupImportCancelBtn": {
+    "message": "रद्द करें"
+  },
+  "popupImportSubmitBtn": {
+    "message": "आयात करें"
+  },
+  "popupImportEmptyError": {
+    "message": "पहले कुछ टेक्स्ट पेस्ट करें"
+  },
+  "popupImportDefaultTitle": {
+    "message": "आयातित चैट"
+  },
+  "popupStatusImportedOne": {
+    "message": "✓ $1 संदेश आयात किया गया — नीचे एक प्रारूप चुनें"
+  },
+  "popupStatusImportedOther": {
+    "message": "✓ $1 संदेश आयात किए गए — नीचे एक प्रारूप चुनें"
+  },
+  "popupGistCopyLinkBtn": {
+    "message": "लिंक कॉपी करें"
+  },
+  "popupGistShareBtn": {
+    "message": "साझा करें…"
+  },
+  "popupStatusGistLinkCopied": {
+    "message": "✓ लिंक क्लिपबोर्ड पर कॉपी किया गया"
   }
 }

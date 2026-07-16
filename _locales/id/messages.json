@@ -853,5 +853,53 @@
   },
   "settingsFormatOptionZip": {
     "message": "ZIP (chat + file kode)"
+  },
+  "settingsSectionLanguage": {
+    "message": "Bahasa"
+  },
+  "settingsLanguageLabel": {
+    "message": "Bahasa tampilan"
+  },
+  "settingsLanguageDesc": {
+    "message": "Menggantikan bahasa browser Anda hanya untuk tampilan Inkpour sendiri"
+  },
+  "settingsLanguageAuto": {
+    "message": "Ikuti bahasa browser (otomatis)"
+  },
+  "popupImportBtnTitle": {
+    "message": "Impor dari papan klip"
+  },
+  "popupImportTextPlaceholder": {
+    "message": "Tempel percakapan yang disalin di sini…"
+  },
+  "popupImportTitlePlaceholder": {
+    "message": "Judul (opsional)…"
+  },
+  "popupImportCancelBtn": {
+    "message": "Batal"
+  },
+  "popupImportSubmitBtn": {
+    "message": "Impor"
+  },
+  "popupImportEmptyError": {
+    "message": "Tempel teks terlebih dahulu"
+  },
+  "popupImportDefaultTitle": {
+    "message": "Obrolan yang diimpor"
+  },
+  "popupStatusImportedOne": {
+    "message": "✓ $1 pesan diimpor — pilih format di bawah"
+  },
+  "popupStatusImportedOther": {
+    "message": "✓ $1 pesan diimpor — pilih format di bawah"
+  },
+  "popupGistCopyLinkBtn": {
+    "message": "Salin tautan"
+  },
+  "popupGistShareBtn": {
+    "message": "Bagikan…"
+  },
+  "popupStatusGistLinkCopied": {
+    "message": "✓ Tautan disalin ke papan klip"
   }
 }

@@ -51,6 +51,49 @@ test.describe('Popup UI', () => {
   });
 });
 
+test.describe('Import from clipboard', () => {
+  test('parses pasted text and shows the message count', async ({ popupPage }) => {
+    await popupPage.click('#importBtn');
+    await expect(popupPage.locator('#import-section')).toBeVisible();
+
+    await popupPage.fill('#importText', [
+      'You: What is the capital of France?',
+      'ChatGPT: The capital of France is Paris.',
+    ].join('\n'));
+    await popupPage.fill('#importTitleInput', 'Import history test');
+    await popupPage.click('#importSubmitBtn');
+
+    await expect(popupPage.locator('#status')).toHaveClass(/success/, { timeout: 5000 });
+    const msg = await popupPage.locator('#status').textContent();
+    expect(msg).toContain('2');
+  });
+
+  test('lands the imported chat in History immediately, before any export click', async ({ popupPage }) => {
+    // Regression test: previously saveLastExport() was only ever called from
+    // the export-button handlers, so an import showed "N messages" but wrote
+    // nothing to inkpour_history until you separately clicked e.g. Markdown.
+    // Clicking Import alone must now be enough.
+    await popupPage.evaluate(() => chrome.storage.local.set({ inkpour_history: [] }));
+
+    await popupPage.click('#importBtn');
+    await popupPage.fill('#importText', [
+      'You: What is the capital of France?',
+      'ChatGPT: The capital of France is Paris.',
+    ].join('\n'));
+    await popupPage.fill('#importTitleInput', 'Import history test');
+    await popupPage.click('#importSubmitBtn');
+
+    await expect(popupPage.locator('#status')).toHaveClass(/success/, { timeout: 5000 });
+
+    const history = await popupPage.evaluate(() =>
+      chrome.storage.local.get('inkpour_history').then(r => r.inkpour_history ?? [])
+    );
+    expect(history.length).toBe(1);
+    expect(history[0].title).toBe('Import history test');
+    expect(history[0].messageCount).toBe(2);
+  });
+});
+
 test.describe('Settings page', () => {
   test('settings page loads and shows browser detection', async ({ context, extensionId }) => {
     const page = await context.newPage();

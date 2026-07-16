@@ -853,5 +853,53 @@
   },
   "settingsFormatOptionZip": {
     "message": "ZIP (চ্যাট + কোড ফাইল)"
+  },
+  "settingsSectionLanguage": {
+    "message": "ভাষা"
+  },
+  "settingsLanguageLabel": {
+    "message": "প্রদর্শন ভাষা"
+  },
+  "settingsLanguageDesc": {
+    "message": "শুধুমাত্র Inkpour-এর নিজস্ব স্ক্রিনের জন্য আপনার ব্রাউজারের ভাষা প্রতিস্থাপন করে"
+  },
+  "settingsLanguageAuto": {
+    "message": "ব্রাউজারের ভাষা অনুসরণ করুন (স্বয়ংক্রিয়)"
+  },
+  "popupImportBtnTitle": {
+    "message": "ক্লিপবোর্ড থেকে আমদানি করুন"
+  },
+  "popupImportTextPlaceholder": {
+    "message": "এখানে কপি করা কথোপকথন পেস্ট করুন…"
+  },
+  "popupImportTitlePlaceholder": {
+    "message": "শিরোনাম (ঐচ্ছিক)…"
+  },
+  "popupImportCancelBtn": {
+    "message": "বাতিল"
+  },
+  "popupImportSubmitBtn": {
+    "message": "আমদানি করুন"
+  },
+  "popupImportEmptyError": {
+    "message": "প্রথমে কিছু টেক্সট পেস্ট করুন"
+  },
+  "popupImportDefaultTitle": {
+    "message": "আমদানিকৃত চ্যাট"
+  },
+  "popupStatusImportedOne": {
+    "message": "✓ $1 টি বার্তা আমদানি করা হয়েছে — নিচে একটি ফরম্যাট বেছে নিন"
+  },
+  "popupStatusImportedOther": {
+    "message": "✓ $1 টি বার্তা আমদানি করা হয়েছে — নিচে একটি ফরম্যাট বেছে নিন"
+  },
+  "popupGistCopyLinkBtn": {
+    "message": "লিঙ্ক কপি করুন"
+  },
+  "popupGistShareBtn": {
+    "message": "শেয়ার করুন…"
+  },
+  "popupStatusGistLinkCopied": {
+    "message": "✓ লিঙ্ক ক্লিপবোর্ডে কপি করা হয়েছে"
   }
 }

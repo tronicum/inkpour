@@ -853,5 +853,53 @@
   },
   "settingsFormatOptionZip": {
     "message": "ZIP (чат + файли коду)"
+  },
+  "settingsSectionLanguage": {
+    "message": "Мова"
+  },
+  "settingsLanguageLabel": {
+    "message": "Мова інтерфейсу"
+  },
+  "settingsLanguageDesc": {
+    "message": "Перевизначає мову вашого браузера лише для власних екранів Inkpour"
+  },
+  "settingsLanguageAuto": {
+    "message": "Використовувати мову браузера (автоматично)"
+  },
+  "popupImportBtnTitle": {
+    "message": "Імпортувати з буфера обміну"
+  },
+  "popupImportTextPlaceholder": {
+    "message": "Вставте скопійовану розмову сюди…"
+  },
+  "popupImportTitlePlaceholder": {
+    "message": "Назва (необов'язково)…"
+  },
+  "popupImportCancelBtn": {
+    "message": "Скасувати"
+  },
+  "popupImportSubmitBtn": {
+    "message": "Імпортувати"
+  },
+  "popupImportEmptyError": {
+    "message": "Спочатку вставте текст"
+  },
+  "popupImportDefaultTitle": {
+    "message": "Імпортований чат"
+  },
+  "popupStatusImportedOne": {
+    "message": "✓ Імпортовано $1 повідомлення — виберіть формат нижче"
+  },
+  "popupStatusImportedOther": {
+    "message": "✓ Імпортовано $1 повідомлень — виберіть формат нижче"
+  },
+  "popupGistCopyLinkBtn": {
+    "message": "Копіювати посилання"
+  },
+  "popupGistShareBtn": {
+    "message": "Поділитися…"
+  },
+  "popupStatusGistLinkCopied": {
+    "message": "✓ Посилання скопійовано в буфер обміну"
   }
 }

@@ -853,5 +853,53 @@
   },
   "settingsFormatOptionZip": {
     "message": "ZIP (chat + arquivos de código)"
+  },
+  "settingsSectionLanguage": {
+    "message": "Idioma"
+  },
+  "settingsLanguageLabel": {
+    "message": "Idioma de exibição"
+  },
+  "settingsLanguageDesc": {
+    "message": "Substitui o idioma do seu navegador apenas nas telas próprias do Inkpour"
+  },
+  "settingsLanguageAuto": {
+    "message": "Seguir idioma do navegador (automático)"
+  },
+  "popupImportBtnTitle": {
+    "message": "Importar da área de transferência"
+  },
+  "popupImportTextPlaceholder": {
+    "message": "Cole aqui uma conversa copiada…"
+  },
+  "popupImportTitlePlaceholder": {
+    "message": "Título (opcional)…"
+  },
+  "popupImportCancelBtn": {
+    "message": "Cancelar"
+  },
+  "popupImportSubmitBtn": {
+    "message": "Importar"
+  },
+  "popupImportEmptyError": {
+    "message": "Cole algum texto primeiro"
+  },
+  "popupImportDefaultTitle": {
+    "message": "Conversa importada"
+  },
+  "popupStatusImportedOne": {
+    "message": "✓ $1 mensagem importada — escolha um formato abaixo"
+  },
+  "popupStatusImportedOther": {
+    "message": "✓ $1 mensagens importadas — escolha um formato abaixo"
+  },
+  "popupGistCopyLinkBtn": {
+    "message": "Copiar link"
+  },
+  "popupGistShareBtn": {
+    "message": "Compartilhar…"
+  },
+  "popupStatusGistLinkCopied": {
+    "message": "✓ Link copiado para a área de transferência"
   }
 }
