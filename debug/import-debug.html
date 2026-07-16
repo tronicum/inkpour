@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Inkpour — import parser debug tool</title>
+<style>
+  :root {
+    --bg: #ffffff; --surface: #f4f4f5; --text: #18181b; --subtext: #71717a;
+    --accent: #5b5bd6; --border: #e4e4e7; --user: #5b5bd6; --ai: #16a34a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #18181b; --surface: #27272a; --text: #fafafa; --subtext: #a1a1aa;
+      --accent: #818cf8; --border: #3f3f46; --user: #818cf8; --ai: #4ade80;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg); color: var(--text); margin: 0; padding: 20px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px; height: 100vh;
+  }
+  h1 { font-size: 15px; margin: 0 0 4px; }
+  p.sub { font-size: 12px; color: var(--subtext); margin: 0 0 12px; }
+  .col { display: flex; flex-direction: column; min-height: 0; }
+  textarea {
+    flex: 1; width: 100%; font-family: 'SF Mono', Consolas, monospace; font-size: 12px;
+    padding: 10px; border: 1.5px solid var(--border); border-radius: 8px;
+    background: var(--surface); color: var(--text); resize: none;
+  }
+  .row { display: flex; gap: 8px; margin-top: 8px; align-items: center; flex-wrap: wrap; }
+  button {
+    padding: 7px 14px; border-radius: 7px; border: 1.5px solid var(--accent);
+    background: transparent; color: var(--accent); font-weight: 600; font-size: 12px;
+    cursor: pointer;
+  }
+  button:hover { background: var(--accent); color: white; }
+  button.primary { background: var(--accent); color: white; }
+  select { padding: 6px 8px; border-radius: 7px; border: 1.5px solid var(--border); background: var(--bg); color: var(--text); font-size: 12px; }
+  #stats { font-size: 11.5px; color: var(--subtext); }
+  #output {
+    flex: 1; overflow-y: auto; border: 1.5px solid var(--border); border-radius: 8px;
+    background: var(--surface); padding: 8px;
+  }
+  .msg { padding: 8px 10px; border-radius: 7px; margin-bottom: 8px; background: var(--bg); border-left: 3px solid var(--border); }
+  .msg.user { border-left-color: var(--user); }
+  .msg.ai { border-left-color: var(--ai); }
+  .msg .role { font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .msg.user .role { color: var(--user); }
+  .msg.ai .role { color: var(--ai); }
+  .msg pre { white-space: pre-wrap; word-break: break-word; font-size: 12.5px; margin: 0; font-family: inherit; line-height: 1.5; }
+  .empty { color: var(--subtext); font-size: 12px; padding: 12px; text-align: center; }
+</style>
+</head>
+<body>
+
+  <div class="col">
+    <h1>Inkpour — import parser debug tool</h1>
+    <p class="sub">
+      Loads <code>src/utils.js</code> directly (no extension, no manifest, no background script) —
+      paste plain text below, or paste rich text/HTML (a table, bold text) to test the paste-event
+      HTML→Markdown conversion, then click Parse to see exactly what <code>parseImportedText()</code>
+      produces.
+    </p>
+    <textarea id="input" placeholder="Paste a conversation here…"></textarea>
+    <div class="row">
+      <button class="primary" id="parseBtn">Parse</button>
+      <button id="clearBtn">Clear</button>
+      <select id="sampleSelect">
+        <option value="">Load sample…</option>
+        <option value="gemini">Gemini plain-text paste</option>
+        <option value="labeled">Explicit You:/AI: labels</option>
+        <option value="html">Rich HTML (table + bold)</option>
+      </select>
+      <span id="stats"></span>
+    </div>
+  </div>
+
+  <div class="col">
+    <h1>Parsed messages</h1>
+    <p class="sub">Role, word count, and full content for each message <code>parseImportedText()</code> returned.</p>
+    <div id="output"><div class="empty">Nothing parsed yet.</div></div>
+  </div>
+
+  <script src="../src/utils.js"></script>
+  <script>
+    const input       = document.getElementById('input');
+    const output      = document.getElementById('output');
+    const stats       = document.getElementById('stats');
+    const parseBtn    = document.getElementById('parseBtn');
+    const clearBtn    = document.getElementById('clearBtn');
+    const sampleSelect = document.getElementById('sampleSelect');
+
+    // Same rich-text paste handling as popup.js's import textarea — lets you
+    // test htmlPasteToMarkdown() with a real paste event (e.g. copying a
+    // table + bold text out of a live web page) without touching the
+    // extension at all.
+    input.addEventListener('paste', (event) => {
+      const html = event.clipboardData?.getData('text/html');
+      if (!html || !html.trim()) return;
+      event.preventDefault();
+      const converted = htmlPasteToMarkdown(html);
+      const el = input;
+      const start = el.selectionStart ?? el.value.length;
+      const end   = el.selectionEnd ?? el.value.length;
+      el.value = el.value.slice(0, start) + converted + el.value.slice(end);
+      const caret = start + converted.length;
+      el.setSelectionRange(caret, caret);
+    });
+
+    function render(messages) {
+      output.textContent = '';
+      if (!messages.length) {
+        output.innerHTML = '<div class="empty">No messages parsed — check the input.</div>';
+        stats.textContent = '';
+        return;
+      }
+      messages.forEach((m) => {
+        const isUser = m.role.toLowerCase() === 'you' || m.role.toLowerCase() === 'user';
+        const div = document.createElement('div');
+        div.className = 'msg ' + (isUser ? 'user' : 'ai');
+        const roleEl = document.createElement('div');
+        roleEl.className = 'role';
+        roleEl.textContent = m.role;
+        const contentEl = document.createElement('pre');
+        contentEl.textContent = m.content;
+        div.appendChild(roleEl);
+        div.appendChild(contentEl);
+        output.appendChild(div);
+      });
+      const words = messages.reduce((sum, m) => sum + m.content.trim().split(/\s+/).filter(Boolean).length, 0);
+      stats.textContent = `${messages.length} message${messages.length === 1 ? '' : 's'} · ~${words.toLocaleString()} words`;
+    }
+
+    parseBtn.addEventListener('click', () => {
+      try {
+        render(parseImportedText(input.value));
+      } catch (err) {
+        output.innerHTML = '<div class="empty">Error: ' + err.message + '</div>';
+      }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      input.value = '';
+      output.innerHTML = '<div class="empty">Nothing parsed yet.</div>';
+      stats.textContent = '';
+    });
+
+    const SAMPLES = {
+      gemini: [
+        'To integrate Lego Mindstorms hardware into ROS 2, the most efficient method is using Docker. [1, 2]',
+        '',
+        'KI-Antworten können Fehler enthalten. Weitere Informationen',
+        '',
+        'we want to use it to control 2 to 3 axis controlled Lego sets. are there examples?',
+        '',
+        '3 Websites',
+        '',
+        'Yes, there are active community examples for this. [1]',
+        'python',
+        'import rclpy',
+        'print("hello")',
+        'Verwende Code mit Vorsicht.',
+        '',
+        'KI-Antworten können Fehler enthalten. Weitere Informationen',
+      ].join('\n'),
+      labeled: [
+        'You: What is the capital of France?',
+        'ChatGPT: The capital of France is Paris.',
+        'You: And Germany?',
+        'ChatGPT: The capital of Germany is Berlin.',
+      ].join('\n'),
+      html: '<p>Here is a <strong>comparison</strong> table:</p>' +
+        '<table><tr><th>Feature</th><th>Status</th></tr>' +
+        '<tr><td>DOM Parsing</td><td>Done</td></tr>' +
+        '<tr><td>Style Injection</td><td><em>Pending</em></td></tr></table>' +
+        '<p>And some <code>inline code</code>.</p>',
+    };
+
+    sampleSelect.addEventListener('change', () => {
+      const key = sampleSelect.value;
+      if (!key) return;
+      input.value = SAMPLES[key];
+      sampleSelect.value = '';
+    });
+  </script>
+</body>
+</html>
