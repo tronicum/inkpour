@@ -83,6 +83,8 @@
     scrubSecrets:          true,
     webhookUrl:           '',
     webhookIncludeContent: false,
+    debugMode:             false,
+    debugAttachGist:       false,
   };
 
   api.storage.local.get('inkpour_settings', (result) => {
@@ -101,6 +103,34 @@
     document.getElementById('scrubSecrets').checked           = prefs.scrubSecrets;
     document.getElementById('webhookUrl').value              = prefs.webhookUrl;
     document.getElementById('webhookIncludeContent').checked = prefs.webhookIncludeContent;
+    document.getElementById('debugMode').checked             = prefs.debugMode;
+    document.getElementById('debugAttachGist').checked        = prefs.debugAttachGist;
+    toggleDevToolsField(prefs.debugMode);
+  });
+
+  // ─── Local debug/fuzzing tools (debug/ — not present in packaged builds) ──
+  // Reacts live to the checkbox rather than waiting for Save, since it's just
+  // a visibility toggle with nothing to persist until you actually hit Save.
+
+  function toggleDevToolsField(show) {
+    const field = document.getElementById('devToolsField');
+    if (!field) return;
+    field.hidden = !show;
+    field.style.display = show ? 'flex' : 'none';
+  }
+
+  document.getElementById('debugMode')?.addEventListener('change', (e) => {
+    toggleDevToolsField(e.target.checked);
+  });
+
+  document.getElementById('openImportDebugLink')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    api.tabs.create({ url: api.runtime.getURL('debug/import-debug.html') });
+  });
+
+  document.getElementById('openPdfFuzzerLink')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    api.tabs.create({ url: api.runtime.getURL('debug/import-pdf-fuzzer.html') });
   });
 
   // ─── Save ─────────────────────────────────────────────────────────────────
@@ -121,6 +151,8 @@
       scrubSecrets:          document.getElementById('scrubSecrets').checked,
       webhookUrl:            document.getElementById('webhookUrl').value.trim(),
       webhookIncludeContent: document.getElementById('webhookIncludeContent').checked,
+      debugMode:             document.getElementById('debugMode').checked,
+      debugAttachGist:       document.getElementById('debugAttachGist').checked,
     };
     api.storage.local.set({ inkpour_settings: prefs }, () => {
       const el = document.getElementById('saveStatus');

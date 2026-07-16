@@ -901,5 +901,50 @@
   },
   "popupStatusGistLinkCopied": {
     "message": "✓ 連結已複製到剪貼簿"
+  },
+  "settingsGithubTokenFineprint": {
+    "message": "⚠ 以明文形式儲存在瀏覽器本機擴充功能儲存空間中——請像對待密碼一樣對待它。僅授予 gist 權限範圍，切勿使用更大範圍的儲存庫/帳戶權限，以在外洩時降低風險。"
+  },
+  "settingsSectionAdvanced": {
+    "message": "進階"
+  },
+  "settingsDebugModeLabel": {
+    "message": "偵錯模式"
+  },
+  "settingsDebugModeDesc": {
+    "message": "在彈出視窗中新增「複製偵錯資訊」與「回報問題」按鈕——絕不包含聊天內容，僅包含頁面結構（標籤/類別名稱，無文字）、選擇器診斷資訊與已泛化的 URL。"
+  },
+  "settingsDebugAttachGistLabel": {
+    "message": "將完整偵錯資訊附加為秘密 Gist（供開發者使用）"
+  },
+  "settingsDebugAttachGistDesc": {
+    "message": "需要上方的 GitHub 權杖。「回報問題」也會將相同的不含內容診斷資訊上傳為秘密 Gist，並在預填的回報中附上連結，無需手動貼上。"
+  },
+  "settingsDevToolsLabel": {
+    "message": "本機偵錯／模糊測試工具"
+  },
+  "settingsDevToolsDesc": {
+    "message": "用於測試匯入解析器的獨立頁面——不會封裝進正式擴充功能，僅在以解壓縮方式載入開發版本時存在。"
+  },
+  "settingsDevToolsImportDebug": {
+    "message": "匯入解析器偵錯工具 →"
+  },
+  "settingsDevToolsPdfFuzzer": {
+    "message": "PDF 匯入模糊測試工具 →"
+  },
+  "popupDebugDomBtnTitle": {
+    "message": "複製偵錯資訊（不含聊天內容）"
+  },
+  "popupBtnDebugDom": {
+    "message": "複製偵錯資訊"
+  },
+  "popupStatusDomCopied": {
+    "message": "✓ 偵錯資訊已複製到剪貼簿"
+  },
+  "popupReportBugBtnTitle": {
+    "message": "在 GitHub 回報問題（不含聊天內容）"
+  },
+  "popupBtnReportBug": {
+    "message": "回報問題"
   }
 }

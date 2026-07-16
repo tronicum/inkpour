@@ -360,7 +360,15 @@ function buildFilename(template, platform, titleSlug, sourceUrl = '', wordCount 
     .replace(/\{url\}/g,       hostname || platform || 'chat')
     .replace(/\{words\}/g,     String(wordCount  || 0))
     .replace(/\{msgcount\}/g,  String(msgCount   || 0))
-    .replace(/[^a-z0-9_\-]+/gi, '-')
+    // Collapse anything that isn't a Unicode letter/number/underscore/hyphen
+    // into a single dash. Uses \p{L}/\p{N} (Unicode property escapes, not
+    // a-z/0-9) specifically so titles in any of the 26 locales this
+    // extension ships keep their own letters — an ASCII-only class here
+    // would strip every accented character (ä, é, ñ, ç, …) and non-Latin
+    // script down to bare dashes, which is exactly what happened before:
+    // a German title with umlauts came out of the real (non-fuzzer) import
+    // with those letters silently replaced.
+    .replace(/[^\p{L}\p{N}_\-]+/gu, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 100) || 'inkpour-export';
 }
@@ -1190,11 +1198,30 @@ function htmlPasteToMarkdown(html) {
 // Websites" source-panel headers, video timestamps, and the U+FFFC object-
 // replacement character left behind by stripped images/icons.
 
-const GEMINI_DISCLAIMER_RE    = /^(ki-antworten können fehler enthalten|ai responses (?:may|can) (?:include|contain) mistakes)\.?\s*(weitere informationen|for more information)?\.?\s*$/i;
+// Tail after the disclaimer sentence varies by Google surface: Gemini's own
+// app uses "Weitere Informationen"/"For more information", but Google
+// Search's "AI Mode" panel uses a plain "Learn more" link instead — found via
+// a real AI Mode search-results PDF export (119 pages) that has neither of
+// the previously-known tails.
+const GEMINI_DISCLAIMER_RE    = /^(ki-antworten können fehler enthalten|ai responses (?:may|can) (?:include|contain) mistakes)\.?\s*(weitere informationen|for more information|learn more)?\.?\s*$/i;
 const GEMINI_CODE_CAUTION_RE  = /^(verwende code mit vorsicht|use code with caution)\.?\s*(\[[\d,\s]+\])?\s*$/i;
-const GEMINI_SOURCES_HEADER_RE = /^\d+\s+(websites|quellen|sources)\s*$/i;
+// "s?" also covers the singular ("1 Website" / "1 Quelle" / "1 Source") —
+// previously plural-only, so a count of exactly one source leaked through
+// as unrecognized noise instead of being stripped like every other count.
+// "sites?" (bare, no "web" prefix) is the AI Mode search panel's own count
+// label ("8 sites" / "1 site"), distinct from Gemini's "N Websites" —
+// same real 119-page AI Mode export exposed this gap too.
+const GEMINI_SOURCES_HEADER_RE = /^\d+\s+(websites?|sites?|quellen?|sources?)\s*$/i;
 const GEMINI_TIMESTAMP_RE     = /^\d{1,2}:\d{2}$/;
 const CITATION_BRACKET_RE     = /\[\d+(?:,\s*\d+)*\]/;
+// AI Mode occasionally tacks a domain-specific caution sentence directly in
+// front of the regular disclaimer on the very same line (e.g. answers that
+// brush up against medical/legal/financial topics) — seen in the same
+// export even for an unrelated printer-driver question, so it's a generic
+// classifier-triggered addition rather than something tied to real medical
+// content. Matched separately (not folded into GEMINI_DISCLAIMER_RE) since
+// it can precede the disclaimer rather than replace it.
+const GEMINI_TOPIC_CAUTION_RE = /this is for informational purposes only\.\s*for (medical|legal|financial) advice(?:\s*(?:or|and)\s*diagnosis)?,?\s*consult a professional\.?\s*/i;
 
 // Bare language-name lines Gemini leaves before a code snippet (the fenced
 // ```lang wrapper itself doesn't survive plain-text copy, just the label).
@@ -1249,6 +1276,18 @@ function cleanGeminiPaste(raw) {
     if (inlineM) {
       out.push(inlineM[1] + ':', '```' + inlineM[2].toLowerCase(), inlineM[3], '```');
       continue;
+    }
+
+    // AI Mode sometimes prepends a topic-specific caution sentence directly
+    // onto the same line as the regular disclaimer ("This is for
+    // informational purposes only. For medical advice... AI responses may
+    // include mistakes. Learn more") — strip that prefix first so the
+    // regular disclaimer check below still recognizes what's left of the
+    // line, instead of the whole line silently surviving as bogus content
+    // because GEMINI_DISCLAIMER_RE anchors to the full line.
+    if (GEMINI_TOPIC_CAUTION_RE.test(trimmed)) {
+      const remainder = trimmed.replace(GEMINI_TOPIC_CAUTION_RE, '').trim();
+      if (!remainder || GEMINI_DISCLAIMER_RE.test(remainder)) { out.push(' '); continue; }
     }
 
     if (GEMINI_DISCLAIMER_RE.test(trimmed))     { out.push(' '); continue; }
@@ -1337,7 +1376,20 @@ function parseImportedText(raw) {
   if (current) turns.push(current);
 
   const labeled = turns.map(m => ({ role: m.role, content: m.content.trim() })).filter(m => m.content);
-  if (labeled.length >= 2) return labeled;
+  // Require at least two *distinct* roles before trusting this as a real
+  // labeled conversation. Both USER_LABEL and AI_LABEL match a bare label
+  // word anywhere a line happens to start with it — including inside a code
+  // snippet or config example the AI included in its answer (e.g. a YAML/JSON
+  // sample with a "user: ..." field, or a line starting with "Google" in
+  // prose). A single such false match splits one long answer into two turns
+  // that BOTH end up labeled "You" (USER_LABEL always assigns role 'You'
+  // regardless of which recognized word matched), which used to be trusted
+  // outright and skip the Gemini-aware cleanup and paragraph fallback below
+  // entirely. A real back-and-forth paste always has at least two distinct
+  // speakers, so collapsing to one role is a reliable signal this matched
+  // spuriously — fall through to the next heuristics instead of trusting it.
+  const distinctRoles = new Set(labeled.map(m => m.role));
+  if (labeled.length >= 2 && distinctRoles.size >= 2) return labeled;
 
   // 2. Gemini/Google AI paste — recognizable boilerplate markers present.
   if (looksLikeGeminiPaste(text)) {

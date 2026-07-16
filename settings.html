@@ -104,6 +104,7 @@
     .field-label { flex: 1; }
     .field-label strong { display: block; font-size: 13px; font-weight: 600; }
     .field-label span   { font-size: 11px; color: var(--subtext); }
+    .field-label .fineprint { display: block; margin-top: 4px; color: #d97706; }
 
     select, input[type="text"] {
       background: var(--surface);
@@ -297,6 +298,7 @@
         <strong data-i18n="settingsGithubTokenLabel">GitHub token</strong>
         <span data-i18n="settingsGithubTokenDesc">Personal access token with <code>gist</code> scope — enables "Upload to Gist" button in popup.</span>
         <a href="https://github.com/settings/tokens/new?scopes=gist" target="_blank" rel="noopener" data-i18n="settingsGithubTokenLink">Create one →</a>
+        <span class="fineprint" data-i18n="settingsGithubTokenFineprint">⚠ Stored as plain text in this browser's local extension storage — treat it like a password. Use a token scoped to <code>gist</code> only, never one with broader repo/account access.</span>
       </div>
       <input type="password" id="githubToken" placeholder="ghp_…" style="min-width:180px; font-family: monospace;" />
     </div>
@@ -348,6 +350,44 @@
         <input type="checkbox" id="webhookIncludeContent" role="switch" />
         <div class="toggle-track"></div>
       </label>
+    </div>
+  </section>
+
+  <!-- Advanced -->
+  <section>
+    <h2 data-i18n="settingsSectionAdvanced">Advanced</h2>
+
+    <div class="field">
+      <div class="field-label">
+        <strong data-i18n="settingsDebugModeLabel">Debug mode</strong>
+        <span data-i18n="settingsDebugModeDesc">Adds "Copy debug info" and "Report bug" buttons to the popup — never includes chat content, only page structure (tag/class names, no text), selector diagnostics, and a generalized URL.</span>
+      </div>
+      <label class="toggle" for="debugMode">
+        <input type="checkbox" id="debugMode" role="switch" />
+        <div class="toggle-track"></div>
+      </label>
+    </div>
+
+    <div class="field">
+      <div class="field-label">
+        <strong data-i18n="settingsDebugAttachGistLabel">Attach full debug info as a secret Gist (for developers)</strong>
+        <span data-i18n="settingsDebugAttachGistDesc">Requires the GitHub token above. "Report bug" also uploads the same content-free diagnostic as a secret Gist and links it in the pre-filled report, so it's complete without manually pasting anything.</span>
+      </div>
+      <label class="toggle" for="debugAttachGist">
+        <input type="checkbox" id="debugAttachGist" role="switch" />
+        <div class="toggle-track"></div>
+      </label>
+    </div>
+
+    <div class="field" id="devToolsField" hidden style="display:none;">
+      <div class="field-label">
+        <strong data-i18n="settingsDevToolsLabel">Local debug/fuzzing tools</strong>
+        <span data-i18n="settingsDevToolsDesc">Standalone pages for testing the import parser — not shipped in the packaged extension, only present when loaded unpacked for development.</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
+        <a href="#" id="openImportDebugLink" data-i18n="settingsDevToolsImportDebug">Import parser debug tool →</a>
+        <a href="#" id="openPdfFuzzerLink" data-i18n="settingsDevToolsPdfFuzzer">PDF import fuzzer →</a>
+      </div>
     </div>
   </section>
 

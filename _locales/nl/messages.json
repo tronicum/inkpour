@@ -901,5 +901,50 @@
   },
   "popupStatusGistLinkCopied": {
     "message": "✓ Link gekopieerd naar klembord"
+  },
+  "settingsGithubTokenFineprint": {
+    "message": "⚠ Wordt als platte tekst opgeslagen in de lokale opslag van de extensie — behandel het als een wachtwoord. Beperk het uitsluitend tot de scope \"gist\", nooit bredere repo-/accounttoegang, om schade te beperken bij een lek."
+  },
+  "settingsSectionAdvanced": {
+    "message": "Geavanceerd"
+  },
+  "settingsDebugModeLabel": {
+    "message": "Foutopsporingsmodus"
+  },
+  "settingsDebugModeDesc": {
+    "message": "Voegt de knoppen \"Debuginfo kopiëren\" en \"Bug melden\" toe aan de popup — bevat nooit chatinhoud, alleen paginastructuur (tag-/klassenamen, geen tekst), selectordiagnostiek en een geanonimiseerde URL."
+  },
+  "settingsDebugAttachGistLabel": {
+    "message": "Volledige debuginfo bijvoegen als geheime Gist (voor ontwikkelaars)"
+  },
+  "settingsDebugAttachGistDesc": {
+    "message": "Vereist de GitHub-token hierboven. \"Bug melden\" uploadt ook dezelfde inhoudloze diagnose als geheime Gist en linkt deze in het vooraf ingevulde rapport, zonder dat je iets handmatig hoeft te plakken."
+  },
+  "settingsDevToolsLabel": {
+    "message": "Lokale debug-/fuzzingtools"
+  },
+  "settingsDevToolsDesc": {
+    "message": "Zelfstandige pagina's om de import-parser te testen — niet meegeleverd in de verpakte extensie, alleen aanwezig bij ongepakt laden voor ontwikkeling."
+  },
+  "settingsDevToolsImportDebug": {
+    "message": "Import-parser debugtool →"
+  },
+  "settingsDevToolsPdfFuzzer": {
+    "message": "PDF-import fuzzer →"
+  },
+  "popupDebugDomBtnTitle": {
+    "message": "Debuginfo kopiëren (zonder chatinhoud)"
+  },
+  "popupBtnDebugDom": {
+    "message": "Debuginfo kopiëren"
+  },
+  "popupStatusDomCopied": {
+    "message": "✓ Debuginfo gekopieerd naar klembord"
+  },
+  "popupReportBugBtnTitle": {
+    "message": "Bug melden op GitHub (zonder chatinhoud)"
+  },
+  "popupBtnReportBug": {
+    "message": "Bug melden"
   }
 }

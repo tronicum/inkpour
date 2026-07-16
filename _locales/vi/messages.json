@@ -901,5 +901,50 @@
   },
   "popupStatusGistLinkCopied": {
     "message": "✓ Đã sao chép liên kết vào khay nhớ tạm"
+  },
+  "settingsGithubTokenFineprint": {
+    "message": "⚠ Được lưu dưới dạng văn bản thuần trong bộ nhớ cục bộ của tiện ích mở rộng trên trình duyệt — hãy coi nó như một mật khẩu. Chỉ giới hạn phạm vi ở \"gist\", không bao giờ cấp quyền truy cập repo/tài khoản rộng hơn, để hạn chế thiệt hại nếu bị rò rỉ."
+  },
+  "settingsSectionAdvanced": {
+    "message": "Nâng cao"
+  },
+  "settingsDebugModeLabel": {
+    "message": "Chế độ gỡ lỗi"
+  },
+  "settingsDebugModeDesc": {
+    "message": "Thêm các nút \"Sao chép thông tin gỡ lỗi\" và \"Báo cáo lỗi\" vào popup — không bao giờ bao gồm nội dung trò chuyện, chỉ gồm cấu trúc trang (tên thẻ/lớp, không có văn bản), chẩn đoán bộ chọn và URL đã được khái quát hóa."
+  },
+  "settingsDebugAttachGistLabel": {
+    "message": "Đính kèm thông tin gỡ lỗi đầy đủ dưới dạng Gist bí mật (dành cho nhà phát triển)"
+  },
+  "settingsDebugAttachGistDesc": {
+    "message": "Yêu cầu token GitHub ở trên. \"Báo cáo lỗi\" cũng tải lên cùng chẩn đoán không nội dung đó dưới dạng Gist bí mật và liên kết nó trong báo cáo đã điền sẵn, không cần dán thủ công bất cứ thứ gì."
+  },
+  "settingsDevToolsLabel": {
+    "message": "Công cụ gỡ lỗi/fuzzing cục bộ"
+  },
+  "settingsDevToolsDesc": {
+    "message": "Các trang độc lập để kiểm tra bộ phân tích nhập — không được đóng gói trong tiện ích mở rộng, chỉ có khi tải ở dạng chưa đóng gói để phát triển."
+  },
+  "settingsDevToolsImportDebug": {
+    "message": "Công cụ gỡ lỗi bộ phân tích nhập →"
+  },
+  "settingsDevToolsPdfFuzzer": {
+    "message": "Công cụ fuzzing nhập PDF →"
+  },
+  "popupDebugDomBtnTitle": {
+    "message": "Sao chép thông tin gỡ lỗi (không có nội dung trò chuyện)"
+  },
+  "popupBtnDebugDom": {
+    "message": "Sao chép thông tin gỡ lỗi"
+  },
+  "popupStatusDomCopied": {
+    "message": "✓ Đã sao chép thông tin gỡ lỗi vào khay nhớ tạm"
+  },
+  "popupReportBugBtnTitle": {
+    "message": "Báo cáo lỗi trên GitHub (không có nội dung trò chuyện)"
+  },
+  "popupBtnReportBug": {
+    "message": "Báo cáo lỗi"
   }
 }

@@ -901,5 +901,50 @@
   },
   "popupStatusGistLinkCopied": {
     "message": "✓ Link copiato negli appunti"
+  },
+  "settingsGithubTokenFineprint": {
+    "message": "⚠ Salvato in chiaro nello storage locale dell'estensione — trattalo come una password. Limitalo allo scope \"gist\" soltanto, mai a un accesso più ampio a repo/account, per ridurre i danni in caso di fuga di dati."
+  },
+  "settingsSectionAdvanced": {
+    "message": "Avanzate"
+  },
+  "settingsDebugModeLabel": {
+    "message": "Modalità debug"
+  },
+  "settingsDebugModeDesc": {
+    "message": "Aggiunge i pulsanti \"Copia info di debug\" e \"Segnala un bug\" al popup — non include mai il contenuto della chat, solo la struttura della pagina (nomi di tag/classi, senza testo), diagnostica dei selettori e un URL generalizzato."
+  },
+  "settingsDebugAttachGistLabel": {
+    "message": "Allega le info di debug complete come Gist segreto (per sviluppatori)"
+  },
+  "settingsDebugAttachGistDesc": {
+    "message": "Richiede il token GitHub sopra. \"Segnala un bug\" carica anche la stessa diagnostica priva di contenuti come Gist segreto e la collega nel report precompilato, senza dover incollare nulla manualmente."
+  },
+  "settingsDevToolsLabel": {
+    "message": "Strumenti locali di debug/fuzzing"
+  },
+  "settingsDevToolsDesc": {
+    "message": "Pagine autonome per testare il parser di importazione — non incluse nell'estensione pacchettizzata, presenti solo quando caricata non pacchettizzata per lo sviluppo."
+  },
+  "settingsDevToolsImportDebug": {
+    "message": "Strumento di debug del parser di importazione →"
+  },
+  "settingsDevToolsPdfFuzzer": {
+    "message": "Fuzzer di importazione PDF →"
+  },
+  "popupDebugDomBtnTitle": {
+    "message": "Copia info di debug (senza contenuto della chat)"
+  },
+  "popupBtnDebugDom": {
+    "message": "Copia info di debug"
+  },
+  "popupStatusDomCopied": {
+    "message": "✓ Info di debug copiate negli appunti"
+  },
+  "popupReportBugBtnTitle": {
+    "message": "Segnala un bug su GitHub (senza contenuto della chat)"
+  },
+  "popupBtnReportBug": {
+    "message": "Segnala un bug"
   }
 }

@@ -4,3 +4,7 @@ dist/
 node_modules/
 playwright-report/
 test-results/
+
+# Personal test input for the PDF-importer debug toy — real chat exports,
+# never meant to land in the repo.
+debug/input/

@@ -27,6 +27,7 @@ zip -r "${ZIP}" . \
   --exclude "test/*" \
   --exclude "tests/*" \
   --exclude "test-results/*" \
+  --exclude "debug/*" \
   --exclude "safari/*" \
   --exclude "scripts/*" \
   --exclude "planning.md" \

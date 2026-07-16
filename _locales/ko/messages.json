@@ -901,5 +901,50 @@
   },
   "popupStatusGistLinkCopied": {
     "message": "✓ 링크가 클립보드에 복사되었습니다"
+  },
+  "settingsGithubTokenFineprint": {
+    "message": "⚠ 브라우저의 로컬 확장 프로그램 저장소에 평문으로 저장됩니다 — 비밀번호처럼 취급하세요. 유출 시 피해를 줄이기 위해 범위를 gist로만 제한하고, 더 넓은 저장소/계정 접근 권한은 절대 부여하지 마세요."
+  },
+  "settingsSectionAdvanced": {
+    "message": "고급"
+  },
+  "settingsDebugModeLabel": {
+    "message": "디버그 모드"
+  },
+  "settingsDebugModeDesc": {
+    "message": "팝업에 \"디버그 정보 복사\" 및 \"버그 신고\" 버튼을 추가합니다 — 채팅 내용은 절대 포함하지 않으며, 페이지 구조(태그/클래스 이름, 텍스트 없음), 선택자 진단 정보, 일반화된 URL만 포함합니다."
+  },
+  "settingsDebugAttachGistLabel": {
+    "message": "전체 디버그 정보를 비밀 Gist로 첨부 (개발자용)"
+  },
+  "settingsDebugAttachGistDesc": {
+    "message": "위의 GitHub 토큰이 필요합니다. \"버그 신고\"는 동일한 콘텐츠 없는 진단 정보를 비밀 Gist로도 업로드하고 미리 채워진 보고서에 링크하므로 수동으로 붙여넣을 필요가 없습니다."
+  },
+  "settingsDevToolsLabel": {
+    "message": "로컬 디버그/퍼징 도구"
+  },
+  "settingsDevToolsDesc": {
+    "message": "가져오기 파서를 테스트하기 위한 독립 페이지입니다 — 패키징된 확장 프로그램에는 포함되지 않으며, 개발용으로 압축 해제된 상태로 로드했을 때만 존재합니다."
+  },
+  "settingsDevToolsImportDebug": {
+    "message": "가져오기 파서 디버그 도구 →"
+  },
+  "settingsDevToolsPdfFuzzer": {
+    "message": "PDF 가져오기 퍼저 →"
+  },
+  "popupDebugDomBtnTitle": {
+    "message": "디버그 정보 복사 (채팅 내용 미포함)"
+  },
+  "popupBtnDebugDom": {
+    "message": "디버그 정보 복사"
+  },
+  "popupStatusDomCopied": {
+    "message": "✓ 디버그 정보를 클립보드에 복사했습니다"
+  },
+  "popupReportBugBtnTitle": {
+    "message": "GitHub에 버그 신고 (채팅 내용 미포함)"
+  },
+  "popupBtnReportBug": {
+    "message": "버그 신고"
   }
 }

@@ -901,5 +901,50 @@
   },
   "popupStatusGistLinkCopied": {
     "message": "✓ Bağlantı panoya kopyalandı"
+  },
+  "settingsGithubTokenFineprint": {
+    "message": "⚠ Tarayıcının yerel eklenti deposunda düz metin olarak saklanır — bir şifre gibi davranın. Sızıntı durumunda zararı sınırlamak için yalnızca \"gist\" kapsamıyla sınırlayın, asla daha geniş depo/hesap erişimi vermeyin."
+  },
+  "settingsSectionAdvanced": {
+    "message": "Gelişmiş"
+  },
+  "settingsDebugModeLabel": {
+    "message": "Hata ayıklama modu"
+  },
+  "settingsDebugModeDesc": {
+    "message": "Popup'a \"Hata ayıklama bilgisini kopyala\" ve \"Hata bildir\" düğmelerini ekler — sohbet içeriğini asla içermez, yalnızca sayfa yapısını (etiket/sınıf adları, metin yok), seçici tanılamasını ve genelleştirilmiş bir URL'yi içerir."
+  },
+  "settingsDebugAttachGistLabel": {
+    "message": "Tam hata ayıklama bilgisini gizli Gist olarak ekle (geliştiriciler için)"
+  },
+  "settingsDebugAttachGistDesc": {
+    "message": "Yukarıdaki GitHub token'ını gerektirir. \"Hata bildir\" ayrıca aynı içeriksiz tanıyı gizli Gist olarak da yükler ve önceden doldurulmuş rapora bağlar, böylece manuel olarak bir şey yapıştırmanız gerekmez."
+  },
+  "settingsDevToolsLabel": {
+    "message": "Yerel hata ayıklama/fuzzing araçları"
+  },
+  "settingsDevToolsDesc": {
+    "message": "İçe aktarma ayrıştırıcısını test etmek için bağımsız sayfalar — paketlenmiş uzantıya dahil değildir, yalnızca geliştirme için paketlenmemiş olarak yüklendiğinde bulunur."
+  },
+  "settingsDevToolsImportDebug": {
+    "message": "İçe aktarma ayrıştırıcı hata ayıklama aracı →"
+  },
+  "settingsDevToolsPdfFuzzer": {
+    "message": "PDF içe aktarma fuzzer'ı →"
+  },
+  "popupDebugDomBtnTitle": {
+    "message": "Hata ayıklama bilgisini kopyala (sohbet içeriği olmadan)"
+  },
+  "popupBtnDebugDom": {
+    "message": "Hata ayıklama bilgisini kopyala"
+  },
+  "popupStatusDomCopied": {
+    "message": "✓ Hata ayıklama bilgisi panoya kopyalandı"
+  },
+  "popupReportBugBtnTitle": {
+    "message": "GitHub'da hata bildir (sohbet içeriği olmadan)"
+  },
+  "popupBtnReportBug": {
+    "message": "Hata bildir"
   }
 }

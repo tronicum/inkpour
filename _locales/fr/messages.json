@@ -901,5 +901,50 @@
   },
   "popupStatusGistLinkCopied": {
     "message": "✓ Lien copié dans le presse-papiers"
+  },
+  "settingsGithubTokenFineprint": {
+    "message": "⚠ Stocké en texte brut dans le stockage local de l'extension — traitez-le comme un mot de passe. Limitez-le au scope \"gist\" uniquement, jamais à un accès repo/compte plus large, pour limiter les dégâts en cas de fuite."
+  },
+  "settingsSectionAdvanced": {
+    "message": "Avancé"
+  },
+  "settingsDebugModeLabel": {
+    "message": "Mode débogage"
+  },
+  "settingsDebugModeDesc": {
+    "message": "Ajoute les boutons \"Copier les infos de débogage\" et \"Signaler un bug\" au popup — n'inclut jamais le contenu du chat, seulement la structure de la page (noms de balises/classes, sans texte), des diagnostics de sélecteurs et une URL généralisée."
+  },
+  "settingsDebugAttachGistLabel": {
+    "message": "Joindre les infos de débogage complètes sous forme de Gist secret (pour développeurs)"
+  },
+  "settingsDebugAttachGistDesc": {
+    "message": "Nécessite le token GitHub ci-dessus. \"Signaler un bug\" téléverse aussi le même diagnostic sans contenu sous forme de Gist secret et le lie dans le rapport pré-rempli, sans besoin de coller quoi que ce soit manuellement."
+  },
+  "settingsDevToolsLabel": {
+    "message": "Outils locaux de débogage/fuzzing"
+  },
+  "settingsDevToolsDesc": {
+    "message": "Pages autonomes pour tester l'analyseur d'import — non incluses dans l'extension empaquetée, présentes uniquement en chargement non empaqueté pour le développement."
+  },
+  "settingsDevToolsImportDebug": {
+    "message": "Outil de débogage de l'analyseur d'import →"
+  },
+  "settingsDevToolsPdfFuzzer": {
+    "message": "Fuzzer d'import PDF →"
+  },
+  "popupDebugDomBtnTitle": {
+    "message": "Copier les infos de débogage (sans contenu du chat)"
+  },
+  "popupBtnDebugDom": {
+    "message": "Copier les infos de débogage"
+  },
+  "popupStatusDomCopied": {
+    "message": "✓ Infos de débogage copiées dans le presse-papiers"
+  },
+  "popupReportBugBtnTitle": {
+    "message": "Signaler un bug sur GitHub (sans contenu du chat)"
+  },
+  "popupBtnReportBug": {
+    "message": "Signaler un bug"
   }
 }

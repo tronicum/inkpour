@@ -80,7 +80,7 @@ function suite(name, fn) {
  * Load a fixture HTML, inject content.js into a JSDOM environment with a
  * mocked browser API, trigger { action: 'extract' }, return the response.
  */
-async function extractFromFixture(fixtureName, hostname = '') {
+async function extractFromFixture(fixtureName, hostname = '', action = 'extract') {
   const fixturePath = path.join(FIXTURES_DIR, fixtureName);
   const html = fs.readFileSync(fixturePath, 'utf8');
 
@@ -127,7 +127,7 @@ async function extractFromFixture(fixtureName, hostname = '') {
       if (!settled) { settled = true; resolve(response); }
     };
     try {
-      const ret = listener({ action: 'extract' }, {}, sendResponse);
+      const ret = listener({ action }, {}, sendResponse);
       // If the listener returned false / undefined (sync path), resolve immediately
       // with whatever was passed to sendResponse (already resolved above), or
       // resolve with undefined after a tick to let synchronous sendResponse run.
@@ -750,6 +750,33 @@ async function main() {
     await test('unknown tokens are stripped by sanitiser', () => {
       const fn = buildFilename('{platform}-{unknown}', 'claude', 'title');
       assert(fn.startsWith('claude-'), `unexpected: ${fn}`);
+    });
+
+    // Regression test: the sanitiser used to be `/[^a-z0-9_\-]+/gi`, an
+    // ASCII-only class that silently replaced every accented letter with a
+    // dash — not just German umlauts, but any non-Latin/non-ASCII script in
+    // any of the 26 locales this extension ships. A title like "Wörterbuch"
+    // came out as "W-rterbuch". Fixed via a Unicode-aware `\p{L}`/`\p{N}`
+    // property escape so titles keep their own letters while filesystem-
+    // illegal characters still collapse to dashes.
+    await test('preserves accented/non-ASCII letters (umlauts, etc.) in the title', () => {
+      const fn = buildFilename('{platform}-{title}', 'gemini', 'Wörterbuch für Bräuche');
+      assert(fn.includes('Wörterbuch'), `umlaut letters were stripped: ${fn}`);
+      assert(fn.includes('Bräuche'), `umlaut letters were stripped: ${fn}`);
+      assert(!fn.includes('--'), `should not leave double dashes: ${fn}`);
+    });
+
+    await test('preserves accented Latin letters from other locales (é, ñ, ç, ï)', () => {
+      const fn = buildFilename('{title}', 'gemini', 'Résumé café naïve leçon');
+      assert(fn.includes('Résumé'), `unexpected: ${fn}`);
+      assert(fn.includes('café'), `unexpected: ${fn}`);
+      assert(fn.includes('naïve'), `unexpected: ${fn}`);
+      assert(fn.includes('leçon'), `unexpected: ${fn}`);
+    });
+
+    await test('still strips genuinely filesystem-illegal characters', () => {
+      const fn = buildFilename('{title}', 'gemini', 'a/b:c*d?e"f<g>h|i');
+      assert(!/[/\\:*?"<>|]/.test(fn), `illegal chars leaked through: ${fn}`);
     });
   });
 
@@ -1604,6 +1631,41 @@ async function main() {
   await test('falls back to plain text when no recognized tags are present', () => {
     const html = 'Just plain text, no markup at all.';
     assert(htmlPasteToMarkdown(html) === 'Just plain text, no markup at all.');
+  });
+
+  // ─── Debug report (Settings → Debug mode → "Copy page DOM") ───────────────
+  console.log('\nDebug report — { action: \'debugDom\' }');
+
+  await test('never includes actual chat message text', async () => {
+    const result = await extractFromFixture('chatgpt.html', 'chatgpt.com', 'debugDom');
+    assert(!result.error, `unexpected error: ${result.error}`);
+    const dump = JSON.stringify(result.report);
+    assert(!dump.includes('speed of light'), 'chat content leaked into debug report');
+    assert(!dump.includes('299,792,458'), 'chat content leaked into debug report');
+  });
+
+  await test('includes a DOM skeleton with text lengths, not text content', async () => {
+    const result = await extractFromFixture('chatgpt.html', 'chatgpt.com', 'debugDom');
+    assert(typeof result.report.domSkeleton === 'string' && result.report.domSkeleton.length > 0);
+    assert(/#text\(\d+\)/.test(result.report.domSkeleton), 'expected #text(N) markers in skeleton');
+  });
+
+  await test('includes selector diagnostics as counts, not matched content', async () => {
+    const result = await extractFromFixture('chatgpt.html', 'chatgpt.com', 'debugDom');
+    const counts = result.report.selectorCounts;
+    assert(counts && typeof counts === 'object', 'missing selectorCounts');
+    assert(Object.values(counts).every(v => v === null || typeof v === 'number'), 'selectorCounts must be numbers');
+  });
+
+  await test('reports the detected platform', async () => {
+    const result = await extractFromFixture('chatgpt.html', 'chatgpt.com', 'debugDom');
+    assert(result.report.detectedPlatform === 'chatgpt', `got ${result.report.detectedPlatform}`);
+  });
+
+  await test('sanitizeUrlForDebug-style output never includes a query string', async () => {
+    const result = await extractFromFixture('chatgpt.html', 'chatgpt.com', 'debugDom');
+    assert('path' in result.report.url && 'hostname' in result.report.url, 'missing url.path/url.hostname');
+    assert(!JSON.stringify(result.report.url).includes('?'), 'query string leaked into sanitized url');
   });
 
   // ─── Firefox AMO manifest validation ─────────────────────────────────────

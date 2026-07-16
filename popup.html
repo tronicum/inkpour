@@ -437,6 +437,18 @@
     </button>
   </div>
 
+  <!-- Debug mode (Settings → Advanced → Debug mode) — never includes chat content -->
+  <div class="btn-group copy-group" id="debug-group" hidden style="display:none;">
+    <button class="btn copy-btn" id="debugDomBtn" data-i18n-title="popupDebugDomBtnTitle" title="Copy debug info (no chat content included)">
+      <div class="spinner"></div>
+      <span data-i18n="popupBtnDebugDom">Copy debug info</span>
+    </button>
+    <button class="btn copy-btn" id="reportBugBtn" data-i18n-title="popupReportBugBtnTitle" title="Report a bug on GitHub (no chat content included)">
+      <div class="spinner"></div>
+      <span data-i18n="popupBtnReportBug">Report bug</span>
+    </button>
+  </div>
+
   <div class="btn-group all-group">
     <button class="btn" id="allBtn" data-i18n-title="popupAllBtnTitle" title="Export MD + DOCX + ZIP simultaneously">
       <div class="spinner"></div>
