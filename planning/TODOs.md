@@ -526,6 +526,29 @@ different philosophy than Inkpour's current manual-bump-then-tag flow (which
 Stefan controls deliberately); don't copy that part, just the two upload jobs,
 triggered off the existing tag-driven release instead of on a schedule.
 
+**Release notes source — `CHANGELOG.md` added 2026-07**: rather than
+inventing a release-notes format when this batch actually gets built, a
+`CHANGELOG.md` now exists at repo root, one `## [x.y.z.w]` section per
+tagged version (backfilled for the full history, `v0.2.0` through the
+current `v0.4.28.1`), plus an `## [Unreleased]` section at the top that
+should get renamed to the new version heading in the same commit as every
+future version bump. A JSDOM test (`test/run-jsdom.js`, "CHANGELOG.md —
+release notes source of truth") guards against drift: fails if the current
+`manifest.json` version has no matching section, if the `Unreleased` heading
+ever goes missing, or if a heading doesn't correspond to either
+`Unreleased`, the current version, or a real git tag. When Batch 10's
+workflow job runs, it should extract the section between the tag's own
+`## [x.y.z.w]` heading and the next `## [` heading and pass that text as:
+  - AMO's `release_notes` field (per-locale in the submission API's
+    `--amo-metadata` JSON — English text is enough for v1, matching this
+    repo's English-first i18n rollout elsewhere)
+  - the Chrome Web Store listing has no real per-version "what's new" API
+    field as of this writing (unlike AMO) — store the same extracted text
+    as the GitHub Release body instead (already generated via
+    `generate_release_notes: true` in `release.yml`; consider swapping that
+    for this file's text once Batch 10 lands, since it'll read better than
+    GitHub's auto-generated commit-list) and skip trying to push it to CWS.
+
 Both store CLIs need one-time credentials that only exist once the extension
 is *first* submitted manually — this is why it's blocked on Batch 9 actually
 landing, not just started:
