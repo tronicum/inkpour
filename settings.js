@@ -133,9 +133,19 @@
     api.tabs.create({ url: api.runtime.getURL('debug/import-pdf-fuzzer.html') });
   });
 
-  // ─── Save ─────────────────────────────────────────────────────────────────
+  // ─── Save (autosave) ──────────────────────────────────────────────────────
+  // Every field persists on its own change instead of waiting for the Save
+  // button: checkboxes/selects save immediately on 'change', text fields
+  // debounce ~450ms on 'input' so we're not hitting storage on every
+  // keystroke. This is the standard pattern for extension options pages and
+  // removes the "changed something, forgot to scroll down and click Save"
+  // failure mode entirely. The button still works — it flushes any pending
+  // debounce and saves right away — but it's now a convenience, not the only
+  // way changes get persisted.
 
-  document.getElementById('saveBtn').addEventListener('click', () => {
+  let statusTimer = null;
+
+  function save() {
     const prefs = {
       defaultFormat:    document.getElementById('defaultFormat').value,
       filenameTemplate: document.getElementById('filenameTemplate').value.trim() || DEFAULTS.filenameTemplate,
@@ -157,8 +167,38 @@
     api.storage.local.set({ inkpour_settings: prefs }, () => {
       const el = document.getElementById('saveStatus');
       el.textContent = t('settingsSavedStatus');
-      setTimeout(() => { el.textContent = ''; }, 2000);
+      clearTimeout(statusTimer);
+      statusTimer = setTimeout(() => { el.textContent = ''; }, 2000);
     });
+  }
+
+  const AUTOSAVE_DEBOUNCE_MS = 450;
+  let debounceTimer = null;
+  function debouncedSave() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(save, AUTOSAVE_DEBOUNCE_MS);
+  }
+
+  // Discrete controls (checkboxes/selects): save immediately, no debounce.
+  [
+    'defaultFormat', 'pdfAutoPrint', 'yamlFrontMatter', 'generateTOC',
+    'obsidianTags', 'gistPublic', 'scrubSecrets', 'webhookIncludeContent',
+    'debugMode', 'debugAttachGist',
+  ].forEach((id) => {
+    document.getElementById(id)?.addEventListener('change', save);
+  });
+
+  // Free-text fields: debounce so we're not saving mid-keystroke.
+  [
+    'filenameTemplate', 'downloadSubfolder', 'obsidianVault', 'githubToken',
+    'gistTags', 'webhookUrl',
+  ].forEach((id) => {
+    document.getElementById(id)?.addEventListener('input', debouncedSave);
+  });
+
+  document.getElementById('saveBtn').addEventListener('click', () => {
+    clearTimeout(debounceTimer);
+    save();
   });
 
 })();
