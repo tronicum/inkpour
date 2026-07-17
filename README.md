@@ -77,6 +77,8 @@ Click **⏱ History** in the popup footer to see the last 20 exports. Filter by 
 
 ### Integrations
 - **GitHub Gist** — add a Personal Access Token (gist scope) in Settings to unlock the "Gist ↑" popup button and `Alt+Shift+G` shortcut. Created Gists open in a new tab.
+- **Notion** — add an integration token + target page ID in Settings to unlock the "Notion ↑" popup button. Appends the export as native Notion blocks (paragraphs, headings, code, quotes, flat lists) to the page you specify. v1 scope — nested lists and tables aren't converted yet.
+- **Direct-to-vault (Chrome/Edge only)** — pick a folder once in Settings via the browser's File System Access API, then MD/DOCX/ZIP exports can write straight there instead of through Downloads. Not available in Firefox/Safari, which keep using the Downloads-subfolder option instead.
 - **Webhook** — POST export metadata to any URL after each export (n8n, Zapier, Make.com, custom endpoints). Toggle "Include content" to send the full exported text.
 
 ### Markdown quality
@@ -209,7 +211,7 @@ Feature-rich Tampermonkey userscript covering ChatGPT, Claude, Copilot, Gemini, 
 
 ## Privacy
 
-Inkpour collects no data and makes no external requests unless you explicitly configure a GitHub token or webhook. See [PRIVACY.md](./PRIVACY.md) for full details.
+Inkpour collects no data and makes no external requests unless you explicitly configure a GitHub token, Notion token, or webhook. Direct-to-vault saving (Chrome/Edge only) writes to a folder you choose and involves no network request at all. See [PRIVACY.md](./PRIVACY.md) for full details.
 
 Works in temporary/incognito chat modes too (verified on ChatGPT's Temporary Chat) — extraction is purely DOM-based, so it doesn't care whether the platform is persisting the conversation on its end.
 

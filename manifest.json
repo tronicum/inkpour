@@ -51,7 +51,8 @@
     "*://www.character.ai/*",
     "*://coral.cohere.com/*",
     "*://pi.ai/*",
-    "*://api.github.com/*"
+    "*://api.github.com/*",
+    "*://api.notion.com/*"
   ],
 
   "background": {
