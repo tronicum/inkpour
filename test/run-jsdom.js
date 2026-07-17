@@ -674,6 +674,77 @@ async function main() {
     });
   });
 
+  // ── ChatGPT Canvas code block language detection (Batch 7) ──────────────
+  // Structure verified live 2026-07 against a real ChatGPT Canvas code
+  // document: the code renders via a CodeMirror editor (.cm-editor/
+  // .cm-content) nested inside the same outer <pre> as a "sticky" toolbar
+  // header (language-name text + Copy/Run buttons). querySelector('code')
+  // already reaches through to clean code text with no toolbar leakage, but
+  // none of the three pre-existing language-detection heuristics (class,
+  // sibling span, hljs) find anything here, so the fenced code block always
+  // came out with no language tag (``` instead of ```python).
+  await suite('htmlToMarkdown — ChatGPT Canvas code block language tag (regression)', async () => {
+    const dom = new JSDOM(`<!DOCTYPE html><body>
+      <div id="canvas">
+        <pre class="overflow-visible! px-0!">
+          <div class="select-none sticky z-2 top-0">
+            <div class="flex w-full items-center justify-between py-1.5">
+              <div class="flex max-w-[75%] min-w-0 cursor-default items-center text-sm font-medium">Python</div>
+              <div class="flex items-center gap-1">
+                <button aria-label="Copy"></button>
+                <button aria-label="Run code">Run</button>
+              </div>
+            </div>
+          </div>
+          <div class="cm-editor" id="code-block-viewer">
+            <div class="cm-scroller">
+              <pre class="cm-content q9tKkq_readonly m-0"><code>def reverse_string(text):
+    return text[::-1]</code></pre>
+            </div>
+          </div>
+        </pre>
+      </div>
+      <div id="plain">
+        <pre><code class="language-javascript">console.log("no canvas here");</code></pre>
+      </div>
+      <div id="unrelated-sticky">
+        <pre class="sticky">some other platform's unrelated sticky pre with no CodeMirror editor
+        <code>plain code, no language info anywhere</code></pre>
+      </div>
+    </body>`, { url: 'https://chatgpt.com/', runScripts: 'dangerously' });
+    dom.window.__inkpourTestHostname = 'chatgpt.com';
+    dom.window.HTMLElement.prototype.scrollTo = function () {};
+    dom.window.document.documentElement.scrollTo = function () {};
+    const ls = [];
+    dom.window.browser = { runtime: { onMessage: { addListener: fn => ls.push(fn) }, id: 't' }, i18n: mockI18n() };
+    dom.window.chrome  = dom.window.browser;
+    const s = dom.window.document.createElement('script');
+    s.textContent = CONTENT_JS;
+    dom.window.document.body.appendChild(s);
+    await new Promise(r => setTimeout(r, 50));
+    const fn = dom.window.__inkpourHtmlToMarkdown;
+    assert(typeof fn === 'function', 'hook not exposed');
+
+    await test('Canvas code block gets a python language tag from the sticky header', () => {
+      const md = fn(dom.window.document.getElementById('canvas'));
+      assert(md.includes('```python'), `expected \`\`\`python fence. Got: ${md}`);
+    });
+    await test('Canvas code block content is clean (no "PythonRun" toolbar leakage)', () => {
+      const md = fn(dom.window.document.getElementById('canvas'));
+      assert(!md.includes('PythonRun'), `toolbar text leaked into code. Got: ${md}`);
+      assert(md.includes('def reverse_string(text):'), `code content missing. Got: ${md}`);
+    });
+    await test('existing language-class detection still works unaffected', () => {
+      const md = fn(dom.window.document.getElementById('plain'));
+      assert(md.includes('```javascript'), `expected \`\`\`javascript fence. Got: ${md}`);
+    });
+    await test('a ".sticky" pre with no CodeMirror editor does not misfire the new heuristic', () => {
+      const md = fn(dom.window.document.getElementById('unrelated-sticky'));
+      assert(md.startsWith('\n\n```\n') || md.includes('```\n'), `expected no language tag. Got: ${md}`);
+      assert(!/```(python|javascript|typescript)/.test(md), `heuristic wrongly fired. Got: ${md}`);
+    });
+  });
+
   // ── buildMarkdown (from src/utils.js) ────────────────────────────────────
   await suite('buildMarkdown', async () => {
     const msgs = [
