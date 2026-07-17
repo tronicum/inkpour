@@ -332,6 +332,24 @@
 
     <div class="field">
       <div class="field-label">
+        <strong data-i18n="settingsNotionTokenLabel">Notion integration token</strong>
+        <span data-i18n="settingsNotionTokenDesc">Internal integration token — enables the "Notion ↑" button in popup, appending exports to the page below.</span>
+        <a href="https://www.notion.so/developers/tokens" target="_blank" rel="noopener" data-i18n="settingsNotionTokenLink">Create one →</a>
+        <span class="fineprint" data-i18n="settingsNotionTokenFineprint">⚠ Stored as plain text in this browser's local extension storage — treat it like a password. The token also needs to be connected to the target page in Notion (open the page → ••• menu → Connections → your integration), or uploads will fail with a 404.</span>
+      </div>
+      <input type="password" id="notionToken" placeholder="ntn_…" style="min-width:180px; font-family: monospace;" />
+    </div>
+
+    <div class="field">
+      <div class="field-label">
+        <strong data-i18n="settingsNotionPageIdLabel">Notion page ID</strong>
+        <span data-i18n="settingsNotionPageIdDesc">The page (or block) exports are appended to — copy the 32-character ID from the end of the page's Notion URL, with or without dashes.</span>
+      </div>
+      <input type="text" id="notionPageId" data-i18n-placeholder="settingsNotionPageIdPlaceholder" placeholder="a1b2c3d4e5f67890abcdef1234567890" style="min-width:220px; font-family: monospace;" />
+    </div>
+
+    <div class="field">
+      <div class="field-label">
         <strong data-i18n="settingsScrubLabel">Scrub secrets before upload</strong>
         <span data-i18n="settingsScrubDesc">Redact likely API keys, tokens & emails before Gist/webhook uploads</span>
       </div>

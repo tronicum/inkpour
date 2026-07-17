@@ -342,6 +342,211 @@ function buildMarkdown(messages, title, site, opts = {}, sourceUrl = '') {
   return md;
 }
 
+// ─── Notion export: markdown → blocks ────────────────────────────────────────
+// Converts Inkpour's OWN buildMarkdown() output into Notion block objects for
+// `PATCH /v1/blocks/{block_id}/children` (used by popup.js's Notion upload
+// button). Verified live against Notion's docs 2026-07: the endpoint takes
+// `{ children: [...] }`, max 100 block objects per request (batchNotionBlocks
+// below splits longer documents), headers `Authorization: Bearer <token>` +
+// `Notion-Version: 2026-03-11`.
+//
+// This is intentionally NOT a general CommonMark parser — buildMarkdown()'s
+// output vocabulary is fully controlled by this extension (see htmlToMarkdown
+// in src/content.js and convertList()), so the converter only needs to
+// understand: ATX headings (#..######, clamped to heading_1/2/3 — Notion's
+// v1 append endpoint only needs 1/2/3 per the Batch 5 scope), fenced code
+// blocks (```lang), blockquotes (consecutive "> " lines), flat (non-nested)
+// "* " / "N. " list items, and "---" horizontal rules (mapped to Notion's
+// divider block, including the closing delimiter of Inkpour's own optional
+// YAML front matter, which is preserved as a single `yaml` code block rather
+// than exploded line by line). Nested lists and tables are explicitly out of
+// scope for v1 (see planning/TODOs.md Batch 5) — nested list indentation is
+// currently flattened (treated as a top-level item), and inline formatting
+// (**bold**, *italic*, links, etc.) is preserved as literal text rather than
+// converted to Notion rich-text annotations; both are known v1 limitations.
+
+const NOTION_RICH_TEXT_MAX = 2000; // Notion's per-text-object content length limit
+
+function _notionTextRuns(content) {
+  const text = content == null ? '' : String(content);
+  if (!text) return [{ type: 'text', text: { content: '' } }];
+  const runs = [];
+  for (let i = 0; i < text.length; i += NOTION_RICH_TEXT_MAX) {
+    runs.push({ type: 'text', text: { content: text.slice(i, i + NOTION_RICH_TEXT_MAX) } });
+  }
+  return runs;
+}
+
+// Common fenced-code-block language aliases (as emitted by content.js's
+// `language-xxx` class detection, see the 'pre' case in convertNode) mapped
+// to Notion's `code.language` enum (developers.notion.com/reference/block).
+// Unrecognized/empty languages fall back to "plain text" (a valid enum value,
+// confirmed against the live docs — note the literal space).
+const NOTION_LANGUAGE_MAP = {
+  js: 'javascript', jsx: 'javascript', mjs: 'javascript', cjs: 'javascript', javascript: 'javascript',
+  ts: 'typescript', tsx: 'typescript', typescript: 'typescript',
+  py: 'python', python: 'python',
+  rb: 'ruby', ruby: 'ruby',
+  rs: 'rust', rust: 'rust',
+  kt: 'kotlin', kotlin: 'kotlin',
+  sh: 'shell', shell: 'shell', bash: 'bash', zsh: 'shell',
+  cs: 'c#', csharp: 'c#', 'c#': 'c#',
+  cpp: 'c++', 'c++': 'c++',
+  objc: 'objective-c', 'objective-c': 'objective-c',
+  yml: 'yaml', yaml: 'yaml',
+  md: 'markdown', markdown: 'markdown',
+  json: 'json', sql: 'sql', html: 'html', css: 'css', go: 'go', java: 'java',
+  php: 'php', swift: 'swift', dockerfile: 'docker', docker: 'docker',
+  graphql: 'graphql', c: 'c',
+  plaintext: 'plain text', text: 'plain text', txt: 'plain text', '': 'plain text',
+};
+
+function _notionCodeLanguage(lang) {
+  const key = String(lang || '').trim().toLowerCase();
+  return NOTION_LANGUAGE_MAP[key] || 'plain text';
+}
+
+/**
+ * @param {string} markdown - output of buildMarkdown() (or any Inkpour-generated markdown)
+ * @returns {Array<object>} flat array of Notion block objects (unbatched)
+ */
+function markdownToNotionBlocks(markdown) {
+  const blocks = [];
+  if (!markdown) return blocks;
+
+  const lines = String(markdown).replace(/\r\n/g, '\n').split('\n');
+  let i = 0;
+
+  // Optional YAML front matter (only meaningful at the very start of the
+  // document) — kept verbatim as a single code block rather than exploded
+  // line by line; it's Inkpour's own metadata header, not conversational
+  // content.
+  if (lines[0] === '---') {
+    const closeIdx = lines.indexOf('---', 1);
+    if (closeIdx !== -1) {
+      const yamlLines = lines.slice(1, closeIdx);
+      blocks.push({ type: 'code', code: { caption: [], rich_text: _notionTextRuns(yamlLines.join('\n')), language: 'yaml' } });
+      i = closeIdx + 1;
+    }
+  }
+
+  let paragraphBuf = [];
+  const flushParagraph = () => {
+    if (!paragraphBuf.length) return;
+    const text = paragraphBuf.join('\n').trim();
+    paragraphBuf = [];
+    if (text) blocks.push({ type: 'paragraph', paragraph: { rich_text: _notionTextRuns(text) } });
+  };
+
+  const HEADING_RE = /^(#{1,6})\s+(.*)$/;
+  const QUOTE_RE    = /^>\s?(.*)$/;
+  const UL_RE       = /^[*-]\s+(.*)$/;
+  const OL_RE       = /^\d+\.\s+(.*)$/;
+  const FENCE_RE    = /^```\s*([\w+#.-]*)\s*$/;
+  const HR_RE       = /^-{3,}$/;
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    // Fenced code block — consume through the matching closing fence
+    const fenceMatch = line.match(FENCE_RE);
+    if (fenceMatch) {
+      flushParagraph();
+      const lang = fenceMatch[1];
+      const codeLines = [];
+      i++;
+      while (i < lines.length && !/^```\s*$/.test(lines[i])) {
+        codeLines.push(lines[i]);
+        i++;
+      }
+      i++; // skip the closing ``` (or run off the end if unterminated)
+      blocks.push({ type: 'code', code: { caption: [], rich_text: _notionTextRuns(codeLines.join('\n')), language: _notionCodeLanguage(lang) } });
+      continue;
+    }
+
+    // Blank line — paragraph separator
+    if (line.trim() === '') {
+      flushParagraph();
+      i++;
+      continue;
+    }
+
+    // Horizontal rule (buildMarkdown's message/section separator)
+    if (HR_RE.test(line.trim())) {
+      flushParagraph();
+      blocks.push({ type: 'divider', divider: {} });
+      i++;
+      continue;
+    }
+
+    // ATX heading — Notion's v1 append scope only needs heading_1/2/3, so
+    // h4-h6 (rare in practice; htmlToMarkdown does emit them for source h4-h6
+    // tags) are clamped down to heading_3 rather than dropped.
+    const headingMatch = line.match(HEADING_RE);
+    if (headingMatch) {
+      flushParagraph();
+      const level = Math.min(headingMatch[1].length, 3);
+      const type  = `heading_${level}`;
+      blocks.push({ type, [type]: { rich_text: _notionTextRuns(headingMatch[2].trim()) } });
+      i++;
+      continue;
+    }
+
+    // Blockquote — consume consecutive "> " lines as a single quote block
+    if (QUOTE_RE.test(line)) {
+      flushParagraph();
+      const quoteLines = [];
+      while (i < lines.length && QUOTE_RE.test(lines[i])) {
+        quoteLines.push(lines[i].match(QUOTE_RE)[1]);
+        i++;
+      }
+      blocks.push({ type: 'quote', quote: { rich_text: _notionTextRuns(quoteLines.join('\n').trim()) } });
+      continue;
+    }
+
+    // Flat unordered list item (buildMarkdown/convertList always emits "* ")
+    const ulMatch = line.match(UL_RE);
+    if (ulMatch) {
+      flushParagraph();
+      blocks.push({ type: 'bulleted_list_item', bulleted_list_item: { rich_text: _notionTextRuns(ulMatch[1].trim()) } });
+      i++;
+      continue;
+    }
+
+    // Flat ordered list item ("1. ", "2. ", ...)
+    const olMatch = line.match(OL_RE);
+    if (olMatch) {
+      flushParagraph();
+      blocks.push({ type: 'numbered_list_item', numbered_list_item: { rich_text: _notionTextRuns(olMatch[1].trim()) } });
+      i++;
+      continue;
+    }
+
+    // Plain text line — accumulate into the current paragraph
+    paragraphBuf.push(line);
+    i++;
+  }
+  flushParagraph();
+
+  return blocks;
+}
+
+/**
+ * Splits a flat array of Notion block objects into sequential batches of at
+ * most `size` (Notion's append-children endpoint rejects `children` arrays
+ * longer than 100 in a single request).
+ * @param {Array<object>} blocks
+ * @param {number} size
+ * @returns {Array<Array<object>>}
+ */
+function batchNotionBlocks(blocks, size = 100) {
+  const batches = [];
+  for (let i = 0; i < blocks.length; i += size) {
+    batches.push(blocks.slice(i, i + size));
+  }
+  return batches;
+}
+
 // ─── Filename builder ─────────────────────────────────────────────────────────
 
 /**

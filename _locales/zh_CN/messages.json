@@ -87,6 +87,10 @@
     "message": "将 Markdown 上传到 GitHub Gist",
     "description": "Gist button tooltip"
   },
+  "popupNotionBtnTitle": {
+    "message": "将 Markdown 追加到 Notion 页面",
+    "description": "Notion button tooltip"
+  },
   "popupAllBtnTitle": {
     "message": "同时导出 MD + DOCX + ZIP",
     "description": "Export All button tooltip"
@@ -117,6 +121,9 @@
   },
   "popupBtnGist": {
     "message": "Gist ↑"
+  },
+  "popupBtnNotion": {
+    "message": "Notion ↑"
   },
   "popupBtnExportAll": {
     "message": "⬇ 导出全部（MD + DOCX + ZIP）"
@@ -219,6 +226,18 @@
   },
   "popupStatusGistUploadFailed": {
     "message": "Gist 上传失败"
+  },
+  "popupStatusNotionConfigMissing": {
+    "message": "请先在设置中添加 Notion 令牌和页面 ID。"
+  },
+  "popupStatusNotionUploading": {
+    "message": "正在上传到 Notion…"
+  },
+  "popupStatusNotionCreated": {
+    "message": "✓ 已添加到 Notion"
+  },
+  "popupStatusNotionUploadFailed": {
+    "message": "Notion 上传失败"
   },
   "popupStatusNotSupportedPage": {
     "message": "当前页面不受支持。请在 ChatGPT、Claude、Gemini、Google 搜索或其他受支持的平台上打开 Inkpour。"
@@ -541,6 +560,27 @@
   "settingsGistTagsPlaceholder": {
     "message": "work, project-x, research"
   },
+  "settingsNotionTokenLabel": {
+    "message": "Notion 集成令牌"
+  },
+  "settingsNotionTokenDesc": {
+    "message": "内部集成令牌 — 用于启用弹出窗口中的“Notion ↑”按钮，将导出内容追加到下方页面。"
+  },
+  "settingsNotionTokenLink": {
+    "message": "创建令牌 →"
+  },
+  "settingsNotionTokenFineprint": {
+    "message": "⚠ 以明文形式存储在浏览器本地扩展存储中——请像对待密码一样对待它。该令牌还需要与 Notion 中的目标页面建立连接（打开页面 → ••• 菜单 → Connections → 您的集成），否则上传将因 404 错误而失败。"
+  },
+  "settingsNotionPageIdLabel": {
+    "message": "Notion 页面 ID"
+  },
+  "settingsNotionPageIdDesc": {
+    "message": "导出内容将追加到的页面（或块）——从该页面 Notion 网址末尾复制 32 个字符的 ID，含或不含连字符均可。"
+  },
+  "settingsNotionPageIdPlaceholder": {
+    "message": "a1b2c3d4e5f67890abcdef1234567890"
+  },
   "settingsScrubLabel": {
     "message": "上传前清除敏感信息"
   },
@@ -636,6 +676,9 @@
   },
   "historyActionGist": {
     "message": "↗ Gist"
+  },
+  "historyActionNotion": {
+    "message": "↗ Notion"
   },
   "historyNoExportsYet": {
     "message": "暂无导出记录"

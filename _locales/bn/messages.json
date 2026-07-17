@@ -87,6 +87,10 @@
     "message": "Markdown GitHub Gist-এ আপলোড করুন",
     "description": "Gist button tooltip"
   },
+  "popupNotionBtnTitle": {
+    "message": "Markdown একটি Notion পেজে যুক্ত করুন",
+    "description": "Notion button tooltip"
+  },
   "popupAllBtnTitle": {
     "message": "একসাথে MD + DOCX + ZIP এক্সপোর্ট করুন",
     "description": "Export All button tooltip"
@@ -117,6 +121,9 @@
   },
   "popupBtnGist": {
     "message": "Gist ↑"
+  },
+  "popupBtnNotion": {
+    "message": "Notion ↑"
   },
   "popupBtnExportAll": {
     "message": "⬇ সব এক্সপোর্ট করুন (MD + DOCX + ZIP)"
@@ -219,6 +226,18 @@
   },
   "popupStatusGistUploadFailed": {
     "message": "Gist আপলোড ব্যর্থ হয়েছে"
+  },
+  "popupStatusNotionConfigMissing": {
+    "message": "প্রথমে সেটিংসে একটি Notion টোকেন এবং পেজ ID যোগ করুন।"
+  },
+  "popupStatusNotionUploading": {
+    "message": "Notion-এ আপলোড করা হচ্ছে…"
+  },
+  "popupStatusNotionCreated": {
+    "message": "✓ Notion-এ যোগ করা হয়েছে"
+  },
+  "popupStatusNotionUploadFailed": {
+    "message": "Notion আপলোড ব্যর্থ হয়েছে"
   },
   "popupStatusNotSupportedPage": {
     "message": "এটি একটি সমর্থিত AI চ্যাট পেজ নয়। ChatGPT, Claude, Gemini, Google Search বা অন্য কোনো সমর্থিত প্ল্যাটফর্মে Inkpour খুলুন।"
@@ -541,6 +560,27 @@
   "settingsGistTagsPlaceholder": {
     "message": "কাজ, প্রজেক্ট-x, গবেষণা"
   },
+  "settingsNotionTokenLabel": {
+    "message": "Notion ইন্টিগ্রেশন টোকেন"
+  },
+  "settingsNotionTokenDesc": {
+    "message": "অভ্যন্তরীণ ইন্টিগ্রেশন টোকেন — পপআপে \"Notion ↑\" বাটন সক্রিয় করে, নিচের পেজে এক্সপোর্ট যুক্ত করে।"
+  },
+  "settingsNotionTokenLink": {
+    "message": "একটি তৈরি করুন →"
+  },
+  "settingsNotionTokenFineprint": {
+    "message": "⚠ ব্রাউজারের স্থানীয় এক্সটেনশন স্টোরেজে প্লেইন টেক্সট হিসেবে সংরক্ষিত হয় — এটিকে পাসওয়ার্ডের মতো বিবেচনা করুন। টোকেনটি Notion-এ টার্গেট পেজের সাথেও সংযুক্ত থাকতে হবে (পেজ খুলুন → ••• মেনু → Connections → আপনার ইন্টিগ্রেশন), নাহলে আপলোড 404 ত্রুটিসহ ব্যর্থ হবে।"
+  },
+  "settingsNotionPageIdLabel": {
+    "message": "Notion পেজ ID"
+  },
+  "settingsNotionPageIdDesc": {
+    "message": "যে পেজে (বা ব্লকে) এক্সপোর্ট যুক্ত করা হয় — পেজের Notion URL-এর শেষ থেকে ৩২-অক্ষরের ID কপি করুন, ড্যাশ সহ বা ছাড়া।"
+  },
+  "settingsNotionPageIdPlaceholder": {
+    "message": "a1b2c3d4e5f67890abcdef1234567890"
+  },
   "settingsScrubLabel": {
     "message": "আপলোডের আগে গোপন তথ্য মুছে ফেলুন"
   },
@@ -636,6 +676,9 @@
   },
   "historyActionGist": {
     "message": "↗ Gist"
+  },
+  "historyActionNotion": {
+    "message": "↗ Notion"
   },
   "historyNoExportsYet": {
     "message": "এখনও কোনো এক্সপোর্ট নেই"

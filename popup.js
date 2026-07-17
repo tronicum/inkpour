@@ -20,6 +20,7 @@
   const docxBtn     = document.getElementById('docxBtn');
   const zipBtn      = document.getElementById('zipBtn');
   const gistBtn     = document.getElementById('gistBtn');
+  const notionBtn   = document.getElementById('notionBtn');
   const debugGroupEl = document.getElementById('debug-group');
   const debugDomBtn  = document.getElementById('debugDomBtn');
   const reportBugBtn = document.getElementById('reportBugBtn');
@@ -85,6 +86,9 @@
     githubToken:           '',
     gistPublic:            false,
     gistTags:              '', // comma-separated extra tags for Gist YAML (e.g. "work, project-x")
+    notionToken:           '',
+    notionPageId:          '',
+    scrubSecrets:          true,
     webhookUrl:            '',
     webhookIncludeContent: false,
     debugMode:             false,
@@ -100,6 +104,8 @@
     if (defaultBtn) defaultBtn.classList.add('default-format');
     // Show Gist button only when a token is configured
     if (gistBtn && userSettings.githubToken) gistBtn.hidden = false;
+    // Show Notion button only when both a token and a target page ID are configured
+    if (notionBtn && userSettings.notionToken && userSettings.notionPageId) notionBtn.hidden = false;
     // Debug-mode buttons — "Copy debug info" needs no token (opens/copies
     // locally); "Report bug" also works without one (opens a pre-filled
     // GitHub issue the user reviews and submits themselves), so both show
@@ -921,6 +927,73 @@
       setStatus(err.message || t('popupStatusGistUploadFailed'), 'error');
     } finally {
       setLoading(gistBtn, false);
+    }
+  });
+
+  // ─── Notion export ─────────────────────────────────────────────────────────
+  // BYO integration token + target page ID (Settings → Integrations). Follows
+  // the Gist button's shape above: build markdown → scrub secrets → upload →
+  // toast → open the result in a new tab. Notion's append-children endpoint
+  // (PATCH /v1/blocks/{block_id}/children) has no equivalent of a Gist's
+  // returned `html_url`, so the opened URL is constructed from the
+  // user-configured page ID rather than the API response — verified against
+  // Notion's docs (developers.notion.com/reference/patch-block-children):
+  // requires `Authorization: Bearer <token>` + `Notion-Version: 2026-03-11`
+  // headers, a `{ children: [...] }` body, and rejects more than 100 block
+  // objects per request (batchNotionBlocks below sends one request per batch,
+  // sequentially, since a page may need more than one call).
+  notionBtn?.addEventListener('click', async () => {
+    if (!userSettings.notionToken || !userSettings.notionPageId) {
+      setStatus(t('popupStatusNotionConfigMissing'), 'warning');
+      return;
+    }
+    clearStatus();
+    setLoading(notionBtn, true);
+    try {
+      const data  = await extractFromPage();
+      const msgs  = getSelectedMessages(data.messages);
+      const notes = getExportNotes();
+      let md = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, userSettings, data.sourceUrl);
+
+      // Scrub likely secrets (API keys, tokens, emails, ...) before anything
+      // leaves the machine, unless the user has explicitly disabled this —
+      // same pass background.js's doGistUpload runs before a Gist upload.
+      if (userSettings.scrubSecrets !== false) {
+        md = redactSecrets(md).cleaned;
+      }
+
+      const pageId  = userSettings.notionPageId.trim();
+      const blocks  = markdownToNotionBlocks(md);
+      const batches = batchNotionBlocks(blocks, 100);
+
+      setStatus(t('popupStatusNotionUploading'));
+      for (const batch of batches) {
+        const res = await fetch(`https://api.notion.com/v1/blocks/${pageId}/children`, {
+          method:  'PATCH',
+          headers: {
+            'Authorization':  `Bearer ${userSettings.notionToken}`,
+            'Notion-Version': '2026-03-11',
+            'Content-Type':   'application/json',
+          },
+          body: JSON.stringify({ children: batch }),
+        });
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body.message || `Notion API error ${res.status}`);
+        }
+      }
+
+      // Notion page URLs are just https://www.notion.so/<32-char-id-no-dashes>
+      // (title-less form still resolves) — built from the configured page ID
+      // rather than the append response, which only returns the new blocks.
+      const pageUrl = `https://www.notion.so/${pageId.replace(/-/g, '')}`;
+      setStatus(t('popupStatusNotionCreated'), 'success');
+      api.tabs.create({ url: pageUrl });
+      saveLastExport('notion', { ...data, messages: msgs }, md, { notionPageUrl: pageUrl });
+    } catch (err) {
+      setStatus(err.message || t('popupStatusNotionUploadFailed'), 'error');
+    } finally {
+      setLoading(notionBtn, false);
     }
   });
 

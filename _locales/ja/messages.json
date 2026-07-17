@@ -87,6 +87,10 @@
     "message": "MarkdownをGitHub Gistにアップロード",
     "description": "Gist button tooltip"
   },
+  "popupNotionBtnTitle": {
+    "message": "MarkdownをNotionページに追加",
+    "description": "Notion button tooltip"
+  },
   "popupAllBtnTitle": {
     "message": "MD + DOCX + ZIPを同時にエクスポート",
     "description": "Export All button tooltip"
@@ -117,6 +121,9 @@
   },
   "popupBtnGist": {
     "message": "Gist ↑"
+  },
+  "popupBtnNotion": {
+    "message": "Notion ↑"
   },
   "popupBtnExportAll": {
     "message": "⬇ 全てエクスポート（MD + DOCX + ZIP）"
@@ -219,6 +226,18 @@
   },
   "popupStatusGistUploadFailed": {
     "message": "Gistのアップロードに失敗しました"
+  },
+  "popupStatusNotionConfigMissing": {
+    "message": "先に設定でNotionトークンとページIDを追加してください。"
+  },
+  "popupStatusNotionUploading": {
+    "message": "Notionにアップロード中…"
+  },
+  "popupStatusNotionCreated": {
+    "message": "✓ Notionに追加しました"
+  },
+  "popupStatusNotionUploadFailed": {
+    "message": "Notionへのアップロードに失敗しました"
   },
   "popupStatusNotSupportedPage": {
     "message": "対応していないAIチャットページです。ChatGPT、Claude、Gemini、Google Search、または他の対応プラットフォームでInkpourを開いてください。"
@@ -541,6 +560,27 @@
   "settingsGistTagsPlaceholder": {
     "message": "仕事, プロジェクトX, 研究"
   },
+  "settingsNotionTokenLabel": {
+    "message": "Notion統合トークン"
+  },
+  "settingsNotionTokenDesc": {
+    "message": "内部統合トークン — ポップアップの「Notion ↑」ボタンが有効になり、下記のページにエクスポートを追加します。"
+  },
+  "settingsNotionTokenLink": {
+    "message": "作成する →"
+  },
+  "settingsNotionTokenFineprint": {
+    "message": "⚠ ブラウザのローカル拡張機能ストレージに平文で保存されます — パスワードと同様に扱ってください。トークンはNotion内の対象ページにも接続されている必要があります（ページを開く → •••メニュー → Connections → 該当のインテグレーション）。接続されていないとアップロードは404エラーで失敗します。"
+  },
+  "settingsNotionPageIdLabel": {
+    "message": "NotionページID"
+  },
+  "settingsNotionPageIdDesc": {
+    "message": "エクスポートの追加先のページ（またはブロック） — ページのNotion URLの末尾にある32文字のIDをコピーしてください（ハイフンの有無は問いません）。"
+  },
+  "settingsNotionPageIdPlaceholder": {
+    "message": "a1b2c3d4e5f67890abcdef1234567890"
+  },
   "settingsScrubLabel": {
     "message": "アップロード前に機密情報を除去"
   },
@@ -636,6 +676,9 @@
   },
   "historyActionGist": {
     "message": "↗ Gist"
+  },
+  "historyActionNotion": {
+    "message": "↗ Notion"
   },
   "historyNoExportsYet": {
     "message": "エクスポート履歴はまだありません"
