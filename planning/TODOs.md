@@ -180,10 +180,66 @@ path is one self-contained click handler (settings.js:138–162) building one
 - [ ] **L** Pick multiple conversations from a platform's history sidebar → one
   ZIP. Everything today is single-active-tab (popup.js eager extraction;
   "Export All" at popup.js:764 is formats-not-conversations), so this needs a
-  new orchestration layer: enumerate sidebar links, open/extract each
-  conversation (sequential tab automation or background fetch where possible),
-  aggregate through the existing `buildZip`. Start with ChatGPT + Claude only.
-  Spend the first session on design + sidebar-enumeration spike, not code.
+  new orchestration layer. Start with ChatGPT + Claude only.
+
+  **Goal, precisely stated:** this is retroactive — you open a platform's own
+  history sidebar, tick several *past* conversations there, and get one ZIP.
+  It is not about exporting multiple currently-open tabs.
+
+  **Critical constraint (must not regress):** a history sidebar with multiple
+  past conversations only exists when logged in. Inkpour's core function —
+  exporting the one conversation on screen right now — works fine logged out
+  (verified live for ChatGPT's Temporary Chat, Batch 7 XS above). Batch export
+  must be a strictly additive layer on top of that: if there's no history
+  sidebar / the platform looks logged out, the batch-export entry point simply
+  doesn't appear (or no-ops) — it must never gate, wrap, or otherwise risk
+  breaking the existing single-conversation extraction path, which has to keep
+  working identically whether or not the user is logged in.
+
+  **Chosen mechanism: sequential background tab automation** (over same-tab
+  navigation, which would hijack the user's active tab for the whole run and
+  can't be interrupted or later parallelized). Tradeoff accepted: hidden tabs
+  will briefly flash open/close in the tab bar.
+
+  **Orchestration sketch (background.js, new):**
+  1. Entry point (new popup.js section, following the existing "Export All"
+     checkbox-list convention at popup.js:764) reads the *current* tab's
+     history sidebar via a new content-script message that returns
+     `{title, url}` pairs — this is also the natural logged-in feature-detect
+     point: if the sidebar query finds nothing, don't show the entry point.
+  2. User ticks N conversations from that list.
+  3. On "Start batch export", background.js iterates the selected URLs
+     **sequentially** (not parallel — avoids overwhelming per-platform
+     lazy-load/scroll behavior and looks less bot-like than bursty parallel
+     tab creation):
+     a. `chrome.tabs.create({url, active:false})`
+     b. wait for the content script to be ready, then send `{action:'extract'}`
+        — identical to the three existing non-popup trigger paths — reusing
+        the existing `showToast` for progress ("Exporting 3 of 12…")
+     c. collect `{title, markdown}` from the response
+     d. `chrome.tabs.remove(tabId)`
+     e. small delay before the next tab (don't hammer the site)
+  4. Aggregate through the **existing** `buildZip()` (already used by "Export
+     All" formats) — one file per conversation, named via the existing
+     `buildFilename()` template.
+  5. Errors are per-conversation, not fatal to the run: a tab that fails to
+     load or returns empty extraction is skipped and counted in a final
+     "N succeeded, M skipped" summary toast.
+
+  **Open questions needing a live logged-in session (flag before starting,
+  same caveat as Batch 7):**
+  - Exact sidebar selectors for ChatGPT's and Claude's history lists —
+    unverified this session (no logged-in ChatGPT/Claude tab was available).
+  - Whether either sidebar lazy-loads/paginates on scroll for accounts with
+    many conversations — the picker UI would need to handle "load more"
+    before the full list can be ticked.
+  - Realistic per-tab load timeout per platform (chatgpt/gemini/aistudio are
+    already known to be slow lazy-loaders from the streaming-toast work).
+  - How many conversations per run before it risks looking bot-like or
+    tripping a platform rate limit — no data yet, needs real-account testing.
+
+  Spend the first coding session on the sidebar-enumeration spike (step 1
+  above) against a real logged-in account, not on the full orchestration.
 
 ## Batch 9 — Distribution (XL; blocked on Stefan — accounts, fees, listing assets)
 - [x] **XL** Submit to Firefox Add-ons (AMO) + Chrome Web Store — in progress,
