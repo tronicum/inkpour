@@ -169,9 +169,12 @@ path is one self-contained click handler (settings.js:138–162) building one
 - [ ] **M** AI Studio hardening: edit-mode clicks misfire on complex prompts;
   needs live sessions to reproduce, then defensive rewrite of the async
   edit-mode flow.
-- [ ] **XS** Verify temporary/incognito chats export cleanly (should — the
-  extraction is DOM-based). Pure test, no code expected; if it passes, it
-  becomes a README claim (see Non-code).
+- [x] **XS** Verify temporary/incognito chats export cleanly — confirmed live
+  2026-07 on ChatGPT's Temporary Chat (`chatgpt.com/?temporary-chat=true`):
+  `[data-message-author-role]` finds both turns with correct roles and full
+  text, identical to a normal chat's DOM, and `location.hostname` still
+  resolves to `chatgpt.com` so `detectSite()` routes normally. No code needed.
+  Passed — see README claim added under Non-code below.
 
 ## Batch 8 — Batch export (multi-session; design-first)
 - [ ] **L** Pick multiple conversations from a platform's history sidebar → one
