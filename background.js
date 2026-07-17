@@ -93,6 +93,148 @@ api.runtime.onMessage.addListener((message, sender) => {
   })();
 });
 
+// ─── Batch export (Batch 8): sequential background-tab automation ────────
+// popup.js sends { action: 'startBatchExport', conversations: [{title,url}],
+// originTabId } after the user ticks conversations from the CURRENT tab's
+// own history sidebar (populated via content.js's getConversationList() —
+// see src/content.js and planning/TODOs.md Batch 8). Conversations are
+// visited ONE AT A TIME in a hidden background tab (not parallel — avoids
+// overwhelming per-platform lazy-load behavior and looks less bot-like than
+// bursty parallel tab creation), extracted exactly like every other
+// extraction path, then aggregated into a single ZIP (one .md file per
+// conversation) via the existing buildZip()/buildFilename(). Runs entirely
+// in this service worker so it keeps going even if the popup that started
+// it gets closed.
+//
+// Known open questions, not yet resolved — see TODOs.md Batch 8 for detail:
+// realistic per-platform load timeouts (the fixed values below are a
+// reasonable starting guess, not measured against real slow-loading
+// accounts) and how many conversations per run is safe before it risks
+// looking bot-like or tripping a platform rate limit. Flagging this
+// explicitly rather than silently guessing it away — needs live testing
+// against a real account with enough history to matter before this is
+// something to rely on for a large batch.
+
+/** Resolve once tabId finishes loading, or reject after timeoutMs. */
+function waitForTabLoad(tabId, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    let done = false;
+    const timer = setTimeout(() => {
+      if (done) return;
+      done = true;
+      api.tabs.onUpdated.removeListener(listener);
+      reject(new Error('tab load timeout'));
+    }, timeoutMs);
+
+    function finish() {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      api.tabs.onUpdated.removeListener(listener);
+      resolve();
+    }
+
+    function listener(id, info) {
+      if (id === tabId && info.status === 'complete') finish();
+    }
+    api.tabs.onUpdated.addListener(listener);
+
+    // Race-safe: the tab may already be "complete" by the time we attach
+    // (unlikely for a just-created tab, but cheap to guard against).
+    api.tabs.get(tabId).then(t => { if (t.status === 'complete') finish(); }).catch(() => {});
+  });
+}
+
+/**
+ * Run the actual batch: visit each conversation in a hidden tab, extract,
+ * collect into one ZIP, download it, then report a { succeeded, skipped,
+ * total } summary. Never throws — per-conversation failures are caught and
+ * counted as skipped, matching the "errors are per-conversation, not fatal
+ * to the run" design.
+ */
+async function runBatchExport(conversations, originTabId) {
+  const stored   = await api.storage.local.get('inkpour_settings');
+  const settings = Object.assign(
+    { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}', downloadSubfolder: '', obsidianVault: '', obsidianTags: false, scrubSecrets: true },
+    stored?.inkpour_settings ?? {}
+  );
+
+  function toast(text, variant) {
+    if (!originTabId) return;
+    api.tabs.sendMessage(originTabId, { action: 'showToast', text, variant }).catch(() => {});
+  }
+
+  const files      = [];
+  const usedNames  = new Set();
+  let   succeeded  = 0;
+  let   skipped    = 0;
+
+  for (let i = 0; i < conversations.length; i++) {
+    const { title: sidebarTitle, url } = conversations[i];
+    toast(api.i18n.getMessage('popupBatchExportProgress', [String(i + 1), String(conversations.length), sidebarTitle || '']));
+
+    let tab = null;
+    try {
+      tab = await api.tabs.create({ url, active: false });
+      await waitForTabLoad(tab.id, 20000);
+      // Give the SPA a moment to hydrate/render turns after the browser's
+      // own "complete" event fires — chatgpt/gemini/aistudio are already
+      // known to be slow lazy-loaders elsewhere in this codebase (see the
+      // streaming/auto-scroll progress work). Not yet tuned per platform.
+      await new Promise(r => setTimeout(r, 1500));
+
+      const response = await Promise.race([
+        api.tabs.sendMessage(tab.id, { action: 'extract' }),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('extract timeout')), 15000)),
+      ]);
+
+      if (!response?.messages?.length) {
+        throw new Error(response?.error || 'empty extraction');
+      }
+
+      const sourceUrl = url;
+      const wordCount = response.messages.reduce((s, m) => s + m.content.trim().split(/\s+/).filter(Boolean).length, 0);
+      let name = buildFilename(settings.filenameTemplate, response.platform, response.filename, sourceUrl, wordCount, response.messages.length);
+      let unique = name, n = 2;
+      while (usedNames.has(unique)) unique = `${name}-${n++}`; // two conversations can share a title
+      usedNames.add(unique);
+
+      const md = buildMarkdown(response.messages, response.title, response.site, settings, sourceUrl);
+      files.push({ name: unique + '.md', content: md });
+      succeeded++;
+    } catch {
+      skipped++;
+    } finally {
+      if (tab) api.tabs.remove(tab.id).catch(() => {});
+      await new Promise(r => setTimeout(r, 800)); // don't hammer the site between tabs
+    }
+  }
+
+  if (files.length) {
+    const zipBytes = buildZip(files);
+    const b64      = uint8ToBase64(zipBytes);
+    const url      = 'data:application/zip;base64,' + b64;
+    const stamp    = new Date().toISOString().slice(0, 10);
+    safeDownload(originTabId, url, withSubfolder(settings, `inkpour-batch-${stamp}.zip`));
+  }
+
+  toast(
+    api.i18n.getMessage('popupBatchExportDone', [String(succeeded), String(skipped)]),
+    skipped > 0 && succeeded === 0 ? 'error' : (skipped > 0 ? 'info' : 'success')
+  );
+
+  return { succeeded, skipped, total: conversations.length };
+}
+
+api.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message?.action !== 'startBatchExport' || !Array.isArray(message.conversations)) return;
+  const originTabId = message.originTabId ?? sender.tab?.id;
+  runBatchExport(message.conversations, originTabId)
+    .then(result => sendResponse({ ok: true, ...result }))
+    .catch(err => sendResponse({ ok: false, error: err.message }));
+  return true; // async
+});
+
 // ─── Context menu setup ───────────────────────────────────────────────────
 
 api.runtime.onInstalled.addListener(() => {

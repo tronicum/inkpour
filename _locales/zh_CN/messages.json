@@ -1035,5 +1035,64 @@
   },
   "popupBtnReportBug": {
     "message": "报告问题"
+  },
+  "popupBatchExportToggle": {
+    "message": "📦 批量导出历史对话…"
+  },
+  "popupBatchExportStartBtnTitle": {
+    "message": "将勾选的对话导出为一个 ZIP 压缩包"
+  },
+  "popupBatchExportStartBtn": {
+    "message": "导出所选为 ZIP"
+  },
+  "popupBatchExportCount": {
+    "message": "已选择 $2 项中的 $1 项",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportNoneSelected": {
+    "message": "请先至少选择一个对话。"
+  },
+  "popupBatchExportStarting": {
+    "message": "正在导出 $1 个对话…",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupBatchExportProgress": {
+    "message": "正在导出第 $1 项（共 $2 项）：$3",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupBatchExportDone": {
+    "message": "批量导出完成：成功 $1 个，跳过 $2 个",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportFailed": {
+    "message": "批量导出失败"
   }
 }

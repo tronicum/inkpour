@@ -19,6 +19,9 @@ new section here in the same commit as the version bump.
   own integration token + page ID).
 - Direct-to-vault saving (Chrome/Edge) — write exports straight to a folder
   on disk instead of downloading, via a one-time folder picker.
+- Batch export (ChatGPT + Claude) — tick several past conversations from
+  the platform's own history sidebar and export them all as one ZIP.
+  **Pending a live end-to-end test before this is fully verified.**
 
 ### Fixed
 - ChatGPT Canvas code blocks now get a language tag on the code fence.

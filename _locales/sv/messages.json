@@ -1035,5 +1035,64 @@
   },
   "popupBtnReportBug": {
     "message": "Rapportera bugg"
+  },
+  "popupBatchExportToggle": {
+    "message": "📦 Massexportera tidigare konversationer…"
+  },
+  "popupBatchExportStartBtnTitle": {
+    "message": "Exportera de markerade konversationerna som en ZIP"
+  },
+  "popupBatchExportStartBtn": {
+    "message": "Exportera valda som ZIP"
+  },
+  "popupBatchExportCount": {
+    "message": "$1 av $2 markerade",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportNoneSelected": {
+    "message": "Välj minst en konversation först"
+  },
+  "popupBatchExportStarting": {
+    "message": "Exporterar $1 konversationer…",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupBatchExportProgress": {
+    "message": "Exporterar $1 av $2: $3",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupBatchExportDone": {
+    "message": "Massexport klar: $1 lyckades, $2 hoppades över",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportFailed": {
+    "message": "Massexport misslyckades"
   }
 }

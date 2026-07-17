@@ -1035,5 +1035,64 @@
   },
   "popupBtnReportBug": {
     "message": "Hata bildir"
+  },
+  "popupBatchExportToggle": {
+    "message": "📦 Geçmiş sohbetleri toplu dışa aktar…"
+  },
+  "popupBatchExportStartBtnTitle": {
+    "message": "İşaretlenen sohbetleri tek bir ZIP olarak dışa aktarır"
+  },
+  "popupBatchExportStartBtn": {
+    "message": "Seçilenleri ZIP olarak dışa aktar"
+  },
+  "popupBatchExportCount": {
+    "message": "$2 içinde $1 seçildi",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportNoneSelected": {
+    "message": "Önce en az bir sohbet seçin."
+  },
+  "popupBatchExportStarting": {
+    "message": "$1 sohbet dışa aktarılıyor…",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupBatchExportProgress": {
+    "message": "$2 içinden $1 dışa aktarılıyor: $3",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupBatchExportDone": {
+    "message": "Toplu dışa aktarma tamamlandı: $1 başarılı, $2 atlandı",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportFailed": {
+    "message": "Toplu dışa aktarma başarısız oldu"
   }
 }

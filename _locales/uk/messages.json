@@ -1035,5 +1035,64 @@
   },
   "popupBtnReportBug": {
     "message": "Повідомити про помилку"
+  },
+  "popupBatchExportToggle": {
+    "message": "📦 Пакетний експорт попередніх розмов…"
+  },
+  "popupBatchExportStartBtnTitle": {
+    "message": "Експортувати позначені розмови в один ZIP-файл"
+  },
+  "popupBatchExportStartBtn": {
+    "message": "Експортувати вибране як ZIP"
+  },
+  "popupBatchExportCount": {
+    "message": "Вибрано $1 з $2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportNoneSelected": {
+    "message": "Спочатку виберіть хоча б одну розмову."
+  },
+  "popupBatchExportStarting": {
+    "message": "Експортування $1 розмов…",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupBatchExportProgress": {
+    "message": "Експортування $1 з $2: $3",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupBatchExportDone": {
+    "message": "Пакетний експорт завершено: успішно $1, пропущено $2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportFailed": {
+    "message": "Не вдалося виконати пакетний експорт"
   }
 }

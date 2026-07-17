@@ -511,6 +511,38 @@
          border-radius:7px;padding:4px 0;background:var(--surface);"></div>
   </div>
 
+  <!-- Batch export (Batch 8): pick multiple PAST conversations from this
+       platform's own history sidebar and get one ZIP. Only revealed when
+       getConversationList() (src/content.js) finds a history sidebar on the
+       current page — logged-out pages and unsupported platforms never see
+       this at all, so it can't regress the single-conversation export path
+       above. Runs as a sequential background-tab automation in
+       background.js; stays running even if this popup closes. -->
+  <button id="batchExportToggle" hidden
+    style="display:none;width:100%;margin-top:5px;font-size:11px;color:var(--subtext);
+           background:none;border:none;cursor:pointer;text-align:start;padding:2px 0;">
+    <span data-i18n="popupBatchExportToggle">📦 Batch export past conversations…</span>
+  </button>
+  <div id="batch-export-section" hidden style="display:none;margin-top:6px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+      <span style="font-size:10.5px;color:var(--subtext);" id="batchExportCount"></span>
+      <span style="font-size:10.5px;">
+        <button id="batchExportSelectAll" style="background:none;border:none;cursor:pointer;color:var(--accent);font-size:10.5px;padding:0 3px;" data-i18n="popupSelectAll">All</button>
+        <button id="batchExportSelectNone" style="background:none;border:none;cursor:pointer;color:var(--accent);font-size:10.5px;padding:0 3px;" data-i18n="popupSelectNone">None</button>
+      </span>
+    </div>
+    <div id="batchExportCheckboxes" style="max-height:140px;overflow-y:auto;border:1px solid var(--border);
+         border-radius:7px;padding:4px 0;background:var(--surface);"></div>
+    <button class="btn" id="batchExportStartBtn" data-i18n-title="popupBatchExportStartBtnTitle" title="Export the ticked conversations as one ZIP"
+      style="margin-top:6px;width:100%;padding:6px 6px;font-size:11.5px;
+             font-weight:600;color:var(--accent-text);background:var(--accent);
+             border:none;border-radius:7px;cursor:pointer;">
+      <div class="spinner"></div>
+      <span data-i18n="popupBatchExportStartBtn">Export selected as ZIP</span>
+    </button>
+    <div id="batchExportStatus" style="margin-top:4px;font-size:10.5px;color:var(--subtext);text-align:center;"></div>
+  </div>
+
   <div id="gist-link"></div>
   <div id="last-export"></div>
 

@@ -1035,5 +1035,64 @@
   },
   "popupBtnReportBug": {
     "message": "Bug melden"
+  },
+  "popupBatchExportToggle": {
+    "message": "📦 Eerdere gesprekken in bulk exporteren…"
+  },
+  "popupBatchExportStartBtnTitle": {
+    "message": "Exporteer de aangevinkte gesprekken als één ZIP"
+  },
+  "popupBatchExportStartBtn": {
+    "message": "Geselecteerde exporteren als ZIP"
+  },
+  "popupBatchExportCount": {
+    "message": "$1 van $2 geselecteerd",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportNoneSelected": {
+    "message": "Selecteer eerst minstens één gesprek"
+  },
+  "popupBatchExportStarting": {
+    "message": "Bezig met exporteren van $1 gesprekken…",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupBatchExportProgress": {
+    "message": "Bezig met exporteren van $1 van $2: $3",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupBatchExportDone": {
+    "message": "Bulkexport voltooid: $1 geslaagd, $2 overgeslagen",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportFailed": {
+    "message": "Bulkexport mislukt"
   }
 }
