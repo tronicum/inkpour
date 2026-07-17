@@ -312,6 +312,40 @@ path is one self-contained click handler (settings.js:138–162) building one
     which likely render very differently inside `#wiggle-file-content` than
     the plain-code case tested here. Genuinely multi-session work, matching
     the original L estimate — unlike Canvas, this one didn't shrink.
+  - **Synthetic-click mechanism — conclusively ruled out 2026-07, downgrading
+    this item's viability**: re-tested live against the same 2-artifact
+    conversation with a much more thorough synthetic sequence than a bare
+    `.click()` — `pointerdown` → `mousedown` → `pointerup` → `mouseup` →
+    `click`, all `bubbles:true, cancelable:true`, with real `clientX/clientY`
+    coordinates from the card's actual `getBoundingClientRect()` (i.e.
+    everything a real click event carries, not just a bare `.click()` call).
+    Confirmed via before/after `#wiggle-file-content` text comparison: still
+    NO swap. Only a genuinely OS-level input event (dispatched through
+    Chrome's real input pipeline, e.g. what the `computer`/CDP tool used in
+    the original investigation, or equivalently `chrome.debugger`'s
+    `Input.dispatchMouseEvent`) triggers it. This means the gap isn't "using
+    the wrong DOM event type" as first hoped — it's that Claude's frontend
+    (likely a Radix/shadcn-style component checking real pointer capture or
+    `event.isTrusted`) rejects any JS-dispatched event regardless of how
+    complete the sequence is. A content script has no way to produce a
+    trusted input event; the only extension-side mechanism that can is the
+    `chrome.debugger` API, which requires the `debugger` permission — a
+    heavy, scary ask (Chrome shows a persistent "Inkpour is debugging this
+    browser" banner the whole time it's attached) for what should be a
+    read-only export feature, and a plausible Chrome Web Store review
+    friction point. Each artifact card also has its own "Download" button
+    (confirmed present, not clicked live to avoid triggering a real file
+    save on Stefan's machine) that likely goes through the same
+    click-handler gating, so it's probably not a viable synthetic-click
+    workaround either — not tested further given the download side effect.
+    **Recommendation: don't pursue the click-through approach further.**
+    Either accept the current zero-content-artifact limitation as a known
+    gap (document it plainly for users instead), or revisit only if a
+    non-click extraction path turns up (e.g. Claude ships a stable
+    public/internal API for artifact content, or a future DOM version
+    embeds all artifacts' content up front instead of swapping one panel).
+    Downgrading from "L, not implemented" to effectively blocked pending a
+    non-click approach — not purely a matter of more engineering time.
 - [x] **M → investigated, not implemented** NotebookLM inline source citations —
   investigated live 2026-07 against a real 54-source notebook. `extractCitations()`
   already pulls the correct citation numbers from `button.citation-marker`
