@@ -142,6 +142,94 @@ async function extractFromFixture(fixtureName, hostname = '', action = 'extract'
   });
 }
 
+/**
+ * Like extractFromFixture(), but for Google AI Mode's geometry-based turn
+ * extraction (extractGoogleAiModeTurnsByGeometry() in src/content.js).
+ *
+ * That function makes its decisions entirely from on-screen pixel positions
+ * (getBoundingClientRect), which JSDOM never computes (it has no layout
+ * engine — real elements always report an all-zero rect). So instead of the
+ * shared helper's fixed https://example.com/ URL, this constructs the JSDOM
+ * document at a real `google.com/search?...&udm=50` URL (so detectSite() and
+ * the isAIMode check route correctly) and monkey-patches
+ * Element.prototype.getBoundingClientRect to return a fixed rect per element
+ * id, reproducing the exact on-screen geometry that triggered the 2026-07
+ * duplication bug. offsetParent is also patched (JSDOM always reports null,
+ * which isVisibleForExtraction reads as "hidden") so visibility is governed
+ * purely by the mocked rect plus real inline-style opacity/display, matching
+ * how the live check actually filters things.
+ */
+async function extractGoogleAiModeFromFixture(fixtureName, rects = GOOGLE_AI_MODE_TEST_RECTS) {
+  const fixturePath = path.join(FIXTURES_DIR, fixtureName);
+  const html = fs.readFileSync(fixturePath, 'utf8');
+
+  const dom = new JSDOM(html, {
+    url: 'https://www.google.com/search?q=what+is+the+turing+test&udm=50',
+    runScripts: 'dangerously',
+    resources: 'usable',
+  });
+  const { window } = dom;
+
+  const listeners = [];
+  const mockRuntime = { onMessage: { addListener: fn => listeners.push(fn) }, id: 'test-extension-id' };
+  window.browser = { runtime: mockRuntime, i18n: mockI18n() };
+  window.chrome  = { runtime: mockRuntime, i18n: mockI18n() };
+  window.HTMLElement.prototype.scrollTo = function () {};
+  window.document.documentElement.scrollTo = function () {};
+
+  // offsetParent always non-null: real visibility is decided by the mocked
+  // rect (width/height) and real inline-style opacity/display below.
+  Object.defineProperty(window.HTMLElement.prototype, 'offsetParent', {
+    get() { return window.document.body; },
+    configurable: true,
+  });
+
+  window.Element.prototype.getBoundingClientRect = function () {
+    const r = rects[this.id] || { top: 0, bottom: 0, left: 0, width: 0, height: 0 };
+    return {
+      top: r.top, bottom: r.bottom, left: r.left,
+      right: r.left + r.width, width: r.width, height: r.height,
+      x: r.left, y: r.top, toJSON() { return this; },
+    };
+  };
+
+  const scriptEl = window.document.createElement('script');
+  scriptEl.textContent = CONTENT_JS;
+  window.document.body.appendChild(scriptEl);
+  await new Promise(r => setTimeout(r, 50));
+
+  const listener = listeners[0];
+  if (!listener) throw new Error('No onMessage listener registered by content.js');
+
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const sendResponse = (response) => { if (!settled) { settled = true; resolve(response); } };
+    try {
+      const ret = listener({ action: 'extract' }, {}, sendResponse);
+      if (ret !== true) setTimeout(() => { if (!settled) { settled = true; resolve(undefined); } }, 100);
+    } catch (err) {
+      if (!settled) reject(err);
+    }
+    setTimeout(() => { if (!settled) { settled = true; resolve({ error: 'timeout' }); } }, 3000);
+  });
+}
+
+// Mocked geometry for test/fixtures/google-ai-mode-geometry.html — see that
+// file's own comment for what each element simulates. { top, bottom, left }
+// in a coordinate space with no real scrolling (window.scrollY stays 0).
+const GOOGLE_AI_MODE_TEST_RECTS = {
+  'h0':              { top: 100, bottom: 140, left: 50, width: 500, height: 40 },
+  't0-answer':        { top: 150, bottom: 390, left: 50, width: 500, height: 240 },
+  't0-spillover':     { top: 395, bottom: 900, left: 50, width: 500, height: 505 }, // top in-band, bottom spills past endY(400)
+  'h1':               { top: 400, bottom: 440, left: 50, width: 500, height: 40 },
+  'h1-frag':          { top: 399, bottom: 400, left: 50, width: 100, height: 1 },  // inside turn 0's band, but a descendant of turn 1's heading
+  't1-answer':        { top: 450, bottom: 600, left: 50, width: 500, height: 150 },
+  'toolbar-wrapper':  { top: 610, bottom: 660, left: 50, width: 500, height: 50 },
+  'real-input':       { top: 0,   bottom: 0,   left: 0,  width: 0,   height: 0 },  // opacity:0 in the fixture too; zero rect either way
+  'disclaimer':       { top: 670, bottom: 690, left: 50, width: 500, height: 20 },
+  'share-panel':      { top: 700, bottom: 750, left: 50, width: 500, height: 50 }, // after the disclaimer -> must be cut
+};
+
 // ─── Test suites ────────────────────────────────────────────────────────────
 
 async function main() {
@@ -1798,6 +1886,48 @@ async function main() {
     const missingFromDir = [...supportedCodes].filter(c => !dirCodes.has(c));
     assert(missingFromSrc.length === 0 && missingFromDir.length === 0,
       `dir-only: ${missingFromSrc.join(', ') || 'none'}; SUPPORTED_LOCALES-only: ${missingFromDir.join(', ') || 'none'}`);
+  });
+
+  // ── Google AI Mode geometry extraction (regression, 2026-07 dupe bug) ──────
+  await suite('Google AI Mode geometry extraction (regression)', async () => {
+    const result = await extractGoogleAiModeFromFixture('google-ai-mode-geometry.html');
+
+    await test('extracts exactly 4 messages (2 turns, no duplication)', () => {
+      assert(result.messages.length === 4, `got ${result.messages.length}`);
+    });
+
+    await test('turn 0 answer contains only its own content', () => {
+      const turn0Answer = result.messages[1];
+      assert(turn0Answer.role === 'Gemini', `role[1]=${turn0Answer.role}`);
+      assert(turn0Answer.content.includes('benchmark for machine intelligence'), 'missing real turn 0 content');
+    });
+
+    await test('turn 0 answer does not include the oversized-wrapper spillover', () => {
+      assert(!result.messages[1].content.includes('SPILLOVER_LEAK_MARKER'),
+        'bottom-bound check regressed: spillover wrapper leaked into turn 0');
+    });
+
+    await test('turn 0 answer does not include a fragment of turn 1\'s heading', () => {
+      assert(!result.messages[1].content.includes('FRAG_LEAK_MARKER'),
+        'any-heading exclusion regressed: turn 1 heading fragment leaked into turn 0');
+    });
+
+    await test('turn 1 answer contains only its own content plus the disclaimer', () => {
+      const turn1Answer = result.messages[3];
+      assert(turn1Answer.role === 'Gemini', `role[3]=${turn1Answer.role}`);
+      assert(turn1Answer.content.includes('PNAS study'), 'missing real turn 1 content');
+      assert(turn1Answer.content.includes('AI responses may include mistakes'), 'missing trailing disclaimer');
+    });
+
+    await test('turn 1 answer does not include the follow-up input toolbar', () => {
+      assert(!result.messages[3].content.includes('TOOLBAR_LEAK_MARKER'),
+        'input-containment exclusion regressed: follow-up toolbar leaked into turn 1');
+    });
+
+    await test('turn 1 answer does not include share-panel chrome after the disclaimer', () => {
+      assert(!result.messages[3].content.includes('SHARE_PANEL_LEAK_MARKER'),
+        'disclaimer cutoff regressed: trailing page chrome leaked into turn 1 (no next heading to bound it)');
+    });
   });
 
   // ─── Results ───────────────────────────────────────────────────────────────

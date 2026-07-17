@@ -1255,13 +1255,25 @@
     return r.width > 0 && r.height > 0;
   }
 
+  // Matches the "AI responses may include mistakes" disclaimer that always
+  // sits at the very end of a real AI Mode answer, right before page chrome
+  // (share-link panel, feedback widget, related-search sidebar spill). Used
+  // as a hard stop for collection — see the 2026-07 dupe-bug comment below.
+  const AI_MODE_DISCLAIMER_RE = /ai responses (?:may|can) include mistakes|ki-antworten k.nnen fehler enthalten/i;
+
   function extractGoogleAiModeTurnsByGeometry() {
     const turnHeadings = Array.from(document.querySelectorAll('[role="heading"][aria-level="2"]'))
       .filter(isVisibleForExtraction);
     if (!turnHeadings.length) return null;
 
-    const inputCandidates = Array.from(document.querySelectorAll('textarea, input[type="text"], [contenteditable="true"]'))
-      .filter(isVisibleForExtraction);
+    // NOT filtered by isVisibleForExtraction here on purpose: the real
+    // follow-up textarea renders with opacity:0 (a styled decoy element
+    // drawn on top shows the visible placeholder), so the visibility filter
+    // always excludes it — but its wrapping toolbar (mic/attach/send
+    // buttons) is very much visible and needs to be excluded from answer
+    // content below regardless of the textarea's own opacity.
+    const allInputEls  = Array.from(document.querySelectorAll('textarea, input[type="text"], [contenteditable="true"]'));
+    const inputCandidates = allInputEls.filter(isVisibleForExtraction);
     const top    = el => el.getBoundingClientRect().top + window.scrollY;
     const bottom = el => el.getBoundingClientRect().bottom + window.scrollY;
     const left   = el => el.getBoundingClientRect().left;
@@ -1287,18 +1299,57 @@
       // Collect visible top-level blocks in this turn's on-screen band,
       // skipping any element whose ancestor was already collected (avoids
       // pulling both a wrapper and its own children in separately).
+      //
+      // 2026-07 dupe bug: a real export showed every exchange duplicated,
+      // with the previous answer's tail bleeding into "CopiedCopyEdit" page
+      // furniture followed by the NEXT turn's full question+answer inline.
+      // Root cause, confirmed live: some coarse-grained container's own top
+      // edge falls inside this turn's band (often within a couple dozen
+      // pixels of `startY`), but its bottom edge — and therefore its entire
+      // cloned subtree — extends hundreds or thousands of pixels past
+      // `endY`, straight through the next turn's heading and answer. The
+      // old code only checked each candidate's top position, never its
+      // bottom, so it happily grabbed that oversized wrapper whole. Three
+      // fixes, all confirmed against a live multi-turn page:
+      //   1. Reject any candidate whose bottom spills past `endY` — this
+      //      forces the walk to drill into that wrapper's own children
+      //      instead (still enumerated by the same `body *` pass), which
+      //      are naturally paragraph/heading-sized and DO fit the band.
+      //   2. Exclude fragments belonging to ANY turn heading, not just the
+      //      current one — otherwise a heading's own inline `<span>` can
+      //      sneak into the PREVIOUS turn's band by a pixel or two.
+      //   3. Exclude anything that contains, or is contained by, one of the
+      //      page's actual input controls (see allInputEls above) — the
+      //      "ask a follow-up" toolbar is structurally nested inside the
+      //      conversation column on this page and otherwise gets swept in
+      //      as answer content.
       const wrapper = document.createElement('div');
-      const collected = [];
+      let collected = [];
       document.querySelectorAll('body *').forEach((el) => {
+        if (allInputEls.some(inp => inp === el || el.contains(inp) || inp.contains(el))) return;
         if (headingEl.contains(el) || el.contains(headingEl)) return;
+        if (turnHeadings.some(h => h !== headingEl && (h.contains(el) || el.contains(h)))) return;
         if (!isVisibleForExtraction(el)) return;
         const rect = el.getBoundingClientRect();
-        const y = rect.top + window.scrollY;
+        const y       = rect.top + window.scrollY;
+        const yBottom = rect.bottom + window.scrollY;
         if (y < startY || y >= endY) return;
+        if (yBottom > endY + 2) return; // spills past this turn's boundary — too coarse, let a smaller descendant match instead
         if (left(el) > colRightEdge) return; // right-column sources sidebar
         if (collected.some(prev => prev.contains(el))) return;
         collected.push(el);
       });
+
+      // Extra safety net, mainly for the last turn (no next heading to stop
+      // at, so `endY` is the follow-up box or Infinity): once we hit the
+      // trailing disclaimer, drop anything at or after it — that's always
+      // share-link/feedback/related-search chrome, never answer content.
+      const disclaimerEl = collected.find(el => AI_MODE_DISCLAIMER_RE.test(el.textContent.trim()));
+      if (disclaimerEl) {
+        const disclaimerY = top(disclaimerEl);
+        collected = collected.filter(el => el === disclaimerEl || top(el) < disclaimerY);
+      }
+
       collected.forEach(el => wrapper.appendChild(el.cloneNode(true)));
 
       const answer = htmlToMarkdown(wrapper).trim();
