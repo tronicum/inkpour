@@ -190,6 +190,11 @@ inkpour/
 - Context menu appears on all pages (MV3 limitation without exact `documentUrlPatterns`)
 - Selectors for new experimental platforms (lmarena, characterai, cohere, piai) need verification against live pages
 
+See also `planning/TODOs.md` for backlog items sourced from outside this doc
+(competitive-research notes, a bug the Google AI Mode extractor's own export
+surfaced, and non-code action items) — kept separate so this file stays a pure
+engineering reference.
+
 ## Next ideas
 - Submit to Firefox Add-ons (AMO) and Chrome Web Store
 - Safari App Store submission: run `xcrun safari-web-extension-converter` on the extension, open `safari/Inkpour-Safari/` in Xcode, sign with Apple Developer account — scaffold in `safari/`
