@@ -24,9 +24,23 @@ path is one self-contained click handler (settings.js:138–162) building one
   text fields debounce, Save button flushes a pending debounce immediately).
 - [x] **XS** Sticky save bar: `.save-row { position: sticky; bottom: 0; }` +
   background/top border. Do alongside autosave — it becomes the toast's home.
-- [ ] **S** (optional) Collapsible sections: `<details>` per `<section>`
+- [x] **S** (optional) Collapsible sections: `<details>` per `<section>`
   (4 sections, settings.html:193–392). Scannability only — doesn't fix
   "forgot to save" by itself; skip if session budget is tight.
+  Done — all 5 sections (Language, Export, Direct-to-vault, Integrations,
+  Advanced — one more than the original note counted, since Direct-to-vault
+  landed later in Batch 6) converted from `<section><h2>` to
+  `<details class="settings-section" open><summary><h2>`, all starting
+  `open` so the default view is pixel-identical to before. Custom chevron
+  marker (rotates on open/close) replaces the native `::marker` triangle.
+  The Direct-to-vault section's existing `hidden`/`style.display` Chrome-
+  only feature-detect toggle (settings.js `initVaultSection()`) is
+  untouched and confirmed still correct — `hidden`/`display` and `<details
+  open>` are independent concerns, verified via a quick JSDOM parse (5
+  `details.settings-section` elements, correct open/hidden state each, zero
+  leftover `<section>` tags). No JS or test file referenced the `<section>`
+  tag name, so nothing else needed updating; full suite still 281 passed,
+  0 failed.
 
 ## Batch 2 — Google AI Mode turn-duplication bug (dedicated session; src/content.js + new fixture)
 - [x] **M** Extractor duplicates every turn: each exchange appears twice (once

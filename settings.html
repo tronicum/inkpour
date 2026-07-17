@@ -80,16 +80,33 @@
       padding: 2px 10px;
     }
 
-    /* ── Section ── */
-    section { margin-bottom: 1.75rem; }
-    section h2 {
+    /* ── Section (collapsible via <details>; starts open so nothing about
+       the default view changes — this is a scannability aid, not a way to
+       hide settings people already rely on) ── */
+    details.settings-section { margin-bottom: 1.75rem; }
+    details.settings-section summary {
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.07em;
       color: var(--subtext);
       margin-bottom: 10px;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      user-select: none;
     }
+    details.settings-section summary::-webkit-details-marker { display: none; }
+    details.settings-section summary::before {
+      content: '▸';
+      display: inline-block;
+      font-size: 9px;
+      transition: transform 0.15s;
+    }
+    details.settings-section[open] summary::before { transform: rotate(90deg); }
+    details.settings-section summary:hover { opacity: 0.8; }
 
     /* ── Field ── */
     .field {
@@ -212,8 +229,8 @@
   </div>
 
   <!-- Language -->
-  <section>
-    <h2 data-i18n="settingsSectionLanguage">Language</h2>
+  <details class="settings-section" open>
+    <summary><h2 data-i18n="settingsSectionLanguage">Language</h2></summary>
 
     <div class="field">
       <div class="field-label">
@@ -222,11 +239,11 @@
       </div>
       <select id="languageOverride"></select>
     </div>
-  </section>
+  </details>
 
   <!-- Export defaults -->
-  <section>
-    <h2 data-i18n="settingsSectionExport">Export</h2>
+  <details class="settings-section" open>
+    <summary><h2 data-i18n="settingsSectionExport">Export</h2></summary>
 
     <div class="field">
       <div class="field-label">
@@ -309,15 +326,15 @@
         <div class="toggle-track"></div>
       </label>
     </div>
-  </section>
+  </details>
 
   <!-- Direct-to-vault (File System Access API — Chrome/Edge only). Hidden
        entirely (not just disabled) on browsers that don't implement
        showDirectoryPicker(); see the feature-detect at the top of
        settings.js. Firefox/Safari users keep using the Downloads-subfolder
        fields above, unaffected. -->
-  <section id="vaultSection" hidden style="display:none;">
-    <h2 data-i18n="settingsSectionVault">Direct-to-vault (Chrome only)</h2>
+  <details class="settings-section" id="vaultSection" open hidden style="display:none;">
+    <summary><h2 data-i18n="settingsSectionVault">Direct-to-vault (Chrome only)</h2></summary>
 
     <div class="field">
       <div class="field-label">
@@ -341,11 +358,11 @@
         <div class="toggle-track"></div>
       </label>
     </div>
-  </section>
+  </details>
 
   <!-- Integrations -->
-  <section>
-    <h2 data-i18n="settingsSectionIntegrations">Integrations</h2>
+  <details class="settings-section" open>
+    <summary><h2 data-i18n="settingsSectionIntegrations">Integrations</h2></summary>
 
     <div class="field">
       <div class="field-label">
@@ -423,11 +440,11 @@
         <div class="toggle-track"></div>
       </label>
     </div>
-  </section>
+  </details>
 
   <!-- Advanced -->
-  <section>
-    <h2 data-i18n="settingsSectionAdvanced">Advanced</h2>
+  <details class="settings-section" open>
+    <summary><h2 data-i18n="settingsSectionAdvanced">Advanced</h2></summary>
 
     <div class="field">
       <div class="field-label">
@@ -461,7 +478,7 @@
         <a href="#" id="openPdfFuzzerLink" data-i18n="settingsDevToolsPdfFuzzer">PDF import fuzzer →</a>
       </div>
     </div>
-  </section>
+  </details>
 
   <div class="save-row">
     <button class="btn-save" id="saveBtn" data-i18n="settingsSaveBtn">Save</button>
