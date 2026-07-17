@@ -267,8 +267,51 @@ path is one self-contained click handler (settings.js:138–162) building one
     something to build extraction around — a real text-canvas document was
     never actually observed. Needs a retry (ideally on a paid plan) before
     concluding anything about that variant's DOM.
-- [ ] **L** Claude Artifacts: extract as structured blocks alongside the chat,
-  not as plain code. Same caveat: live DOM inspection required first.
+- [ ] **L → investigated live, still L, not implemented** Claude Artifacts —
+  investigated live 2026-07 against a real logged-in Claude account, creating
+  two artifacts (Python + JS) in one conversation. Unlike ChatGPT Canvas, this
+  one really does need the multi-session/side-panel handling the original
+  note assumed — confirmed structure:
+  - Each artifact shows as a small preview card in the chat column
+    (`.artifact-block-cell`, matched 2/2 as expected) with just a title +
+    filetype badge (e.g. "Reverse string · PY") — **no code inside it at all**.
+    This is exactly why the CURRENT `artifactSuffix` logic in `extractClaude()`
+    (`clone.querySelectorAll('.artifact-block-cell, [class*="artifact-block"]')`
+    then `artEl.querySelector('code, pre, .cm-content, ...')`) silently
+    extracts nothing today — that querySelector has nothing to find inside the
+    card. Confirmed live: Claude Artifacts exports currently ship with ZERO
+    artifact content, only whatever prose summary the model writes alongside
+    the card (e.g. "Here's a simple script that reverses a string...").
+  - The actual code lives in a completely separate right-side panel, anchored
+    by a distinctive, likely-stable id: `#wiggle-file-content` (confirmed
+    outside any `[data-testid="user-message"]`/`[data-testid="assistant-message"]`
+    turn — `.closest()` on those returns nothing). Its `textContent` is clean
+    code but each line is prefixed with a line-number gutter baked into the
+    same text flow (`"  1 def reverse_string(s: str) -> str:\n  2     return..."`)
+    — needs a per-line strip (e.g. `/^\s*\d+\s?/` per line) before use.
+  - **Only one artifact's content is ever mounted in the DOM at a time** —
+    confirmed with 2 real artifacts open in one conversation: `.artifact-block-cell`
+    count was 2, but `#wiggle-file-content` count stayed 1, showing whichever
+    artifact was created/opened most recently. Getting ALL artifacts in a
+    multi-artifact conversation requires clicking each preview card in turn,
+    reading the panel after each click, same click-through requirement found
+    for NotebookLM citations — but proportionally far less disruptive here
+    (a conversation typically has a handful of artifacts, not up to 192).
+  - **Real implementation gotcha confirmed live**: a bare `cardEl.click()` via
+    injected JS did NOT swap the panel (tried it, panel didn't change) — only
+    a genuine synthetic mouse click (dispatched via the browser's real input
+    pipeline, not the DOM `.click()` method) actually triggered the swap.
+    A real fix will need to dispatch a proper `MouseEvent` sequence
+    (mousedown/mouseup/click, `bubbles: true`) rather than `el.click()`.
+  - Not attempted as a fix this session: this needs (a) the synthetic-click
+    mechanism above validated more rigorously, (b) correctly associating each
+    extracted artifact's content back to the message/turn that created it
+    (the panel is conversation-wide, not turn-scoped, so this needs tracking
+    which card belongs to which turn), and (c) testing across Claude's other
+    artifact types (React components, HTML, SVG, Mermaid, plain markdown) —
+    which likely render very differently inside `#wiggle-file-content` than
+    the plain-code case tested here. Genuinely multi-session work, matching
+    the original L estimate — unlike Canvas, this one didn't shrink.
 - [x] **M → investigated, not implemented** NotebookLM inline source citations —
   investigated live 2026-07 against a real 54-source notebook. `extractCitations()`
   already pulls the correct citation numbers from `button.citation-marker`
@@ -372,6 +415,23 @@ path is one self-contained click handler (settings.js:138–162) building one
   but true pagination/virtualization behavior (what happens with hundreds of
   conversations) is still unverified — needs an account with much more
   history to actually observe.
+
+  **Claude sidebar selectors — confirmed live 2026-07**: `a[href^="/chat/"]`
+  reliably finds every conversation link. Unlike ChatGPT, the visible/`textContent`
+  title is DOUBLED (e.g. `"Debugging old Raspberry Pi firmwareDebugging old
+  Raspberry Pi firmware"`) — confirmed why: each link contains both a
+  `.sr-only` span (screen-reader-only, full clean title) and a sibling
+  `aria-hidden="true"` `.block.truncate` span (the visually-truncated display
+  copy) with the same text, so naive `textContent` concatenates both. Use
+  `link.querySelector('.sr-only')?.textContent` for a clean single-instance
+  title instead. More importantly: Claude has a dedicated, separate
+  **`/recents` page** ("Chats" in the sidebar nav) with a full searchable/
+  filterable list, distinct from the abbreviated sidebar preview — it even
+  ships its own native "Select chats" multi-select button already, and is a
+  much better enumeration target for Batch 8 than scraping the sidebar
+  (search, filter-by, and timestamps are all already there for free). Same
+  lazy-load caveat as ChatGPT: this account only has 7 conversations total, so
+  no pagination could be observed either way.
   - Realistic per-tab load timeout per platform (chatgpt/gemini/aistudio are
     already known to be slow lazy-loaders from the streaming-toast work).
   - How many conversations per run before it risks looking bot-like or
