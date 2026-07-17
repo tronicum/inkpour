@@ -145,9 +145,27 @@ path is one self-contained click handler (settings.js:138–162) building one
   extraction rules + fixture. DOM unknown until inspected live.
 - [ ] **L** Claude Artifacts: extract as structured blocks alongside the chat,
   not as plain code. Same caveat: live DOM inspection required first.
-- [ ] **M** NotebookLM inline source citations (`[1]` refs to uploaded docs) —
-  selectors verified reachable 2026-07, so this is testable; extend the
-  existing `<chat-message>` extractor + citation-footnote pipeline.
+- [x] **M → investigated, not implemented** NotebookLM inline source citations —
+  investigated live 2026-07 against a real 54-source notebook. `extractCitations()`
+  already pulls the correct citation numbers from `button.citation-marker`
+  elements (192 found on a real page); the gap was resolving number → actual
+  source name. Checked every static-DOM angle first: `aria-label`, `title`,
+  `dialoglabel`, `triggerdescription`, `aria-describedby` target, and `jslog`
+  all carry generic/no source-identifying data. Tested the hypothesis that
+  citation numbers map 1:1 to the left-sidebar "Quellen" list's DOM order
+  (`.source-title`, 54 items) — falsified: clicking citation marker "1" opened
+  a source titled "README.md" that isn't even in that 54-item list (which is
+  entirely different, unrelated content). So citation numbers reference some
+  internal NotebookLM index, not the visible sidebar order — no static mapping
+  exists. The only way to resolve a name is to click the marker open, which
+  (a) requires one click+wait per unique citation (up to 192 on a large
+  notebook), (b) visibly changes the left sidebar/source-viewer panel the user
+  currently has open — a real side effect for what should be a read-only
+  export — and (c) is timing-dependent (real Angular CDK overlay, not
+  synchronous). Given the cost/disruption, decided against implementing
+  click-through resolution. Current bare `[N]` output is left as-is: it's
+  honest (matches the number the user sees in NotebookLM's own UI) and
+  non-disruptive. Not pursuing further unless a cheaper resolution path turns up.
 - [ ] **M** AI Studio hardening: edit-mode clicks misfire on complex prompts;
   needs live sessions to reproduce, then defensive rewrite of the async
   edit-mode flow.
