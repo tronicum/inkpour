@@ -745,6 +745,128 @@ async function main() {
     });
   });
 
+  // ── getConversationList (Batch 8 history-sidebar enumeration spike) ─────
+  // Fixtures mirror the real DOM shapes confirmed live 2026-07 against
+  // logged-in ChatGPT and Claude accounts (see planning/TODOs.md Batch 8):
+  // ChatGPT wraps each link in <li class="list-none"> with a
+  // data-sidebarItem attribute and a matching aria-label; Claude's link
+  // textContent is doubled (.sr-only + a sibling aria-hidden display span
+  // carrying the same text) and must be de-doubled via .sr-only.
+  await suite('getConversationList — ChatGPT sidebar', async () => {
+    const dom = new JSDOM(`<!DOCTYPE html><body>
+      <nav>
+        <ol>
+          <li class="list-none">
+            <a href="/c/11111111-1111-1111-1111-111111111111" data-sidebarItem aria-label="Python String Reversal">
+              <div>Python String Reversal</div>
+            </a>
+          </li>
+          <li class="list-none">
+            <a href="/c/22222222-2222-2222-2222-222222222222" data-sidebarItem aria-label="History of Coffee">
+              <div>History of Coffee</div>
+            </a>
+          </li>
+          <li class="list-none">
+            <a href="/c/11111111-1111-1111-1111-111111111111" data-sidebarItem aria-label="Python String Reversal">
+              <div>Python String Reversal (duplicate DOM entry, e.g. pinned + recents)</div>
+            </a>
+          </li>
+        </ol>
+      </nav>
+    </body>`, { url: 'https://chatgpt.com/', runScripts: 'dangerously' });
+    dom.window.__inkpourTestHostname = 'chatgpt.com';
+    dom.window.HTMLElement.prototype.scrollTo = function () {};
+    dom.window.document.documentElement.scrollTo = function () {};
+    const ls = [];
+    dom.window.browser = { runtime: { onMessage: { addListener: fn => ls.push(fn) }, id: 't' }, i18n: mockI18n() };
+    dom.window.chrome  = dom.window.browser;
+    const s = dom.window.document.createElement('script');
+    s.textContent = CONTENT_JS;
+    dom.window.document.body.appendChild(s);
+    await new Promise(r => setTimeout(r, 50));
+    const getConversationList = dom.window.__inkpourGetConversationList;
+    assert(typeof getConversationList === 'function', '__inkpourGetConversationList not exposed');
+
+    await test('finds every unique conversation link', () => {
+      const list = getConversationList();
+      assert(list.length === 2, `expected 2 unique conversations, got ${list.length}: ${JSON.stringify(list)}`);
+    });
+    await test('title comes from aria-label', () => {
+      const list = getConversationList();
+      const first = list.find(c => c.url.includes('11111111'));
+      assert(first && first.title === 'Python String Reversal', `unexpected title: ${JSON.stringify(first)}`);
+    });
+    await test('url is resolved to an absolute /c/<uuid> path', () => {
+      const list = getConversationList();
+      assert(list.every(c => /^https:\/\/chatgpt\.com\/c\//.test(c.url)), `unexpected urls: ${JSON.stringify(list)}`);
+    });
+    await test('duplicate href (same conversation linked twice) is de-duplicated', () => {
+      const list = getConversationList();
+      const urls = list.map(c => c.url);
+      assert(new Set(urls).size === urls.length, `expected no duplicate urls: ${JSON.stringify(list)}`);
+    });
+  });
+
+  await suite('getConversationList — Claude sidebar', async () => {
+    const dom = new JSDOM(`<!DOCTYPE html><body>
+      <nav>
+        <a href="/chat/aaaa-1111">
+          <span class="sr-only">Debugging old Raspberry Pi firmware</span>
+          <span aria-hidden="true" class="block truncate">Debugging old Raspberry Pi firm…</span>
+        </a>
+        <a href="/chat/bbbb-2222">
+          <span class="sr-only">Weeknight pasta ideas</span>
+          <span aria-hidden="true" class="block truncate">Weeknight pasta ideas</span>
+        </a>
+      </nav>
+    </body>`, { url: 'https://claude.ai/', runScripts: 'dangerously' });
+    dom.window.__inkpourTestHostname = 'claude.ai';
+    dom.window.HTMLElement.prototype.scrollTo = function () {};
+    dom.window.document.documentElement.scrollTo = function () {};
+    const ls = [];
+    dom.window.browser = { runtime: { onMessage: { addListener: fn => ls.push(fn) }, id: 't' }, i18n: mockI18n() };
+    dom.window.chrome  = dom.window.browser;
+    const s = dom.window.document.createElement('script');
+    s.textContent = CONTENT_JS;
+    dom.window.document.body.appendChild(s);
+    await new Promise(r => setTimeout(r, 50));
+    const getConversationList = dom.window.__inkpourGetConversationList;
+    assert(typeof getConversationList === 'function', '__inkpourGetConversationList not exposed');
+
+    await test('finds every conversation link', () => {
+      const list = getConversationList();
+      assert(list.length === 2, `expected 2 conversations, got ${list.length}: ${JSON.stringify(list)}`);
+    });
+    await test('title uses .sr-only, not the doubled textContent', () => {
+      const list = getConversationList();
+      const first = list.find(c => c.url.includes('aaaa-1111'));
+      assert(first && first.title === 'Debugging old Raspberry Pi firmware',
+        `expected clean single-instance title, got: ${JSON.stringify(first)}`);
+    });
+  });
+
+  await suite('getConversationList — unsupported/logged-out platform', async () => {
+    const dom = new JSDOM(`<!DOCTYPE html><body>
+      <nav><a href="/some/other/link">Not a conversation link</a></nav>
+    </body>`, { url: 'https://gemini.google.com/', runScripts: 'dangerously' });
+    dom.window.__inkpourTestHostname = 'gemini.google.com';
+    dom.window.HTMLElement.prototype.scrollTo = function () {};
+    dom.window.document.documentElement.scrollTo = function () {};
+    const ls = [];
+    dom.window.browser = { runtime: { onMessage: { addListener: fn => ls.push(fn) }, id: 't' }, i18n: mockI18n() };
+    dom.window.chrome  = dom.window.browser;
+    const s = dom.window.document.createElement('script');
+    s.textContent = CONTENT_JS;
+    dom.window.document.body.appendChild(s);
+    await new Promise(r => setTimeout(r, 50));
+    const getConversationList = dom.window.__inkpourGetConversationList;
+
+    await test('returns an empty list rather than throwing (feature-detect point)', () => {
+      const list = getConversationList();
+      assert(Array.isArray(list) && list.length === 0, `expected empty array, got: ${JSON.stringify(list)}`);
+    });
+  });
+
   // ── buildMarkdown (from src/utils.js) ────────────────────────────────────
   await suite('buildMarkdown', async () => {
     const msgs = [
