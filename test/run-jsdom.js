@@ -572,6 +572,37 @@ async function main() {
       const defs = (md2.match(/\[\^\d+\]:/g) || []);
       assert(defs.length === 1, `expected 1 footnote def, got ${defs.length}: ${md2}`);
     });
+
+    await test('footnote numbers stay unique across multiple htmlToMarkdown calls (multi-message continuity)', () => {
+      // Regression test: _footnotes used to reset to [] on every htmlToMarkdown()
+      // call with NO cross-call offset, so every message's citations restarted
+      // at [^1] — a real chat export with citations in more than one message
+      // would end up with multiple different "[^1]: <url>" definitions, which
+      // collide under GFM/Obsidian footnote semantics (identifiers are meant
+      // to be unique across the whole document, not per-message).
+      const dom3 = new JSDOM(`<!DOCTYPE html><body>
+        <div id="msgA"><p>First message cites something<a href="https://a.com/one"><sup>1</sup></a>.</p></div>
+        <div id="msgB"><p>Second message cites something else<a href="https://b.com/two"><sup>1</sup></a>.</p></div>
+      </body>`, { url: 'https://perplexity.ai/', runScripts: 'dangerously' });
+      dom3.window.__inkpourTestHostname = 'perplexity.ai';
+      dom3.window.HTMLElement.prototype.scrollTo = function () {};
+      const ls3 = [];
+      dom3.window.browser = { runtime: { onMessage: { addListener: fn => ls3.push(fn) }, id: 't' }, i18n: mockI18n() };
+      dom3.window.chrome  = dom3.window.browser;
+      const s3 = dom3.window.document.createElement('script');
+      s3.textContent = CONTENT_JS;
+      dom3.window.document.body.appendChild(s3);
+
+      const mdA = dom3.window.__inkpourHtmlToMarkdown(dom3.window.document.getElementById('msgA'));
+      const mdB = dom3.window.__inkpourHtmlToMarkdown(dom3.window.document.getElementById('msgB'));
+
+      assert(mdA.includes('[^1]') && mdA.includes('[^1]: https://a.com/one'),
+        `message A should define [^1]: ${mdA}`);
+      assert(mdB.includes('[^2]') && mdB.includes('[^2]: https://b.com/two'),
+        `message B should continue the count at [^2], got: ${mdB}`);
+      assert(!mdB.includes('[^1]'),
+        `message B must not reuse [^1] from message A: ${mdB}`);
+    });
   });
 
   // ── <details> / thinking blocks + math + {time} token ────────────────────
@@ -651,6 +682,14 @@ async function main() {
       const md = buildMarkdown(msgs, 'Chat', 'chatgpt', { yamlFrontMatter: true }, 'https://chatgpt.com/c/abc');
       assert(md.startsWith('---\n'), 'missing YAML opening');
       assert(md.includes('source_url: "https://chatgpt.com/c/abc"'), 'missing source_url');
+    });
+
+    await test('YAML front matter includes an Obsidian-Dataview-friendly type key', () => {
+      // `type: ai-chat` lets Dataview queries group notes by kind, e.g.
+      // `FROM "" WHERE type = "ai-chat"` — always included alongside YAML,
+      // no separate toggle needed since it's harmless for non-Obsidian users.
+      const md = buildMarkdown(msgs, 'Chat', 'claude', { yamlFrontMatter: true });
+      assert(md.includes('type: ai-chat'), `missing Dataview type key. Got: ${md.slice(0, 300)}`);
     });
 
     await test('Obsidian tags appear in YAML when enabled', () => {

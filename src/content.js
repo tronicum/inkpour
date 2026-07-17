@@ -23,11 +23,18 @@
   // ─── HTML → Markdown ──────────────────────────────────────────────────────
 
   /**
-   * Footnote accumulator — reset per htmlToMarkdown() call.
+   * Footnote accumulator — reset per htmlToMarkdown() call (each call handles
+   * one message's citations). `_footnoteOffset` is NOT reset per call: it's a
+   * running total across every message in one extraction pass (reset once in
+   * extractMessages(), see below), so `[^N]` numbers stay unique across the
+   * whole exported document instead of restarting at 1 in every message —
+   * multiple messages each defining "[^1]: ..." collides under GFM/Obsidian
+   * footnote semantics, where identifiers are expected to be document-wide.
    * Populated by the <a> branch of convertNode when a citation link is detected.
-   * Each entry is a URL string; index+1 is the footnote number.
+   * Each entry is a URL string; offset + index+1 is the footnote number.
    */
   let _footnotes = [];
+  let _footnoteOffset = 0;
 
   function htmlToMarkdown(element) {
     if (!element) return '';
@@ -35,7 +42,8 @@
     let md = convertNode(element).replace(/\n{3,}/g, '\n\n').trim();
     if (_footnotes.length) {
       md += '\n\n**Sources:**\n\n' +
-        _footnotes.map((url, i) => `[^${i + 1}]: ${url}`).join('\n');
+        _footnotes.map((url, i) => `[^${_footnoteOffset + i + 1}]: ${url}`).join('\n');
+      _footnoteOffset += _footnotes.length;
     }
     return md;
   }
@@ -157,7 +165,7 @@
           if (/^\d+$/.test(numText)) {
             let idx = _footnotes.indexOf(href);
             if (idx < 0) { _footnotes.push(href); idx = _footnotes.length - 1; }
-            return `[^${idx + 1}]`;
+            return `[^${_footnoteOffset + idx + 1}]`;
           }
         }
         // Pattern 2: <a href="...">[1]</a>  (bracket-style inline citation)
@@ -165,7 +173,7 @@
         if (/^\[\d+\]$/.test(trimmed)) {
           let idx = _footnotes.indexOf(href);
           if (idx < 0) { _footnotes.push(href); idx = _footnotes.length - 1; }
-          return `[^${idx + 1}]`;
+          return `[^${_footnoteOffset + idx + 1}]`;
         }
 
         return `[${innerText}](${href})`;
@@ -1625,6 +1633,13 @@
   // ─── Main extraction dispatcher ───────────────────────────────────────────
 
   async function extractMessages() {
+    // Reset the cross-message footnote counter for this extraction pass (see
+    // _footnoteOffset above htmlToMarkdown) so [^N] numbers stay unique across
+    // the whole exported document without carrying over from a previous
+    // extraction earlier in the same page session (e.g. re-extract after the
+    // AI finishes generating).
+    _footnoteOffset = 0;
+
     // Scroll to top to trigger lazy-loading of older messages before we read the DOM
     await scrollToLoadAll();
 
