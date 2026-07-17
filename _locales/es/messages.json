@@ -1035,5 +1035,64 @@
   },
   "popupBtnReportBug": {
     "message": "Informar de un error"
+  },
+  "popupBatchExportToggle": {
+    "message": "📦 Exportar conversaciones anteriores por lotes…"
+  },
+  "popupBatchExportStartBtnTitle": {
+    "message": "Exportar las conversaciones marcadas como un solo ZIP"
+  },
+  "popupBatchExportStartBtn": {
+    "message": "Exportar seleccionadas como ZIP"
+  },
+  "popupBatchExportCount": {
+    "message": "$1 de $2 seleccionados",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportNoneSelected": {
+    "message": "Selecciona al menos una conversación primero"
+  },
+  "popupBatchExportStarting": {
+    "message": "Exportando $1 conversaciones…",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupBatchExportProgress": {
+    "message": "Exportando $1 de $2: $3",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupBatchExportDone": {
+    "message": "Exportación por lotes finalizada: $1 correctas, $2 omitidas",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportFailed": {
+    "message": "Error en la exportación por lotes"
   }
 }

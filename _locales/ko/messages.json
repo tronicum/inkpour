@@ -1035,5 +1035,64 @@
   },
   "popupBtnReportBug": {
     "message": "버그 신고"
+  },
+  "popupBatchExportToggle": {
+    "message": "📦 이전 채팅 일괄 내보내기…"
+  },
+  "popupBatchExportStartBtnTitle": {
+    "message": "선택한 채팅을 하나의 ZIP으로 내보내기"
+  },
+  "popupBatchExportStartBtn": {
+    "message": "선택 항목을 ZIP으로 내보내기"
+  },
+  "popupBatchExportCount": {
+    "message": "$2개 중 $1개 선택됨",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportNoneSelected": {
+    "message": "먼저 채팅을 하나 이상 선택하세요"
+  },
+  "popupBatchExportStarting": {
+    "message": "채팅 $1개를 내보내는 중…",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupBatchExportProgress": {
+    "message": "$2개 중 $1개 내보내는 중: $3",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupBatchExportDone": {
+    "message": "일괄 내보내기 완료: $1개 성공, $2개 건너뜀",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportFailed": {
+    "message": "일괄 내보내기 실패"
   }
 }

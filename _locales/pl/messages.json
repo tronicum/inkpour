@@ -1035,5 +1035,64 @@
   },
   "popupBtnReportBug": {
     "message": "Zgłoś błąd"
+  },
+  "popupBatchExportToggle": {
+    "message": "📦 Eksportuj masowo poprzednie rozmowy…"
+  },
+  "popupBatchExportStartBtnTitle": {
+    "message": "Eksportuj zaznaczone rozmowy jako jeden plik ZIP"
+  },
+  "popupBatchExportStartBtn": {
+    "message": "Eksportuj zaznaczone jako ZIP"
+  },
+  "popupBatchExportCount": {
+    "message": "Wybrano $1 z $2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportNoneSelected": {
+    "message": "Najpierw zaznacz co najmniej jedną rozmowę"
+  },
+  "popupBatchExportStarting": {
+    "message": "Eksportowanie $1 rozmów…",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupBatchExportProgress": {
+    "message": "Eksportowanie $1 z $2: $3",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupBatchExportDone": {
+    "message": "Eksport zbiorczy zakończony: $1 powiodło się, $2 pominięto",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportFailed": {
+    "message": "Eksport zbiorczy nie powiódł się"
   }
 }

@@ -50,6 +50,17 @@ test.describe('Popup UI', () => {
     // Eventually re-enabled after error
     await expect(popupPage.locator('#mdBtn')).toBeEnabled({ timeout: 5000 });
   });
+
+  // Batch 8: getConversationList() (src/content.js) returns [] on any
+  // unsupported/logged-out page — this is the batch-export feature's
+  // feature-detect point, and it must never show up where it can't work.
+  // A blank context (same setup as "shows error when no chat page is open"
+  // above) is the simplest stand-in for "no history sidebar available".
+  test('batch export toggle stays hidden with no chat page open', async ({ popupPage }) => {
+    await popupPage.waitForTimeout(500); // let the popup's init IIFEs settle
+    await expect(popupPage.locator('#batchExportToggle')).toBeHidden();
+    await expect(popupPage.locator('#batch-export-section')).toBeHidden();
+  });
 });
 
 test.describe('Import from clipboard', () => {

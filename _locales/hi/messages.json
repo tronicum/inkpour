@@ -1035,5 +1035,64 @@
   },
   "popupBtnReportBug": {
     "message": "बग रिपोर्ट करें"
+  },
+  "popupBatchExportToggle": {
+    "message": "📦 पिछली बातचीत को बैच में एक्सपोर्ट करें…"
+  },
+  "popupBatchExportStartBtnTitle": {
+    "message": "चुनी गई बातचीत को एक ZIP के रूप में एक्सपोर्ट करें"
+  },
+  "popupBatchExportStartBtn": {
+    "message": "चयनित को ZIP के रूप में एक्सपोर्ट करें"
+  },
+  "popupBatchExportCount": {
+    "message": "$2 में से $1 चयनित",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportNoneSelected": {
+    "message": "पहले कम से कम एक बातचीत चुनें"
+  },
+  "popupBatchExportStarting": {
+    "message": "$1 बातचीत एक्सपोर्ट की जा रही हैं…",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupBatchExportProgress": {
+    "message": "$2 में से $1 एक्सपोर्ट हो रहा है: $3",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupBatchExportDone": {
+    "message": "बैच एक्सपोर्ट पूर्ण: $1 सफल, $2 छोड़े गए",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportFailed": {
+    "message": "बैच एक्सपोर्ट विफल रहा"
   }
 }

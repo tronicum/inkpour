@@ -523,6 +523,80 @@ path is one self-contained click handler (settings.js:138–162) building one
   UI and the background.js tab-cycling orchestration itself (steps 2-5 of
   the sketch above) — this session only covered step 1 as scoped.
 
+  **Steps 2-5 — implemented 2026-07, pending live test (same status as
+  Batch 5/6 when they landed)**:
+  - `popup.html`/`popup.js`: a new "Batch export past conversations…" toggle
+    (styled/behaving exactly like the existing "Select messages" toggle)
+    appears only when `getConversationList()` returns a non-empty list for
+    the current tab — `initBatchExport()` queries it once at popup open,
+    alongside the existing `runPeek()`, and simply does nothing (stays
+    silent, toggle stays `hidden`) on any page where it's empty. Ticking
+    conversations and clicking "Export selected as ZIP" sends
+    `{action:'startBatchExport', conversations, originTabId}` to
+    background.js and shows the returned `{succeeded, skipped}` summary.
+  - `background.js`: new `runBatchExport()` — the actual sequential
+    background-tab loop, living entirely in the service worker so it
+    survives the popup closing (this was the whole reason the design sketch
+    chose background-tab automation over hijacking the active tab). Per
+    conversation: `tabs.create({active:false})` → `waitForTabLoad()` (new
+    helper, 20s timeout) → a fixed 1.5s settle delay → `{action:'extract'}`
+    with a 15s race-timeout → on success, `buildMarkdown()` + `buildFilename()`
+    (both already `importScripts`-loaded here, same as every other
+    background.js export path) into one `.md` file per conversation, with a
+    `-2`/`-3` suffix if two conversations resolve to the same filename →
+    `tabs.remove()` in a `finally`, then an 800ms pause before the next tab.
+    Failures are caught per-conversation (counted as skipped, never abort
+    the run — matches the original "errors are per-conversation, not fatal"
+    design). All conversations' `.md` files are aggregated into one ZIP via
+    the existing `buildZip()` and downloaded via the existing
+    `safeDownload()`/`withSubfolder()` helpers, named
+    `inkpour-batch-<YYYY-MM-DD>.zip`. Progress and the final summary are
+    sent as toasts to the *originating* tab (`originTabId`, captured by
+    popup.js before sending the message) via the existing `showToast`
+    content-script action — reused exactly as-is, no new toast mechanism.
+  - 9 new i18n keys (`popupBatchExportToggle`/`StartBtnTitle`/`StartBtn`/
+    `Count`/`NoneSelected`/`Starting`/`Progress`/`Done`/`Failed`), added with
+    real (non-stub) translations to all 26 locales — 25 done by parallel
+    subagents, then spot-checked directly (`de`/`ar` samples) plus a full
+    programmatic key-set diff against `en/messages.json` across all 26
+    files (zero mismatches). Full suite 281 passed, 0 failed throughout
+    (content.js's own 7 Batch-8 tests from the step-1 spike are unaffected;
+    no JSDOM coverage was attempted for popup.js/background.js themselves —
+    see below for why).
+  - One new Playwright e2e test added (`test/e2e/popup.spec.js`, "batch
+    export toggle stays hidden with no chat page open") asserting the
+    single most safety-critical property: the feature never appears where
+    it can't work. **Not run in this sandbox** — Playwright's Chromium
+    binary download failed here (network-restricted sandbox, `502` from
+    both of Playwright's CDN mirrors); the test's syntax was verified
+    (`node -c`) and it follows the exact pattern of the existing adjacent
+    test ("shows error when no chat page is open"), but it needs a real run
+    in CI or Stefan's machine to confirm it actually passes.
+  - **Why no JSDOM coverage of popup.js/background.js**: consistent with
+    how this whole file already works — `test/run-jsdom.js` has never
+    loaded either file (both depend on `chrome.tabs`/`chrome.runtime` APIs
+    that don't exist in JSDOM, unlike `src/content.js`/`src/utils.js` which
+    are pure-DOM/pure-function and get full JSDOM coverage). This isn't a
+    gap specific to this feature.
+  - **Known gaps / explicitly NOT resolved by this pass** (matches the
+    design sketch's own open questions, still open): the 20s tab-load
+    timeout, 1.5s settle delay, and 15s extract timeout are reasonable
+    starting guesses, not measured against real slow-loading accounts
+    (ChatGPT/Gemini/AI Studio are already known to be slow lazy-loaders
+    elsewhere in this codebase); how many conversations per run is safe
+    before it risks looking bot-like or tripping a platform rate limit is
+    still completely unmeasured — no data existed before this pass and none
+    was generated now, since generating it would mean running a large real
+    batch against a live account, which needs an explicit go-ahead (this
+    repo's session history shows real caution here: Stefan explicitly
+    scoped an earlier bulk-conversation-creation test to "ChatGPT only", so
+    a large-N live batch-export test should get the same explicit scoping
+    before anyone runs one). **This needs a real, watched, small-N (e.g.
+    3-5 conversations) live test on Stefan's own ChatGPT and Claude
+    accounts before being considered done** — same "implemented, pending
+    live test" status Batch 5 (Notion) and Batch 6 (vault) shipped in, not
+    a claim that this is fully verified.
+
 ## Batch 9 — Distribution (XL; blocked on Stefan — accounts, fees, listing assets)
 - [x] **XL** Submit to Firefox Add-ons (AMO) + Chrome Web Store — in progress,
   Stefan is doing this directly (developer accounts, listing copy/screenshots,

@@ -1035,5 +1035,64 @@
   },
   "popupBtnReportBug": {
     "message": "الإبلاغ عن خطأ"
+  },
+  "popupBatchExportToggle": {
+    "message": "📦 تصدير دفعي للمحادثات السابقة…"
+  },
+  "popupBatchExportStartBtnTitle": {
+    "message": "تصدير المحادثات المحددة كملف ZIP واحد"
+  },
+  "popupBatchExportStartBtn": {
+    "message": "تصدير المحدد كملف ZIP"
+  },
+  "popupBatchExportCount": {
+    "message": "$1 من $2 محدد",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportNoneSelected": {
+    "message": "حدد محادثة واحدة على الأقل أولًا"
+  },
+  "popupBatchExportStarting": {
+    "message": "جارٍ تصدير $1 محادثة…",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupBatchExportProgress": {
+    "message": "جارٍ تصدير $1 من $2: $3",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupBatchExportDone": {
+    "message": "اكتمل التصدير الدفعي: نجح $1، وتم تخطي $2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportFailed": {
+    "message": "فشل التصدير الدفعي"
   }
 }

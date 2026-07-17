@@ -1010,5 +1010,64 @@
   },
   "popupBtnReportBug": {
     "message": "Nahlásit chybu"
+  },
+  "popupBatchExportToggle": {
+    "message": "📦 Hromadný export minulých konverzací…"
+  },
+  "popupBatchExportStartBtnTitle": {
+    "message": "Exportovat zaškrtnuté konverzace jako jeden ZIP"
+  },
+  "popupBatchExportStartBtn": {
+    "message": "Exportovat vybrané jako ZIP"
+  },
+  "popupBatchExportCount": {
+    "message": "Vybráno $1 z $2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportNoneSelected": {
+    "message": "Nejprve vyberte alespoň jednu konverzaci"
+  },
+  "popupBatchExportStarting": {
+    "message": "Exportování $1 konverzací…",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupBatchExportProgress": {
+    "message": "Exportování $1 z $2: $3",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupBatchExportDone": {
+    "message": "Hromadný export dokončen: $1 úspěšně, $2 přeskočeno",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportFailed": {
+    "message": "Hromadný export se nezdařil"
   }
 }

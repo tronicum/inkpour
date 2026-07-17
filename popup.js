@@ -46,6 +46,14 @@
   const selectNoneBtn = document.getElementById('selectNone');
   const selectUserBtn = document.getElementById('selectUser');
   const selectAIBtn   = document.getElementById('selectAI');
+  const batchExportToggle      = document.getElementById('batchExportToggle');
+  const batchExportSection     = document.getElementById('batch-export-section');
+  const batchExportCount       = document.getElementById('batchExportCount');
+  const batchExportCheckboxes  = document.getElementById('batchExportCheckboxes');
+  const batchExportSelectAllBtn  = document.getElementById('batchExportSelectAll');
+  const batchExportSelectNoneBtn = document.getElementById('batchExportSelectNone');
+  const batchExportStartBtn   = document.getElementById('batchExportStartBtn');
+  const batchExportStatus     = document.getElementById('batchExportStatus');
   const importBtn         = document.getElementById('importBtn');
   const importSection     = document.getElementById('import-section');
   const importText        = document.getElementById('importText');
@@ -349,6 +357,125 @@
     return originalTitle;
   }
 
+  // ─── Batch export (Batch 8) ─────────────────────────────────────────────
+  // Picks multiple PAST conversations from the current tab's own history
+  // sidebar (ChatGPT/Claude only for now) and exports them all as one ZIP.
+  // This is strictly additive: getConversationList() (src/content.js)
+  // returns [] on any unsupported/logged-out page, so batchExportToggle
+  // simply never appears there — the single-conversation export flow above
+  // is completely untouched either way.
+
+  let batchExportConversations = [];
+
+  /** Ask the current tab for its history-sidebar conversation list and, if
+   *  any are found, reveal the batch-export toggle button. Best-effort and
+   *  silent on failure — this must never interfere with the main peek/export
+   *  flow above, which already ran (or is running) independently. */
+  async function initBatchExport() {
+    if (!batchExportToggle) return;
+    try {
+      const [tab] = await api.tabs.query({ active: true, currentWindow: true });
+      if (!tab?.id) return;
+      const response = await api.tabs.sendMessage(tab.id, { action: 'getConversationList' });
+      const conversations = response?.conversations ?? [];
+      if (!conversations.length) return;
+      batchExportConversations = conversations;
+      batchExportToggle.hidden = false;
+      batchExportToggle.style.display = 'block';
+    } catch {
+      // Not a supported page, or content script not ready — stay silent,
+      // same as runPeek()'s own catch above.
+    }
+  }
+
+  function renderBatchExportCheckboxes() {
+    if (!batchExportCheckboxes) return;
+    batchExportCheckboxes.textContent = '';
+    batchExportConversations.forEach((conv, i) => {
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.dataset.idx = String(i);
+      checkbox.checked = false; // opt-in, not opt-out — this fires N background tabs
+      checkbox.addEventListener('change', updateBatchExportCount);
+
+      const titleSpan = document.createElement('span');
+      titleSpan.className = 'msg-preview';
+      titleSpan.textContent = conv.title;
+
+      const row = document.createElement('label');
+      row.className = 'msg-row';
+      row.append(checkbox, titleSpan);
+      batchExportCheckboxes.appendChild(row);
+    });
+    updateBatchExportCount();
+  }
+
+  function updateBatchExportCount() {
+    if (!batchExportCheckboxes || !batchExportCount) return;
+    const checked = batchExportCheckboxes.querySelectorAll('input[type=checkbox]:checked').length;
+    batchExportCount.textContent = t('popupBatchExportCount', [String(checked), String(batchExportConversations.length)]);
+  }
+
+  function getSelectedBatchExportConversations() {
+    const boxes = batchExportCheckboxes?.querySelectorAll('input[type=checkbox]') ?? [];
+    const selected = [];
+    boxes.forEach((box, i) => {
+      if (box.checked && batchExportConversations[i]) selected.push(batchExportConversations[i]);
+    });
+    return selected;
+  }
+
+  batchExportToggle?.addEventListener('click', () => {
+    const open = batchExportSection && !batchExportSection.hidden;
+    if (!open) renderBatchExportCheckboxes(); // (re-)populate on every open, list may be stale
+    if (batchExportSection) {
+      batchExportSection.hidden = open;
+      batchExportSection.style.display = open ? 'none' : 'block';
+    }
+  });
+
+  batchExportSelectAllBtn?.addEventListener('click', () => {
+    batchExportCheckboxes?.querySelectorAll('input[type=checkbox]').forEach(b => { b.checked = true; });
+    updateBatchExportCount();
+  });
+  batchExportSelectNoneBtn?.addEventListener('click', () => {
+    batchExportCheckboxes?.querySelectorAll('input[type=checkbox]').forEach(b => { b.checked = false; });
+    updateBatchExportCount();
+  });
+
+  batchExportStartBtn?.addEventListener('click', async () => {
+    if (!batchExportStatus) return;
+    const selected = getSelectedBatchExportConversations();
+    if (!selected.length) {
+      batchExportStatus.textContent = t('popupBatchExportNoneSelected');
+      return;
+    }
+    const [tab] = await api.tabs.query({ active: true, currentWindow: true });
+    setLoading(batchExportStartBtn, true);
+    batchExportStatus.textContent = t('popupBatchExportStarting', [String(selected.length)]);
+    try {
+      // background.js owns the actual tab-cycling loop so the run survives
+      // this popup closing; it reports back once every conversation has
+      // been tried (success or skip), not incrementally — see
+      // background.js's runBatchExport() for the per-conversation progress
+      // toasts it fires on this same origin tab in the meantime.
+      const result = await api.runtime.sendMessage({
+        action: 'startBatchExport',
+        conversations: selected,
+        originTabId: tab?.id,
+      });
+      if (result?.ok) {
+        batchExportStatus.textContent = t('popupBatchExportDone', [String(result.succeeded), String(result.skipped)]);
+      } else {
+        batchExportStatus.textContent = result?.error || t('popupBatchExportFailed');
+      }
+    } catch (err) {
+      batchExportStatus.textContent = err?.message || t('popupBatchExportFailed');
+    } finally {
+      setLoading(batchExportStartBtn, false);
+    }
+  });
+
   async function runPeek() {
     try {
       const [tab] = await api.tabs.query({ active: true, currentWindow: true });
@@ -417,6 +544,7 @@
     if (onSupportedHost) {
       await clearImportState(); // live page wins; drop any stale pending import
       runPeek();
+      initBatchExport();
       return;
     }
 

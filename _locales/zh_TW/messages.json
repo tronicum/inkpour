@@ -1035,5 +1035,64 @@
   },
   "popupBtnReportBug": {
     "message": "回報問題"
+  },
+  "popupBatchExportToggle": {
+    "message": "📦 批次匯出過去的對話…"
+  },
+  "popupBatchExportStartBtnTitle": {
+    "message": "將勾選的對話匯出為單一 ZIP"
+  },
+  "popupBatchExportStartBtn": {
+    "message": "將所選匯出為 ZIP"
+  },
+  "popupBatchExportCount": {
+    "message": "已選取 $2 項中的 $1 項",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportNoneSelected": {
+    "message": "請先至少選取一個對話。"
+  },
+  "popupBatchExportStarting": {
+    "message": "正在匯出 $1 個對話…",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupBatchExportProgress": {
+    "message": "正在匯出第 $1 項（共 $2 項）：$3",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupBatchExportDone": {
+    "message": "批次匯出完成：成功 $1 個，略過 $2 個",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportFailed": {
+    "message": "批次匯出失敗"
   }
 }

@@ -1035,5 +1035,64 @@
   },
   "popupBtnReportBug": {
     "message": "Сообщить об ошибке"
+  },
+  "popupBatchExportToggle": {
+    "message": "📦 Пакетный экспорт прошлых переписок…"
+  },
+  "popupBatchExportStartBtnTitle": {
+    "message": "Экспортировать отмеченные переписки в один ZIP"
+  },
+  "popupBatchExportStartBtn": {
+    "message": "Экспортировать выбранные как ZIP"
+  },
+  "popupBatchExportCount": {
+    "message": "Выбрано $1 из $2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportNoneSelected": {
+    "message": "Сначала выберите хотя бы одну переписку"
+  },
+  "popupBatchExportStarting": {
+    "message": "Экспорт $1 переписок…",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupBatchExportProgress": {
+    "message": "Экспорт $1 из $2: $3",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupBatchExportDone": {
+    "message": "Пакетный экспорт завершён: успешно $1, пропущено $2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportFailed": {
+    "message": "Не удалось выполнить пакетный экспорт"
   }
 }

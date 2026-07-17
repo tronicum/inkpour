@@ -1035,5 +1035,64 @@
   },
   "popupBtnReportBug": {
     "message": "Αναφορά σφάλματος"
+  },
+  "popupBatchExportToggle": {
+    "message": "📦 Μαζική εξαγωγή παλαιότερων συνομιλιών…"
+  },
+  "popupBatchExportStartBtnTitle": {
+    "message": "Εξαγωγή των επιλεγμένων συνομιλιών ως ένα ZIP"
+  },
+  "popupBatchExportStartBtn": {
+    "message": "Εξαγωγή επιλεγμένων ως ZIP"
+  },
+  "popupBatchExportCount": {
+    "message": "$1 από $2 επιλεγμένα",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportNoneSelected": {
+    "message": "Επιλέξτε πρώτα τουλάχιστον μία συνομιλία"
+  },
+  "popupBatchExportStarting": {
+    "message": "Εξαγωγή $1 συνομιλιών…",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupBatchExportProgress": {
+    "message": "Εξαγωγή $1 από $2: $3",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupBatchExportDone": {
+    "message": "Η μαζική εξαγωγή ολοκληρώθηκε: $1 επιτυχείς, $2 παραλείφθηκαν",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportFailed": {
+    "message": "Η μαζική εξαγωγή απέτυχε"
   }
 }
