@@ -231,8 +231,42 @@ path is one self-contained click handler (settings.js:138–162) building one
   landed immediately before this one on `main`).
 
 ## Batch 7 — New extraction surfaces (needs live logged-in pages — Stefan's browser; flag before starting)
-- [ ] **L** ChatGPT Canvas export: non-linear side-panel UI, needs its own
-  extraction rules + fixture. DOM unknown until inspected live.
+- [x] **L → smaller than scoped, fixed** ChatGPT Canvas export — investigated
+  live 2026-07 against a real logged-in ChatGPT account, both Canvas variants:
+  - **Code canvas** (asked ChatGPT to "open canvas and write a python script"):
+    turned out NOT to need the non-linear side-panel handling the original
+    note assumed. The code renders via a CodeMirror editor (`.cm-editor`/
+    `.cm-content`) nested inside the SAME `<pre>` that's already a normal
+    direct child of the turn's `.markdown` div — no separate panel, no new
+    turn-enumeration logic needed. The existing `case 'pre':` handler in
+    `convertNode()` already extracts CLEAN code (its `querySelector('code')`
+    happens to reach straight through the CodeMirror markup), so there was no
+    "PythonRun" toolbar-text leakage as initially suspected from a raw
+    `textContent` check — that was a red herring from comparing the wrong
+    thing (plain DOM `textContent` vs. what `htmlToMarkdown()` actually
+    produces). The one real, confirmed gap: none of the three existing
+    language-detection heuristics (class, sibling span, hljs) find anything
+    for Canvas blocks, because the language name ("Python") sits as plain text
+    in a `.sticky` toolbar header alongside Copy/Run `<button>`s inside the
+    same `<pre>` — so every Canvas code export shipped with no language tag on
+    the fence. Fixed with a 4th heuristic, scoped to only fire when a
+    CodeMirror editor is actually present (`.cm-editor`/`.cm-content`/
+    `#code-block-viewer`) so it can't misfire on some other platform's
+    unrelated `.sticky` element: find the toolbar's non-button text label and
+    use it as the language. 4 new JSDOM tests added (language tag applied,
+    code stays clean, existing language-class path unaffected, false-positive
+    guard for an unrelated `.sticky` pre with no CodeMirror editor) — all 4
+    confirmed to fail pre-fix (missing language tag) and pass post-fix; full
+    suite 267→271 passed, 0 failed, before and after.
+  - **Text/document canvas** (asked ChatGPT to "open a text canvas document
+    and write a note about coffee"): could NOT be verified — on this Free-plan
+    account, the model's canvas tool call itself misfired and leaked as raw
+    JSON text directly into the chat bubble (`{"name":"...","type":"document",
+    "content":"..."}`) instead of opening a real canvas UI. This looks like a
+    ChatGPT-side degradation (possibly free-tier/model-specific), not
+    something to build extraction around — a real text-canvas document was
+    never actually observed. Needs a retry (ideally on a paid plan) before
+    concluding anything about that variant's DOM.
 - [ ] **L** Claude Artifacts: extract as structured blocks alongside the chat,
   not as plain code. Same caveat: live DOM inspection required first.
 - [x] **M → investigated, not implemented** NotebookLM inline source citations —
@@ -316,13 +350,28 @@ path is one self-contained click handler (settings.js:138–162) building one
      load or returns empty extraction is skipped and counted in a final
      "N succeeded, M skipped" summary toast.
 
-  **Open questions needing a live logged-in session (flag before starting,
-  same caveat as Batch 7):**
-  - Exact sidebar selectors for ChatGPT's and Claude's history lists —
-    unverified this session (no logged-in ChatGPT/Claude tab was available).
-  - Whether either sidebar lazy-loads/paginates on scroll for accounts with
-    many conversations — the picker UI would need to handle "load more"
-    before the full list can be ticked.
+  **ChatGPT sidebar selectors — confirmed live 2026-07** (Claude still
+  unverified, no logged-in Claude tab was available this session):
+  `a[href^="/c/"]` reliably finds every conversation link, each wrapped in
+  `<li class="list-none">` and carrying a `data-sidebarItem` attribute — a
+  stable marker that isn't part of a generated/obfuscated class name, so it's
+  a solid extraction anchor. `aria-label` matches the link's visible title
+  text exactly (redundant with `textContent`, but a good fallback if the link
+  ever gets an icon/nested-span structure that muddies `textContent`). The
+  `href` gives the conversation's `/c/<uuid>` path directly — exactly the
+  `{title, url}` pair the orchestration sketch above needs. The scrollable
+  container is the `<nav>` with `overflow-y: auto/scroll` where
+  `scrollHeight > clientHeight` (class name includes `scrollport`, but that's
+  not guaranteed stable — detect by computed style + scroll dimensions instead
+  of hardcoding the class). **Lazy-load behavior inconclusive**: this account
+  only has ~28 conversations, all already mounted in the DOM on load —
+  scrolling the nav container to its actual max `scrollTop` (verified the
+  scroll math is right: reached exactly `scrollHeight - clientHeight`)
+  triggered no additional loading because there was nothing more to load. The
+  scroll-then-requery mechanism is validated as the right general approach,
+  but true pagination/virtualization behavior (what happens with hundreds of
+  conversations) is still unverified — needs an account with much more
+  history to actually observe.
   - Realistic per-tab load timeout per platform (chatgpt/gemini/aistudio are
     already known to be slow lazy-loaders from the streaming-toast work).
   - How many conversations per run before it risks looking bot-like or

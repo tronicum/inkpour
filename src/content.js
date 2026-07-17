@@ -139,6 +139,25 @@
             if (/^[a-z][a-z0-9+#.-]{0,20}$/.test(t)) lang = t;
           }
         }
+        // ChatGPT Canvas code blocks: rendered via a CodeMirror editor
+        // (.cm-editor/.cm-content) nested inside this same <pre>, with the
+        // language name sitting as plain text in a "sticky" toolbar header
+        // alongside Copy/Run buttons — no "language-x" class or preceding
+        // sibling span exists here, so the two checks above always miss it.
+        // Verified live 2026-07: codeEl.textContent is already clean (this
+        // querySelector('code') call reaches through the CodeMirror markup
+        // correctly), so the only actual gap is the missing language tag.
+        // Scoped to only fire when a CodeMirror editor is actually present,
+        // so it can't misfire on some other platform's unrelated ".sticky".
+        if (!lang && node.querySelector('.cm-editor, .cm-content, #code-block-viewer')) {
+          const header = node.querySelector('.sticky');
+          const labelEl = header && Array.from(header.querySelectorAll('div, span'))
+            .find(el => el.children.length === 0 && el.textContent.trim() && !el.closest('button'));
+          if (labelEl) {
+            const t = labelEl.textContent.trim().toLowerCase();
+            if (/^[a-z][a-z0-9+#.-]{0,20}$/.test(t)) lang = t;
+          }
+        }
         const code = (codeEl ?? node).textContent;
         return `\n\n\`\`\`${lang}\n${code.trimEnd()}\n\`\`\`\n\n`;
       }
