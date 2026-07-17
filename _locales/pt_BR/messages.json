@@ -186,6 +186,20 @@
   "popupStatusSavedCheckDownloads": {
     "message": "✓ Salvo — confira sua pasta de Downloads"
   },
+  "popupStatusSavedToVault": {
+    "message": "✓ Salvo diretamente na sua pasta do vault"
+  },
+  "popupVaultPermissionDenied": {
+    "message": "A permissão da pasta do vault foi negada — exportação cancelada"
+  },
+  "popupVaultWriteFailed": {
+    "message": "Falha ao gravar no vault ($1) — exportação não salva",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
   "popupStatusMarkdownCopied": {
     "message": "✓ Markdown copiado para a área de transferência"
   },
@@ -476,6 +490,9 @@
   "settingsSectionExport": {
     "message": "Exportação"
   },
+  "settingsSectionVault": {
+    "message": "Gravação direta no vault (somente Chrome)"
+  },
   "settingsSectionIntegrations": {
     "message": "Integrações"
   },
@@ -529,6 +546,35 @@
   },
   "settingsObsidianTagsDesc": {
     "message": "Adiciona tags: [ai-chat, {platform}] ao front matter (requer YAML habilitado)"
+  },
+  "settingsVaultFolderLabel": {
+    "message": "Pasta do vault"
+  },
+  "settingsVaultFolderDesc": {
+    "message": "Escolha uma pasta uma vez — o Inkpour vai lembrá-la (armazenada localmente neste navegador, sem sincronização) e poderá gravar as exportações diretamente ali em vez da sua pasta de Downloads."
+  },
+  "settingsVaultChooseBtn": {
+    "message": "Escolher pasta do vault…"
+  },
+  "settingsVaultForgetBtn": {
+    "message": "Esquecer pasta"
+  },
+  "settingsVaultNoFolderChosen": {
+    "message": "Nenhuma pasta escolhida ainda"
+  },
+  "settingsVaultFolderChosenPrefix": {
+    "message": "Escolhida: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsWriteToVaultLabel": {
+    "message": "Gravar exportações diretamente nesta pasta"
+  },
+  "settingsWriteToVaultDesc": {
+    "message": "Quando ativado, o botão de exportar Markdown no popup salva diretamente na pasta escolhida em vez de Downloads. Você pode precisar conceder a permissão novamente após reiniciar o navegador."
   },
   "settingsGithubTokenLabel": {
     "message": "Token do GitHub"

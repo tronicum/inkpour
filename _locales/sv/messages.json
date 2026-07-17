@@ -186,6 +186,20 @@
   "popupStatusSavedCheckDownloads": {
     "message": "✓ Sparad — kolla din nedladdningsmapp"
   },
+  "popupStatusSavedToVault": {
+    "message": "✓ Sparad direkt till din valvmapp"
+  },
+  "popupVaultPermissionDenied": {
+    "message": "Behörighet till valvmappen nekades — export avbruten"
+  },
+  "popupVaultWriteFailed": {
+    "message": "Skrivning till valvet misslyckades ($1) — export sparades inte",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
   "popupStatusMarkdownCopied": {
     "message": "✓ Markdown kopierad till urklipp"
   },
@@ -476,6 +490,9 @@
   "settingsSectionExport": {
     "message": "Export"
   },
+  "settingsSectionVault": {
+    "message": "Skriv direkt till valv (endast Chrome)"
+  },
   "settingsSectionIntegrations": {
     "message": "Integrationer"
   },
@@ -529,6 +546,35 @@
   },
   "settingsObsidianTagsDesc": {
     "message": "Lägger till tags: [ai-chat, {platform}] i inledningen (kräver att YAML är aktiverat)"
+  },
+  "settingsVaultFolderLabel": {
+    "message": "Valvmapp"
+  },
+  "settingsVaultFolderDesc": {
+    "message": "Välj en mapp en gång — Inkpour kommer ihåg den (sparad lokalt i denna webbläsare, synkas inte) och kan skriva exporter direkt dit istället för din nedladdningsmapp."
+  },
+  "settingsVaultChooseBtn": {
+    "message": "Välj valvmapp…"
+  },
+  "settingsVaultForgetBtn": {
+    "message": "Glöm mapp"
+  },
+  "settingsVaultNoFolderChosen": {
+    "message": "Ingen mapp vald ännu"
+  },
+  "settingsVaultFolderChosenPrefix": {
+    "message": "Vald: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsWriteToVaultLabel": {
+    "message": "Skriv exporter direkt till denna mapp"
+  },
+  "settingsWriteToVaultDesc": {
+    "message": "När aktiverat sparar Markdown-exportknappen i popupen direkt i den valda mappen istället för Nedladdningar. Du kan behöva ge behörighet igen efter att webbläsaren startats om."
   },
   "settingsGithubTokenLabel": {
     "message": "GitHub-token"

@@ -232,6 +232,20 @@
   "popupStatusSavedCheckDownloads": {
     "message": "✓ Saved — check your Downloads folder"
   },
+  "popupStatusSavedToVault": {
+    "message": "✓ Saved directly to your vault folder"
+  },
+  "popupVaultPermissionDenied": {
+    "message": "Vault folder permission was denied — export cancelled"
+  },
+  "popupVaultWriteFailed": {
+    "message": "Vault write failed ($1) — export not saved",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
   "popupStatusMarkdownCopied": {
     "message": "✓ Markdown copied to clipboard"
   },
@@ -556,6 +570,9 @@
   "settingsSectionExport": {
     "message": "Export"
   },
+  "settingsSectionVault": {
+    "message": "Direct-to-vault (Chrome only)"
+  },
   "settingsSectionIntegrations": {
     "message": "Integrations"
   },
@@ -609,6 +626,35 @@
   },
   "settingsObsidianTagsDesc": {
     "message": "Adds tags: [ai-chat, {platform}] to front matter (requires YAML enabled)"
+  },
+  "settingsVaultFolderLabel": {
+    "message": "Vault folder"
+  },
+  "settingsVaultFolderDesc": {
+    "message": "Pick a folder once — Inkpour remembers it (stored locally in this browser, not synced) and can write exports straight there instead of your Downloads folder."
+  },
+  "settingsVaultChooseBtn": {
+    "message": "Choose vault folder…"
+  },
+  "settingsVaultForgetBtn": {
+    "message": "Forget folder"
+  },
+  "settingsVaultNoFolderChosen": {
+    "message": "No folder chosen yet"
+  },
+  "settingsVaultFolderChosenPrefix": {
+    "message": "Chosen: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsWriteToVaultLabel": {
+    "message": "Write exports directly to this folder"
+  },
+  "settingsWriteToVaultDesc": {
+    "message": "When on, the Markdown export button in the popup saves straight into the chosen folder instead of Downloads. You may be asked to re-grant permission after restarting your browser."
   },
   "settingsGithubTokenLabel": {
     "message": "GitHub token"

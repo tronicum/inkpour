@@ -186,6 +186,20 @@
   "popupStatusSavedCheckDownloads": {
     "message": "✓ تم الحفظ — تحقق من مجلد التنزيلات"
   },
+  "popupStatusSavedToVault": {
+    "message": "✓ تم الحفظ مباشرة في مجلد الخزنة"
+  },
+  "popupVaultPermissionDenied": {
+    "message": "تم رفض إذن مجلد الخزنة — تم إلغاء التصدير"
+  },
+  "popupVaultWriteFailed": {
+    "message": "فشلت الكتابة إلى الخزنة ($1) — لم يتم حفظ التصدير",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
   "popupStatusMarkdownCopied": {
     "message": "✓ تم نسخ Markdown إلى الحافظة"
   },
@@ -476,6 +490,9 @@
   "settingsSectionExport": {
     "message": "التصدير"
   },
+  "settingsSectionVault": {
+    "message": "الحفظ المباشر في الخزنة (Chrome فقط)"
+  },
   "settingsSectionIntegrations": {
     "message": "عمليات التكامل"
   },
@@ -529,6 +546,35 @@
   },
   "settingsObsidianTagsDesc": {
     "message": "يضيف tags: [ai-chat, {platform}] إلى ترويسة الملف (يتطلب تفعيل YAML)"
+  },
+  "settingsVaultFolderLabel": {
+    "message": "مجلد الخزنة"
+  },
+  "settingsVaultFolderDesc": {
+    "message": "اختر مجلدًا مرة واحدة — سيتذكره Inkpour (يُخزَّن محليًا في هذا المتصفح، دون مزامنة) ويمكنه كتابة الصادرات مباشرة هناك بدلاً من مجلد التنزيلات."
+  },
+  "settingsVaultChooseBtn": {
+    "message": "اختيار مجلد الخزنة…"
+  },
+  "settingsVaultForgetBtn": {
+    "message": "نسيان المجلد"
+  },
+  "settingsVaultNoFolderChosen": {
+    "message": "لم يتم اختيار أي مجلد بعد"
+  },
+  "settingsVaultFolderChosenPrefix": {
+    "message": "المختار: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsWriteToVaultLabel": {
+    "message": "كتابة الصادرات مباشرة إلى هذا المجلد"
+  },
+  "settingsWriteToVaultDesc": {
+    "message": "عند التفعيل، يحفظ زر تصدير Markdown في النافذة المنبثقة مباشرة في المجلد المختار بدلاً من التنزيلات. قد يُطلب منك إعادة منح الإذن بعد إعادة تشغيل المتصفح."
   },
   "settingsGithubTokenLabel": {
     "message": "رمز GitHub"

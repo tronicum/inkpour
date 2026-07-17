@@ -186,6 +186,20 @@
   "popupStatusSavedCheckDownloads": {
     "message": "✓ 保存済み — ダウンロードフォルダを確認"
   },
+  "popupStatusSavedToVault": {
+    "message": "✓ Vaultフォルダへ直接保存しました"
+  },
+  "popupVaultPermissionDenied": {
+    "message": "Vaultフォルダの権限が拒否されました — エクスポートを中止しました"
+  },
+  "popupVaultWriteFailed": {
+    "message": "Vaultへの書き込みに失敗しました（$1） — エクスポートは保存されていません",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
   "popupStatusMarkdownCopied": {
     "message": "✓ Markdownをクリップボードにコピーしました"
   },
@@ -476,6 +490,9 @@
   "settingsSectionExport": {
     "message": "エクスポート"
   },
+  "settingsSectionVault": {
+    "message": "Vaultへ直接書き込み（Chrome限定）"
+  },
   "settingsSectionIntegrations": {
     "message": "連携"
   },
@@ -529,6 +546,35 @@
   },
   "settingsObsidianTagsDesc": {
     "message": "フロントマターにタグ: [ai-chat, {platform}] を追加（YAMLを有効にする必要あり）"
+  },
+  "settingsVaultFolderLabel": {
+    "message": "Vaultフォルダ"
+  },
+  "settingsVaultFolderDesc": {
+    "message": "フォルダを一度選択すると、Inkpourがそれを記憶し（このブラウザ内にローカル保存、同期はされません）、ダウンロードフォルダの代わりにそこへ直接エクスポートを書き込めます。"
+  },
+  "settingsVaultChooseBtn": {
+    "message": "Vaultフォルダを選択…"
+  },
+  "settingsVaultForgetBtn": {
+    "message": "フォルダを解除"
+  },
+  "settingsVaultNoFolderChosen": {
+    "message": "まだフォルダが選択されていません"
+  },
+  "settingsVaultFolderChosenPrefix": {
+    "message": "選択中: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsWriteToVaultLabel": {
+    "message": "エクスポートをこのフォルダへ直接書き込む"
+  },
+  "settingsWriteToVaultDesc": {
+    "message": "オンにすると、ポップアップのMarkdownエクスポートボタンがダウンロードの代わりに選択したフォルダへ直接保存します。ブラウザを再起動した後、権限の再許可を求められる場合があります。"
   },
   "settingsGithubTokenLabel": {
     "message": "GitHubトークン"

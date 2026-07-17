@@ -186,6 +186,20 @@
   "popupStatusSavedCheckDownloads": {
     "message": "✓ सेव हो गया — अपना Downloads फ़ोल्डर देखें"
   },
+  "popupStatusSavedToVault": {
+    "message": "✓ सीधे आपके वॉल्ट फ़ोल्डर में सेव हो गया"
+  },
+  "popupVaultPermissionDenied": {
+    "message": "वॉल्ट फ़ोल्डर की अनुमति अस्वीकार कर दी गई — एक्सपोर्ट रद्द किया गया"
+  },
+  "popupVaultWriteFailed": {
+    "message": "वॉल्ट में लिखना विफल रहा ($1) — एक्सपोर्ट सेव नहीं हुआ",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
   "popupStatusMarkdownCopied": {
     "message": "✓ Markdown क्लिपबोर्ड पर कॉपी हो गया"
   },
@@ -476,6 +490,9 @@
   "settingsSectionExport": {
     "message": "एक्सपोर्ट"
   },
+  "settingsSectionVault": {
+    "message": "वॉल्ट में सीधे सेव करें (केवल Chrome)"
+  },
   "settingsSectionIntegrations": {
     "message": "इंटीग्रेशन"
   },
@@ -529,6 +546,35 @@
   },
   "settingsObsidianTagsDesc": {
     "message": "फ्रंट मैटर में tags: [ai-chat, {platform}] जोड़ता है (YAML सक्षम होना ज़रूरी है)"
+  },
+  "settingsVaultFolderLabel": {
+    "message": "वॉल्ट फ़ोल्डर"
+  },
+  "settingsVaultFolderDesc": {
+    "message": "एक बार फ़ोल्डर चुनें — Inkpour इसे याद रखेगा (इस ब्राउज़र में लोकल रूप से सेव, सिंक नहीं होता) और आपके Downloads फ़ोल्डर के बजाय सीधे वहां एक्सपोर्ट लिख सकेगा।"
+  },
+  "settingsVaultChooseBtn": {
+    "message": "वॉल्ट फ़ोल्डर चुनें…"
+  },
+  "settingsVaultForgetBtn": {
+    "message": "फ़ोल्डर भूल जाएं"
+  },
+  "settingsVaultNoFolderChosen": {
+    "message": "अभी तक कोई फ़ोल्डर नहीं चुना गया"
+  },
+  "settingsVaultFolderChosenPrefix": {
+    "message": "चयनित: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsWriteToVaultLabel": {
+    "message": "एक्सपोर्ट सीधे इस फ़ोल्डर में लिखें"
+  },
+  "settingsWriteToVaultDesc": {
+    "message": "चालू होने पर, पॉपअप का Markdown एक्सपोर्ट बटन Downloads के बजाय सीधे चुने गए फ़ोल्डर में सेव करेगा। ब्राउज़र रीस्टार्ट करने के बाद आपको दोबारा अनुमति देनी पड़ सकती है।"
   },
   "settingsGithubTokenLabel": {
     "message": "GitHub टोकन"

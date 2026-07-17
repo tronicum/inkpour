@@ -12,7 +12,8 @@
     "test:firefox": "playwright test --project=firefox"
   },
   "devDependencies": {
-    "@playwright/test": "^1.45.0"
+    "@playwright/test": "^1.45.0",
+    "fake-indexeddb": "^6.2.5"
   },
   "dependencies": {
     "jsdom": "^29.1.1"

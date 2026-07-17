@@ -85,6 +85,7 @@
     scrubSecrets:          true,
     webhookUrl:           '',
     webhookIncludeContent: false,
+    writeToVault:          false,
     debugMode:             false,
     debugAttachGist:       false,
   };
@@ -107,9 +108,11 @@
     document.getElementById('scrubSecrets').checked           = prefs.scrubSecrets;
     document.getElementById('webhookUrl').value              = prefs.webhookUrl;
     document.getElementById('webhookIncludeContent').checked = prefs.webhookIncludeContent;
+    document.getElementById('writeToVault').checked           = prefs.writeToVault;
     document.getElementById('debugMode').checked             = prefs.debugMode;
     document.getElementById('debugAttachGist').checked        = prefs.debugAttachGist;
     toggleDevToolsField(prefs.debugMode);
+    initVaultSection(prefs.writeToVault);
   });
 
   // ─── Local debug/fuzzing tools (debug/ — not present in packaged builds) ──
@@ -135,6 +138,86 @@
   document.getElementById('openPdfFuzzerLink')?.addEventListener('click', (e) => {
     e.preventDefault();
     api.tabs.create({ url: api.runtime.getURL('debug/import-pdf-fuzzer.html') });
+  });
+
+  // ─── Direct-to-vault (File System Access API — Chrome/Edge only) ─────────
+  // Feature-detected once here: `showDirectoryPicker` doesn't exist in
+  // Firefox or Safari, so the whole section is left `hidden` (not just
+  // disabled — it must not appear at all) and none of the code below runs
+  // for those browsers. Firefox/Safari users see exactly the same Export
+  // section as before this feature existed. The directory handle itself is
+  // persisted via src/vaultHandle.js (IndexedDB — chrome.storage.local can't
+  // hold a FileSystemDirectoryHandle, only JSON).
+
+  const vaultSection      = document.getElementById('vaultSection');
+  const vaultFolderNameEl = document.getElementById('vaultFolderName');
+  const chooseVaultBtn    = document.getElementById('chooseVaultBtn');
+  const forgetVaultBtn    = document.getElementById('forgetVaultBtn');
+  const writeToVaultField = document.getElementById('writeToVaultField');
+  const writeToVaultBox   = document.getElementById('writeToVault');
+
+  const hasFSA = typeof window.showDirectoryPicker === 'function';
+
+  function showVaultFolder(name) {
+    vaultFolderNameEl.textContent = t('settingsVaultFolderChosenPrefix', [name]);
+    if (forgetVaultBtn) { forgetVaultBtn.hidden = false; forgetVaultBtn.style.display = 'inline-block'; }
+    if (writeToVaultField) { writeToVaultField.hidden = false; writeToVaultField.style.display = 'flex'; }
+  }
+
+  function clearVaultFolderUI() {
+    vaultFolderNameEl.textContent = t('settingsVaultNoFolderChosen');
+    if (forgetVaultBtn) { forgetVaultBtn.hidden = true; forgetVaultBtn.style.display = 'none'; }
+    if (writeToVaultField) { writeToVaultField.hidden = true; writeToVaultField.style.display = 'none'; }
+    if (writeToVaultBox) writeToVaultBox.checked = false;
+  }
+
+  async function initVaultSection(writeToVaultPref) {
+    if (!vaultSection) return;
+    if (!hasFSA) {
+      vaultSection.hidden = true;
+      vaultSection.style.display = 'none';
+      return;
+    }
+    vaultSection.hidden = false;
+    vaultSection.style.display = 'block';
+
+    try {
+      const handle = await getVaultHandle();
+      if (handle) {
+        showVaultFolder(handle.name);
+        if (writeToVaultBox) writeToVaultBox.checked = !!writeToVaultPref;
+      } else {
+        clearVaultFolderUI();
+      }
+    } catch {
+      clearVaultFolderUI();
+    }
+  }
+
+  chooseVaultBtn?.addEventListener('click', async () => {
+    // showDirectoryPicker() must be called directly off this click gesture —
+    // no other await ahead of it. Requesting 'readwrite' mode up front means
+    // the picker itself grants readwrite permission for this session, so
+    // there's nothing else to request right after picking.
+    try {
+      const handle = await window.showDirectoryPicker({ mode: 'readwrite' });
+      await setVaultHandle(handle);
+      showVaultFolder(handle.name);
+      save();
+    } catch (err) {
+      // AbortError = user dismissed the picker — not an error worth surfacing.
+      if (err?.name === 'AbortError') return;
+      const el = document.getElementById('saveStatus');
+      el.textContent = t('popupVaultPermissionDenied');
+    }
+  });
+
+  forgetVaultBtn?.addEventListener('click', async () => {
+    try {
+      await clearVaultHandle();
+    } catch { /* best-effort */ }
+    clearVaultFolderUI();
+    save();
   });
 
   // ─── Save (autosave) ──────────────────────────────────────────────────────
@@ -167,6 +250,7 @@
       scrubSecrets:          document.getElementById('scrubSecrets').checked,
       webhookUrl:            document.getElementById('webhookUrl').value.trim(),
       webhookIncludeContent: document.getElementById('webhookIncludeContent').checked,
+      writeToVault:          document.getElementById('writeToVault').checked,
       debugMode:             document.getElementById('debugMode').checked,
       debugAttachGist:       document.getElementById('debugAttachGist').checked,
     };
@@ -189,7 +273,7 @@
   [
     'defaultFormat', 'pdfAutoPrint', 'yamlFrontMatter', 'generateTOC',
     'obsidianTags', 'gistPublic', 'scrubSecrets', 'webhookIncludeContent',
-    'debugMode', 'debugAttachGist',
+    'writeToVault', 'debugMode', 'debugAttachGist',
   ].forEach((id) => {
     document.getElementById(id)?.addEventListener('change', save);
   });

@@ -186,6 +186,20 @@
   "popupStatusSavedCheckDownloads": {
     "message": "✓ Αποθηκεύτηκε — ελέγξτε τον φάκελο Λήψεις"
   },
+  "popupStatusSavedToVault": {
+    "message": "✓ Αποθηκεύτηκε απευθείας στον φάκελο vault σας"
+  },
+  "popupVaultPermissionDenied": {
+    "message": "Η άδεια για τον φάκελο vault απορρίφθηκε — η εξαγωγή ακυρώθηκε"
+  },
+  "popupVaultWriteFailed": {
+    "message": "Η εγγραφή στο vault απέτυχε ($1) — η εξαγωγή δεν αποθηκεύτηκε",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
   "popupStatusMarkdownCopied": {
     "message": "✓ Το Markdown αντιγράφηκε στο πρόχειρο"
   },
@@ -476,6 +490,9 @@
   "settingsSectionExport": {
     "message": "Εξαγωγή"
   },
+  "settingsSectionVault": {
+    "message": "Απευθείας αποθήκευση σε vault (μόνο Chrome)"
+  },
   "settingsSectionIntegrations": {
     "message": "Ενσωματώσεις"
   },
@@ -529,6 +546,35 @@
   },
   "settingsObsidianTagsDesc": {
     "message": "Προσθέτει tags: [ai-chat, {platform}] στο front matter (απαιτεί ενεργοποιημένο YAML)"
+  },
+  "settingsVaultFolderLabel": {
+    "message": "Φάκελος vault"
+  },
+  "settingsVaultFolderDesc": {
+    "message": "Επιλέξτε έναν φάκελο μία φορά — το Inkpour τον θυμάται (αποθηκεύεται τοπικά σε αυτό το πρόγραμμα περιήγησης, χωρίς συγχρονισμό) και μπορεί να γράφει εξαγωγές απευθείας εκεί αντί στον φάκελο Λήψεων."
+  },
+  "settingsVaultChooseBtn": {
+    "message": "Επιλογή φακέλου vault…"
+  },
+  "settingsVaultForgetBtn": {
+    "message": "Ξέχασε τον φάκελο"
+  },
+  "settingsVaultNoFolderChosen": {
+    "message": "Δεν έχει επιλεγεί φάκελος ακόμα"
+  },
+  "settingsVaultFolderChosenPrefix": {
+    "message": "Επιλέχθηκε: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsWriteToVaultLabel": {
+    "message": "Εγγραφή εξαγωγών απευθείας σε αυτόν τον φάκελο"
+  },
+  "settingsWriteToVaultDesc": {
+    "message": "Όταν είναι ενεργό, το κουμπί εξαγωγής Markdown στο αναδυόμενο παράθυρο αποθηκεύει απευθείας στον επιλεγμένο φάκελο αντί στις Λήψεις. Ίσως χρειαστεί να παραχωρήσετε ξανά την άδεια μετά από επανεκκίνηση του προγράμματος περιήγησης."
   },
   "settingsGithubTokenLabel": {
     "message": "GitHub token"

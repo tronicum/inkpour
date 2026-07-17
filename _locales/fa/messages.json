@@ -186,6 +186,20 @@
   "popupStatusSavedCheckDownloads": {
     "message": "✓ ذخیره شد — پوشه دانلودهای خود را بررسی کنید"
   },
+  "popupStatusSavedToVault": {
+    "message": "✓ مستقیماً در پوشه وُلت شما ذخیره شد"
+  },
+  "popupVaultPermissionDenied": {
+    "message": "اجازه دسترسی به پوشه وُلت رد شد — خروجی لغو شد"
+  },
+  "popupVaultWriteFailed": {
+    "message": "نوشتن در وُلت ناموفق بود ($1) — خروجی ذخیره نشد",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
   "popupStatusMarkdownCopied": {
     "message": "✓ Markdown در کلیپ‌بورد کپی شد"
   },
@@ -476,6 +490,9 @@
   "settingsSectionExport": {
     "message": "خروجی گرفتن"
   },
+  "settingsSectionVault": {
+    "message": "نوشتن مستقیم در وُلت (فقط Chrome)"
+  },
   "settingsSectionIntegrations": {
     "message": "یکپارچه‌سازی‌ها"
   },
@@ -529,6 +546,35 @@
   },
   "settingsObsidianTagsDesc": {
     "message": "tags: [ai-chat, {platform}] را به سرصفحه اضافه می‌کند (نیازمند فعال بودن YAML)"
+  },
+  "settingsVaultFolderLabel": {
+    "message": "پوشه وُلت"
+  },
+  "settingsVaultFolderDesc": {
+    "message": "یک‌بار پوشه‌ای را انتخاب کنید — Inkpour آن را به خاطر می‌سپارد (به‌صورت محلی در همین مرورگر ذخیره می‌شود، بدون همگام‌سازی) و می‌تواند خروجی‌ها را مستقیماً در آنجا بنویسد، به‌جای پوشه دانلودهای شما."
+  },
+  "settingsVaultChooseBtn": {
+    "message": "انتخاب پوشه وُلت…"
+  },
+  "settingsVaultForgetBtn": {
+    "message": "فراموش کردن پوشه"
+  },
+  "settingsVaultNoFolderChosen": {
+    "message": "هنوز پوشه‌ای انتخاب نشده است"
+  },
+  "settingsVaultFolderChosenPrefix": {
+    "message": "انتخاب‌شده: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsWriteToVaultLabel": {
+    "message": "نوشتن خروجی‌ها مستقیماً در این پوشه"
+  },
+  "settingsWriteToVaultDesc": {
+    "message": "در صورت فعال بودن، دکمه خروجی Markdown در پنجره بازشو به‌جای پوشه دانلودها، مستقیماً در پوشه انتخاب‌شده ذخیره می‌کند. ممکن است پس از راه‌اندازی مجدد مرورگر لازم باشد دوباره اجازه دهید."
   },
   "settingsGithubTokenLabel": {
     "message": "توکن GitHub"

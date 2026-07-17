@@ -186,6 +186,20 @@
   "popupStatusSavedCheckDownloads": {
     "message": "✓ Zapisano — sprawdź folder Pobrane"
   },
+  "popupStatusSavedToVault": {
+    "message": "✓ Zapisano bezpośrednio w Twoim folderze magazynu"
+  },
+  "popupVaultPermissionDenied": {
+    "message": "Uprawnienie do folderu magazynu zostało odrzucone — eksport anulowany"
+  },
+  "popupVaultWriteFailed": {
+    "message": "Zapis do magazynu nie powiódł się ($1) — eksport nie został zapisany",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
   "popupStatusMarkdownCopied": {
     "message": "✓ Markdown skopiowany do schowka"
   },
@@ -476,6 +490,9 @@
   "settingsSectionExport": {
     "message": "Eksport"
   },
+  "settingsSectionVault": {
+    "message": "Zapis bezpośrednio do magazynu (tylko Chrome)"
+  },
   "settingsSectionIntegrations": {
     "message": "Integracje"
   },
@@ -529,6 +546,35 @@
   },
   "settingsObsidianTagsDesc": {
     "message": "Dodaje tags: [ai-chat, {platform}] do nagłówka (wymaga włączonego YAML)"
+  },
+  "settingsVaultFolderLabel": {
+    "message": "Folder magazynu"
+  },
+  "settingsVaultFolderDesc": {
+    "message": "Wybierz folder raz — Inkpour go zapamięta (przechowywane lokalnie w tej przeglądarce, bez synchronizacji) i będzie mógł zapisywać eksporty bezpośrednio tam zamiast do folderu Pobrane."
+  },
+  "settingsVaultChooseBtn": {
+    "message": "Wybierz folder magazynu…"
+  },
+  "settingsVaultForgetBtn": {
+    "message": "Zapomnij folder"
+  },
+  "settingsVaultNoFolderChosen": {
+    "message": "Nie wybrano jeszcze żadnego folderu"
+  },
+  "settingsVaultFolderChosenPrefix": {
+    "message": "Wybrano: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsWriteToVaultLabel": {
+    "message": "Zapisuj eksporty bezpośrednio do tego folderu"
+  },
+  "settingsWriteToVaultDesc": {
+    "message": "Gdy włączone, przycisk eksportu Markdown w popupie zapisuje bezpośrednio do wybranego folderu zamiast do Pobranych. Po ponownym uruchomieniu przeglądarki może być konieczne ponowne udzielenie uprawnienia."
   },
   "settingsGithubTokenLabel": {
     "message": "Token GitHub"

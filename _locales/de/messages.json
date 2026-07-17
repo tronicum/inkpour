@@ -186,6 +186,20 @@
   "popupStatusSavedCheckDownloads": {
     "message": "✓ Gespeichert — im Downloads-Ordner nachsehen"
   },
+  "popupStatusSavedToVault": {
+    "message": "✓ Direkt in deinem Vault-Ordner gespeichert"
+  },
+  "popupVaultPermissionDenied": {
+    "message": "Berechtigung für den Vault-Ordner wurde verweigert — Export abgebrochen"
+  },
+  "popupVaultWriteFailed": {
+    "message": "Schreiben ins Vault fehlgeschlagen ($1) — Export nicht gespeichert",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
   "popupStatusMarkdownCopied": {
     "message": "✓ Markdown in die Zwischenablage kopiert"
   },
@@ -476,6 +490,9 @@
   "settingsSectionExport": {
     "message": "Export"
   },
+  "settingsSectionVault": {
+    "message": "Direkt ins Vault schreiben (nur Chrome)"
+  },
   "settingsSectionIntegrations": {
     "message": "Integrationen"
   },
@@ -529,6 +546,35 @@
   },
   "settingsObsidianTagsDesc": {
     "message": "Fügt tags: [ai-chat, {platform}] zur Frontmatter hinzu (erfordert aktiviertes YAML)"
+  },
+  "settingsVaultFolderLabel": {
+    "message": "Vault-Ordner"
+  },
+  "settingsVaultFolderDesc": {
+    "message": "Wähle einmal einen Ordner aus — Inkpour merkt ihn sich (lokal in diesem Browser gespeichert, nicht synchronisiert) und kann Exporte direkt dorthin schreiben statt in deinen Downloads-Ordner."
+  },
+  "settingsVaultChooseBtn": {
+    "message": "Vault-Ordner auswählen…"
+  },
+  "settingsVaultForgetBtn": {
+    "message": "Ordner vergessen"
+  },
+  "settingsVaultNoFolderChosen": {
+    "message": "Noch kein Ordner ausgewählt"
+  },
+  "settingsVaultFolderChosenPrefix": {
+    "message": "Ausgewählt: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsWriteToVaultLabel": {
+    "message": "Exporte direkt in diesen Ordner schreiben"
+  },
+  "settingsWriteToVaultDesc": {
+    "message": "Wenn aktiviert, speichert die Markdown-Export-Schaltfläche im Popup direkt im ausgewählten Ordner statt in Downloads. Nach einem Browser-Neustart musst du die Berechtigung eventuell erneut erteilen."
   },
   "settingsGithubTokenLabel": {
     "message": "GitHub-Token"

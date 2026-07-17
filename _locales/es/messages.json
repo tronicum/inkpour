@@ -186,6 +186,20 @@
   "popupStatusSavedCheckDownloads": {
     "message": "✓ Guardado — revisa tu carpeta de descargas"
   },
+  "popupStatusSavedToVault": {
+    "message": "✓ Guardado directamente en tu carpeta del vault"
+  },
+  "popupVaultPermissionDenied": {
+    "message": "Se denegó el permiso de la carpeta del vault — exportación cancelada"
+  },
+  "popupVaultWriteFailed": {
+    "message": "Error al escribir en el vault ($1) — la exportación no se guardó",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
   "popupStatusMarkdownCopied": {
     "message": "✓ Markdown copiado al portapapeles"
   },
@@ -476,6 +490,9 @@
   "settingsSectionExport": {
     "message": "Exportación"
   },
+  "settingsSectionVault": {
+    "message": "Guardado directo en vault (solo Chrome)"
+  },
   "settingsSectionIntegrations": {
     "message": "Integraciones"
   },
@@ -529,6 +546,35 @@
   },
   "settingsObsidianTagsDesc": {
     "message": "Añade tags: [ai-chat, {platform}] a los metadatos (requiere que YAML esté activado)"
+  },
+  "settingsVaultFolderLabel": {
+    "message": "Carpeta del vault"
+  },
+  "settingsVaultFolderDesc": {
+    "message": "Elige una carpeta una vez — Inkpour la recordará (guardada localmente en este navegador, sin sincronizar) y podrá escribir las exportaciones directamente ahí en lugar de en tu carpeta de descargas."
+  },
+  "settingsVaultChooseBtn": {
+    "message": "Elegir carpeta del vault…"
+  },
+  "settingsVaultForgetBtn": {
+    "message": "Olvidar carpeta"
+  },
+  "settingsVaultNoFolderChosen": {
+    "message": "Aún no se ha elegido ninguna carpeta"
+  },
+  "settingsVaultFolderChosenPrefix": {
+    "message": "Elegida: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsWriteToVaultLabel": {
+    "message": "Escribir las exportaciones directamente en esta carpeta"
+  },
+  "settingsWriteToVaultDesc": {
+    "message": "Cuando está activado, el botón de exportar Markdown del popup guarda directamente en la carpeta elegida en lugar de en Descargas. Es posible que debas volver a conceder el permiso tras reiniciar el navegador."
   },
   "settingsGithubTokenLabel": {
     "message": "Token de GitHub"

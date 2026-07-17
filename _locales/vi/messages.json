@@ -186,6 +186,20 @@
   "popupStatusSavedCheckDownloads": {
     "message": "✓ Đã lưu — kiểm tra thư mục Downloads của bạn"
   },
+  "popupStatusSavedToVault": {
+    "message": "✓ Đã lưu trực tiếp vào thư mục vault của bạn"
+  },
+  "popupVaultPermissionDenied": {
+    "message": "Quyền truy cập thư mục vault đã bị từ chối — đã hủy xuất"
+  },
+  "popupVaultWriteFailed": {
+    "message": "Ghi vào vault thất bại ($1) — bản xuất chưa được lưu",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
   "popupStatusMarkdownCopied": {
     "message": "✓ Đã sao chép Markdown vào clipboard"
   },
@@ -476,6 +490,9 @@
   "settingsSectionExport": {
     "message": "Xuất"
   },
+  "settingsSectionVault": {
+    "message": "Ghi trực tiếp vào vault (chỉ Chrome)"
+  },
   "settingsSectionIntegrations": {
     "message": "Tích hợp"
   },
@@ -529,6 +546,35 @@
   },
   "settingsObsidianTagsDesc": {
     "message": "Thêm tags: [ai-chat, {platform}] vào phần đầu (yêu cầu bật YAML)"
+  },
+  "settingsVaultFolderLabel": {
+    "message": "Thư mục vault"
+  },
+  "settingsVaultFolderDesc": {
+    "message": "Chọn một thư mục một lần — Inkpour sẽ ghi nhớ nó (lưu cục bộ trong trình duyệt này, không đồng bộ) và có thể ghi các bản xuất trực tiếp vào đó thay vì thư mục Downloads của bạn."
+  },
+  "settingsVaultChooseBtn": {
+    "message": "Chọn thư mục vault…"
+  },
+  "settingsVaultForgetBtn": {
+    "message": "Quên thư mục"
+  },
+  "settingsVaultNoFolderChosen": {
+    "message": "Chưa chọn thư mục nào"
+  },
+  "settingsVaultFolderChosenPrefix": {
+    "message": "Đã chọn: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsWriteToVaultLabel": {
+    "message": "Ghi các bản xuất trực tiếp vào thư mục này"
+  },
+  "settingsWriteToVaultDesc": {
+    "message": "Khi bật, nút xuất Markdown trong popup sẽ lưu trực tiếp vào thư mục đã chọn thay vì Downloads. Bạn có thể cần cấp lại quyền sau khi khởi động lại trình duyệt."
   },
   "settingsGithubTokenLabel": {
     "message": "Token GitHub"

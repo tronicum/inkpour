@@ -186,6 +186,20 @@
   "popupStatusSavedCheckDownloads": {
     "message": "✓ Kaydedildi — İndirilenler klasörünüzü kontrol edin"
   },
+  "popupStatusSavedToVault": {
+    "message": "✓ Doğrudan kasa klasörünüze kaydedildi"
+  },
+  "popupVaultPermissionDenied": {
+    "message": "Kasa klasörü izni reddedildi — dışa aktarma iptal edildi"
+  },
+  "popupVaultWriteFailed": {
+    "message": "Kasaya yazma başarısız oldu ($1) — dışa aktarma kaydedilmedi",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
   "popupStatusMarkdownCopied": {
     "message": "✓ Markdown panoya kopyalandı"
   },
@@ -476,6 +490,9 @@
   "settingsSectionExport": {
     "message": "Dışa Aktarma"
   },
+  "settingsSectionVault": {
+    "message": "Doğrudan kasaya yazma (yalnızca Chrome)"
+  },
   "settingsSectionIntegrations": {
     "message": "Entegrasyonlar"
   },
@@ -529,6 +546,35 @@
   },
   "settingsObsidianTagsDesc": {
     "message": "Ön bilgiye tags: [ai-chat, {platform}] ekler (YAML'ın etkin olması gerekir)"
+  },
+  "settingsVaultFolderLabel": {
+    "message": "Kasa klasörü"
+  },
+  "settingsVaultFolderDesc": {
+    "message": "Bir klasörü bir kez seçin — Inkpour bunu hatırlar (bu tarayıcıda yerel olarak saklanır, senkronize edilmez) ve dışa aktarmaları İndirilenler klasörünüz yerine doğrudan oraya yazabilir."
+  },
+  "settingsVaultChooseBtn": {
+    "message": "Kasa klasörü seç…"
+  },
+  "settingsVaultForgetBtn": {
+    "message": "Klasörü unut"
+  },
+  "settingsVaultNoFolderChosen": {
+    "message": "Henüz klasör seçilmedi"
+  },
+  "settingsVaultFolderChosenPrefix": {
+    "message": "Seçildi: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsWriteToVaultLabel": {
+    "message": "Dışa aktarmaları doğrudan bu klasöre yaz"
+  },
+  "settingsWriteToVaultDesc": {
+    "message": "Açıkken, popup'taki Markdown dışa aktarma düğmesi İndirilenler yerine seçilen klasöre doğrudan kaydeder. Tarayıcı yeniden başlatıldıktan sonra izni tekrar vermeniz istenebilir."
   },
   "settingsGithubTokenLabel": {
     "message": "GitHub token'ı"
