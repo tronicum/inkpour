@@ -25,6 +25,19 @@ const FIXTURES_DIR = path.resolve(__dirname, 'fixtures');
 const UTILS_JS = fs.readFileSync(path.resolve(__dirname, '../src/utils.js'), 'utf8');
 vm.runInThisContext(UTILS_JS);
 
+// ─── IndexedDB polyfill + src/vaultHandle.js (Batch 6: direct-to-vault) ─────
+// JSDOM itself has no IndexedDB implementation at all — fake-indexeddb (a
+// pure-JS, spec-faithful in-memory implementation, dev dependency) installs
+// a real `indexedDB` global via its "/auto" entry point. src/vaultHandle.js
+// declares plain global functions the same way src/utils.js does, so loading
+// it with vm.runInThisContext() here (after the indexedDB polyfill is in
+// place) makes getVaultHandle()/setVaultHandle()/clearVaultHandle()/
+// shouldRequestPermission() directly callable from the tests below, with no
+// chrome/browser mocking needed — this file has no extension-API dependency.
+require('fake-indexeddb/auto');
+const VAULT_HANDLE_JS = fs.readFileSync(path.resolve(__dirname, '../src/vaultHandle.js'), 'utf8');
+vm.runInThisContext(VAULT_HANDLE_JS);
+
 // ─── i18n mock ──────────────────────────────────────────────────────────────
 // content.js calls api.i18n.getMessage(key, substitutions) for the floating
 // button's localized labels/status text. Real browsers always provide
@@ -2106,6 +2119,83 @@ async function main() {
     await test('turn 1 answer does not include share-panel chrome after the disclaimer', () => {
       assert(!result.messages[3].content.includes('SHARE_PANEL_LEAK_MARKER'),
         'disclaimer cutoff regressed: trailing page chrome leaked into turn 1 (no next heading to bound it)');
+    });
+  });
+
+  // ── src/vaultHandle.js — direct-to-vault persistence (Batch 6) ────────────
+  // showDirectoryPicker() and real FileSystemDirectoryHandle/
+  // FileSystemFileHandle objects do not exist in JSDOM/Node and cannot be
+  // meaningfully polyfilled for an end-to-end test — that gap is real and
+  // not attempted here (see planning/TODOs.md). What IS covered: the
+  // IndexedDB round-trip (get/set/clearVaultHandle, via the fake-indexeddb
+  // dev dependency loaded above) and the permission-decision logic
+  // (shouldRequestPermission / ensureReadWritePermission), both of which are
+  // plain-object/duck-typed and need no real FileSystemHandle to exercise.
+  await suite('vaultHandle.js — direct-to-vault persistence (Batch 6)', async () => {
+    await test('getVaultHandle() resolves to null before anything is stored', async () => {
+      await clearVaultHandle(); // ensure a clean slate regardless of test order
+      const handle = await getVaultHandle();
+      assert(handle === null, `expected null, got ${JSON.stringify(handle)}`);
+    });
+
+    await test('setVaultHandle() + getVaultHandle() round-trips a structured-cloneable object', async () => {
+      const fakeHandle = { kind: 'directory', name: 'MyVault' };
+      await setVaultHandle(fakeHandle);
+      const stored = await getVaultHandle();
+      assert(stored && stored.name === 'MyVault', `got ${JSON.stringify(stored)}`);
+      assert(stored.kind === 'directory', `got ${JSON.stringify(stored)}`);
+    });
+
+    await test('setVaultHandle() overwrites a previously stored handle (single dedicated key)', async () => {
+      await setVaultHandle({ kind: 'directory', name: 'FirstVault' });
+      await setVaultHandle({ kind: 'directory', name: 'SecondVault' });
+      const stored = await getVaultHandle();
+      assert(stored.name === 'SecondVault', `expected overwrite, got ${JSON.stringify(stored)}`);
+    });
+
+    await test('clearVaultHandle() forgets the stored handle', async () => {
+      await setVaultHandle({ kind: 'directory', name: 'ToForget' });
+      await clearVaultHandle();
+      const stored = await getVaultHandle();
+      assert(stored === null, `expected null after clear, got ${JSON.stringify(stored)}`);
+    });
+
+    await test('shouldRequestPermission() is false only for "granted"', () => {
+      assert(shouldRequestPermission('granted') === false, 'granted should not need a request');
+      assert(shouldRequestPermission('prompt') === true, 'prompt should need a request');
+      assert(shouldRequestPermission('denied') === true, 'denied should need a request');
+      assert(shouldRequestPermission(undefined) === true, 'undefined should need a request (fail safe)');
+    });
+
+    await test('ensureReadWritePermission() skips requestPermission() when already granted', async () => {
+      let requestCalled = false;
+      const dirHandle = {
+        queryPermission:   async () => 'granted',
+        requestPermission: async () => { requestCalled = true; return 'granted'; },
+      };
+      const ok = await ensureReadWritePermission(dirHandle);
+      assert(ok === true, 'expected true');
+      assert(requestCalled === false, 'requestPermission should not have been called when already granted');
+    });
+
+    await test('ensureReadWritePermission() requests readwrite permission when not already granted', async () => {
+      let requestModeArg = null;
+      const dirHandle = {
+        queryPermission:   async () => 'prompt',
+        requestPermission: async (opts) => { requestModeArg = opts?.mode; return 'granted'; },
+      };
+      const ok = await ensureReadWritePermission(dirHandle);
+      assert(ok === true, 'expected true');
+      assert(requestModeArg === 'readwrite', `expected mode:'readwrite', got ${requestModeArg}`);
+    });
+
+    await test('ensureReadWritePermission() returns false when the request is denied', async () => {
+      const dirHandle = {
+        queryPermission:   async () => 'prompt',
+        requestPermission: async () => 'denied',
+      };
+      const ok = await ensureReadWritePermission(dirHandle);
+      assert(ok === false, 'expected false when permission denied');
     });
   });
 

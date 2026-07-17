@@ -186,6 +186,20 @@
   "popupStatusSavedCheckDownloads": {
     "message": "✓ บันทึกแล้ว — ตรวจสอบโฟลเดอร์ดาวน์โหลดของคุณ"
   },
+  "popupStatusSavedToVault": {
+    "message": "✓ บันทึกลงในโฟลเดอร์ห้องนิรภัยของคุณโดยตรงแล้ว"
+  },
+  "popupVaultPermissionDenied": {
+    "message": "สิทธิ์การเข้าถึงโฟลเดอร์ห้องนิรภัยถูกปฏิเสธ — ยกเลิกการส่งออก"
+  },
+  "popupVaultWriteFailed": {
+    "message": "การเขียนไปยังห้องนิรภัยล้มเหลว ($1) — ไม่ได้บันทึกการส่งออก",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
   "popupStatusMarkdownCopied": {
     "message": "✓ คัดลอก Markdown ไปยังคลิปบอร์ดแล้ว"
   },
@@ -476,6 +490,9 @@
   "settingsSectionExport": {
     "message": "การส่งออก"
   },
+  "settingsSectionVault": {
+    "message": "เขียนตรงไปยังห้องนิรภัย (Chrome เท่านั้น)"
+  },
   "settingsSectionIntegrations": {
     "message": "การเชื่อมต่อ"
   },
@@ -529,6 +546,35 @@
   },
   "settingsObsidianTagsDesc": {
     "message": "เพิ่ม tags: [ai-chat, {platform}] ในส่วนหัว (ต้องเปิดใช้งาน YAML)"
+  },
+  "settingsVaultFolderLabel": {
+    "message": "โฟลเดอร์ห้องนิรภัย"
+  },
+  "settingsVaultFolderDesc": {
+    "message": "เลือกโฟลเดอร์เพียงครั้งเดียว — Inkpour จะจดจำไว้ (จัดเก็บในเครื่องภายในเบราว์เซอร์นี้ ไม่ซิงค์) และสามารถเขียนไฟล์ที่ส่งออกไปที่นั่นโดยตรงแทนโฟลเดอร์ดาวน์โหลดของคุณ"
+  },
+  "settingsVaultChooseBtn": {
+    "message": "เลือกโฟลเดอร์ห้องนิรภัย…"
+  },
+  "settingsVaultForgetBtn": {
+    "message": "ลืมโฟลเดอร์"
+  },
+  "settingsVaultNoFolderChosen": {
+    "message": "ยังไม่ได้เลือกโฟลเดอร์"
+  },
+  "settingsVaultFolderChosenPrefix": {
+    "message": "เลือกแล้ว: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsWriteToVaultLabel": {
+    "message": "เขียนไฟล์ที่ส่งออกไปยังโฟลเดอร์นี้โดยตรง"
+  },
+  "settingsWriteToVaultDesc": {
+    "message": "เมื่อเปิดใช้งาน ปุ่มส่งออก Markdown ในป๊อปอัปจะบันทึกลงในโฟลเดอร์ที่เลือกโดยตรงแทนโฟลเดอร์ดาวน์โหลด คุณอาจต้องให้สิทธิ์อีกครั้งหลังจากรีสตาร์ทเบราว์เซอร์"
   },
   "settingsGithubTokenLabel": {
     "message": "โทเคน GitHub"

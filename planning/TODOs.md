@@ -171,12 +171,64 @@ path is one self-contained click handler (settings.js:138–162) building one
   anticipated by the original note).
 
 ## Batch 6 — Direct-to-vault saving via File System Access API (dedicated session)
-- [ ] **M** `showDirectoryPicker()` from popup/options, persist the directory
-  handle (IndexedDB — handles don't survive in storage.local), re-request
-  permission on reuse. Chrome-only: Firefox won't implement FSA, so
-  feature-detect and fall back to the existing Downloads-subfolder setting.
-  Supersedes the old "Obsidian vault path via Downloads API" idea (Downloads
-  API can't write outside the Downloads folder — dead end).
+- [x] **M → implemented, pending live click-through test** `showDirectoryPicker()`
+  from Settings (settings.html/.js — the "page context, real user gesture"
+  location the original note called for; content scripts on arbitrary
+  third-party chat pages never touch this), persisting the
+  `FileSystemDirectoryHandle` via a new dedicated IndexedDB helper
+  (`src/vaultHandle.js`, database `inkpour-vault`), with a synchronous
+  `queryPermission`/`requestPermission({mode:'readwrite'})` re-request right
+  at the top of every write-triggering click handler — before any other
+  `await` — so it never gets stranded outside the click's transient user
+  activation. Chrome-only, as scoped: feature-detected once via
+  `'showDirectoryPicker' in window`; when false (Firefox/Safari) the entire
+  new Settings section is `hidden` (not just disabled), so those browsers see
+  and get exactly the same Export section as before this feature existed —
+  the existing `obsidianVault` free-text Downloads-subfolder field is
+  untouched and still the only option there, additive not replaced.
+  Settings gained a "Direct-to-vault (Chrome only)" section: a "Choose vault
+  folder…" button (requests `mode:'readwrite'` up front so there's nothing
+  left to request right after picking), a folder-name display, a "Forget
+  folder" button (`clearVaultHandle()`), and a "Write exports directly to
+  this folder" checkbox that stays hidden until a folder has actually been
+  chosen — mirrors every other setting's autosave-on-`change` pattern, plus a
+  new `writeToVault` field in settings.js's `DEFAULTS`/load/`save()` (all
+  three, same as every other persisted setting). popup.js's `mdBtn`, `docxBtn`,
+  and `zipBtn` handlers (chose these three — direct file-producing buttons —
+  over `jsonBtn`/`htmlBtn`, out of scope for v1) each resolve the vault handle
+  and re-check its permission as literally the first thing in the click
+  handler via a shared `resolveVaultHandleForWrite()`, before `extractFromPage()`
+  (a message round-trip to the content script) can consume the gesture; when
+  a handle is granted, `getFileHandle(name,{create:true})` →
+  `createWritable()` → `.write()` → `.close()` (`writeFileToVault()` in
+  `src/vaultHandle.js`) runs *instead of* the existing
+  Blob-URL-download/`chrome.downloads.download()` path for that button, never
+  both — on any failure (denied permission, missing/stale handle, quota,
+  whatever) a distinct toast (`popupVaultWriteFailed`/`popupVaultPermissionDenied`)
+  is shown and the handler returns immediately, deliberately not falling
+  through to a Downloads write the user wasn't told about. 14 new i18n keys
+  (8 settings-page strings, 3 popup status/error strings, 1 section header,
+  plus 2 with `$1` placeholders) added with real (non-English-stub)
+  translations to all 26 locale files, verified with identical key sets
+  across all of them. 8 new JSDOM tests added for `src/vaultHandle.js`: the
+  IndexedDB round-trip (get/set/clear, overwrite-on-reuse) via the
+  `fake-indexeddb` dev dependency (added — JSDOM has no real IndexedDB at
+  all), and the permission-decision logic factored out as pure/duck-typed
+  functions (`shouldRequestPermission()`, `ensureReadWritePermission()`) so
+  they're testable without a real `FileSystemHandle` object — full suite
+  259→267 passed, 0 failed, before and after. **Known hard limit, not
+  skipped out of laziness**: `showDirectoryPicker()` and real
+  `FileSystemDirectoryHandle`/`FileSystemFileHandle` objects do not exist in
+  JSDOM/Node and cannot be meaningfully polyfilled, so the actual
+  `writeFileToVault()` call chain and the real native folder-picker dialog
+  are NOT exercised by any automated test here — only a human clicking
+  through Chrome for real (pick a folder, toggle the checkbox, export MD/DOCX/
+  ZIP, restart the browser and confirm the permission-reprompt path, deny
+  permission and confirm the error toast) can verify that end-to-end. Needs
+  that live click-through before this is marked fully done. Did not touch
+  Gist/webhook code, and specifically did not touch any Notion-related lines
+  in settings.html/settings.js/popup.js (verified via `git diff` — the batch
+  landed immediately before this one on `main`).
 
 ## Batch 7 — New extraction surfaces (needs live logged-in pages — Stefan's browser; flag before starting)
 - [ ] **L** ChatGPT Canvas export: non-linear side-panel UI, needs its own

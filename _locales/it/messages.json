@@ -186,6 +186,20 @@
   "popupStatusSavedCheckDownloads": {
     "message": "✓ Salvato — controlla la cartella Download"
   },
+  "popupStatusSavedToVault": {
+    "message": "✓ Salvato direttamente nella tua cartella del vault"
+  },
+  "popupVaultPermissionDenied": {
+    "message": "Il permesso per la cartella del vault è stato negato — esportazione annullata"
+  },
+  "popupVaultWriteFailed": {
+    "message": "Scrittura nel vault non riuscita ($1) — esportazione non salvata",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
   "popupStatusMarkdownCopied": {
     "message": "✓ Markdown copiato negli appunti"
   },
@@ -476,6 +490,9 @@
   "settingsSectionExport": {
     "message": "Esportazione"
   },
+  "settingsSectionVault": {
+    "message": "Scrittura diretta nel vault (solo Chrome)"
+  },
   "settingsSectionIntegrations": {
     "message": "Integrazioni"
   },
@@ -529,6 +546,35 @@
   },
   "settingsObsidianTagsDesc": {
     "message": "Aggiunge tags: [ai-chat, {platform}] all'intestazione (richiede YAML abilitato)"
+  },
+  "settingsVaultFolderLabel": {
+    "message": "Cartella del vault"
+  },
+  "settingsVaultFolderDesc": {
+    "message": "Scegli una cartella una volta — Inkpour la ricorderà (salvata localmente in questo browser, non sincronizzata) e potrà scrivere le esportazioni direttamente lì invece che nella cartella Download."
+  },
+  "settingsVaultChooseBtn": {
+    "message": "Scegli cartella del vault…"
+  },
+  "settingsVaultForgetBtn": {
+    "message": "Dimentica cartella"
+  },
+  "settingsVaultNoFolderChosen": {
+    "message": "Nessuna cartella scelta ancora"
+  },
+  "settingsVaultFolderChosenPrefix": {
+    "message": "Scelta: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsWriteToVaultLabel": {
+    "message": "Scrivi le esportazioni direttamente in questa cartella"
+  },
+  "settingsWriteToVaultDesc": {
+    "message": "Se attivo, il pulsante di esportazione Markdown nel popup salva direttamente nella cartella scelta invece che in Download. Potrebbe essere necessario concedere di nuovo il permesso dopo il riavvio del browser."
   },
   "settingsGithubTokenLabel": {
     "message": "Token GitHub"

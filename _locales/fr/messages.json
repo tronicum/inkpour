@@ -186,6 +186,20 @@
   "popupStatusSavedCheckDownloads": {
     "message": "✓ Enregistré — vérifiez votre dossier Téléchargements"
   },
+  "popupStatusSavedToVault": {
+    "message": "✓ Enregistré directement dans votre dossier du vault"
+  },
+  "popupVaultPermissionDenied": {
+    "message": "L'autorisation pour le dossier du vault a été refusée — export annulé"
+  },
+  "popupVaultWriteFailed": {
+    "message": "Échec de l'écriture dans le vault ($1) — export non enregistré",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
   "popupStatusMarkdownCopied": {
     "message": "✓ Markdown copié dans le presse-papiers"
   },
@@ -476,6 +490,9 @@
   "settingsSectionExport": {
     "message": "Export"
   },
+  "settingsSectionVault": {
+    "message": "Écriture directe dans le vault (Chrome uniquement)"
+  },
   "settingsSectionIntegrations": {
     "message": "Intégrations"
   },
@@ -529,6 +546,35 @@
   },
   "settingsObsidianTagsDesc": {
     "message": "Ajoute les tags : [ai-chat, {platform}] à l'en-tête (nécessite le YAML activé)"
+  },
+  "settingsVaultFolderLabel": {
+    "message": "Dossier du vault"
+  },
+  "settingsVaultFolderDesc": {
+    "message": "Choisissez un dossier une fois — Inkpour s'en souviendra (stocké localement dans ce navigateur, non synchronisé) et pourra y écrire les exports directement au lieu de votre dossier Téléchargements."
+  },
+  "settingsVaultChooseBtn": {
+    "message": "Choisir le dossier du vault…"
+  },
+  "settingsVaultForgetBtn": {
+    "message": "Oublier le dossier"
+  },
+  "settingsVaultNoFolderChosen": {
+    "message": "Aucun dossier choisi pour l'instant"
+  },
+  "settingsVaultFolderChosenPrefix": {
+    "message": "Choisi : $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsWriteToVaultLabel": {
+    "message": "Écrire les exports directement dans ce dossier"
+  },
+  "settingsWriteToVaultDesc": {
+    "message": "Lorsque activé, le bouton d'export Markdown du popup enregistre directement dans le dossier choisi au lieu de Téléchargements. Il se peut que vous deviez de nouveau accorder la permission après un redémarrage du navigateur."
   },
   "settingsGithubTokenLabel": {
     "message": "Jeton GitHub"

@@ -162,6 +162,20 @@
   "popupStatusSavedCheckDownloads": {
     "message": "✓ ਸੇਵ ਹੋ ਗਿਆ — ਆਪਣਾ Downloads ਫੋਲਡਰ ਦੇਖੋ"
   },
+  "popupStatusSavedToVault": {
+    "message": "✓ ਸਿੱਧਾ ਤੁਹਾਡੇ ਵਾਲਟ ਫੋਲਡਰ ਵਿੱਚ ਸੇਵ ਹੋ ਗਿਆ"
+  },
+  "popupVaultPermissionDenied": {
+    "message": "ਵਾਲਟ ਫੋਲਡਰ ਦੀ ਇਜਾਜ਼ਤ ਅਸਵੀਕਾਰ ਕੀਤੀ ਗਈ — ਐਕਸਪੋਰਟ ਰੱਦ ਕੀਤਾ ਗਿਆ"
+  },
+  "popupVaultWriteFailed": {
+    "message": "ਵਾਲਟ ਵਿੱਚ ਲਿਖਣਾ ਅਸਫਲ ਰਿਹਾ ($1) — ਐਕਸਪੋਰਟ ਸੇਵ ਨਹੀਂ ਹੋਇਆ",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
   "popupStatusMarkdownCopied": {
     "message": "✓ Markdown ਕਲਿੱਪਬੋਰਡ 'ਤੇ ਕਾਪੀ ਹੋ ਗਿਆ"
   },
@@ -451,6 +465,9 @@
   "settingsSectionExport": {
     "message": "ਐਕਸਪੋਰਟ"
   },
+  "settingsSectionVault": {
+    "message": "ਵਾਲਟ ਵਿੱਚ ਸਿੱਧਾ ਲਿਖੋ (ਸਿਰਫ਼ Chrome)"
+  },
   "settingsSectionIntegrations": {
     "message": "ਏਕੀਕਰਨ"
   },
@@ -504,6 +521,35 @@
   },
   "settingsObsidianTagsDesc": {
     "message": "ਫਰੰਟ ਮੈਟਰ ਵਿੱਚ tags: [ai-chat, {platform}] ਜੋੜਦਾ ਹੈ (YAML ਚਾਲੂ ਹੋਣਾ ਜ਼ਰੂਰੀ ਹੈ)"
+  },
+  "settingsVaultFolderLabel": {
+    "message": "ਵਾਲਟ ਫੋਲਡਰ"
+  },
+  "settingsVaultFolderDesc": {
+    "message": "ਇੱਕ ਵਾਰ ਫੋਲਡਰ ਚੁਣੋ — Inkpour ਇਸਨੂੰ ਯਾਦ ਰੱਖੇਗਾ (ਇਸ ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ ਸਥਾਨਕ ਤੌਰ 'ਤੇ ਸਟੋਰ, ਸਿੰਕ ਨਹੀਂ ਹੁੰਦਾ) ਅਤੇ ਤੁਹਾਡੇ Downloads ਫੋਲਡਰ ਦੀ ਬਜਾਏ ਸਿੱਧਾ ਉੱਥੇ ਐਕਸਪੋਰਟ ਲਿਖ ਸਕਦਾ ਹੈ।"
+  },
+  "settingsVaultChooseBtn": {
+    "message": "ਵਾਲਟ ਫੋਲਡਰ ਚੁਣੋ…"
+  },
+  "settingsVaultForgetBtn": {
+    "message": "ਫੋਲਡਰ ਭੁੱਲੋ"
+  },
+  "settingsVaultNoFolderChosen": {
+    "message": "ਹਾਲੇ ਕੋਈ ਫੋਲਡਰ ਨਹੀਂ ਚੁਣਿਆ ਗਿਆ"
+  },
+  "settingsVaultFolderChosenPrefix": {
+    "message": "ਚੁਣਿਆ ਗਿਆ: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsWriteToVaultLabel": {
+    "message": "ਐਕਸਪੋਰਟ ਸਿੱਧਾ ਇਸ ਫੋਲਡਰ ਵਿੱਚ ਲਿਖੋ"
+  },
+  "settingsWriteToVaultDesc": {
+    "message": "ਚਾਲੂ ਹੋਣ 'ਤੇ, ਪੌਪਅੱਪ ਦਾ Markdown ਐਕਸਪੋਰਟ ਬਟਨ Downloads ਦੀ ਬਜਾਏ ਸਿੱਧਾ ਚੁਣੇ ਗਏ ਫੋਲਡਰ ਵਿੱਚ ਸੇਵ ਕਰੇਗਾ। ਬ੍ਰਾਊਜ਼ਰ ਮੁੜ ਚਾਲੂ ਕਰਨ ਤੋਂ ਬਾਅਦ ਤੁਹਾਨੂੰ ਦੁਬਾਰਾ ਇਜਾਜ਼ਤ ਦੇਣੀ ਪੈ ਸਕਦੀ ਹੈ।"
   },
   "settingsGithubTokenLabel": {
     "message": "GitHub ਟੋਕਨ"

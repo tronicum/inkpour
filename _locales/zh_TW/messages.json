@@ -186,6 +186,20 @@
   "popupStatusSavedCheckDownloads": {
     "message": "✓ 已儲存 — 請查看您的下載資料夾"
   },
+  "popupStatusSavedToVault": {
+    "message": "✓ 已直接儲存到您的保管庫資料夾"
+  },
+  "popupVaultPermissionDenied": {
+    "message": "保管庫資料夾權限遭拒 — 已取消匯出"
+  },
+  "popupVaultWriteFailed": {
+    "message": "寫入保管庫失敗（$1）— 匯出未儲存",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
   "popupStatusMarkdownCopied": {
     "message": "✓ Markdown 已複製到剪貼簿"
   },
@@ -476,6 +490,9 @@
   "settingsSectionExport": {
     "message": "匯出"
   },
+  "settingsSectionVault": {
+    "message": "直接寫入保管庫（僅限 Chrome）"
+  },
   "settingsSectionIntegrations": {
     "message": "整合"
   },
@@ -529,6 +546,35 @@
   },
   "settingsObsidianTagsDesc": {
     "message": "在前置資料中加入 tags: [ai-chat, {platform}]（需啟用 YAML）"
+  },
+  "settingsVaultFolderLabel": {
+    "message": "保管庫資料夾"
+  },
+  "settingsVaultFolderDesc": {
+    "message": "選擇一次資料夾——Inkpour 會記住它（儲存在此瀏覽器本機，不會同步），並可直接將匯出內容寫入該資料夾，而非您的下載資料夾。"
+  },
+  "settingsVaultChooseBtn": {
+    "message": "選擇保管庫資料夾…"
+  },
+  "settingsVaultForgetBtn": {
+    "message": "忘記資料夾"
+  },
+  "settingsVaultNoFolderChosen": {
+    "message": "尚未選擇資料夾"
+  },
+  "settingsVaultFolderChosenPrefix": {
+    "message": "已選擇：$1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsWriteToVaultLabel": {
+    "message": "將匯出內容直接寫入此資料夾"
+  },
+  "settingsWriteToVaultDesc": {
+    "message": "啟用後，彈出視窗中的 Markdown 匯出按鈕會直接儲存到所選資料夾，而非下載資料夾。瀏覽器重新啟動後，您可能需要重新授予權限。"
   },
   "settingsGithubTokenLabel": {
     "message": "GitHub 權杖"

@@ -186,6 +186,20 @@
   "popupStatusSavedCheckDownloads": {
     "message": "✓ Opgeslagen — controleer je Downloads-map"
   },
+  "popupStatusSavedToVault": {
+    "message": "✓ Direct opgeslagen in je vault-map"
+  },
+  "popupVaultPermissionDenied": {
+    "message": "Toestemming voor de vault-map is geweigerd — export geannuleerd"
+  },
+  "popupVaultWriteFailed": {
+    "message": "Schrijven naar vault mislukt ($1) — export niet opgeslagen",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
   "popupStatusMarkdownCopied": {
     "message": "✓ Markdown naar klembord gekopieerd"
   },
@@ -476,6 +490,9 @@
   "settingsSectionExport": {
     "message": "Export"
   },
+  "settingsSectionVault": {
+    "message": "Direct naar vault schrijven (alleen Chrome)"
+  },
   "settingsSectionIntegrations": {
     "message": "Integraties"
   },
@@ -529,6 +546,35 @@
   },
   "settingsObsidianTagsDesc": {
     "message": "Voegt tags: [ai-chat, {platform}] toe aan de metadata (vereist ingeschakelde YAML)"
+  },
+  "settingsVaultFolderLabel": {
+    "message": "Vault-map"
+  },
+  "settingsVaultFolderDesc": {
+    "message": "Kies eenmalig een map — Inkpour onthoudt deze (lokaal opgeslagen in deze browser, niet gesynchroniseerd) en kan exports daar direct naartoe schrijven in plaats van naar je downloadmap."
+  },
+  "settingsVaultChooseBtn": {
+    "message": "Vault-map kiezen…"
+  },
+  "settingsVaultForgetBtn": {
+    "message": "Map vergeten"
+  },
+  "settingsVaultNoFolderChosen": {
+    "message": "Nog geen map gekozen"
+  },
+  "settingsVaultFolderChosenPrefix": {
+    "message": "Gekozen: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsWriteToVaultLabel": {
+    "message": "Exports direct naar deze map schrijven"
+  },
+  "settingsWriteToVaultDesc": {
+    "message": "Indien ingeschakeld, slaat de Markdown-exportknop in de popup direct op in de gekozen map in plaats van Downloads. Mogelijk moet je na een herstart van de browser opnieuw toestemming geven."
   },
   "settingsGithubTokenLabel": {
     "message": "GitHub-token"

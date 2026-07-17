@@ -162,6 +162,20 @@
   "popupStatusSavedCheckDownloads": {
     "message": "✓ Uloženo — zkontrolujte složku Stažené soubory"
   },
+  "popupStatusSavedToVault": {
+    "message": "✓ Uloženo přímo do vaší složky trezoru"
+  },
+  "popupVaultPermissionDenied": {
+    "message": "Oprávnění ke složce trezoru bylo zamítnuto — export zrušen"
+  },
+  "popupVaultWriteFailed": {
+    "message": "Zápis do trezoru selhal ($1) — export nebyl uložen",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
   "popupStatusMarkdownCopied": {
     "message": "✓ Markdown zkopírován do schránky"
   },
@@ -451,6 +465,9 @@
   "settingsSectionExport": {
     "message": "Export"
   },
+  "settingsSectionVault": {
+    "message": "Přímý zápis do trezoru (pouze Chrome)"
+  },
   "settingsSectionIntegrations": {
     "message": "Integrace"
   },
@@ -504,6 +521,35 @@
   },
   "settingsObsidianTagsDesc": {
     "message": "Přidá tags: [ai-chat, {platform}] do hlavičky (vyžaduje zapnutý YAML)"
+  },
+  "settingsVaultFolderLabel": {
+    "message": "Složka trezoru"
+  },
+  "settingsVaultFolderDesc": {
+    "message": "Vyberte složku jednou — Inkpour si ji zapamatuje (uloženo lokálně v tomto prohlížeči, nesynchronizuje se) a může do ní ukládat exporty přímo místo do složky Stažené soubory."
+  },
+  "settingsVaultChooseBtn": {
+    "message": "Vybrat složku trezoru…"
+  },
+  "settingsVaultForgetBtn": {
+    "message": "Zapomenout složku"
+  },
+  "settingsVaultNoFolderChosen": {
+    "message": "Zatím není vybrána žádná složka"
+  },
+  "settingsVaultFolderChosenPrefix": {
+    "message": "Vybráno: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsWriteToVaultLabel": {
+    "message": "Zapisovat exporty přímo do této složky"
+  },
+  "settingsWriteToVaultDesc": {
+    "message": "Když je zapnuto, tlačítko exportu Markdown v popup okně uloží soubor přímo do vybrané složky místo do Stažených souborů. Po restartu prohlížeče může být nutné oprávnění znovu udělit."
   },
   "settingsGithubTokenLabel": {
     "message": "Token GitHub"

@@ -186,6 +186,20 @@
   "popupStatusSavedCheckDownloads": {
     "message": "✓ Tersimpan — periksa folder Downloads Anda"
   },
+  "popupStatusSavedToVault": {
+    "message": "✓ Tersimpan langsung ke folder vault Anda"
+  },
+  "popupVaultPermissionDenied": {
+    "message": "Izin folder vault ditolak — ekspor dibatalkan"
+  },
+  "popupVaultWriteFailed": {
+    "message": "Penulisan ke vault gagal ($1) — ekspor tidak tersimpan",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
   "popupStatusMarkdownCopied": {
     "message": "✓ Markdown disalin ke clipboard"
   },
@@ -476,6 +490,9 @@
   "settingsSectionExport": {
     "message": "Ekspor"
   },
+  "settingsSectionVault": {
+    "message": "Tulis langsung ke vault (khusus Chrome)"
+  },
   "settingsSectionIntegrations": {
     "message": "Integrasi"
   },
@@ -529,6 +546,35 @@
   },
   "settingsObsidianTagsDesc": {
     "message": "Menambahkan tag: [ai-chat, {platform}] ke front matter (memerlukan YAML diaktifkan)"
+  },
+  "settingsVaultFolderLabel": {
+    "message": "Folder vault"
+  },
+  "settingsVaultFolderDesc": {
+    "message": "Pilih folder sekali — Inkpour akan mengingatnya (disimpan secara lokal di browser ini, tidak disinkronkan) dan dapat menulis ekspor langsung ke sana alih-alih ke folder Downloads Anda."
+  },
+  "settingsVaultChooseBtn": {
+    "message": "Pilih folder vault…"
+  },
+  "settingsVaultForgetBtn": {
+    "message": "Lupakan folder"
+  },
+  "settingsVaultNoFolderChosen": {
+    "message": "Belum ada folder yang dipilih"
+  },
+  "settingsVaultFolderChosenPrefix": {
+    "message": "Dipilih: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsWriteToVaultLabel": {
+    "message": "Tulis ekspor langsung ke folder ini"
+  },
+  "settingsWriteToVaultDesc": {
+    "message": "Jika aktif, tombol ekspor Markdown di popup akan menyimpan langsung ke folder yang dipilih, bukan ke Downloads. Anda mungkin diminta memberi izin lagi setelah browser dimulai ulang."
   },
   "settingsGithubTokenLabel": {
     "message": "Token GitHub"

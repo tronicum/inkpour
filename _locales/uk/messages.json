@@ -186,6 +186,20 @@
   "popupStatusSavedCheckDownloads": {
     "message": "✓ Збережено — перевірте папку Завантаження"
   },
+  "popupStatusSavedToVault": {
+    "message": "✓ Збережено безпосередньо у вашу папку сховища"
+  },
+  "popupVaultPermissionDenied": {
+    "message": "У доступі до папки сховища відмовлено — експорт скасовано"
+  },
+  "popupVaultWriteFailed": {
+    "message": "Не вдалося записати у сховище ($1) — експорт не збережено",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
   "popupStatusMarkdownCopied": {
     "message": "✓ Markdown скопійовано у буфер обміну"
   },
@@ -476,6 +490,9 @@
   "settingsSectionExport": {
     "message": "Експорт"
   },
+  "settingsSectionVault": {
+    "message": "Пряме збереження у сховище (лише Chrome)"
+  },
   "settingsSectionIntegrations": {
     "message": "Інтеграції"
   },
@@ -529,6 +546,35 @@
   },
   "settingsObsidianTagsDesc": {
     "message": "Додає tags: [ai-chat, {platform}] до заголовка (потребує увімкненого YAML)"
+  },
+  "settingsVaultFolderLabel": {
+    "message": "Папка сховища"
+  },
+  "settingsVaultFolderDesc": {
+    "message": "Виберіть папку один раз — Inkpour запам'ятає її (зберігається локально в цьому браузері, без синхронізації) і зможе записувати експорт одразу туди замість папки «Завантаження»."
+  },
+  "settingsVaultChooseBtn": {
+    "message": "Вибрати папку сховища…"
+  },
+  "settingsVaultForgetBtn": {
+    "message": "Забути папку"
+  },
+  "settingsVaultNoFolderChosen": {
+    "message": "Папку ще не вибрано"
+  },
+  "settingsVaultFolderChosenPrefix": {
+    "message": "Вибрано: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsWriteToVaultLabel": {
+    "message": "Записувати експорт безпосередньо в цю папку"
+  },
+  "settingsWriteToVaultDesc": {
+    "message": "Якщо увімкнено, кнопка експорту Markdown у спливному вікні зберігає файл одразу у вибрану папку замість «Завантажень». Після перезапуску браузера може знадобитися повторно надати дозвіл."
   },
   "settingsGithubTokenLabel": {
     "message": "Токен GitHub"

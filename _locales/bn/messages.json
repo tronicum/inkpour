@@ -186,6 +186,20 @@
   "popupStatusSavedCheckDownloads": {
     "message": "✓ সংরক্ষিত হয়েছে — আপনার Downloads ফোল্ডার দেখুন"
   },
+  "popupStatusSavedToVault": {
+    "message": "✓ সরাসরি আপনার ভল্ট ফোল্ডারে সংরক্ষিত হয়েছে"
+  },
+  "popupVaultPermissionDenied": {
+    "message": "ভল্ট ফোল্ডারের অনুমতি প্রত্যাখ্যাত হয়েছে — এক্সপোর্ট বাতিল হয়েছে"
+  },
+  "popupVaultWriteFailed": {
+    "message": "ভল্টে লেখা ব্যর্থ হয়েছে ($1) — এক্সপোর্ট সংরক্ষিত হয়নি",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
   "popupStatusMarkdownCopied": {
     "message": "✓ Markdown ক্লিপবোর্ডে কপি হয়েছে"
   },
@@ -476,6 +490,9 @@
   "settingsSectionExport": {
     "message": "এক্সপোর্ট"
   },
+  "settingsSectionVault": {
+    "message": "ভল্টে সরাসরি সংরক্ষণ (শুধু Chrome)"
+  },
   "settingsSectionIntegrations": {
     "message": "ইন্টিগ্রেশন"
   },
@@ -529,6 +546,35 @@
   },
   "settingsObsidianTagsDesc": {
     "message": "ফ্রন্ট ম্যাটারে tags: [ai-chat, {platform}] যোগ করে (YAML সক্রিয় থাকা আবশ্যক)"
+  },
+  "settingsVaultFolderLabel": {
+    "message": "ভল্ট ফোল্ডার"
+  },
+  "settingsVaultFolderDesc": {
+    "message": "একবার একটি ফোল্ডার বেছে নিন — Inkpour সেটি মনে রাখবে (এই ব্রাউজারে স্থানীয়ভাবে সংরক্ষিত, সিঙ্ক হয় না) এবং আপনার Downloads ফোল্ডারের বদলে সরাসরি সেখানে এক্সপোর্ট লিখতে পারবে।"
+  },
+  "settingsVaultChooseBtn": {
+    "message": "ভল্ট ফোল্ডার বেছে নিন…"
+  },
+  "settingsVaultForgetBtn": {
+    "message": "ফোল্ডার ভুলে যান"
+  },
+  "settingsVaultNoFolderChosen": {
+    "message": "এখনও কোনো ফোল্ডার বেছে নেওয়া হয়নি"
+  },
+  "settingsVaultFolderChosenPrefix": {
+    "message": "নির্বাচিত: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsWriteToVaultLabel": {
+    "message": "এই ফোল্ডারে সরাসরি এক্সপোর্ট লিখুন"
+  },
+  "settingsWriteToVaultDesc": {
+    "message": "চালু থাকলে, পপআপের Markdown এক্সপোর্ট বাটন Downloads-এর বদলে সরাসরি বেছে নেওয়া ফোল্ডারে সংরক্ষণ করবে। ব্রাউজার পুনরায় চালু করার পর আপনাকে অনুমতি আবার দিতে বলা হতে পারে।"
   },
   "settingsGithubTokenLabel": {
     "message": "GitHub টোকেন"

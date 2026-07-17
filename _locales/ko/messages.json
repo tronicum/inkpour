@@ -186,6 +186,20 @@
   "popupStatusSavedCheckDownloads": {
     "message": "✓ 저장됨 — 다운로드 폴더를 확인하세요"
   },
+  "popupStatusSavedToVault": {
+    "message": "✓ 볼트 폴더에 직접 저장되었습니다"
+  },
+  "popupVaultPermissionDenied": {
+    "message": "볼트 폴더 권한이 거부되었습니다 — 내보내기가 취소되었습니다"
+  },
+  "popupVaultWriteFailed": {
+    "message": "볼트 쓰기에 실패했습니다 ($1) — 내보내기가 저장되지 않았습니다",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
   "popupStatusMarkdownCopied": {
     "message": "✓ Markdown이 클립보드에 복사되었습니다"
   },
@@ -476,6 +490,9 @@
   "settingsSectionExport": {
     "message": "내보내기"
   },
+  "settingsSectionVault": {
+    "message": "볼트에 직접 저장 (Chrome 전용)"
+  },
   "settingsSectionIntegrations": {
     "message": "연동"
   },
@@ -529,6 +546,35 @@
   },
   "settingsObsidianTagsDesc": {
     "message": "프런트매터에 tags: [ai-chat, {platform}]을 추가합니다 (YAML 활성화 필요)"
+  },
+  "settingsVaultFolderLabel": {
+    "message": "볼트 폴더"
+  },
+  "settingsVaultFolderDesc": {
+    "message": "폴더를 한 번 선택하세요 — Inkpour가 이를 기억하며(이 브라우저에 로컬로 저장되며 동기화되지 않음), Downloads 폴더 대신 바로 그곳에 내보내기를 쓸 수 있습니다."
+  },
+  "settingsVaultChooseBtn": {
+    "message": "볼트 폴더 선택…"
+  },
+  "settingsVaultForgetBtn": {
+    "message": "폴더 잊기"
+  },
+  "settingsVaultNoFolderChosen": {
+    "message": "아직 선택된 폴더가 없습니다"
+  },
+  "settingsVaultFolderChosenPrefix": {
+    "message": "선택됨: $1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsWriteToVaultLabel": {
+    "message": "내보내기를 이 폴더에 직접 쓰기"
+  },
+  "settingsWriteToVaultDesc": {
+    "message": "켜면 팝업의 Markdown 내보내기 버튼이 Downloads 대신 선택한 폴더에 직접 저장합니다. 브라우저를 다시 시작한 후 권한을 다시 부여해야 할 수도 있습니다."
   },
   "settingsGithubTokenLabel": {
     "message": "GitHub 토큰"

@@ -186,6 +186,20 @@
   "popupStatusSavedCheckDownloads": {
     "message": "✓ 已保存 — 请查看您的下载文件夹"
   },
+  "popupStatusSavedToVault": {
+    "message": "✓ 已直接保存到您的保险库文件夹"
+  },
+  "popupVaultPermissionDenied": {
+    "message": "保险库文件夹权限被拒绝 — 已取消导出"
+  },
+  "popupVaultWriteFailed": {
+    "message": "写入保险库失败（$1）— 导出未保存",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
   "popupStatusMarkdownCopied": {
     "message": "✓ Markdown 已复制到剪贴板"
   },
@@ -476,6 +490,9 @@
   "settingsSectionExport": {
     "message": "导出"
   },
+  "settingsSectionVault": {
+    "message": "直接写入保险库（仅限 Chrome）"
+  },
   "settingsSectionIntegrations": {
     "message": "集成"
   },
@@ -529,6 +546,35 @@
   },
   "settingsObsidianTagsDesc": {
     "message": "在前置元数据中添加 tags: [ai-chat, {platform}]（需先启用 YAML）"
+  },
+  "settingsVaultFolderLabel": {
+    "message": "保险库文件夹"
+  },
+  "settingsVaultFolderDesc": {
+    "message": "选择一次文件夹——Inkpour 会记住它（保存在本浏览器本地，不会同步），并可以直接将导出内容写入该文件夹，而不是您的下载文件夹。"
+  },
+  "settingsVaultChooseBtn": {
+    "message": "选择保险库文件夹…"
+  },
+  "settingsVaultForgetBtn": {
+    "message": "忘记文件夹"
+  },
+  "settingsVaultNoFolderChosen": {
+    "message": "尚未选择文件夹"
+  },
+  "settingsVaultFolderChosenPrefix": {
+    "message": "已选择：$1",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "settingsWriteToVaultLabel": {
+    "message": "将导出内容直接写入此文件夹"
+  },
+  "settingsWriteToVaultDesc": {
+    "message": "开启后，弹出窗口中的 Markdown 导出按钮会直接保存到所选文件夹，而不是下载文件夹。浏览器重启后，您可能需要重新授予权限。"
   },
   "settingsGithubTokenLabel": {
     "message": "GitHub 令牌"

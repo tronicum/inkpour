@@ -105,6 +105,20 @@
     .field-label strong { display: block; font-size: 13px; font-weight: 600; }
     .field-label span   { font-size: 11px; color: var(--subtext); }
     .field-label .fineprint { display: block; margin-top: 4px; color: #d97706; }
+    .field-label .value-line { display: block; margin-top: 4px; color: var(--text); font-weight: 600; }
+
+    .btn-secondary {
+      padding: 8px 16px;
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-secondary:hover { border-color: var(--accent); }
 
     select, input[type="text"] {
       background: var(--surface);
@@ -297,6 +311,38 @@
     </div>
   </section>
 
+  <!-- Direct-to-vault (File System Access API — Chrome/Edge only). Hidden
+       entirely (not just disabled) on browsers that don't implement
+       showDirectoryPicker(); see the feature-detect at the top of
+       settings.js. Firefox/Safari users keep using the Downloads-subfolder
+       fields above, unaffected. -->
+  <section id="vaultSection" hidden style="display:none;">
+    <h2 data-i18n="settingsSectionVault">Direct-to-vault (Chrome only)</h2>
+
+    <div class="field">
+      <div class="field-label">
+        <strong data-i18n="settingsVaultFolderLabel">Vault folder</strong>
+        <span data-i18n="settingsVaultFolderDesc">Pick a folder once — Inkpour remembers it (stored locally in this browser, not synced) and can write exports straight there instead of your Downloads folder.</span>
+        <span class="value-line" id="vaultFolderName" data-i18n="settingsVaultNoFolderChosen">No folder chosen yet</span>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <button type="button" class="btn-secondary" id="chooseVaultBtn" data-i18n="settingsVaultChooseBtn">Choose vault folder…</button>
+        <button type="button" class="btn-secondary" id="forgetVaultBtn" data-i18n="settingsVaultForgetBtn" hidden style="display:none;">Forget folder</button>
+      </div>
+    </div>
+
+    <div class="field" id="writeToVaultField" hidden style="display:none;">
+      <div class="field-label">
+        <strong data-i18n="settingsWriteToVaultLabel">Write exports directly to this folder</strong>
+        <span data-i18n="settingsWriteToVaultDesc">When on, the Markdown export button in the popup saves straight into the chosen folder instead of Downloads. You may be asked to re-grant permission after restarting your browser.</span>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="writeToVault" />
+        <div class="toggle-track"></div>
+      </label>
+    </div>
+  </section>
+
   <!-- Integrations -->
   <section>
     <h2 data-i18n="settingsSectionIntegrations">Integrations</h2>
@@ -423,6 +469,7 @@
   </div>
 
   <script src="src/i18n.js"></script>
+  <script src="src/vaultHandle.js"></script>
   <script src="settings.js"></script>
 </body>
 </html>

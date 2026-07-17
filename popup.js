@@ -91,6 +91,7 @@
     scrubSecrets:          true,
     webhookUrl:            '',
     webhookIncludeContent: false,
+    writeToVault:          false,
     debugMode:             false,
     debugAttachGist:       false,
   };
@@ -574,18 +575,72 @@
     setStatus(t(count === 1 ? 'popupStatusImportedOne' : 'popupStatusImportedOther', [String(count)]), 'success');
   });
 
+  // ─── Direct-to-vault (File System Access API — Chrome/Edge only) ─────────
+  // The folder itself is chosen once in Settings (settings.html/.js), which
+  // persists the FileSystemDirectoryHandle via src/vaultHandle.js
+  // (IndexedDB). Here we only ever *reuse* an already-chosen handle.
+  //
+  // Handles don't retain write permission across browser restarts, so every
+  // write re-checks it via ensureReadWritePermission() (queryPermission then,
+  // if needed, requestPermission()) — and that call MUST happen before any
+  // other `await` in the click handler, because requestPermission() needs the
+  // "transient activation" this click just created. extractFromPage() below
+  // messages the content script and can easily take long enough to consume
+  // it, so this resolves the handle/permission FIRST, synchronously at the
+  // top of each handler, before extraction ever starts.
+  //
+  // Returns the granted handle, or null if vault writing isn't enabled/
+  // supported (normal Downloads-API path applies). Throws if it IS enabled
+  // but the handle is missing or permission was refused — callers must show
+  // a clear error and must NOT silently fall back to a Downloads write the
+  // user didn't ask for.
+  async function resolveVaultHandleForWrite() {
+    const vaultSupported = typeof window.showDirectoryPicker === 'function'
+      && typeof getVaultHandle === 'function';
+    if (!userSettings.writeToVault || !vaultSupported) return null;
+
+    const handle = await getVaultHandle();
+    if (!handle) throw new Error('no-vault-handle');
+    const granted = await ensureReadWritePermission(handle);
+    if (!granted) throw new Error('vault-permission-denied');
+    return handle;
+  }
+
   // ─── Markdown export ─────────────────────────────────────────────────────
 
   mdBtn.addEventListener('click', async () => {
     clearStatus();
     setLoading(mdBtn, true);
+
+    let vaultHandle;
+    try {
+      vaultHandle = await resolveVaultHandleForWrite();
+    } catch {
+      setStatus(t('popupVaultPermissionDenied'), 'error');
+      setLoading(mdBtn, false);
+      return;
+    }
+
     try {
       const data = await extractFromPage();
       const msgs  = getSelectedMessages(data.messages);
       const notes = getExportNotes();
       const md   = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, userSettings, data.sourceUrl);
-      downloadFile(md, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length) + '.md', 'text/markdown;charset=utf-8');
-      setStatus(t('popupStatusSavedCheckDownloads'), 'success');
+      const filename = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length) + '.md';
+
+      if (vaultHandle) {
+        try {
+          await writeFileToVault(vaultHandle, filename, md);
+          setStatus(t('popupStatusSavedToVault'), 'success');
+        } catch (err) {
+          setStatus(t('popupVaultWriteFailed', [err?.message || String(err)]), 'error');
+          setLoading(mdBtn, false);
+          return; // do NOT fall through to a Downloads-API write the user wasn't told about
+        }
+      } else {
+        downloadFile(md, filename, 'text/markdown;charset=utf-8');
+        setStatus(t('popupStatusSavedCheckDownloads'), 'success');
+      }
       saveLastExport('md', { ...data, messages: msgs }, md);
     } catch (err) {
       setStatus(err.message, err.streaming ? 'warning' : 'error');
@@ -710,21 +765,44 @@
   docxBtn?.addEventListener('click', async () => {
     clearStatus();
     setLoading(docxBtn, true);
+
+    let vaultHandle;
+    try {
+      vaultHandle = await resolveVaultHandleForWrite();
+    } catch {
+      setStatus(t('popupVaultPermissionDenied'), 'error');
+      setLoading(docxBtn, false);
+      return;
+    }
+
     try {
       const data  = await extractFromPage();
       const msgs  = getSelectedMessages(data.messages);
       const bytes = buildDocx(msgs, data.title, data.site, userSettings, data.sourceUrl);
-      const blob  = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-      const url   = URL.createObjectURL(blob);
-      const a     = Object.assign(document.createElement('a'), {
-        href:     url,
-        download: withSubfolder(buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length) + '.docx'),
-      });
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-      setStatus(t('popupStatusSavedCheckDownloads'), 'success');
+      const filename = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length) + '.docx';
+
+      if (vaultHandle) {
+        try {
+          await writeFileToVault(vaultHandle, filename, bytes);
+          setStatus(t('popupStatusSavedToVault'), 'success');
+        } catch (err) {
+          setStatus(t('popupVaultWriteFailed', [err?.message || String(err)]), 'error');
+          setLoading(docxBtn, false);
+          return;
+        }
+      } else {
+        const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+        const url  = URL.createObjectURL(blob);
+        const a    = Object.assign(document.createElement('a'), {
+          href:     url,
+          download: withSubfolder(filename),
+        });
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        setStatus(t('popupStatusSavedCheckDownloads'), 'success');
+      }
       saveLastExport('docx', { ...data, messages: msgs }, '');
     } catch (err) {
       setStatus(err.message, err.streaming ? 'warning' : 'error');
@@ -738,6 +816,16 @@
   zipBtn?.addEventListener('click', async () => {
     clearStatus();
     setLoading(zipBtn, true);
+
+    let vaultHandle;
+    try {
+      vaultHandle = await resolveVaultHandleForWrite();
+    } catch {
+      setStatus(t('popupVaultPermissionDenied'), 'error');
+      setLoading(zipBtn, false);
+      return;
+    }
+
     try {
       const data = await extractFromPage();
       const msgs = getSelectedMessages(data.messages);
@@ -745,20 +833,33 @@
         msgs, data.title, data.site, userSettings, data.sourceUrl
       );
       const zipBytes = buildZip(files);
-      const blob     = new Blob([zipBytes], { type: 'application/zip' });
-      const url      = URL.createObjectURL(blob);
-      const a        = Object.assign(document.createElement('a'), {
-        href:     url,
-        download: withSubfolder(buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length) + '.zip'),
-      });
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      const filename = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length) + '.zip';
       const note = codeCount > 0
         ? t(codeCount === 1 ? 'popupCodeFileOne' : 'popupCodeFileOther', [String(codeCount)])
         : '';
-      setStatus(t('popupStatusZipSaved') + note, 'success');
+
+      if (vaultHandle) {
+        try {
+          await writeFileToVault(vaultHandle, filename, zipBytes);
+          setStatus(t('popupStatusSavedToVault') + note, 'success');
+        } catch (err) {
+          setStatus(t('popupVaultWriteFailed', [err?.message || String(err)]), 'error');
+          setLoading(zipBtn, false);
+          return;
+        }
+      } else {
+        const blob = new Blob([zipBytes], { type: 'application/zip' });
+        const url  = URL.createObjectURL(blob);
+        const a    = Object.assign(document.createElement('a'), {
+          href:     url,
+          download: withSubfolder(filename),
+        });
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        setStatus(t('popupStatusZipSaved') + note, 'success');
+      }
       saveLastExport('zip', { ...data, messages: msgs }, ''); // content not stored (binary)
     } catch (err) {
       setStatus(err.message, err.streaming ? 'warning' : 'error');
