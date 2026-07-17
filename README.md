@@ -133,7 +133,7 @@ Default: `{platform}-{title}`.
 | Brave | `brave://extensions` → Developer mode → Load unpacked → select folder |
 | Safari | Planned, not yet published — see below |
 
-**Safari App Store**: a build scaffold exists ([`safari/XCODE_GUIDE.md`](./safari/XCODE_GUIDE.md)), but it's not currently maintained toward a store release — packaging through Xcode and keeping it current isn't worth doing speculatively. If you'd use it, [open or 👍 an issue tagged `safari`](https://github.com/tronicum/inkpour/issues?q=is%3Aissue+label%3Asafari) so real demand can decide when this gets picked up.
+**Safari App Store**: a build scaffold exists ([`safari/XCODE_GUIDE.md`](./safari/XCODE_GUIDE.md)), but it's not currently maintained toward a store release — packaging through Xcode and keeping it current isn't worth doing speculatively. If you'd use it, [👍 or comment on #3](https://github.com/tronicum/inkpour/issues/3) so real demand can decide when this gets picked up.
 
 ## Quick start
 
