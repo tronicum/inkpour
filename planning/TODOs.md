@@ -16,11 +16,13 @@ Save button is below the fold — 4 sections / 17 fields before the single
 `#saveBtn`; easy to change something and navigate away unsaved. The whole save
 path is one self-contained click handler (settings.js:138–162) building one
 `prefs` object → single `storage.local.set` — nothing blocks autosave.
-- [ ] **S** Autosave: move the click-handler body into `save()`; call from a
+- [x] **S** Autosave: move the click-handler body into `save()`; call from a
   `change` listener on every field; debounce ~400–500 ms on `input` for text
   fields (filenameTemplate, subfolder, webhookUrl, gistTags, githubToken). Keep
   the `#saveStatus` toast; keep the button as redundant, not load-bearing.
-- [ ] **XS** Sticky save bar: `.save-row { position: sticky; bottom: 0; }` +
+  Done — verified with a JSDOM smoke test (discrete fields save on `change`,
+  text fields debounce, Save button flushes a pending debounce immediately).
+- [x] **XS** Sticky save bar: `.save-row { position: sticky; bottom: 0; }` +
   background/top border. Do alongside autosave — it becomes the toast's home.
 - [ ] **S** (optional) Collapsible sections: `<details>` per `<section>`
   (4 sections, settings.html:193–392). Scannability only — doesn't fix

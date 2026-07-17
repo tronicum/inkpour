@@ -148,12 +148,20 @@
     .toggle input:checked + .toggle-track::after { transform: translateX(18px); }
     [dir="rtl"] .toggle input:checked + .toggle-track::after { transform: translateX(-18px); }
 
-    /* ── Save button ── */
+    /* ── Save button ──
+       Sticky to the bottom of the viewport so it (and the autosave "Saved"
+       status next to it) stays visible while scrolling a long settings page,
+       instead of only showing up once you've scrolled all the way down. */
     .save-row {
       display: flex;
       align-items: center;
       gap: 12px;
       margin-top: 0.5rem;
+      position: sticky;
+      bottom: 0;
+      background: var(--bg);
+      padding: 12px 0;
+      border-top: 1px solid var(--border);
     }
     .btn-save {
       padding: 9px 22px;
