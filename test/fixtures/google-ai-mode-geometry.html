@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head><title>what is the turing test - Google Search</title></head>
+<body>
+  <!--
+    Regression fixture for the 2026-07 Google AI Mode turn-duplication bug.
+    Real element positions can't be captured in static HTML (JSDOM has no
+    layout engine), so test/run-jsdom.js mocks getBoundingClientRect() per
+    element id to reproduce the exact live-page geometry that triggered the
+    bug — see the RECTS table next to where this fixture is loaded.
+
+    Turn 0 ("what is the turing test") should extract ONLY t0-answer's text.
+    t0-spillover simulates the real culprit: a container whose top sits just
+    inside turn 0's band but whose bottom spills hundreds of pixels past the
+    boundary, which used to get cloned whole (dragging in the entire next
+    turn). h1-frag simulates a next-heading text fragment landing a pixel
+    inside the previous turn's band.
+
+    Turn 1 ("has any AI actually passed it?") should extract t1-answer plus
+    the disclaimer line, but NOT toolbar-wrapper (structurally contains the
+    real, always-opacity:0 follow-up textarea) or share-panel (page chrome
+    that always trails the disclaimer on the last turn, which has no next
+    heading to bound it).
+  -->
+
+  <div role="heading" aria-level="2" id="h0">You said: what is the turing test</div>
+  <div id="t0-answer">The Turing Test is a benchmark for machine intelligence, proposed by Alan Turing in 1950.</div>
+  <div id="t0-spillover">Kopiert Kopieren Bearbeiten SPILLOVER_LEAK_MARKER should never appear in turn 0's answer.</div>
+
+  <div role="heading" aria-level="2" id="h1">You said: has any AI actually passed it?<span id="h1-frag">FRAG_LEAK_MARKER</span></div>
+  <div id="t1-answer">Yes — in a 2025 PNAS study, GPT-4.5 fooled human judges into thinking it was the human participant.</div>
+
+  <div id="toolbar-wrapper">
+    TOOLBAR_LEAK_MARKER add files and tools, microphone, send
+    <textarea id="real-input" style="opacity:0"></textarea>
+  </div>
+
+  <div id="disclaimer">AI responses may include mistakes. Learn more</div>
+  <div id="share-panel">SHARE_PANEL_LEAK_MARKER Share public link. Copy. Edit.</div>
+</body>
+</html>

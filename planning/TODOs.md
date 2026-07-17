@@ -29,7 +29,7 @@ path is one self-contained click handler (settings.js:138–162) building one
   "forgot to save" by itself; skip if session budget is tight.
 
 ## Batch 2 — Google AI Mode turn-duplication bug (dedicated session; src/content.js + new fixture)
-- [ ] **M** Extractor duplicates every turn: each exchange appears twice (once
+- [x] **M** Extractor duplicates every turn: each exchange appears twice (once
   bled into the tail of the previous Gemini message with page furniture like
   `Show allCopiedCopyEditYou said: ...`, once as its own proper turn). Front
   matter said "20 messages" — really 10 unique turns. Also leaks "Share public
@@ -39,6 +39,32 @@ path is one self-contained click handler (settings.js:138–162) building one
   or duplicate a11y nodes both pass `isVisibleForExtraction()`. M not S: single
   function, but needs live reproduction on google.com AI Mode + a captured
   fixture + dedup logic with judgment about which copy to keep.
+  Done — root-caused live via Chrome: the old code only checked each
+  candidate element's top position, never its bottom, so a coarse-grained
+  wrapper whose top happened to sit just inside a turn's band but whose
+  bottom spilled hundreds/thousands of pixels past it got cloned whole,
+  dragging in the next turn's heading + answer + "CopiedCopyEdit" chrome.
+  Fixed with three checks: reject candidates whose bottom exceeds the turn
+  boundary (forces the walk to drill into smaller children instead), exclude
+  fragments of ANY turn heading (not just the current one), and exclude
+  anything containing/contained-by the page's actual input controls (the
+  follow-up textarea is always opacity:0 on this page — a styled decoy draws
+  the visible placeholder — so its wrapping toolbar wasn't being excluded by
+  visibility alone). Added a disclaimer-text cutoff as a safety net for the
+  last turn specifically (no next heading to bound it), which also closes
+  most of the "Share public link"/related-search leak. Verified live against
+  a real 2-turn AI Mode conversation (google.com/search?...&udm=50) with the
+  exact literal function copied from the file, then added a JSDOM regression
+  fixture (`test/fixtures/google-ai-mode-geometry.html` — real getBoundingClientRect
+  is mocked per-element-id since JSDOM has no layout engine) with 5 leak
+  assertions; confirmed 4 of them fail against the pre-fix code and all pass
+  after. Known residual: a small icon-button label inside the follow-up
+  toolbar can still leak a few words if it's a *sibling* of the real
+  textarea rather than an ancestor — the input-containment check only
+  excludes ancestors/descendants of the actual control, not neighbor icon
+  buttons that don't share a stable class name. Minor (a handful of words of
+  UI-label text, not a duplicated turn); revisit only if it turns out to
+  recur often.
 
 ## Batch 3 — Markdown quality (one session; src/content.js md-conversion + src/utils.js buildMarkdown + tests)
 - [ ] **S** Footnote continuity: `_footnotes` array resets per message
