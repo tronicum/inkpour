@@ -74,7 +74,7 @@
     {
       "name": "Meta AI",
       "id": "metaai",
-      "hosts": ["meta.ai"],
+      "hosts": ["meta.ai", "www.meta.ai"],
       "status": "experimental"
     },
     {
@@ -93,12 +93,6 @@
       "name": "Poe",
       "id": "poe",
       "hosts": ["poe.com"],
-      "status": "experimental"
-    },
-    {
-      "name": "Phind",
-      "id": "phind",
-      "hosts": ["phind.com"],
       "status": "experimental"
     },
     {
@@ -128,11 +122,11 @@
       "notes": "Chakra UI + react-virtuoso. AI turns in .assistant > .assistant-content > .prose, user turns by class patterns with chakra-stack fallback."
     },
     {
-      "name": "Lmsys Chatbot Arena",
+      "name": "Chatbot Arena (LMArena / Arena AI)",
       "id": "lmarena",
-      "hosts": ["lmarena.ai", "chat.lmsys.org"],
+      "hosts": ["arena.ai", "lmarena.ai", "chat.lmsys.org"],
       "status": "experimental",
-      "notes": "Gradio-based multi-model comparison UI. Extracts first model column. User messages from [data-testid='user-message'], AI from [data-testid='bot-message'] with .user/.bot class fallbacks."
+      "notes": "Now redirects to arena.ai. User messages via .justify-end .prose (verified live 2026-07); response side is reCAPTCHA-gated."
     },
     {
       "name": "Character.AI",

@@ -44,6 +44,13 @@ api.runtime.onMessage.addListener((message, sender) => {
     const tabId = sender.tab.id;
     let response;
     try {
+      // In-page FAB export has no popup UI to show its own "Extracting…"
+      // status (unlike the popup, which shows this inline) — the auto-scroll
+      // lazy-loading step in extractMessages() can take a couple of seconds
+      // on ChatGPT/Gemini/AI Studio, so without this the page just sits there
+      // with no feedback. Fire-and-forget: if the toast fails to show for any
+      // reason, the export itself must not be blocked by it.
+      api.tabs.sendMessage(tabId, { action: 'showToast', text: api.i18n.getMessage('popupStatusExtracting') }).catch(() => {});
       response = await api.tabs.sendMessage(tabId, { action: 'extract' });
     } catch { return; }
     if (!response?.messages?.length) return;
@@ -89,11 +96,20 @@ api.runtime.onMessage.addListener((message, sender) => {
 // ─── Context menu setup ───────────────────────────────────────────────────
 
 api.runtime.onInstalled.addListener(() => {
-  // Parent item only appears on supported AI chat pages
+  // Parent item only appears on supported AI chat pages — reuse the exact
+  // match patterns from manifest.json's content_scripts entry (read via the
+  // manifest itself, not a separately maintained list) so this can't drift
+  // out of sync the way SUPPORTED_HOSTS below already has (still lists
+  // phind.com, still missing www.meta.ai/arena.ai). Only the parent item
+  // needs documentUrlPatterns: the child items below are only reachable
+  // through its submenu, so if the parent doesn't match, they never show.
+  const documentUrlPatterns = api.runtime.getManifest()?.content_scripts?.[0]?.matches;
+
   api.contextMenus.create({
     id:       'inkpour-parent',
     title:    'Export with Inkpour',
     contexts: ['page'],
+    ...(documentUrlPatterns ? { documentUrlPatterns } : {}),
   });
   api.contextMenus.create({
     id:       'inkpour-md',
@@ -139,6 +155,9 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
 
   let response;
   try {
+    // Same "Extracting…" feedback as the in-page FAB path above — the
+    // right-click menu has no status UI of its own either.
+    api.tabs.sendMessage(tab.id, { action: 'showToast', text: api.i18n.getMessage('popupStatusExtracting') }).catch(() => {});
     response = await api.tabs.sendMessage(tab.id, { action: 'extract' });
   } catch {
     return;
@@ -334,6 +353,10 @@ async function runCommand(command) {
 
   let response;
   try {
+    // Same "Extracting…" feedback as the in-page FAB and context-menu paths
+    // — keyboard shortcuts fire the export instantly with no visible UI at
+    // all otherwise.
+    api.tabs.sendMessage(tab.id, { action: 'showToast', text: api.i18n.getMessage('popupStatusExtracting') }).catch(() => {});
     response = await api.tabs.sendMessage(tab.id, { action: 'extract' });
   } catch {
     return; // not a supported page
@@ -446,16 +469,15 @@ const SUPPORTED_HOSTS = [
   'console.groq.com',
   'perplexity.ai',
   'chat.deepseek.com',
-  'meta.ai',
+  'meta.ai', 'www.meta.ai',
   'chat.mistral.ai',
   'huggingface.co',
   'poe.com',
-  'phind.com',
   'notebooklm.google.com',
   'kagi.com',
   'chat.z.ai',
   'venice.ai',
-  'lmarena.ai', 'chat.lmsys.org',
+  'arena.ai', 'lmarena.ai', 'chat.lmsys.org',
   'character.ai', 'www.character.ai',
   'coral.cohere.com',
   'pi.ai',
