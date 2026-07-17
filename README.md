@@ -125,6 +125,15 @@ Default: `{platform}-{title}`.
 
 ## Supported browsers
 
+### Install the published extension (recommended)
+Most people should install from the official store listing — it updates itself, no developer mode required:
+
+- **Firefox**: [Inkpour on Firefox Add-ons (AMO)](https://addons.mozilla.org/en-US/firefox/addon/inkpour/)
+- **Chrome**: [Inkpour on the Chrome Web Store](https://chromewebstore.google.com/search/Inkpour) (Edge and Brave, both Chromium-based, can typically install from the same listing too)
+
+### Load unpacked (for working on this repo)
+This is for developing Inkpour itself from a git checkout, or trying changes that haven't been published yet — not the easiest path if you just want to use the extension:
+
 | Browser | Load unpacked |
 |---|---|
 | Firefox | `about:debugging` → This Firefox → Load Temporary Add-on… → select `manifest.json` |
@@ -137,11 +146,15 @@ Default: `{platform}-{title}`.
 
 ## Quick start
 
+Just want to use Inkpour? Install it from the store links above — done.
+
+To work on the code instead:
+
 ```bash
 git clone https://github.com/tronicum/inkpour.git
 ```
 
-Then follow the row for your browser above.
+Then follow the "Load unpacked" row for your browser above.
 
 ### Troubleshooting
 
