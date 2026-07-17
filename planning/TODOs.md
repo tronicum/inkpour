@@ -91,16 +91,35 @@ path is one self-contained click handler (settings.js:138–162) building one
   Skipped `[[wikilink]]`s — no clear, non-speculative target to link to.
 
 ## Batch 4 — Quick-win grab bag (short session; three small independent items)
-- [ ] **S** Context menu on supported pages only: pass `documentUrlPatterns`
+- [x] **S** Context menu on supported pages only: pass `documentUrlPatterns`
   built from `supported-sites.json` when creating the parent menu item
   (background.js, the `api.contextMenus.create({ id: 'inkpour-parent', ... })`
   block starting ~line 92).
-- [ ] **S** Streaming/auto-scroll progress: popup already shows "Extracting…"
+  Done, simplified — reused `api.runtime.getManifest().content_scripts[0].matches`
+  directly instead of `supported-sites.json` (which turned out to be stale:
+  still listed `phind.com`, missing `www.meta.ai`/`arena.ai` — same drift found
+  in `SUPPORTED_HOSTS` below, fixed both while in there). Reading the manifest
+  at runtime means this can't drift out of sync again — one source of truth
+  instead of a second list to maintain. Only the parent menu item needs
+  `documentUrlPatterns`; children are only reachable through its submenu.
+- [x] **S** Streaming/auto-scroll progress: popup already shows "Extracting…"
   (popup.js:349) — the gap is the shortcut/FAB path, which shows nothing while
   auto-scroll runs. Reuse the existing `showToast` action from content.js.
-- [ ] **S** Lifetime stats: persist cumulative counters (exports, words,
+  Done — all three non-popup export triggers (in-page FAB, right-click menu,
+  keyboard shortcut) go through background.js sending `{action:'extract'}`
+  directly to the content script with zero UI feedback; added a
+  fire-and-forget `{action:'showToast', text: ...}` message right before each,
+  reusing the existing `popupStatusExtracting` i18n string (already "Extracting…"
+  in all 26 locales, so no new translation work needed).
+- [x] **S** Lifetime stats: persist cumulative counters (exports, words,
   per-platform/format) at history-write time so stats survive the 20-entry
   rolling window; render in the history.html stats bar.
+  Already done — this was fully shipped in an earlier session and just never
+  got crossed off: `popup.js` `saveLastExport()` already accumulates
+  `inkpour_lifetime_stats` (exports + words) on every export, and
+  `history.js`'s `renderLifetimeStats()` already reads and displays it in the
+  footer, wired up and i18n'd across all locales (`historyLifetimeStatsOne`/
+  `historyLifetimeStatsOther`). No code changed for this item.
 
 ## Batch 5 — Notion export (dedicated session; background.js + settings.html/.js + popup.js)
 - [ ] **M** BYO integration token + target page ID in settings, client-side
@@ -149,6 +168,47 @@ path is one self-contained click handler (settings.js:138–162) building one
 - [x] **XL** Submit to Firefox Add-ons (AMO) + Chrome Web Store — in progress,
   Stefan is doing this directly (developer accounts, listing copy/screenshots,
   review-policy pass; PRIVACY.md already exists).
+
+## Batch 10 — Automated store publishing (M–XL; blocked on Batch 9 landing first + Stefan gathering secrets)
+Reference: [Trifall/chat-export's release.yml](https://github.com/Trifall/chat-export/blob/main/.github/workflows/release.yml)
+(MIT — already an attributed inspiration in README's "Standing on the shoulders
+of giants"). Confirmed by reading the actual workflow: it's `on: workflow_dispatch`
+only (a manual "Run workflow" button in the Actions tab) — NOT triggered
+automatically by push or tag, so it wouldn't replace Inkpour's existing
+tag-triggered `release.yml`, it'd add two new jobs that run *after* a release is
+cut. It also auto-versions daily via `fregante/daily-version-action` — that's a
+different philosophy than Inkpour's current manual-bump-then-tag flow (which
+Stefan controls deliberately); don't copy that part, just the two upload jobs,
+triggered off the existing tag-driven release instead of on a schedule.
+
+Both store CLIs need one-time credentials that only exist once the extension
+is *first* submitted manually — this is why it's blocked on Batch 9 actually
+landing, not just started:
+
+- [ ] **M** Firefox (AMO) auto-submit: `npx web-ext sign --use-submission-api
+  --channel listed`, needs `WEB_EXT_API_KEY` + `WEB_EXT_API_SECRET` as GitHub
+  Actions secrets. Get these from addons.mozilla.org → Developer Hub → Manage
+  API Keys (one-time, needs an existing AMO developer account — Batch 9). This
+  is the smaller lift: one CLI call, two secrets, no external OAuth dance.
+- [ ] **L** Chrome Web Store auto-submit: `npx chrome-webstore-upload-cli
+  upload --auto-publish`, needs `EXTENSION_ID` + `CLIENT_ID` + `CLIENT_SECRET`
+  + `REFRESH_TOKEN`. Bigger lift than Firefox: requires a Google Cloud project,
+  enabling the Chrome Web Store API, creating an OAuth 2.0 client, and running
+  a one-time authorization flow to mint the refresh token (Google's
+  chrome-webstore-upload docs walk through this) — more setup surface, more
+  places for Stefan to get stuck gathering credentials, and an OAuth refresh
+  token can expire/get revoked, so this needs a documented re-mint procedure
+  too, not just a one-time setup note.
+- [ ] **S** Wire both into a new job in `.github/workflows/release.yml` (or a
+  separate `publish.yml` triggered by the same tag push), gated behind GitHub
+  [Environments](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment)
+  (`Firefox` / `Chrome`) the way the reference workflow does — lets each store's
+  secrets be scoped separately and optionally gated behind a manual approval
+  step before publishing goes live, which is worth keeping given "auto-publish"
+  is otherwise irreversible.
+- [ ] **XS** First real run needs to be watched live and treated as a dry run
+  even though the CLIs don't offer one — can't fully verify secrets/permissions
+  are right without actually attempting a submission.
 
 ## Deferred (don't pick up without a trigger)
 - [ ] **XL** Safari App Store: `xcrun safari-web-extension-converter`, open
