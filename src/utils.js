@@ -305,7 +305,11 @@ function buildMarkdown(messages, title, site, opts = {}, sourceUrl = '') {
     const extra    = (opts.gistExtraTags || '').split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
     const allTags  = [...new Set([...baseTags, ...extra])];
     const tagsLine = allTags.length ? `\ntags: [${allTags.join(', ')}]` : '';
-    md += `---\ntitle: "${safeTitle}"\nplatform: ${site}\nmessages: ${messages.length}\nwords: ${wordCount}\nreading_time_min: ${readingMin}\ndate: ${isoDate}${urlLine}${tagsLine}\nexporter: inkpour\n---\n\n`;
+    // `type: ai-chat` is the conventional Obsidian Dataview key for grouping
+    // notes by kind (e.g. `FROM "" WHERE type = "ai-chat"`) — always included
+    // alongside YAML front matter since it's cheap, harmless for non-Obsidian
+    // users, and there's no other field playing that role today.
+    md += `---\ntitle: "${safeTitle}"\ntype: ai-chat\nplatform: ${site}\nmessages: ${messages.length}\nwords: ${wordCount}\nreading_time_min: ${readingMin}\ndate: ${isoDate}${urlLine}${tagsLine}\nexporter: inkpour\n---\n\n`;
   }
 
   md += `# ${title}\n\n`;

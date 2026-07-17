@@ -67,14 +67,28 @@ path is one self-contained click handler (settings.js:138–162) building one
   recur often.
 
 ## Batch 3 — Markdown quality (one session; src/content.js md-conversion + src/utils.js buildMarkdown + tests)
-- [ ] **S** Footnote continuity: `_footnotes` array resets per message
+- [x] **S** Footnote continuity: `_footnotes` array resets per message
   (content.js ~line 30–38), so `[^N]` numbers restart and collide in multi-turn
   Perplexity exports. Carry a running offset across messages (or namespace
   per-message). Fully covered by JSDOM tests.
-- [ ] **S** Obsidian-flavor markdown toggle: Dataview-friendly front-matter keys
+  Done — added a module-level `_footnoteOffset` that persists across every
+  `htmlToMarkdown()` call within one extraction pass (reset once in
+  `extractMessages()`), so both the inline `[^N]` references and the trailing
+  `[^N]: url` definitions stay unique document-wide instead of every message
+  restarting at 1. Added a dedicated regression test (two synthetic messages,
+  each with their own citation) confirmed to fail against the pre-fix code
+  and pass after.
+- [x] **S** Obsidian-flavor markdown toggle: Dataview-friendly front-matter keys
   (e.g. `type: ai-chat`) layered on the existing YAML/tags support in
   `buildMarkdown()`; maybe `[[wikilink]]`s. Mechanical — the YAML block and the
   settings-toggle pattern (gistTags etc.) both already exist.
+  Done, simplified — `type: ai-chat` is now always included whenever YAML
+  front matter is on, no separate settings toggle. Rationale: it's a single
+  harmless line useful to any Obsidian/Dataview user and not worth a new
+  per-locale settings string across all 26 shipped locales (the i18n
+  consistency test requires every locale file to have the exact same key
+  set, so a new toggle would've meant translating strings for all of them).
+  Skipped `[[wikilink]]`s — no clear, non-speculative target to link to.
 
 ## Batch 4 — Quick-win grab bag (short session; three small independent items)
 - [ ] **S** Context menu on supported pages only: pass `documentUrlPatterns`
