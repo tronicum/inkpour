@@ -29,6 +29,7 @@ new section here in the same commit as the version bump.
 ### Changed
 - Settings now autosave (no more losing changes by navigating away before
   hitting Save).
+- Settings page sections are now collapsible, for easier scanning.
 - Context-menu export entries only appear on supported chat sites.
 - Obsidian-flavored front matter now always includes a `type: ai-chat` key.
 
