@@ -8,3 +8,5 @@ test-results/
 # Personal test input for the PDF-importer debug toy — real chat exports,
 # never meant to land in the repo.
 debug/input/
+debug/playonwords
+debug/rendertest.pdf

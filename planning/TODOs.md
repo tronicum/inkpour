@@ -448,6 +448,33 @@ path is one self-contained click handler (settings.js:138–162) building one
   Spend the first coding session on the sidebar-enumeration spike (step 1
   above) against a real logged-in account, not on the full orchestration.
 
+  **Step 1 spike — implemented and verified live 2026-07**: added
+  `getConversationList()` to `src/content.js` (right after `detectSite()`)
+  plus a new `{action:'getConversationList'}` message handler, returning
+  `{conversations: [{title, url}]}`. Encodes exactly the selectors confirmed
+  above (ChatGPT: `a[href^="/c/"]`, title from `aria-label`; Claude:
+  `a[href^="/chat/"]`, title from `.sr-only`), de-duplicated by resolved
+  absolute URL. Returns `[]` (not an error) for any unsupported/logged-out
+  page — this is the feature's natural feature-detect point, so popup.js's
+  future entry point can just check `conversations.length` to decide whether
+  to show the batch-export UI at all, never gating the existing
+  single-conversation extraction path. Exposed via the existing test-hook
+  pattern (`window.__inkpourGetConversationList`, gated on
+  `window.__inkpourTestHostname`, same as `__inkpourHtmlToMarkdown`). 7 new
+  JSDOM tests added (ChatGPT: finds every unique link, title from
+  aria-label, absolute-URL resolution, de-dup of a same-href double DOM
+  entry; Claude: finds every link, `.sr-only`-based de-doubled title;
+  unsupported platform: returns `[]` without throwing) — full suite
+  271→278 passed, 0 failed. **Live-verified against the real open
+  ChatGPT/Claude tabs from this session's earlier cleanup work**: re-ran the
+  equivalent selector logic directly in both tabs via injected JS — ChatGPT
+  returned the correct 28 conversations (back to baseline post-cleanup) with
+  clean titles and correct `/c/<uuid>` paths; Claude returned 8 conversations
+  with correctly de-doubled titles (e.g. "Debugging old Raspberry Pi
+  firmware", not the doubled textContent). Not yet done: the popup.js picker
+  UI and the background.js tab-cycling orchestration itself (steps 2-5 of
+  the sketch above) — this session only covered step 1 as scoped.
+
 ## Batch 9 — Distribution (XL; blocked on Stefan — accounts, fees, listing assets)
 - [x] **XL** Submit to Firefox Add-ons (AMO) + Chrome Web Store — in progress,
   Stefan is doing this directly (developer accounts, listing copy/screenshots,
