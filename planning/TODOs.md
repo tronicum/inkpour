@@ -104,14 +104,16 @@ path is one self-contained click handler (settings.js:138–162) building one
   Spend the first session on design + sidebar-enumeration spike, not code.
 
 ## Batch 9 — Distribution (XL; blocked on Stefan — accounts, fees, listing assets)
-- [ ] **XL** Submit to Firefox Add-ons (AMO) + Chrome Web Store: developer
-  accounts, listing copy/screenshots, review-policy pass (PRIVACY.md exists).
-  Highest-leverage item in the whole backlog, but can't start without Stefan.
-- [ ] **XL** Safari App Store: `xcrun safari-web-extension-converter`, open
-  `safari/Inkpour-Safari/` in Xcode, sign with an Apple Developer account
-  (paid) — scaffold already in `safari/`.
+- [x] **XL** Submit to Firefox Add-ons (AMO) + Chrome Web Store — in progress,
+  Stefan is doing this directly (developer accounts, listing copy/screenshots,
+  review-policy pass; PRIVACY.md already exists).
 
 ## Deferred (don't pick up without a trigger)
+- [ ] **XL** Safari App Store: `xcrun safari-web-extension-converter`, open
+  `safari/Inkpour-Safari/` in Xcode, sign with an Apple Developer account
+  (paid) — scaffold already in `safari/`. Deferred: Xcode maintenance overhead
+  isn't worth it speculatively. Pick up only if users actually ask for it via
+  the GitHub issue linked from the README — see Batch/README note below.
 - [ ] **M** RTL layout pass for ar/fa locales — CSS assumes LTR everywhere.
   Wait for a usage signal from those locales.
 
