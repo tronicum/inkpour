@@ -1,7 +1,8 @@
 /**
  * test/e2e/popup.spec.js
  * Tests the popup UI — buttons, labels, settings gear.
- * Runs in both Chrome and Firefox (popup.html is pure HTML, no extension APIs called on load).
+ * Chromium only — see playwright.config.js for why the old `firefox` project
+ * was removed (Playwright can't drive moz-extension:// pages at all).
  */
 
 const { test, expect } = require('../helpers/extension');

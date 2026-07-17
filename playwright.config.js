@@ -28,19 +28,20 @@ module.exports = defineConfig({
     },
 
     // ── Firefox ──────────────────────────────────────────────────────────────
-    // Firefox extension support in Playwright is limited — popup UI tests only.
-    // Extraction tests are Chromium-only (content script injection works there).
-    {
-      name: 'firefox',
-      testMatch: /test\/e2e\/popup\.spec\.js/,
-      use: {
-        browserName: 'firefox',
-      },
-    },
+    // Removed 2026-07: Playwright's Firefox driver cannot load moz-extension://
+    // pages at all (playwright/playwright#7297, closed as out-of-scope by a
+    // maintainer — no code-level fix is possible). The `firefox` project that
+    // used to live here was also silently broken independently of that: its
+    // shared fixture (test/helpers/extension.js) hardcodes
+    // chromium.launchPersistentContext(...) regardless of which project
+    // selects it, so it was actually running Chromium under a Firefox label.
+    // Real Firefox extension e2e testing would need Selenium+geckodriver or
+    // raw WebDriver BiDi (`webExtension.install`, Firefox 138+) instead.
+    // See planning/planning.md → Firefox testing section.
 
     // ── Safari / WebKit ───────────────────────────────────────────────────────
     // WebKit in Playwright does NOT support browser extensions.
     // Real Safari extension testing requires macOS + Xcode conversion.
-    // See planning.md → Safari section for the roadmap.
+    // See planning/planning.md → Safari section for the roadmap.
   ],
 });

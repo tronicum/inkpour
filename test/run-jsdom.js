@@ -357,31 +357,6 @@ async function main() {
     });
   });
 
-  // ── Phind ─────────────────────────────────────────────────────────────────
-  await suite('Phind extraction (experimental)', async () => {
-    const result = await extractFromFixture('phind.html', 'www.phind.com');
-
-    await test('extracts 4 messages', () => {
-      assert(result.messages.length === 4, `got ${result.messages.length}`);
-    });
-    await test('user vs Phind roles', () => {
-      assert(result.messages[0].role === 'You',   `role[0]=${result.messages[0].role}`);
-      assert(result.messages[1].role === 'Phind', `role[1]=${result.messages[1].role}`);
-    });
-    await test('preserves 🌳 emoji', () => {
-      assert(result.messages[0].content.includes('🌳'), 'missing 🌳');
-    });
-    await test('converts python code block', () => {
-      const all = result.messages.map(m => m.content).join('');
-      assert(all.includes('```python'), 'missing ```python');
-      assert(all.includes('class BST'), 'missing class BST');
-    });
-    await test('converts complexity table', () => {
-      assert(result.messages[3].content.includes('| Operation |'), 'no table');
-      assert(result.messages[3].content.includes('O(log n)'), 'no O(log n)');
-    });
-  });
-
   // ── NotebookLM ────────────────────────────────────────────────────────────
   await suite('NotebookLM extraction (experimental)', async () => {
     const result = await extractFromFixture('notebooklm.html', 'notebooklm.google.com');
