@@ -112,8 +112,9 @@ path is one self-contained click handler (settings.js:138–162) building one
 - [ ] **XL** Safari App Store: `xcrun safari-web-extension-converter`, open
   `safari/Inkpour-Safari/` in Xcode, sign with an Apple Developer account
   (paid) — scaffold already in `safari/`. Deferred: Xcode maintenance overhead
-  isn't worth it speculatively. Pick up only if users actually ask for it via
-  the GitHub issue linked from the README — see Batch/README note below.
+  isn't worth it speculatively. Tracked at
+  [github.com/tronicum/inkpour/issues/3](https://github.com/tronicum/inkpour/issues/3)
+  (linked from the README) — pick up only once that issue shows real demand.
 - [ ] **M** RTL layout pass for ar/fa locales — CSS assumes LTR everywhere.
   Wait for a usage signal from those locales.
 
