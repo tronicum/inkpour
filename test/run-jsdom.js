@@ -2116,6 +2116,44 @@ async function main() {
     assert(!JSON.stringify(result.report.url).includes('?'), 'query string leaked into sanitized url');
   });
 
+  // ─── CHANGELOG.md — release notes source of truth (Batch 10 prep) ────────
+  // CHANGELOG.md is the file Batch 10's future automated store-publishing
+  // workflow will read release-note text from for each tagged version. This
+  // guards against the two ways that could silently go stale: a version bump
+  // landing with no matching section, and an "Unreleased" section that's
+  // supposed to get renamed at release time being forgotten.
+  console.log('\nCHANGELOG.md — release notes source of truth');
+
+  const CHANGELOG_PATH = path.resolve(__dirname, '../CHANGELOG.md');
+  const CHANGELOG = fs.readFileSync(CHANGELOG_PATH, 'utf8');
+  const MANIFEST_FOR_CHANGELOG = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../manifest.json'), 'utf8'));
+
+  await test('has an "Unreleased" section', () => {
+    assert(/^## \[Unreleased\]/m.test(CHANGELOG), 'no "## [Unreleased]" heading found');
+  });
+
+  await test('has a section for the current manifest.json version', () => {
+    const heading = `## [${MANIFEST_FOR_CHANGELOG.version}]`;
+    assert(CHANGELOG.includes(heading),
+      `no "${heading}" section — every tagged release needs a matching CHANGELOG entry`);
+  });
+
+  await test('every "## [x.y.z...]" heading is either Unreleased or a real git tag', () => {
+    const { execSync } = require('child_process');
+    let tags;
+    try {
+      tags = new Set(
+        execSync('git tag -l', { cwd: path.resolve(__dirname, '..') })
+          .toString().split('\n').filter(Boolean).map(t => t.replace(/^v/, ''))
+      );
+    } catch {
+      return; // not a git checkout (e.g. a source-only CI archive) — skip silently
+    }
+    const headings = [...CHANGELOG.matchAll(/^## \[([^\]]+)\]/gm)].map(m => m[1]);
+    const unknown = headings.filter(h => h !== 'Unreleased' && h !== MANIFEST_FOR_CHANGELOG.version && !tags.has(h));
+    assert(unknown.length === 0, `CHANGELOG has headings with no matching git tag: ${unknown.join(', ')}`);
+  });
+
   // ─── Firefox AMO manifest validation ─────────────────────────────────────
   console.log('\nFirefox AMO manifest validation');
 
