@@ -124,18 +124,17 @@ Code blocks extracted from all messages → individual files (`snippet-1.py`, `s
 | Copilot | ✅ Full | `.group/user-message` / `cib-chat-turn` (legacy) |
 | Grok | ✅ Full | `div[id^="response-"]` + `items-end` class detection |
 | Groq Playground | 🧪 Experimental | `console.groq.com/playground`; Next.js SPA, multiple selector fallbacks |
-| Perplexity | 🧪 Experimental | `[data-testid="answer"]` + `.prose` child; citation footnotes |
+| Perplexity | 🧪 Experimental | `.prose` (answer-container wrappers removed 2026-07 — no longer exist live) + citation footnotes |
 | DeepSeek | 🧪 Experimental | `[data-role]` attributes |
-| Meta AI | 🧪 Experimental | `[data-message-author]` attributes |
+| Meta AI | 🧪 Experimental | `[data-message-author]` attributes; manifest now also matches `www.meta.ai` |
 | Mistral Le Chat | 🧪 Experimental | `[data-role]` attributes |
 | HuggingChat | 🧪 Experimental | `[data-message-role]` attributes |
 | Poe | 🧪 Experimental | `[class*="Message_humanMessageBubble"]` CSS module names |
-| Phind | 🧪 Experimental | `[class*="userMessage"]` / `[class*="phindAnswer"]` |
-| NotebookLM | 🧪 Experimental | `[data-message-role]` attributes |
+| NotebookLM | 🧪 Experimental | `<chat-message>` custom element + `.from-user-container`/`.to-user-container` (rebranded "Gemini Notebook", 2026-07) |
 | Kagi Assistant | 🧪 Experimental | `[data-role]` / class patterns |
 | Z.ai (Zhipu GLM) | 🧪 Experimental | `.chat-user` / `.chat-assistant #response-content-container` |
-| Venice.ai | 🧪 Experimental | `.assistant-content .prose` / `[class*="userMessage"]`; chakra-stack fallback |
-| Chatbot Arena (LMArena) | 🧪 Experimental | `[data-testid="user-message"]` / `[data-testid="bot-message"]`; Gradio UI |
+| Venice.ai | 🧪 Experimental | `.assistant .prose` (AI) / `.assistant-content .prose` not under `.assistant` (agent UI) or `[data-testid="user-message"]` (classic UI) — rewritten 2026-07 |
+| Chatbot Arena (LMArena / Arena AI) | 🧪 Experimental | now redirects to `arena.ai`; `.justify-end .prose` (user) verified live 2026-07, response side reCAPTCHA-gated |
 | Character.AI | 🧪 Experimental | `[data-author-name]` (primary); `[class*="UserMessage"]` / `[class*="CharacterMessage"]` fallback |
 | Cohere Coral | 🧪 Experimental | `[data-testid="user-message"]` / `[data-testid="assistant-message"]` |
 | Pi.AI | 🧪 Experimental | `[data-role="human"]` / `[data-role="pi"]` |

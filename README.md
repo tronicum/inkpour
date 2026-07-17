@@ -26,16 +26,15 @@ Inkpour is a lightweight WebExtension (Manifest V3) that works in Firefox, Chrom
 | Groq Playground | console.groq.com/playground | 🧪 Experimental |
 | Perplexity | perplexity.ai | 🧪 Experimental |
 | DeepSeek | chat.deepseek.com | 🧪 Experimental |
-| Meta AI | meta.ai | 🧪 Experimental |
+| Meta AI | meta.ai / www.meta.ai | 🧪 Experimental |
 | Mistral Le Chat | chat.mistral.ai | 🧪 Experimental |
 | HuggingChat | huggingface.co/chat | 🧪 Experimental |
 | Poe | poe.com | 🧪 Experimental |
-| Phind | phind.com | 🧪 Experimental |
 | NotebookLM | notebooklm.google.com | 🧪 Experimental |
 | Kagi Assistant | kagi.com | 🧪 Experimental |
 | Z.ai (Zhipu GLM) | chat.z.ai | 🧪 Experimental |
 | Venice.ai | venice.ai | 🧪 Experimental |
-| Chatbot Arena (LMArena) | lmarena.ai / chat.lmsys.org | 🧪 Experimental |
+| Chatbot Arena (LMArena / Arena AI) | arena.ai / lmarena.ai / chat.lmsys.org | 🧪 Experimental |
 | Character.AI | character.ai | 🧪 Experimental |
 | Cohere Coral | coral.cohere.com | 🧪 Experimental |
 | Pi.AI | pi.ai | 🧪 Experimental |
@@ -179,7 +178,7 @@ inkpour/
     └── fixtures/            19 HTML fixtures — one per platform
 ```
 
-See [planning.md](./planning.md) for architecture decisions and next steps.
+See [planning.md](./planning/planning.md) for architecture decisions and next steps.
 
 ---
 

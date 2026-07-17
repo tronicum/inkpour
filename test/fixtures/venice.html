@@ -5,26 +5,27 @@
   <title>What is the Turing Test? - Venice.ai</title>
 </head>
 <body>
-  <!-- Venice.ai (venice.ai) — Chakra UI + react-virtuoso chat UI.
-       Verified live DOM (July 2026): user turns and assistant turns live in
-       TWO DISJOINT subtrees, not siblings under one shared scroll root:
-         User turns:      [data-testid="virtuoso-item-list"] a[role="link"]
-         Assistant turns:  .assistant .assistant-content .prose
-       extractVenice() therefore interleaves by index rather than DOM
-       position (see src/content.js). This fixture mirrors that real,
-       disjoint-subtree structure instead of the old (wrong) shared-parent
-       guess. -->
+  <!-- Venice.ai (venice.ai) — Chakra UI chat, re-verified live 2026-07.
+       Venice now has TWO distinct live UI variants (the old "two disjoint
+       subtrees, zip user/AI turns by index" model was wrong — that selector
+       actually matched the conversation-history SIDEBAR, not the current
+       chat, on either UI):
+         Agent UI (default, /chat/agent): AI = ".assistant .prose"; user
+           bubbles ALSO sit inside an ".assistant-content" wrapper, but one
+           with no ".assistant" ancestor — that's what distinguishes them.
+         Classic UI (/chat/classic): user = [data-testid="user-message"];
+           AI is the same ".assistant .prose" pattern.
+       This fixture mirrors the Agent UI, since that's the default surface. -->
 
-  <div data-testid="virtuoso-item-list">
-    <a role="link" class="chakra-button css-123">
-      <p>What is the Turing Test?</p>
-    </a>
-    <a role="link" class="chakra-button css-123">
-      <p>Has any AI actually passed it?</p>
-    </a>
+  <div data-chat-turn-anchor>
+    <div class="assistant-content css-789">
+      <div class="prose">
+        <p>What is the Turing Test?</p>
+      </div>
+    </div>
   </div>
 
-  <div class="minds-chat-scroll-root css-xyz">
+  <div data-chat-turn-anchor>
     <div class="assistant css-456">
       <div class="assistant-content css-789">
         <div class="prose">
@@ -43,7 +44,17 @@
         </div>
       </div>
     </div>
+  </div>
 
+  <div data-chat-turn-anchor>
+    <div class="assistant-content css-789">
+      <div class="prose">
+        <p>Has any AI actually passed it?</p>
+      </div>
+    </div>
+  </div>
+
+  <div data-chat-turn-anchor>
     <div class="assistant css-456">
       <div class="assistant-content css-789">
         <div class="prose">

@@ -30,7 +30,7 @@ zip -r "${ZIP}" . \
   --exclude "debug/*" \
   --exclude "safari/*" \
   --exclude "scripts/*" \
-  --exclude "planning.md" \
+  --exclude "planning/*" \
   --exclude "README.md" \
   --exclude "PRIVACY.md" \
   --exclude "package*.json" \

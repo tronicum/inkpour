@@ -6,7 +6,7 @@
  * Supported: ChatGPT, Claude, Gemini, Google AI Studio, Copilot (microsoft + copilot.com),
  *            Grok, Perplexity (experimental), DeepSeek (experimental),
  *            Meta AI (experimental), Mistral Le Chat (experimental),
- *            HuggingChat (experimental), Poe (experimental), Phind (experimental)
+ *            HuggingChat (experimental), Poe (experimental)
  *
  * Features:
  *   - Citation footnote extraction: <a href="..."><sup>N</sup></a> → [^N] + Sources section
@@ -314,11 +314,14 @@
     if (host.includes('chat.mistral.ai'))                                   return 'mistral';
     if (host.includes('huggingface.co'))                                    return 'huggingchat';
     if (host.includes('poe.com'))                                           return 'poe';
-    if (host.includes('phind.com'))                                          return 'phind';
     if (host.includes('notebooklm.google.com'))                             return 'notebooklm';
     if (host.includes('kagi.com'))                                          return 'kagi';
     if (host.includes('venice.ai'))                                         return 'venice';
-    if (host.includes('lmarena.ai') || host.includes('chat.lmsys.org'))     return 'lmarena';
+    // lmarena.ai now redirects to arena.ai ("Arena AI" rebrand, verified live
+    // 2026-07) — host.includes('arena.ai') alone would already cover both
+    // domains (it's a substring of "lmarena.ai" too), but both are kept
+    // explicit for clarity.
+    if (host.includes('lmarena.ai') || host.includes('arena.ai') || host.includes('chat.lmsys.org')) return 'lmarena';
     if (host.includes('character.ai'))                                       return 'characterai';
     if (host.includes('coral.cohere.com'))                                   return 'cohere';
     if (host.includes('pi.ai'))                                              return 'piai';
@@ -628,22 +631,13 @@
       )).map(el => ({ el, role: 'You' }));
     }
 
-    // AI answers: select the answer CONTAINER and extract from its .prose child if present.
-    // Avoids double-counting (outer container + inner .prose are different DOM nodes).
-    const answerContainers = Array.from(document.querySelectorAll(
-      '[data-testid="answer"], div[class*="AnswerBody"], div[class*="answerContent"]'
-    ));
-    let answerEls;
-    if (answerContainers.length) {
-      answerEls = answerContainers.map(el => ({
-        el: el.querySelector('.prose') ?? el,
-        role: 'Perplexity',
-      }));
-    } else {
-      // Fallback: bare .prose elements (when there's no answer wrapper)
-      answerEls = Array.from(document.querySelectorAll('.prose'))
-        .map(el => ({ el, role: 'Perplexity' }));
-    }
+    // AI answers: re-verified live (2026-07) — the old answer-container
+    // wrappers ([data-testid="answer"], AnswerBody/answerContent classes) no
+    // longer exist at all (0 matches), so go straight to the bare .prose
+    // elements that were previously only a fallback; they're the only thing
+    // that still matches.
+    const answerEls = Array.from(document.querySelectorAll('.prose'))
+      .map(el => ({ el, role: 'Perplexity' }));
 
     if (!userEls.length && !answerEls.length) return null;
     return [...userEls, ...answerEls]
@@ -823,38 +817,30 @@
       .filter(m => m.content);
   }
 
-  // Phind (www.phind.com) — experimental
-  // Phind mixes web search results with AI answers; we target the chat turns.
-  function extractPhind() {
-    // Phind's Next.js UI renders user queries and AI answers in alternating sections
-    const userEls = Array.from(document.querySelectorAll(
-      '[class*="userMessage"], [class*="UserMessage"], ' +
-      '[class*="user-message"], div[data-role="user"]'
-    )).map(el => ({ el, role: 'You' }));
-
-    const aiEls = Array.from(document.querySelectorAll(
-      '[class*="phindAnswer"], [class*="PhindAnswer"], ' +
-      '[class*="ai-message"], [class*="aiMessage"], ' +
-      'div[data-role="assistant"]'
-    )).map(el => ({ el, role: 'Phind' }));
-
-    if (!userEls.length && !aiEls.length) return null;
-    return [...userEls, ...aiEls]
-      .sort(sortByDOMOrder)
-      .map(({ el, role }) => ({ role, content: htmlToMarkdown(el) }))
-      .filter(m => m.content);
-  }
-
   // NotebookLM (notebooklm.google.com) — experimental
-  // NotebookLM renders a "chat" panel where you ask questions and get responses
-  // grounded in your uploaded sources. The panel is a sidebar, not a full-page chat.
+  // Rebranded "Gemini Notebook" (still same domain) — re-verified live DOM,
+  // 2026-07. NotebookLM renders a "chat" panel where you ask questions and
+  // get responses grounded in your uploaded sources. The panel is a sidebar,
+  // not a full-page chat.
   function extractNotebookLM() {
     /**
-     * Extract citation superscripts from a NotebookLM AI response element.
-     * Looks for <sup data-source-index="N">, <sup><a>, or [class*="citation"] elements.
-     * Returns a deduplicated sorted array of source numbers (1-based).
+     * Extract citation numbers from a NotebookLM AI response element.
+     * Current live DOM (2026-07): citations are
+     * `<button class="citation-marker">N</button>`, where the button's own
+     * text IS the 1-based source number already — no offset needed. Older
+     * `<sup data-source-index="N">` markup (0-based) kept as a fallback in
+     * case of a UI rollback.
      */
     function extractCitations(el) {
+      const markers = el.querySelectorAll('button.citation-marker, [class*="citation-marker"]');
+      if (markers.length) {
+        const nums = new Set();
+        markers.forEach(btn => {
+          const n = parseInt(btn.textContent.trim(), 10);
+          if (!isNaN(n) && n > 0) nums.add(n);
+        });
+        return [...nums].sort((a, b) => a - b);
+      }
       const sups = el.querySelectorAll('sup[data-source-index], sup > a, [class*="citation"]');
       if (!sups.length) return [];
       const nums = new Set();
@@ -883,7 +869,21 @@
       return content;
     }
 
-    // Primary: chat message containers with role data attributes
+    // Primary (verified live, 2026-07): each turn is a <chat-message> custom
+    // element (class "individual-message"), paired inside a
+    // ".chat-message-pair" wrapper; role comes from an inner container div
+    // rather than the old data-message-role attribute (which no longer
+    // exists at all — 0 matches, confirmed live).
+    const chatMessages = Array.from(document.querySelectorAll('chat-message'));
+    if (chatMessages.length) {
+      return chatMessages.map(el => {
+        const isUser = !!el.querySelector('div.from-user-container');
+        const contentEl = el.querySelector('div.from-user-container, div.to-user-container') ?? el;
+        return { role: isUser ? 'You' : 'NotebookLM', content: buildContentWithCitations(contentEl, isUser) };
+      }).filter(m => m.content);
+    }
+
+    // Fallback (older build): chat message containers with role data attributes
     const byRole = document.querySelectorAll('[data-message-role], [class*="ChatMessage"]');
     if (byRole.length) {
       return Array.from(byRole).map(el => {
@@ -948,31 +948,36 @@
       .filter(m => m.content);
   }
 
-  // Venice.ai (venice.ai) — Chakra UI + react-virtuoso chat UI.
-  // Verified live DOM: user turns and assistant turns live in TWO DISJOINT
-  // subtrees, not siblings under one shared scroll root:
-  //   User turns:      [data-testid="virtuoso-item-list"] a[role="link"]
-  //   Assistant turns: .assistant .assistant-content .prose
-  // Since the two subtrees are disjoint, DOM order can't interleave them —
-  // assume strict alternation and zip user/AI turns by index instead.
+  // Venice.ai (venice.ai) — Chakra UI chat, re-verified live 2026-07. Venice
+  // now has TWO distinct live UI variants:
+  //   Agent UI (default, /chat/agent): AI = ".assistant .prose"; user bubbles
+  //     ALSO sit inside an ".assistant-content" wrapper, but one that has no
+  //     ".assistant" ancestor — that's what tells the two apart.
+  //   Classic UI (/chat/classic): user = [data-testid="user-message"];
+  //     AI is the same ".assistant .prose" pattern as the agent UI.
+  // The previous "two disjoint subtrees, zip by index" model (a virtuoso
+  // sidebar list for user turns) was wrong — that selector actually matches
+  // the conversation-HISTORY sidebar (every past chat's title), not the
+  // current conversation's own messages, on either current UI.
   function extractVenice() {
-    const userEls = Array.from(
-      document.querySelectorAll('[data-testid="virtuoso-item-list"] a[role="link"]')
-    ).map(el => ({ el, role: 'You' }));
+    const aiEls = Array.from(document.querySelectorAll('.assistant .prose'))
+      .map(el => ({ el, role: 'Venice' }));
 
-    const aiEls = Array.from(
-      document.querySelectorAll('.assistant .assistant-content .prose, .assistant-content .prose, .assistant .prose')
-    ).map(el => ({ el, role: 'Venice' }));
+    let userEls = Array.from(document.querySelectorAll('.assistant-content .prose'))
+      .filter(el => !el.closest('.assistant')) // exclude AI bubbles (also under .assistant-content)
+      .map(el => ({ el, role: 'You' }));
+
+    if (!userEls.length) {
+      // Classic UI
+      userEls = Array.from(document.querySelectorAll('[data-testid="user-message"]'))
+        .map(el => ({ el, role: 'You' }));
+    }
 
     if (userEls.length || aiEls.length) {
-      const combined = [];
-      const max = Math.max(userEls.length, aiEls.length);
-      for (let i = 0; i < max; i++) {
-        if (userEls[i]) combined.push(userEls[i]);
-        if (aiEls[i])   combined.push(aiEls[i]);
-      }
-      return combined.map(({ el, role }) => ({ role, content: htmlToMarkdown(el) }))
-                     .filter(m => m.content);
+      return [...userEls, ...aiEls]
+        .sort(sortByDOMOrder)
+        .map(({ el, role }) => ({ role, content: htmlToMarkdown(el) }))
+        .filter(m => m.content);
     }
 
     // Fallback: scan the chakra scroll root for alternating blocks (older/unverified layout)
@@ -1590,7 +1595,6 @@
       case 'mistral':     messages = extractMistral();           break;
       case 'huggingchat': messages = extractHuggingChat();       break;
       case 'poe':         messages = extractPoe();               break;
-      case 'phind':       messages = extractPhind();             break;
       case 'notebooklm':  messages = extractNotebookLM();        break;
       case 'kagi':        messages = extractKagi();              break;
       case 'venice':      messages = extractVenice();            break;
@@ -1620,7 +1624,7 @@
    * better title from the first user message (first 8 significant words).
    * Returns the improved title, or the original if it already looks specific.
    */
-  const GENERIC_TITLE_RE = /^(new\s+chat|new\s+conversation|untitled|chat|conversation|claude|gemini|chatgpt|gpt|copilot|grok|perplexity|deepseek|meta\s*ai|mistral|poe|phind|assistant|chat\s+export|start\s+a\s+new\s+chat)$/i;
+  const GENERIC_TITLE_RE = /^(new\s+chat|new\s+conversation|untitled|chat|conversation|claude|gemini|chatgpt|gpt|copilot|grok|perplexity|deepseek|meta\s*ai|mistral|poe|assistant|chat\s+export|start\s+a\s+new\s+chat)$/i;
 
   function smartenTitle(title, messages) {
     const clean = (title || '').trim();

@@ -3,45 +3,58 @@
 <head><meta charset="UTF-8"><title>My Research Notes - NotebookLM</title></head>
 <body>
   <!--
-    Simulates NotebookLM's DOM structure (notebooklm.google.com, as of 2026).
-    NotebookLM renders a chat "Ask a question" sidebar panel.
-    Experimental — selectors may need updating if Google changes the DOM.
+    Simulates NotebookLM's DOM structure (notebooklm.google.com, as of 2026 —
+    rebranded "Gemini Notebook", same domain). Re-verified live 2026-07: each
+    turn is a <chat-message class="individual-message"> custom element,
+    paired inside a .chat-message-pair wrapper; role comes from an inner
+    div.from-user-container / div.to-user-container, not a data-message-role
+    attribute (that no longer exists at all). Citations are
+    <button class="citation-marker">N</button> with the 1-based number as the
+    button's own text — no index offset needed, unlike the old
+    <sup data-source-index> markup.
+    Experimental — selectors may need updating again if Google changes the DOM.
   -->
 
-  <!-- User question -->
-  <div data-message-role="user">
-    <p>What are the main themes in the uploaded documents? 📚</p>
+  <div class="chat-message-pair">
+    <chat-message class="individual-message">
+      <div class="from-user-container">
+        <p>What are the main themes in the uploaded documents? 📚</p>
+      </div>
+    </chat-message>
+    <chat-message class="individual-message">
+      <div class="to-user-container">
+        <p>Based on your uploaded sources, I identified <strong>three main themes</strong>:<button class="citation-marker">1</button></p>
+        <ol>
+          <li><strong>Climate adaptation</strong> — both sources discuss regional strategies for resilience<button class="citation-marker">1</button></li>
+          <li><strong>Policy frameworks</strong> — legislative approaches and international agreements<button class="citation-marker">2</button></li>
+          <li><strong>Economic impact</strong> — cost-benefit analyses of mitigation vs. adaptation</li>
+        </ol>
+        <p>These themes appear consistently across all three uploaded PDFs.</p>
+      </div>
+    </chat-message>
   </div>
 
-  <!-- NotebookLM AI response -->
-  <div data-message-role="assistant">
-    <p>Based on your uploaded sources, I identified <strong>three main themes</strong>:<sup data-source-index="0">[1]</sup></p>
-    <ol>
-      <li><strong>Climate adaptation</strong> — both sources discuss regional strategies for resilience<sup data-source-index="0">[1]</sup></li>
-      <li><strong>Policy frameworks</strong> — legislative approaches and international agreements<sup data-source-index="1">[2]</sup></li>
-      <li><strong>Economic impact</strong> — cost-benefit analyses of mitigation vs. adaptation</li>
-    </ol>
-    <p>These themes appear consistently across all three uploaded PDFs.</p>
-  </div>
-
-  <!-- Second user question -->
-  <div data-message-role="user">
-    <p>Can you summarize the policy recommendations from source 2?</p>
-  </div>
-
-  <!-- Second NotebookLM response -->
-  <div data-message-role="assistant">
-    <p>Source 2 recommends a <strong>three-pronged policy approach</strong>:</p>
-    <ul>
-      <li>Carbon pricing at <em>$85 per tonne</em> by 2030</li>
-      <li>Mandatory corporate disclosure of climate risk</li>
-      <li>Green infrastructure investment of 2% of GDP annually</li>
-    </ul>
-    <pre><code class="language-text">Recommended timeline:
+  <div class="chat-message-pair">
+    <chat-message class="individual-message">
+      <div class="from-user-container">
+        <p>Can you summarize the policy recommendations from source 2?</p>
+      </div>
+    </chat-message>
+    <chat-message class="individual-message">
+      <div class="to-user-container">
+        <p>Source 2 recommends a <strong>three-pronged policy approach</strong>:</p>
+        <ul>
+          <li>Carbon pricing at <em>$85 per tonne</em> by 2030</li>
+          <li>Mandatory corporate disclosure of climate risk</li>
+          <li>Green infrastructure investment of 2% of GDP annually</li>
+        </ul>
+        <pre><code class="language-text">Recommended timeline:
   2025-2027: Pilot carbon pricing schemes
   2028-2030: National rollout at $85/tonne
   2031+:     International harmonisation</code></pre>
-    <p>The authors note that without coordinated international action, domestic measures alone achieve only <em>40% of required reductions</em>.</p>
+        <p>The authors note that without coordinated international action, domestic measures alone achieve only <em>40% of required reductions</em>.</p>
+      </div>
+    </chat-message>
   </div>
 </body>
 </html>
