@@ -184,24 +184,24 @@ inkpour/
 
 ## Known limitations
 
-- Selectors for experimental platforms need verification against real live pages
+- Experimental-platform selector status (live-tested 2026-07):
+  - **Verified working**: Perplexity, NotebookLM, Venice.ai, arena.ai (ex-lmarena; response side reCAPTCHA-gated), Meta AI (incl. `www.meta.ai`), Character.AI
+  - **Unverifiable without a logged-in account** — terminal, not a TODO: Poe, Kagi Assistant, Cohere Coral, Groq Playground, DeepSeek all sit behind login walls that automated verification can't pass. Selectors ship as best-effort; only Stefan testing in his own browser would change this.
+  - **Not yet live-tested**: Mistral Le Chat, HuggingChat, Z.ai, Pi.AI
+- Google AI Mode extractor duplicates every turn + leaks page furniture into message bodies — real bug, scored M in `TODOs.md` Batch 2
 - AI Studio extraction is fragile (edit-mode clicks may misfire on complex prompts)
-- Footnote `[^N]` numbers restart per-message — could conflict in multi-turn Perplexity exports
-- Context menu appears on all pages (MV3 limitation without exact `documentUrlPatterns`)
-- Selectors for new experimental platforms (lmarena, characterai, cohere, piai) need verification against live pages
+- Footnote `[^N]` numbers restart per-message — conflicts in multi-turn Perplexity exports (fix scored S in `TODOs.md` Batch 3)
+- Context menu appears on all pages (fixable with `documentUrlPatterns` built from `supported-sites.json` — scored S in `TODOs.md` Batch 4)
+- RTL locales (ar/fa) render LTR — CSS assumes LTR throughout (deferred in `TODOs.md` until those locales see usage)
 
-See also `planning/TODOs.md` for backlog items sourced from outside this doc
-(competitive-research notes, a bug the Google AI Mode extractor's own export
-surfaced, and non-code action items) — kept separate so this file stays a pure
-engineering reference.
+## Backlog
 
-## Next ideas
-- Submit to Firefox Add-ons (AMO) and Chrome Web Store
-- Safari App Store submission: run `xcrun safari-web-extension-converter` on the extension, open `safari/Inkpour-Safari/` in Xcode, sign with Apple Developer account — scaffold in `safari/`
-- NotebookLM source citation extraction (inline `[1]` refs to uploaded docs)
-- ~~i18n: `_locales/en/messages.json` groundwork~~ — done. 26 locales shipped (en + de, zh_CN, zh_TW, es, hi, ar, pt_BR, ru, ja, fr, id, vi, ko, tr, it, fa, pl, uk, bn, nl, th, pa, sv, cs, el). manifest.json uses `__MSG_x__` + `default_locale`; all HTML pages wired via `src/i18n.js` (`data-i18n*` attributes + `InkpourI18n.applyI18n()`); dynamic JS strings use `api.i18n.getMessage()`. RTL layout (ar/fa) not yet handled — CSS still assumes LTR, worth a follow-up pass if those locales see real usage.
-- Kagi / Groq selector verification against real pages
-- Obsidian vault path setting → export directly there via Downloads API
-- Streaming progress: show "Extracting…" while auto-scroll runs
-- Lifetime stats storage: persist cumulative stats beyond 20-entry rolling window
-- `{msgcount}` filename token (implementation complete, may already be wired)
+The full backlog — every open engineering item, complexity-scored (XS–XL) and
+grouped into session-sized batches — lives in `planning/TODOs.md`. This file
+stays a pure engineering reference; don't add new ideas here.
+
+Done / dead items formerly listed here:
+- ~~i18n groundwork~~ — done. 26 locales shipped (en + de, zh_CN, zh_TW, es, hi, ar, pt_BR, ru, ja, fr, id, vi, ko, tr, it, fa, pl, uk, bn, nl, th, pa, sv, cs, el). manifest.json uses `__MSG_x__` + `default_locale`; all HTML pages wired via `src/i18n.js` (`data-i18n*` + `InkpourI18n.applyI18n()`); dynamic JS strings use `api.i18n.getMessage()`. RTL follow-up tracked in TODOs.md.
+- ~~`{msgcount}` filename token~~ — done and fully wired: all `buildFilename()` call sites pass message count, documented in settings.html, covered by tests.
+- ~~Obsidian vault path via Downloads API~~ — dead as specified: the Downloads API can't write outside the Downloads folder (the existing subfolder setting already covers the in-Downloads case). Superseded by File System Access API item, TODOs.md Batch 6.
+- ~~Kagi / Groq selector verification~~ — closed as unverifiable without an account (see Known limitations above).
