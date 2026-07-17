@@ -406,15 +406,23 @@ path is one self-contained click handler (settings.js:138–162) building one
   container is the `<nav>` with `overflow-y: auto/scroll` where
   `scrollHeight > clientHeight` (class name includes `scrollport`, but that's
   not guaranteed stable — detect by computed style + scroll dimensions instead
-  of hardcoding the class). **Lazy-load behavior inconclusive**: this account
-  only has ~28 conversations, all already mounted in the DOM on load —
-  scrolling the nav container to its actual max `scrollTop` (verified the
-  scroll math is right: reached exactly `scrollHeight - clientHeight`)
-  triggered no additional loading because there was nothing more to load. The
-  scroll-then-requery mechanism is validated as the right general approach,
-  but true pagination/virtualization behavior (what happens with hundreds of
-  conversations) is still unverified — needs an account with much more
-  history to actually observe.
+  of hardcoding the class). **Lazy-load behavior — confirmed live via
+  bulk-create test 2026-07**: an earlier test that set `nav.scrollTop =
+  nav.scrollHeight` as an instant jump reached the correct max scroll position
+  but triggered ZERO additional loading, which was wrongly read as "nothing
+  more to load." Bulk-creating extra test conversations and retrying showed
+  the real mechanism: a loop of small incremental `scrollTop += 40-60` steps,
+  each followed by `nav.dispatchEvent(new Event('scroll', {bubbles:true}))`
+  and a short (150-300ms) wait, DOES trigger real lazy-loading — count jumped
+  28 → 56, then stabilized exactly at `scrollTop === scrollHeight -
+  clientHeight` (true max) with no further growth. This means the lazy-load
+  trigger is very likely an IntersectionObserver-style sentinel that only
+  fires on genuine progressive scroll events, not an instant `scrollTop`
+  assignment. **Implementation implication for Batch 8 orchestration code**:
+  the background-tab scroll-to-load-more step must simulate real incremental
+  scrolling (small steps + dispatched scroll events + waits between them),
+  not a single jump to max scrollTop, or it will silently under-collect
+  conversations on accounts with more history than fits in the initial page.
 
   **Claude sidebar selectors — confirmed live 2026-07**: `a[href^="/chat/"]`
   reliably finds every conversation link. Unlike ChatGPT, the visible/`textContent`
