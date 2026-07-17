@@ -25,7 +25,6 @@ zip -r "${ZIP}" . \
   --exclude ".git*" \
   --exclude "node_modules/*" \
   --exclude "test/*" \
-  --exclude "tests/*" \
   --exclude "test-results/*" \
   --exclude "debug/*" \
   --exclude "safari/*" \
