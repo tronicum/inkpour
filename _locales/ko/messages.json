@@ -87,6 +87,10 @@
     "message": "Markdown을 GitHub Gist에 업로드",
     "description": "Gist button tooltip"
   },
+  "popupNotionBtnTitle": {
+    "message": "Markdown을 Notion 페이지에 추가",
+    "description": "Notion button tooltip"
+  },
   "popupAllBtnTitle": {
     "message": "MD + DOCX + ZIP 동시에 내보내기",
     "description": "Export All button tooltip"
@@ -117,6 +121,9 @@
   },
   "popupBtnGist": {
     "message": "Gist ↑"
+  },
+  "popupBtnNotion": {
+    "message": "Notion ↑"
   },
   "popupBtnExportAll": {
     "message": "⬇ 모두 내보내기 (MD + DOCX + ZIP)"
@@ -219,6 +226,18 @@
   },
   "popupStatusGistUploadFailed": {
     "message": "Gist 업로드 실패"
+  },
+  "popupStatusNotionConfigMissing": {
+    "message": "먼저 설정에서 Notion 토큰과 페이지 ID를 추가하세요."
+  },
+  "popupStatusNotionUploading": {
+    "message": "Notion에 업로드 중…"
+  },
+  "popupStatusNotionCreated": {
+    "message": "✓ Notion에 추가되었습니다"
+  },
+  "popupStatusNotionUploadFailed": {
+    "message": "Notion 업로드 실패"
   },
   "popupStatusNotSupportedPage": {
     "message": "지원되는 AI 채팅 페이지가 아닙니다. ChatGPT, Claude, Gemini, Google Search 또는 다른 지원되는 플랫폼에서 Inkpour를 여세요."
@@ -541,6 +560,27 @@
   "settingsGistTagsPlaceholder": {
     "message": "업무, 프로젝트-x, 연구"
   },
+  "settingsNotionTokenLabel": {
+    "message": "Notion 통합 토큰"
+  },
+  "settingsNotionTokenDesc": {
+    "message": "내부 통합 토큰 — 팝업에서 \"Notion ↑\" 버튼을 활성화하여 아래 페이지에 내보내기를 추가합니다."
+  },
+  "settingsNotionTokenLink": {
+    "message": "토큰 만들기 →"
+  },
+  "settingsNotionTokenFineprint": {
+    "message": "⚠ 브라우저의 로컬 확장 프로그램 저장소에 평문으로 저장됩니다 — 비밀번호처럼 취급하세요. 토큰은 Notion의 대상 페이지에도 연결되어 있어야 합니다(페이지 열기 → ••• 메뉴 → Connections → 사용자의 통합). 그렇지 않으면 업로드가 404 오류로 실패합니다."
+  },
+  "settingsNotionPageIdLabel": {
+    "message": "Notion 페이지 ID"
+  },
+  "settingsNotionPageIdDesc": {
+    "message": "내보내기가 추가될 페이지(또는 블록) — 페이지의 Notion URL 끝에 있는 32자 ID를 대시 포함 여부와 상관없이 복사하세요."
+  },
+  "settingsNotionPageIdPlaceholder": {
+    "message": "a1b2c3d4e5f67890abcdef1234567890"
+  },
   "settingsScrubLabel": {
     "message": "업로드 전 민감 정보 제거"
   },
@@ -636,6 +676,9 @@
   },
   "historyActionGist": {
     "message": "↗ Gist"
+  },
+  "historyActionNotion": {
+    "message": "↗ Notion"
   },
   "historyNoExportsYet": {
     "message": "아직 내보내기가 없습니다"

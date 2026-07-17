@@ -67,6 +67,7 @@
     'json':      'JSON',
     'zip':       'ZIP',
     'gist':      'Gist',
+    'notion':    'Notion',
     'copy-md':   'Copy MD',
     'copy-html': 'Copy HTML',
   };
@@ -151,6 +152,7 @@
     const stats = [msgs, words].filter(Boolean).join(' · ');
 
     const isGist     = entry.format === 'gist';
+    const isNotion   = entry.format === 'notion';
     const hasContent = !!entry.content;
     const isStarred  = starredIds.has(entry.id);
     const starLabel  = isStarred ? '★' : '☆';
@@ -216,6 +218,15 @@
       gistLink.style.textDecoration = 'none';
       gistLink.textContent = t('historyActionGist');
       actionsEl.appendChild(gistLink);
+    } else if (isNotion && entry.notionPageUrl && entry.notionPageUrl.startsWith('https://')) {
+      const notionLink = document.createElement('a');
+      notionLink.className = 'btn-action';
+      notionLink.href = entry.notionPageUrl;
+      notionLink.target = '_blank';
+      notionLink.rel = 'noopener';
+      notionLink.style.textDecoration = 'none';
+      notionLink.textContent = t('historyActionNotion');
+      actionsEl.appendChild(notionLink);
     } else if (hasContent) {
       const downloadBtn = document.createElement('button');
       downloadBtn.className = 'btn-action';

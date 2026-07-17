@@ -65,6 +65,10 @@
   "popupGistBtnTitle": {
     "message": "Nahrát Markdown do GitHub Gist"
   },
+  "popupNotionBtnTitle": {
+    "message": "Připojit Markdown ke stránce Notion",
+    "description": "Notion button tooltip"
+  },
   "popupAllBtnTitle": {
     "message": "Exportovat MD + DOCX + ZIP najednou"
   },
@@ -94,6 +98,9 @@
   },
   "popupBtnGist": {
     "message": "Gist ↑"
+  },
+  "popupBtnNotion": {
+    "message": "Notion ↑"
   },
   "popupBtnExportAll": {
     "message": "⬇ Exportovat vše (MD + DOCX + ZIP)"
@@ -194,6 +201,18 @@
   },
   "popupStatusGistUploadFailed": {
     "message": "Nahrání Gistu se nezdařilo"
+  },
+  "popupStatusNotionConfigMissing": {
+    "message": "Nejprve přidejte token Notion a ID stránky v Nastavení."
+  },
+  "popupStatusNotionUploading": {
+    "message": "Nahrávání do Notion…"
+  },
+  "popupStatusNotionCreated": {
+    "message": "✓ Přidáno do Notion"
+  },
+  "popupStatusNotionUploadFailed": {
+    "message": "Nahrání do Notion se nezdařilo"
   },
   "popupStatusNotSupportedPage": {
     "message": "Toto není podporovaná stránka AI chatu. Otevřete Inkpour na ChatGPT, Claude, Gemini, Google Search nebo jiné podporované platformě."
@@ -516,6 +535,27 @@
   "settingsGistTagsPlaceholder": {
     "message": "práce, projekt-x, výzkum"
   },
+  "settingsNotionTokenLabel": {
+    "message": "Token integrace Notion"
+  },
+  "settingsNotionTokenDesc": {
+    "message": "Interní token integrace — zpřístupní tlačítko „Notion ↑“ v okně rozšíření, které připojí exporty ke stránce níže."
+  },
+  "settingsNotionTokenLink": {
+    "message": "Vytvořit →"
+  },
+  "settingsNotionTokenFineprint": {
+    "message": "⚠ Ukládá se jako prostý text v místním úložišti rozšíření — zacházejte s ním jako s heslem. Token musí být také propojen s cílovou stránkou v Notion (otevřete stránku → nabídka ••• → Connections → vaše integrace), jinak nahrávání selže s chybou 404."
+  },
+  "settingsNotionPageIdLabel": {
+    "message": "ID stránky Notion"
+  },
+  "settingsNotionPageIdDesc": {
+    "message": "Stránka (nebo blok), ke které se exporty připojují — zkopírujte 32znakové ID z konce adresy URL stránky v Notion, s pomlčkami nebo bez nich."
+  },
+  "settingsNotionPageIdPlaceholder": {
+    "message": "a1b2c3d4e5f67890abcdef1234567890"
+  },
   "settingsScrubLabel": {
     "message": "Odstranit citlivé údaje před nahráním"
   },
@@ -611,6 +651,9 @@
   },
   "historyActionGist": {
     "message": "↗ Gist"
+  },
+  "historyActionNotion": {
+    "message": "↗ Notion"
   },
   "historyNoExportsYet": {
     "message": "Zatím žádné exporty"

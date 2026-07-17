@@ -87,6 +87,10 @@
     "message": "Markdown को GitHub Gist पर अपलोड करें",
     "description": "Gist button tooltip"
   },
+  "popupNotionBtnTitle": {
+    "message": "Markdown को Notion पेज में जोड़ें",
+    "description": "Notion button tooltip"
+  },
   "popupAllBtnTitle": {
     "message": "MD + DOCX + ZIP एक साथ एक्सपोर्ट करें",
     "description": "Export All button tooltip"
@@ -117,6 +121,9 @@
   },
   "popupBtnGist": {
     "message": "Gist ↑"
+  },
+  "popupBtnNotion": {
+    "message": "Notion ↑"
   },
   "popupBtnExportAll": {
     "message": "⬇ सभी एक्सपोर्ट करें (MD + DOCX + ZIP)"
@@ -219,6 +226,18 @@
   },
   "popupStatusGistUploadFailed": {
     "message": "Gist अपलोड विफल रहा"
+  },
+  "popupStatusNotionConfigMissing": {
+    "message": "पहले सेटिंग्स में एक Notion टोकन और पेज ID जोड़ें।"
+  },
+  "popupStatusNotionUploading": {
+    "message": "Notion पर अपलोड हो रहा है…"
+  },
+  "popupStatusNotionCreated": {
+    "message": "✓ Notion में जोड़ा गया"
+  },
+  "popupStatusNotionUploadFailed": {
+    "message": "Notion अपलोड विफल रहा"
   },
   "popupStatusNotSupportedPage": {
     "message": "यह समर्थित AI चैट पेज नहीं है। Inkpour को ChatGPT, Claude, Gemini, Google Search, या किसी अन्य समर्थित प्लेटफ़ॉर्म पर खोलें।"
@@ -541,6 +560,27 @@
   "settingsGistTagsPlaceholder": {
     "message": "work, project-x, research"
   },
+  "settingsNotionTokenLabel": {
+    "message": "Notion इंटीग्रेशन टोकन"
+  },
+  "settingsNotionTokenDesc": {
+    "message": "इंटरनल इंटीग्रेशन टोकन — पॉपअप में \"Notion ↑\" बटन सक्षम करता है, जो एक्सपोर्ट को नीचे दिए गए पेज में जोड़ता है।"
+  },
+  "settingsNotionTokenLink": {
+    "message": "एक बनाएं →"
+  },
+  "settingsNotionTokenFineprint": {
+    "message": "⚠ यह ब्राउज़र के स्थानीय एक्सटेंशन स्टोरेज में सादे टेक्स्ट के रूप में सहेजा जाता है — इसे पासवर्ड की तरह मानें। टोकन को Notion में टारगेट पेज से भी जुड़ा होना चाहिए (पेज खोलें → ••• मेनू → Connections → आपका इंटीग्रेशन), अन्यथा अपलोड 404 त्रुटि के साथ विफल होंगे।"
+  },
+  "settingsNotionPageIdLabel": {
+    "message": "Notion पेज ID"
+  },
+  "settingsNotionPageIdDesc": {
+    "message": "वह पेज (या ब्लॉक) जिसमें एक्सपोर्ट जोड़े जाते हैं — पेज के Notion URL के अंत से 32-अक्षर की ID कॉपी करें, डैश सहित या बिना डैश के।"
+  },
+  "settingsNotionPageIdPlaceholder": {
+    "message": "a1b2c3d4e5f67890abcdef1234567890"
+  },
   "settingsScrubLabel": {
     "message": "अपलोड से पहले गोपनीय जानकारी हटाएं"
   },
@@ -636,6 +676,9 @@
   },
   "historyActionGist": {
     "message": "↗ Gist"
+  },
+  "historyActionNotion": {
+    "message": "↗ Notion"
   },
   "historyNoExportsYet": {
     "message": "अभी तक कोई एक्सपोर्ट नहीं है"

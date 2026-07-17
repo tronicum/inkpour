@@ -122,15 +122,53 @@ path is one self-contained click handler (settings.js:138–162) building one
   `historyLifetimeStatsOther`). No code changed for this item.
 
 ## Batch 5 — Notion export (dedicated session; background.js + settings.html/.js + popup.js)
-- [ ] **M** BYO integration token + target page ID in settings, client-side
-  `fetch` to the Notion API (`PATCH /v1/blocks/{page_id}/children` — verify
-  against Notion's real docs; the research chat's endpoint was garbled). No
-  backend. Follows the Gist shape exactly (`doGistUpload`, background.js:254–318:
-  settings fields → build content → fetch → toast → open tab), so plumbing is
-  well-trodden; the real work is a markdown→Notion-blocks converter and the
-  100-blocks-per-request append limit. M for a v1 (paragraphs, headings, code,
-  quotes, flat lists); full table/nested-list fidelity pushes it to L — ship v1
-  first. Live testing needs Stefan's Notion token (flag: ask before session).
+- [x] **M → implemented, pending live test** BYO integration token + target
+  page ID in settings, client-side `fetch` to the Notion API. Verified live
+  against Notion's real docs this session (developers.notion.com/reference/
+  patch-block-children + .../reference/block, 2026-07) — the endpoint is
+  `PATCH https://api.notion.com/v1/blocks/{block_id}/children` with headers
+  `Authorization: Bearer <token>` + `Notion-Version: 2026-03-11`, body
+  `{ children: [...] }`, capped at 100 block objects per request (confirmed:
+  "There is a limit of 100 block children that can be appended by a single
+  API request"). Block shapes for paragraph/heading_1-3/code (language
+  enum, confirmed values include "plain text" with a literal space)/quote/
+  bulleted_list_item/numbered_list_item all confirmed against the live docs.
+  Followed the popup.js `gistBtn` shape (popup.js:872–930) rather than
+  background.js's `doGistUpload`, per the batch note's own primary
+  recommendation: new `notionBtn` in popup.html/popup.js builds markdown →
+  scrubs secrets via `redactSecrets()` (added `src/redact.js` to popup.html's
+  script tags, which it wasn't loading before) → PATCHes in ≤100-block
+  batches → opens the page (URL built from the configured page ID — Notion's
+  append response has no `html_url` equivalent) → toast, mirroring
+  `saveLastExport()` conventions (added a `'notion'` format alongside
+  `'gist'` in history.js/history.html for parity). `markdownToNotionBlocks()`
+  + `batchNotionBlocks()` added as pure functions in src/utils.js — v1 scope
+  exactly as sized: paragraphs, heading_1/2/3 (h4-h6 clamp down), fenced code
+  with language-alias mapping, blockquotes, flat (non-nested) bulleted/
+  numbered lists, plus "---" → divider and YAML front matter → a single
+  preserved `yaml` code block. Known v1 limitations (by design, matching the
+  original scope note): nested lists flatten to top-level items, tables are
+  not attempted, and inline formatting (**bold**, links, etc.) is kept as
+  literal markdown text rather than converted to Notion rich-text
+  annotations — full fidelity there was explicitly out of scope for v1.
+  Settings gained `notionToken` (password field, same plaintext-storage
+  fineprint as the GitHub token field, plus a note that the token must be
+  connected to the target page via Notion's page ••• → Connections menu or
+  every upload 404s) and `notionPageId`, both free-text/debounced-autosave
+  per settings.js's existing pattern; background.js needed no changes since
+  Notion, unlike Gist, doesn't have a background.js/context-menu path — only
+  the popup button. 16 new JSDOM tests added (paragraphs, each heading
+  level, code+language incl. alias mapping and fallback, quotes, flat
+  ordered/unordered lists, dividers, YAML front matter, a full
+  buildMarkdown() round-trip, and the ≤100-block batching logic including
+  exact-100/250-split/empty/custom-size cases) — full suite 243→259 passed,
+  0 failed, before and after. All 26 locale files updated with real
+  (non-English-stub) translations for the 14 new i18n keys, verified with
+  identical key sets across all locales. **Not yet verified**: the actual
+  `fetch()` PATCH call end-to-end against a real Notion workspace — no live
+  integration token was available in this sandbox. Needs Stefan's real
+  Notion token before this can be marked fully done (flagged, as
+  anticipated by the original note).
 
 ## Batch 6 — Direct-to-vault saving via File System Access API (dedicated session)
 - [ ] **M** `showDirectoryPicker()` from popup/options, persist the directory

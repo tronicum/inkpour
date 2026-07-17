@@ -727,6 +727,146 @@ async function main() {
     });
   });
 
+  // ── markdownToNotionBlocks / batchNotionBlocks (Batch 5: Notion export) ───
+  // Pure functions from src/utils.js converting buildMarkdown()'s own output
+  // vocabulary into Notion block objects. Live-fetch-verified against
+  // developers.notion.com/reference/patch-block-children +
+  // developers.notion.com/reference/block (2026-07): block shapes below
+  // (paragraph/heading_1-3/code/quote/bulleted_list_item/numbered_list_item)
+  // match the confirmed request examples. No live Notion token is available
+  // in this sandbox, so only the pure conversion/batching logic is tested
+  // here — the actual `fetch()` call in popup.js is NOT exercised.
+  await suite('markdownToNotionBlocks', async () => {
+    await test('converts a plain paragraph', () => {
+      const blocks = markdownToNotionBlocks('Hello there, this is a paragraph.');
+      assert(blocks.length === 1, `expected 1 block, got ${blocks.length}`);
+      assert(blocks[0].type === 'paragraph', `expected paragraph, got ${blocks[0].type}`);
+      assert(blocks[0].paragraph.rich_text[0].text.content === 'Hello there, this is a paragraph.', 'paragraph content mismatch');
+    });
+
+    await test('converts heading_1, heading_2, heading_3 (h4-h6 clamp to heading_3)', () => {
+      const blocks = markdownToNotionBlocks('# Title\n\n## Section\n\n### Sub\n\n#### Deep');
+      const types = blocks.map(b => b.type);
+      assert(types[0] === 'heading_1', `got ${types[0]}`);
+      assert(types[1] === 'heading_2', `got ${types[1]}`);
+      assert(types[2] === 'heading_3', `got ${types[2]}`);
+      assert(types[3] === 'heading_3', `h4 should clamp to heading_3, got ${types[3]}`);
+      assert(blocks[0].heading_1.rich_text[0].text.content === 'Title', 'heading_1 text mismatch');
+    });
+
+    await test('converts a fenced code block with language', () => {
+      const md = '```javascript\nconst x = 1;\nconsole.log(x);\n```';
+      const blocks = markdownToNotionBlocks(md);
+      assert(blocks.length === 1, `expected 1 block, got ${blocks.length}`);
+      assert(blocks[0].type === 'code', `expected code, got ${blocks[0].type}`);
+      assert(blocks[0].code.language === 'javascript', `expected javascript, got ${blocks[0].code.language}`);
+      assert(blocks[0].code.rich_text[0].text.content === 'const x = 1;\nconsole.log(x);', 'code content mismatch');
+    });
+
+    await test('unrecognized/missing code language falls back to "plain text"', () => {
+      const blocks = markdownToNotionBlocks('```\nsome text\n```');
+      assert(blocks[0].code.language === 'plain text', `expected "plain text", got ${blocks[0].code.language}`);
+    });
+
+    await test('common language aliases map to Notion enum values', () => {
+      const cases = { py: 'python', ts: 'typescript', sh: 'shell', 'c++': 'c++' };
+      for (const [alias, expected] of Object.entries(cases)) {
+        const blocks = markdownToNotionBlocks('```' + alias + '\nx\n```');
+        assert(blocks[0].code.language === expected, `${alias} → expected ${expected}, got ${blocks[0].code.language}`);
+      }
+    });
+
+    await test('converts a blockquote (consecutive "> " lines merged into one block)', () => {
+      const blocks = markdownToNotionBlocks('> Line one\n> Line two');
+      assert(blocks.length === 1, `expected 1 block, got ${blocks.length}`);
+      assert(blocks[0].type === 'quote', `expected quote, got ${blocks[0].type}`);
+      assert(blocks[0].quote.rich_text[0].text.content === 'Line one\nLine two', `quote content: ${blocks[0].quote.rich_text[0].text.content}`);
+    });
+
+    await test('converts a flat unordered list (buildMarkdown/convertList "* " bullets)', () => {
+      const blocks = markdownToNotionBlocks('* First item\n* Second item\n* Third item');
+      assert(blocks.length === 3, `expected 3 items, got ${blocks.length}`);
+      assert(blocks.every(b => b.type === 'bulleted_list_item'), 'not all items are bulleted_list_item');
+      assert(blocks[1].bulleted_list_item.rich_text[0].text.content === 'Second item', 'second item text mismatch');
+    });
+
+    await test('converts a flat ordered list ("1. ", "2. ", ...)', () => {
+      const blocks = markdownToNotionBlocks('1. First\n2. Second\n3. Third');
+      assert(blocks.length === 3, `expected 3 items, got ${blocks.length}`);
+      assert(blocks.every(b => b.type === 'numbered_list_item'), 'not all items are numbered_list_item');
+      assert(blocks[2].numbered_list_item.rich_text[0].text.content === 'Third', 'third item text mismatch');
+    });
+
+    await test('"---" horizontal rules become divider blocks', () => {
+      const blocks = markdownToNotionBlocks('Para one\n\n---\n\nPara two');
+      assert(blocks.length === 3, `expected 3 blocks, got ${blocks.length}`);
+      assert(blocks[1].type === 'divider', `expected divider, got ${blocks[1].type}`);
+    });
+
+    await test('YAML front matter is preserved as a single yaml code block', () => {
+      const md = buildMarkdown(
+        [{ role: 'You', content: 'Hi' }, { role: 'Claude', content: 'Hello!' }],
+        'My Chat', 'claude', { yamlFrontMatter: true },
+      );
+      const blocks = markdownToNotionBlocks(md);
+      assert(blocks[0].type === 'code', `expected front matter as code block, got ${blocks[0].type}`);
+      assert(blocks[0].code.language === 'yaml', `expected yaml language, got ${blocks[0].code.language}`);
+      assert(blocks[0].code.rich_text[0].text.content.includes('title: "My Chat"'), 'yaml block missing title line');
+    });
+
+    await test('a real buildMarkdown() output round-trips into a non-empty, well-typed block list', () => {
+      const msgs = [
+        { role: 'You', content: 'What is 2+2?' },
+        { role: 'Claude', content: '## Answer\n\nIt\'s **4**.\n\n```python\nprint(2 + 2)\n```\n\n> A simple sum.\n\n* fact one\n* fact two' },
+      ];
+      const md = buildMarkdown(msgs, 'Math Chat', 'claude');
+      const blocks = markdownToNotionBlocks(md);
+      assert(blocks.length > 5, `expected several blocks, got ${blocks.length}`);
+      assert(blocks.some(b => b.type === 'heading_1'), 'missing title heading_1');
+      assert(blocks.some(b => b.type === 'heading_2'), 'missing role/answer heading_2');
+      assert(blocks.some(b => b.type === 'code' && b.code.language === 'python'), 'missing python code block');
+      assert(blocks.some(b => b.type === 'quote'), 'missing quote block');
+      assert(blocks.some(b => b.type === 'bulleted_list_item'), 'missing bulleted list items');
+    });
+
+    await test('empty input returns an empty array', () => {
+      assert(Array.isArray(markdownToNotionBlocks('')), 'should return an array');
+      assert(markdownToNotionBlocks('').length === 0, 'should be empty');
+      assert(markdownToNotionBlocks(null).length === 0, 'should handle null gracefully');
+    });
+  });
+
+  await suite('batchNotionBlocks (100-block append limit)', async () => {
+    await test('does not split a list of 100 or fewer blocks', () => {
+      const blocks = Array.from({ length: 100 }, () => ({ type: 'paragraph', paragraph: { rich_text: [] } }));
+      const batches = batchNotionBlocks(blocks);
+      assert(batches.length === 1, `expected 1 batch, got ${batches.length}`);
+      assert(batches[0].length === 100, `expected 100 blocks in the batch, got ${batches[0].length}`);
+    });
+
+    await test('splits 250 blocks into three sequential batches of ≤100', () => {
+      const blocks = Array.from({ length: 250 }, (_, i) => ({ type: 'paragraph', paragraph: { rich_text: [{ type: 'text', text: { content: String(i) } }] } }));
+      const batches = batchNotionBlocks(blocks);
+      assert(batches.length === 3, `expected 3 batches, got ${batches.length}`);
+      assert(batches[0].length === 100 && batches[1].length === 100 && batches[2].length === 50,
+        `unexpected batch sizes: ${batches.map(b => b.length)}`);
+      // Order is preserved across the split — batch 2's first block picks up
+      // right where batch 1 left off.
+      assert(batches[1][0].paragraph.rich_text[0].text.content === '100', 'batch order not preserved');
+    });
+
+    await test('empty input returns no batches', () => {
+      assert(batchNotionBlocks([]).length === 0, 'expected zero batches for empty input');
+    });
+
+    await test('custom batch size is respected', () => {
+      const blocks = Array.from({ length: 5 }, () => ({ type: 'paragraph', paragraph: { rich_text: [] } }));
+      const batches = batchNotionBlocks(blocks, 2);
+      assert(batches.length === 3, `expected 3 batches of size 2, got ${batches.length}`);
+      assert(batches[2].length === 1, `expected last batch to have 1 item, got ${batches[2].length}`);
+    });
+  });
+
   // ── htmlToMarkdown — new tag support ─────────────────────────────────────
   console.log('\nhtmlToMarkdown — new tags');
 

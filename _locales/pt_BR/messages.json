@@ -87,6 +87,10 @@
     "message": "Enviar Markdown para o GitHub Gist",
     "description": "Gist button tooltip"
   },
+  "popupNotionBtnTitle": {
+    "message": "Adicionar Markdown a uma página do Notion",
+    "description": "Notion button tooltip"
+  },
   "popupAllBtnTitle": {
     "message": "Exportar MD + DOCX + ZIP simultaneamente",
     "description": "Export All button tooltip"
@@ -117,6 +121,9 @@
   },
   "popupBtnGist": {
     "message": "Gist ↑"
+  },
+  "popupBtnNotion": {
+    "message": "Notion ↑"
   },
   "popupBtnExportAll": {
     "message": "⬇ Exportar tudo (MD + DOCX + ZIP)"
@@ -219,6 +226,18 @@
   },
   "popupStatusGistUploadFailed": {
     "message": "Falha ao enviar o Gist"
+  },
+  "popupStatusNotionConfigMissing": {
+    "message": "Adicione um token do Notion e um ID de página nas Configurações primeiro."
+  },
+  "popupStatusNotionUploading": {
+    "message": "Enviando para o Notion…"
+  },
+  "popupStatusNotionCreated": {
+    "message": "✓ Adicionado ao Notion"
+  },
+  "popupStatusNotionUploadFailed": {
+    "message": "Falha ao enviar para o Notion"
   },
   "popupStatusNotSupportedPage": {
     "message": "Esta página de chat de IA não é suportada. Abra o Inkpour no ChatGPT, Claude, Gemini, Google Search ou outra plataforma compatível."
@@ -541,6 +560,27 @@
   "settingsGistTagsPlaceholder": {
     "message": "trabalho, projeto-x, pesquisa"
   },
+  "settingsNotionTokenLabel": {
+    "message": "Token de integração do Notion"
+  },
+  "settingsNotionTokenDesc": {
+    "message": "Token de integração interna — habilita o botão \"Notion ↑\" no popup, que anexa as exportações à página abaixo."
+  },
+  "settingsNotionTokenLink": {
+    "message": "Criar um →"
+  },
+  "settingsNotionTokenFineprint": {
+    "message": "⚠ Armazenado como texto simples no armazenamento local da extensão — trate como uma senha. O token também precisa estar conectado à página de destino no Notion (abra a página → menu ••• → Conexões → sua integração), ou os envios falharão com erro 404."
+  },
+  "settingsNotionPageIdLabel": {
+    "message": "ID da página do Notion"
+  },
+  "settingsNotionPageIdDesc": {
+    "message": "A página (ou bloco) à qual as exportações são anexadas — copie o ID de 32 caracteres do final da URL do Notion da página, com ou sem traços."
+  },
+  "settingsNotionPageIdPlaceholder": {
+    "message": "a1b2c3d4e5f67890abcdef1234567890"
+  },
   "settingsScrubLabel": {
     "message": "Remover dados sensíveis antes do envio"
   },
@@ -636,6 +676,9 @@
   },
   "historyActionGist": {
     "message": "↗ Gist"
+  },
+  "historyActionNotion": {
+    "message": "↗ Notion"
   },
   "historyNoExportsYet": {
     "message": "Ainda não há exportações"

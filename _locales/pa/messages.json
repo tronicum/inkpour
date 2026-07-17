@@ -65,6 +65,10 @@
   "popupGistBtnTitle": {
     "message": "Markdown ਨੂੰ GitHub Gist 'ਤੇ ਅੱਪਲੋਡ ਕਰੋ"
   },
+  "popupNotionBtnTitle": {
+    "message": "Markdown ਨੂੰ Notion ਪੇਜ ਵਿੱਚ ਜੋੜੋ",
+    "description": "Notion button tooltip"
+  },
   "popupAllBtnTitle": {
     "message": "MD + DOCX + ZIP ਇੱਕੋ ਵਾਰ ਐਕਸਪੋਰਟ ਕਰੋ"
   },
@@ -94,6 +98,9 @@
   },
   "popupBtnGist": {
     "message": "Gist ↑"
+  },
+  "popupBtnNotion": {
+    "message": "Notion ↑"
   },
   "popupBtnExportAll": {
     "message": "⬇ ਸਭ ਐਕਸਪੋਰਟ ਕਰੋ (MD + DOCX + ZIP)"
@@ -194,6 +201,18 @@
   },
   "popupStatusGistUploadFailed": {
     "message": "Gist ਅੱਪਲੋਡ ਅਸਫਲ ਹੋਇਆ"
+  },
+  "popupStatusNotionConfigMissing": {
+    "message": "ਪਹਿਲਾਂ ਸੈਟਿੰਗਸ ਵਿੱਚ ਇੱਕ Notion ਟੋਕਨ ਅਤੇ ਪੇਜ ID ਜੋੜੋ।"
+  },
+  "popupStatusNotionUploading": {
+    "message": "Notion 'ਤੇ ਅੱਪਲੋਡ ਹੋ ਰਿਹਾ ਹੈ…"
+  },
+  "popupStatusNotionCreated": {
+    "message": "✓ Notion ਵਿੱਚ ਜੋੜਿਆ ਗਿਆ"
+  },
+  "popupStatusNotionUploadFailed": {
+    "message": "Notion ਅੱਪਲੋਡ ਅਸਫਲ ਹੋਇਆ"
   },
   "popupStatusNotSupportedPage": {
     "message": "ਇਹ ਸਮਰਥਿਤ AI ਚੈਟ ਪੇਜ ਨਹੀਂ ਹੈ। Inkpour ਨੂੰ ChatGPT, Claude, Gemini, Google Search, ਜਾਂ ਕਿਸੇ ਹੋਰ ਸਮਰਥਿਤ ਪਲੇਟਫਾਰਮ 'ਤੇ ਖੋਲ੍ਹੋ।"
@@ -516,6 +535,27 @@
   "settingsGistTagsPlaceholder": {
     "message": "work, project-x, research"
   },
+  "settingsNotionTokenLabel": {
+    "message": "Notion ਏਕੀਕਰਨ ਟੋਕਨ"
+  },
+  "settingsNotionTokenDesc": {
+    "message": "ਅੰਦਰੂਨੀ ਏਕੀਕਰਨ ਟੋਕਨ — ਪੌਪਅੱਪ ਵਿੱਚ \"Notion ↑\" ਬਟਨ ਚਾਲੂ ਕਰਦਾ ਹੈ, ਜੋ ਐਕਸਪੋਰਟ ਨੂੰ ਹੇਠਾਂ ਦਿੱਤੇ ਪੇਜ ਵਿੱਚ ਜੋੜਦਾ ਹੈ।"
+  },
+  "settingsNotionTokenLink": {
+    "message": "ਇੱਕ ਬਣਾਓ →"
+  },
+  "settingsNotionTokenFineprint": {
+    "message": "⚠ ਬ੍ਰਾਊਜ਼ਰ ਦੇ ਸਥਾਨਕ ਐਕਸਟੈਂਸ਼ਨ ਸਟੋਰੇਜ ਵਿੱਚ ਸਾਦੇ ਟੈਕਸਟ ਵਜੋਂ ਸਟੋਰ ਕੀਤਾ ਜਾਂਦਾ ਹੈ — ਇਸਨੂੰ ਪਾਸਵਰਡ ਵਾਂਗ ਸਮਝੋ। ਟੋਕਨ ਨੂੰ Notion ਵਿੱਚ ਟਾਰਗੇਟ ਪੇਜ ਨਾਲ ਵੀ ਜੋੜਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ (ਪੇਜ ਖੋਲ੍ਹੋ → ••• ਮੀਨੂ → Connections → ਤੁਹਾਡਾ ਏਕੀਕਰਨ), ਨਹੀਂ ਤਾਂ ਅੱਪਲੋਡ 404 ਗਲਤੀ ਨਾਲ ਅਸਫਲ ਹੋਣਗੇ।"
+  },
+  "settingsNotionPageIdLabel": {
+    "message": "Notion ਪੇਜ ID"
+  },
+  "settingsNotionPageIdDesc": {
+    "message": "ਉਹ ਪੇਜ (ਜਾਂ ਬਲਾਕ) ਜਿਸ ਵਿੱਚ ਐਕਸਪੋਰਟ ਜੋੜੇ ਜਾਂਦੇ ਹਨ — ਪੇਜ ਦੇ Notion URL ਦੇ ਅੰਤ ਤੋਂ 32-ਅੱਖਰ ਦੀ ID ਕਾਪੀ ਕਰੋ, ਡੈਸ਼ ਸਹਿਤ ਜਾਂ ਬਿਨਾਂ।"
+  },
+  "settingsNotionPageIdPlaceholder": {
+    "message": "a1b2c3d4e5f67890abcdef1234567890"
+  },
   "settingsScrubLabel": {
     "message": "ਅੱਪਲੋਡ ਤੋਂ ਪਹਿਲਾਂ ਗੁਪਤ ਜਾਣਕਾਰੀ ਹਟਾਓ"
   },
@@ -611,6 +651,9 @@
   },
   "historyActionGist": {
     "message": "↗ Gist"
+  },
+  "historyActionNotion": {
+    "message": "↗ Notion"
   },
   "historyNoExportsYet": {
     "message": "ਹਾਲੇ ਤੱਕ ਕੋਈ ਐਕਸਪੋਰਟ ਨਹੀਂ"

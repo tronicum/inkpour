@@ -87,6 +87,10 @@
     "message": "بارگذاری Markdown در GitHub Gist",
     "description": "Gist button tooltip"
   },
+  "popupNotionBtnTitle": {
+    "message": "افزودن Markdown به یک صفحه Notion",
+    "description": "Notion button tooltip"
+  },
   "popupAllBtnTitle": {
     "message": "خروجی هم‌زمان MD + DOCX + ZIP",
     "description": "Export All button tooltip"
@@ -117,6 +121,9 @@
   },
   "popupBtnGist": {
     "message": "Gist ↑"
+  },
+  "popupBtnNotion": {
+    "message": "Notion ↑"
   },
   "popupBtnExportAll": {
     "message": "⬇ خروجی همه (MD + DOCX + ZIP)"
@@ -219,6 +226,18 @@
   },
   "popupStatusGistUploadFailed": {
     "message": "بارگذاری Gist ناموفق بود"
+  },
+  "popupStatusNotionConfigMissing": {
+    "message": "ابتدا یک توکن Notion و شناسه صفحه در تنظیمات اضافه کنید."
+  },
+  "popupStatusNotionUploading": {
+    "message": "در حال بارگذاری در Notion…"
+  },
+  "popupStatusNotionCreated": {
+    "message": "✓ به Notion افزوده شد"
+  },
+  "popupStatusNotionUploadFailed": {
+    "message": "بارگذاری در Notion ناموفق بود"
   },
   "popupStatusNotSupportedPage": {
     "message": "این یک صفحه چت هوش مصنوعی پشتیبانی‌شده نیست. Inkpour را در ChatGPT، Claude، Gemini، Google Search یا پلتفرم پشتیبانی‌شده دیگری باز کنید."
@@ -541,6 +560,27 @@
   "settingsGistTagsPlaceholder": {
     "message": "کار، پروژه-ایکس، پژوهش"
   },
+  "settingsNotionTokenLabel": {
+    "message": "توکن یکپارچه‌سازی Notion"
+  },
+  "settingsNotionTokenDesc": {
+    "message": "توکن یکپارچه‌سازی داخلی — دکمه «Notion ↑» را در پاپ‌آپ فعال می‌کند و خروجی‌ها را به صفحه زیر می‌افزاید."
+  },
+  "settingsNotionTokenLink": {
+    "message": "ساخت یک توکن →"
+  },
+  "settingsNotionTokenFineprint": {
+    "message": "⚠ به‌صورت متن ساده در فضای ذخیره‌سازی محلی افزونه ذخیره می‌شود — با آن مانند رمز عبور رفتار کنید. این توکن همچنین باید به صفحه هدف در Notion متصل باشد (صفحه را باز کنید ← منوی ••• ← Connections ← یکپارچه‌سازی شما)، در غیر این صورت بارگذاری‌ها با خطای ۴۰۴ ناموفق خواهند بود."
+  },
+  "settingsNotionPageIdLabel": {
+    "message": "شناسه صفحه Notion"
+  },
+  "settingsNotionPageIdDesc": {
+    "message": "صفحه (یا بلوکی) که خروجی‌ها به آن افزوده می‌شوند — شناسه ۳۲ کاراکتری را از انتهای نشانی اینترنتی صفحه در Notion کپی کنید، با یا بدون خط تیره."
+  },
+  "settingsNotionPageIdPlaceholder": {
+    "message": "a1b2c3d4e5f67890abcdef1234567890"
+  },
   "settingsScrubLabel": {
     "message": "پاک‌سازی اطلاعات حساس پیش از بارگذاری"
   },
@@ -636,6 +676,9 @@
   },
   "historyActionGist": {
     "message": "↗ Gist"
+  },
+  "historyActionNotion": {
+    "message": "↗ Notion"
   },
   "historyNoExportsYet": {
     "message": "هنوز هیچ خروجی‌ای وجود ندارد"

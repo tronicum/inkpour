@@ -87,6 +87,10 @@
     "message": "Carica il Markdown su GitHub Gist",
     "description": "Gist button tooltip"
   },
+  "popupNotionBtnTitle": {
+    "message": "Aggiungi il Markdown a una pagina Notion",
+    "description": "Notion button tooltip"
+  },
   "popupAllBtnTitle": {
     "message": "Esporta MD + DOCX + ZIP contemporaneamente",
     "description": "Export All button tooltip"
@@ -117,6 +121,9 @@
   },
   "popupBtnGist": {
     "message": "Gist ↑"
+  },
+  "popupBtnNotion": {
+    "message": "Notion ↑"
   },
   "popupBtnExportAll": {
     "message": "⬇ Esporta tutto (MD + DOCX + ZIP)"
@@ -219,6 +226,18 @@
   },
   "popupStatusGistUploadFailed": {
     "message": "Caricamento del Gist non riuscito"
+  },
+  "popupStatusNotionConfigMissing": {
+    "message": "Aggiungi prima un token Notion e un ID pagina nelle Impostazioni."
+  },
+  "popupStatusNotionUploading": {
+    "message": "Caricamento su Notion…"
+  },
+  "popupStatusNotionCreated": {
+    "message": "✓ Aggiunto a Notion"
+  },
+  "popupStatusNotionUploadFailed": {
+    "message": "Caricamento su Notion non riuscito"
   },
   "popupStatusNotSupportedPage": {
     "message": "Non è una pagina di chat AI supportata. Apri Inkpour su ChatGPT, Claude, Gemini, Google Search o un'altra piattaforma supportata."
@@ -541,6 +560,27 @@
   "settingsGistTagsPlaceholder": {
     "message": "lavoro, progetto-x, ricerca"
   },
+  "settingsNotionTokenLabel": {
+    "message": "Token di integrazione Notion"
+  },
+  "settingsNotionTokenDesc": {
+    "message": "Token di integrazione interna — abilita il pulsante \"Notion ↑\" nel popup, che aggiunge le esportazioni alla pagina sottostante."
+  },
+  "settingsNotionTokenLink": {
+    "message": "Creane uno →"
+  },
+  "settingsNotionTokenFineprint": {
+    "message": "⚠ Salvato in chiaro nello storage locale dell'estensione — trattalo come una password. Il token deve anche essere collegato alla pagina di destinazione in Notion (apri la pagina → menu ••• → Connessioni → la tua integrazione), altrimenti i caricamenti falliranno con un errore 404."
+  },
+  "settingsNotionPageIdLabel": {
+    "message": "ID pagina Notion"
+  },
+  "settingsNotionPageIdDesc": {
+    "message": "La pagina (o il blocco) a cui vengono aggiunte le esportazioni — copia l'ID di 32 caratteri dalla fine dell'URL Notion della pagina, con o senza trattini."
+  },
+  "settingsNotionPageIdPlaceholder": {
+    "message": "a1b2c3d4e5f67890abcdef1234567890"
+  },
   "settingsScrubLabel": {
     "message": "Rimuovi dati sensibili prima del caricamento"
   },
@@ -636,6 +676,9 @@
   },
   "historyActionGist": {
     "message": "↗ Gist"
+  },
+  "historyActionNotion": {
+    "message": "↗ Notion"
   },
   "historyNoExportsYet": {
     "message": "Nessuna esportazione ancora"

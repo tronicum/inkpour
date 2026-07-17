@@ -87,6 +87,10 @@
     "message": "Загрузить Markdown в GitHub Gist",
     "description": "Gist button tooltip"
   },
+  "popupNotionBtnTitle": {
+    "message": "Добавить Markdown на страницу Notion",
+    "description": "Notion button tooltip"
+  },
   "popupAllBtnTitle": {
     "message": "Экспортировать MD + DOCX + ZIP одновременно",
     "description": "Export All button tooltip"
@@ -117,6 +121,9 @@
   },
   "popupBtnGist": {
     "message": "Gist ↑"
+  },
+  "popupBtnNotion": {
+    "message": "Notion ↑"
   },
   "popupBtnExportAll": {
     "message": "⬇ Экспортировать всё (MD + DOCX + ZIP)"
@@ -219,6 +226,18 @@
   },
   "popupStatusGistUploadFailed": {
     "message": "Не удалось загрузить Gist"
+  },
+  "popupStatusNotionConfigMissing": {
+    "message": "Сначала добавьте токен Notion и ID страницы в настройках."
+  },
+  "popupStatusNotionUploading": {
+    "message": "Загрузка в Notion…"
+  },
+  "popupStatusNotionCreated": {
+    "message": "✓ Добавлено в Notion"
+  },
+  "popupStatusNotionUploadFailed": {
+    "message": "Не удалось загрузить в Notion"
   },
   "popupStatusNotSupportedPage": {
     "message": "Эта страница ИИ-чата не поддерживается. Откройте Inkpour в ChatGPT, Claude, Gemini, Google Search или на другой поддерживаемой платформе."
@@ -541,6 +560,27 @@
   "settingsGistTagsPlaceholder": {
     "message": "работа, проект-x, исследование"
   },
+  "settingsNotionTokenLabel": {
+    "message": "Токен интеграции Notion"
+  },
+  "settingsNotionTokenDesc": {
+    "message": "Внутренний токен интеграции — включает кнопку «Notion ↑» во всплывающем окне, добавляющую экспорт на указанную ниже страницу."
+  },
+  "settingsNotionTokenLink": {
+    "message": "Создать →"
+  },
+  "settingsNotionTokenFineprint": {
+    "message": "⚠ Хранится в виде обычного текста в локальном хранилище расширения — относитесь к нему как к паролю. Токен также должен быть подключён к целевой странице в Notion (откройте страницу → меню ••• → Connections → ваша интеграция), иначе загрузка будет завершаться ошибкой 404."
+  },
+  "settingsNotionPageIdLabel": {
+    "message": "ID страницы Notion"
+  },
+  "settingsNotionPageIdDesc": {
+    "message": "Страница (или блок), к которой добавляется экспорт — скопируйте 32-символьный ID из конца URL страницы в Notion, с дефисами или без них."
+  },
+  "settingsNotionPageIdPlaceholder": {
+    "message": "a1b2c3d4e5f67890abcdef1234567890"
+  },
   "settingsScrubLabel": {
     "message": "Удалять секреты перед загрузкой"
   },
@@ -636,6 +676,9 @@
   },
   "historyActionGist": {
     "message": "↗ Gist"
+  },
+  "historyActionNotion": {
+    "message": "↗ Notion"
   },
   "historyNoExportsYet": {
     "message": "Экспортов пока нет"

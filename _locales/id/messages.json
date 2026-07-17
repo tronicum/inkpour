@@ -87,6 +87,10 @@
     "message": "Unggah Markdown ke GitHub Gist",
     "description": "Gist button tooltip"
   },
+  "popupNotionBtnTitle": {
+    "message": "Tambahkan Markdown ke halaman Notion",
+    "description": "Notion button tooltip"
+  },
   "popupAllBtnTitle": {
     "message": "Ekspor MD + DOCX + ZIP sekaligus",
     "description": "Export All button tooltip"
@@ -117,6 +121,9 @@
   },
   "popupBtnGist": {
     "message": "Gist ↑"
+  },
+  "popupBtnNotion": {
+    "message": "Notion ↑"
   },
   "popupBtnExportAll": {
     "message": "⬇ Ekspor Semua (MD + DOCX + ZIP)"
@@ -219,6 +226,18 @@
   },
   "popupStatusGistUploadFailed": {
     "message": "Gagal mengunggah Gist"
+  },
+  "popupStatusNotionConfigMissing": {
+    "message": "Tambahkan token Notion dan ID halaman di Pengaturan terlebih dahulu."
+  },
+  "popupStatusNotionUploading": {
+    "message": "Mengunggah ke Notion…"
+  },
+  "popupStatusNotionCreated": {
+    "message": "✓ Ditambahkan ke Notion"
+  },
+  "popupStatusNotionUploadFailed": {
+    "message": "Gagal mengunggah ke Notion"
   },
   "popupStatusNotSupportedPage": {
     "message": "Ini bukan halaman chat AI yang didukung. Buka Inkpour di ChatGPT, Claude, Gemini, Google Search, atau platform lain yang didukung."
@@ -541,6 +560,27 @@
   "settingsGistTagsPlaceholder": {
     "message": "kerja, proyek-x, riset"
   },
+  "settingsNotionTokenLabel": {
+    "message": "Token integrasi Notion"
+  },
+  "settingsNotionTokenDesc": {
+    "message": "Token integrasi internal — mengaktifkan tombol \"Notion ↑\" di popup, menambahkan ekspor ke halaman di bawah."
+  },
+  "settingsNotionTokenLink": {
+    "message": "Buat satu →"
+  },
+  "settingsNotionTokenFineprint": {
+    "message": "⚠ Disimpan sebagai teks biasa di penyimpanan ekstensi lokal browser — perlakukan seperti kata sandi. Token juga harus terhubung ke halaman target di Notion (buka halaman → menu ••• → Connections → integrasi Anda), atau unggahan akan gagal dengan error 404."
+  },
+  "settingsNotionPageIdLabel": {
+    "message": "ID halaman Notion"
+  },
+  "settingsNotionPageIdDesc": {
+    "message": "Halaman (atau blok) tempat ekspor ditambahkan — salin ID 32 karakter dari akhir URL Notion halaman tersebut, dengan atau tanpa tanda hubung."
+  },
+  "settingsNotionPageIdPlaceholder": {
+    "message": "a1b2c3d4e5f67890abcdef1234567890"
+  },
   "settingsScrubLabel": {
     "message": "Hapus data rahasia sebelum unggah"
   },
@@ -636,6 +676,9 @@
   },
   "historyActionGist": {
     "message": "↗ Gist"
+  },
+  "historyActionNotion": {
+    "message": "↗ Notion"
   },
   "historyNoExportsYet": {
     "message": "Belum ada ekspor"
