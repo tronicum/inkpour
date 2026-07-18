@@ -1094,5 +1094,11 @@
   },
   "popupBatchExportFailed": {
     "message": "批次匯出失敗"
+  },
+  "popupExportMoreOptions": {
+    "message": "更多匯出選項"
+  },
+  "popupBtnAllShort": {
+    "message": "全部"
   }
 }

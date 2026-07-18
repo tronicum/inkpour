@@ -1094,5 +1094,11 @@
   },
   "popupBatchExportFailed": {
     "message": "فشل التصدير الدفعي"
+  },
+  "popupExportMoreOptions": {
+    "message": "المزيد من خيارات التصدير"
+  },
+  "popupBtnAllShort": {
+    "message": "الكل"
   }
 }

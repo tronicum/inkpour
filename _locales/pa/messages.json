@@ -1069,5 +1069,11 @@
   },
   "popupBatchExportFailed": {
     "message": "ਬੈਚ ਐਕਸਪੋਰਟ ਅਸਫਲ ਹੋਇਆ"
+  },
+  "popupExportMoreOptions": {
+    "message": "ਹੋਰ ਐਕਸਪੋਰਟ ਵਿਕਲਪ"
+  },
+  "popupBtnAllShort": {
+    "message": "ਸਭ"
   }
 }

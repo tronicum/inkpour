@@ -197,6 +197,90 @@ path is one self-contained click handler (settings.js:138–162) building one
   screenshot in this sandbox could have caught either), so the same live
   look is worth a second glance after reloading again with this fix.
 
+## Batch 4c — Popup layout: split export button replaces the button grid (Stefan's UX feedback, 2026-07)
+- [x] **M** Stefan flagged the popup as crowded — a screenshot showed up to
+  11 buttons visible at once (MD/PDF/HTML/JSON/DOCX, Copy MD/Copy HTML/ZIP,
+  Gist↑/Notion↑ once configured, Export All). Brainstormed three directions
+  (overflow menu / format-selector + single button / just tighten spacing);
+  Stefan picked a synthesis: a GitHub-style split button (primary face +
+  caret) where the caret opens a menu holding everything else, including
+  folding Gist/Notion into that same menu instead of separate always-there
+  buttons. Design choices settled during the brainstorm: the primary face
+  remembers the most recently used format (not a static setting), Copy MD/
+  Copy HTML stay as plain menu rows (no separate copy-vs-download icon
+  toggle), and the other popup sections (batch export, select-messages,
+  notes) were explicitly left out of scope.
+  Done — `popup.html`'s "Export as" label + three `.btn-group` rows
+  (formats / copy+zip+gist+notion / Export All) replaced with a
+  `.split-export` control (`#exportPrimaryBtn` + `#exportCaretBtn`) and a
+  collapsible `#exportMenu`. Critically, **the menu contains the exact same
+  11 button elements, same ids** (`mdBtn`, `pdfBtn`, …, `gistBtn`,
+  `notionBtn`) that used to sit directly in the grid — only their
+  container/CSS class changed from `.btn` grid cells to `.export-menu-item`
+  rows — so every existing click handler in `popup.js` (extraction,
+  vault-write branching, Gist/Notion upload, webhook firing, history
+  persistence, etc.) keeps running completely unmodified. The redesign
+  only adds a thin layer on top:
+  - `FORMAT_TO_BTN` maps each format string to its (now-hidden-until-
+    opened) button element.
+  - `exportPrimaryBtn`'s click just does
+    `FORMAT_TO_BTN[preferredFormat]?.click()` — a proxy dispatch to the
+    real, unmodified handler.
+  - Each of the 11 buttons gets one extra lightweight listener (alongside
+    its pre-existing real handler — multiple listeners on one element
+    don't interfere with each other) that updates `preferredFormat` and
+    closes the menu; the real export logic is untouched.
+  - `preferredFormat` is seeded on popup open from `inkpour_last_export`
+    .format — a field `saveLastExport()` already wrote on every successful
+    export, reused as-is, no new storage key needed — falling back to the
+    existing "Default format" setting before anything's ever been
+    exported. Nested inside the existing settings-load callback so the
+    fallback value is guaranteed to be the real configured default, not
+    the synchronous placeholder.
+  - `setLoading()` (the one shared helper every handler already calls) got
+    one additive line mirroring its disabled/spinner state onto
+    `exportPrimaryBtn`, so the visible button shows progress regardless of
+    whether the action was triggered via the primary face or by opening
+    the menu and clicking a row directly.
+  - Gist/Notion's existing show-only-when-configured gating
+    (`gistBtn.hidden`/`notionBtn.hidden`) is completely unchanged — they
+    just now toggle visibility of a menu row instead of a grid button.
+  - Menu closes on: picking any item, clicking anywhere outside
+    `.split-export`/`.export-menu`, or pressing Escape.
+  - 2 new i18n keys (`popupExportMoreOptions` — the caret's tooltip;
+    `popupBtnAllShort` — a short "All" label for the primary face when the
+    preferred format is Export All, since its real button's full label
+    "⬇ Export All (MD + DOCX + ZIP)" is too long for the compact face),
+    translated to all 26 locales (25 via subagent, matching each locale's
+    existing `popupBtnExportAll` tone, spot-checked + full key-set diff —
+    zero mismatches). Every other menu label reuses its pre-existing i18n
+    key verbatim — zero new translation work needed for those.
+  - 8 new structural JSDOM tests (popup.js/popup.html aren't executed by
+    this harness — same `chrome.tabs`/`chrome.runtime`-dependency reason
+    background.js has none either — so these parse popup.html and grep
+    popup.js's source instead): primary face/caret/menu all exist, all 11
+    original buttons still exist *inside* the menu with their original
+    ids, the old grid/label classes are gone, debug-mode buttons were left
+    alone outside the menu, `FORMAT_TO_BTN` covers all 11 formats,
+    `setLoading()` mirrors onto the primary face, the primary face proxies
+    to the preferred format, and the preferred-format seeding logic is
+    present. Full suite 288→296 passed, 0 failed.
+  - Updated the 5 Playwright e2e tests that referenced the old grid
+    directly (`#mdBtn`/`.export-label` visible-by-default assertions) to
+    match the new structure, and added 5 new ones covering the menu
+    open/close/pick behavior specifically. **Not run in this sandbox** —
+    same Playwright Chromium-binary-download network restriction as the
+    batch-export toggle test earlier; syntax-verified via `node -c` only.
+    Needs a real run in CI or on Stefan's machine.
+  - **Not yet verified**: actual visual/spacing rendering in a real
+    browser popup (320px wide) — CSS was written to reuse existing
+    variables/patterns (`.btn`'s spinner/loading convention, the existing
+    accent color scheme) and reviewed for cascade-order correctness (the
+    `.export-menu-item` overrides are deliberately placed after `.btn` in
+    the stylesheet so they win at equal specificity — verified by parsing
+    popup.html, not by rendering it), but there's no way to screenshot a
+    real popup in this sandbox. Please take a look after reloading.
+
 ## Batch 5 — Notion export (dedicated session; background.js + settings.html/.js + popup.js)
 - [x] **M → implemented, pending live test** BYO integration token + target
   page ID in settings, client-side `fetch` to the Notion API. Verified live

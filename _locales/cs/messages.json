@@ -1069,5 +1069,11 @@
   },
   "popupBatchExportFailed": {
     "message": "Hromadný export se nezdařil"
+  },
+  "popupExportMoreOptions": {
+    "message": "Další možnosti exportu"
+  },
+  "popupBtnAllShort": {
+    "message": "Vše"
   }
 }

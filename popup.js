@@ -25,6 +25,10 @@
   const debugDomBtn  = document.getElementById('debugDomBtn');
   const reportBugBtn = document.getElementById('reportBugBtn');
   const allBtn      = document.getElementById('allBtn');
+  const exportPrimaryBtn   = document.getElementById('exportPrimaryBtn');
+  const exportPrimaryLabel = document.getElementById('exportPrimaryLabel');
+  const exportCaretBtn    = document.getElementById('exportCaretBtn');
+  const exportMenu        = document.getElementById('exportMenu');
   const settingsBtn  = document.getElementById('settingsBtn');
   const historyBtn   = document.getElementById('historyBtn');
   const settingsBtn2 = document.getElementById('settingsBtn2');
@@ -119,6 +123,18 @@
     // locally); "Report bug" also works without one (opens a pre-filled
     // GitHub issue the user reviews and submits themselves), so both show
     // together under the same Debug mode toggle regardless of token state.
+    // Seed the split export button's primary face: prefer the most
+    // recently used format (persisted by saveLastExport() further below on
+    // every successful export), falling back to this "Default format"
+    // setting before anything has ever been exported. Nested inside this
+    // same callback (rather than a separate storage.local.get call) so
+    // userSettings.defaultFormat is guaranteed to already be the real
+    // configured value, not the synchronous SETTING_DEFAULTS placeholder,
+    // by the time it's used as the fallback.
+    api.storage.local.get('inkpour_last_export', (lastResult) => {
+      const lastFormat = lastResult?.inkpour_last_export?.format;
+      setPreferredFormat(lastFormat && FORMAT_TO_BTN[lastFormat] ? lastFormat : userSettings.defaultFormat);
+    });
     if (debugGroupEl && userSettings.debugMode) {
       debugGroupEl.hidden = false;
       debugGroupEl.style.display = 'flex';
@@ -1436,7 +1452,101 @@
   function setLoading(btn, on) {
     btn.disabled = on;
     btn.classList.toggle('loading', on);
+    // Mirror onto the visible split-button face (see "Split export button"
+    // below) so the user sees feedback regardless of whether the action was
+    // triggered via the primary face (which just re-dispatches .click() to
+    // whichever menu item is "preferred") or by opening the menu and
+    // clicking a row directly.
+    if (exportPrimaryBtn && Object.values(FORMAT_TO_BTN).includes(btn)) {
+      exportPrimaryBtn.disabled = on;
+      exportPrimaryBtn.classList.toggle('loading', on);
+    }
   }
+
+  // ─── Split export button ────────────────────────────────────────────────
+  // Replaces the old ~11-button grid (TODOs.md "Popup layout" cleanup): the
+  // main face always shows/triggers whichever format was used most
+  // recently, the caret opens a menu with every other format/action. The
+  // menu still contains the EXACT SAME button elements (same ids) that
+  // used to sit directly in the grid — only their container/styling
+  // changed in popup.html — so every click handler above/below keeps
+  // working completely unmodified; this section only adds a thin
+  // "which one is preferred right now" layer on top.
+
+  const FORMAT_TO_BTN = {
+    md:          mdBtn,
+    pdf:         pdfBtn,
+    html:        htmlBtn,
+    json:        jsonBtn,
+    docx:        docxBtn,
+    'copy-md':   copyBtn,
+    'copy-html': copyHtmlBtn,
+    zip:         zipBtn,
+    all:         allBtn,
+    gist:        gistBtn,
+    notion:      notionBtn,
+  };
+
+  /** Short label for the primary face — reuses each menu item's own
+   *  (already-localized) span text, except 'all' which gets its own much
+   *  shorter dedicated string (the real button's label is a full sentence,
+   *  "⬇ Export All (MD + DOCX + ZIP)", too long for the compact face). */
+  function shortLabelFor(format) {
+    if (format === 'all') return t('popupBtnAllShort');
+    const btn = FORMAT_TO_BTN[format];
+    return btn?.querySelector('span')?.textContent || format.toUpperCase();
+  }
+
+  let preferredFormat = 'md';
+
+  function setPreferredFormat(format) {
+    if (!FORMAT_TO_BTN[format]) return; // unknown/stale format string — ignore
+    preferredFormat = format;
+    if (exportPrimaryLabel) exportPrimaryLabel.textContent = shortLabelFor(format);
+  }
+
+  function closeExportMenu() {
+    if (!exportMenu || exportMenu.hidden) return;
+    exportMenu.hidden = true;
+    exportMenu.style.display = 'none';
+    exportCaretBtn?.setAttribute('aria-expanded', 'false');
+  }
+
+  function openExportMenu() {
+    if (!exportMenu) return;
+    exportMenu.hidden = false;
+    exportMenu.style.display = 'flex';
+    exportMenu.style.flexDirection = 'column';
+    exportCaretBtn?.setAttribute('aria-expanded', 'true');
+  }
+
+  exportPrimaryBtn?.addEventListener('click', () => {
+    FORMAT_TO_BTN[preferredFormat]?.click();
+  });
+
+  exportCaretBtn?.addEventListener('click', () => {
+    if (exportMenu?.hidden) openExportMenu(); else closeExportMenu();
+  });
+
+  // Every menu item is one of the pre-existing buttons (mdBtn, pdfBtn, …) —
+  // add one extra lightweight listener per button (alongside its own real
+  // handler declared further below) that just remembers the pick and closes
+  // the menu. This never touches the real handler's behavior.
+  Object.entries(FORMAT_TO_BTN).forEach(([format, btn]) => {
+    btn?.addEventListener('click', () => {
+      setPreferredFormat(format);
+      closeExportMenu();
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!exportMenu || exportMenu.hidden) return;
+    const withinSplitControl = e.target.closest('.split-export, .export-menu');
+    if (!withinSplitControl) closeExportMenu();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeExportMenu();
+  });
 
   // ─── Export persistence (last hint + rolling history) ─────────────────────
 

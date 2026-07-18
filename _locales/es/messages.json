@@ -1094,5 +1094,11 @@
   },
   "popupBatchExportFailed": {
     "message": "Error en la exportación por lotes"
+  },
+  "popupExportMoreOptions": {
+    "message": "Más opciones de exportación"
+  },
+  "popupBtnAllShort": {
+    "message": "Todo"
   }
 }

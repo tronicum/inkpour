@@ -1094,5 +1094,11 @@
   },
   "popupBatchExportFailed": {
     "message": "批量导出失败"
+  },
+  "popupExportMoreOptions": {
+    "message": "更多导出选项"
+  },
+  "popupBtnAllShort": {
+    "message": "全部"
   }
 }

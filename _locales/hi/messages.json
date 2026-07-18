@@ -1094,5 +1094,11 @@
   },
   "popupBatchExportFailed": {
     "message": "बैच एक्सपोर्ट विफल रहा"
+  },
+  "popupExportMoreOptions": {
+    "message": "अधिक एक्सपोर्ट विकल्प"
+  },
+  "popupBtnAllShort": {
+    "message": "सभी"
   }
 }

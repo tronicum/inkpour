@@ -1094,5 +1094,11 @@
   },
   "popupBatchExportFailed": {
     "message": "Ekspor massal gagal"
+  },
+  "popupExportMoreOptions": {
+    "message": "Opsi ekspor lainnya"
+  },
+  "popupBtnAllShort": {
+    "message": "Semua"
   }
 }
