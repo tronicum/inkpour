@@ -322,6 +322,17 @@
       visibility: hidden;
     }
     .export-menu-item.selected .export-menu-check { visibility: visible; }
+    /* Sub-option of the row directly above it (currently: "Copy to
+       clipboard" under "HTML") — indented and slightly muted so it reads
+       as a variant of that row, not an unrelated peer action. */
+    .export-menu-item.sub-item {
+      padding-inline-start: 28px;
+      font-size: 11.5px;
+      color: var(--subtext);
+    }
+    .export-menu-item.sub-item.selected {
+      color: var(--accent-text);
+    }
     .export-menu-sep {
       height: 1px;
       background: var(--border);
@@ -532,6 +543,14 @@
     <button class="export-menu-item" type="button" data-format="html" role="menuitemradio">
       <span class="export-menu-check">✓</span><span data-i18n="popupBtnHtml">HTML</span>
     </button>
+    <!-- Sits directly under HTML (not off in an unrelated "copy" cluster,
+         which read as arbitrary — feedback: "copy md vs copy html via
+         dropdown also feels very counter intuitive"): it's the clipboard
+         alternative to that same HTML export, so it's positioned and
+         styled as a sub-option of the row right above it. -->
+    <button class="export-menu-item sub-item" type="button" data-format="copy-html" role="menuitemradio">
+      <span class="export-menu-check">✓</span><span data-i18n="popupBtnCopyHtml">Copy to clipboard</span>
+    </button>
     <button class="export-menu-item" type="button" data-format="json" role="menuitemradio">
       <span class="export-menu-check">✓</span><span data-i18n="popupBtnJson">JSON</span>
     </button>
@@ -539,9 +558,6 @@
       <span class="export-menu-check">✓</span><span data-i18n="popupBtnDocx">DOCX</span>
     </button>
     <div class="export-menu-sep"></div>
-    <button class="export-menu-item" type="button" data-format="copy-html" role="menuitemradio">
-      <span class="export-menu-check">✓</span><span data-i18n="popupBtnCopyHtml">Copy HTML</span>
-    </button>
     <button class="export-menu-item" type="button" data-format="all" role="menuitemradio">
       <span class="export-menu-check">✓</span><span data-i18n="popupBtnExportAll">⬇ Export All (MD + DOCX + ZIP)</span>
     </button>
@@ -567,7 +583,7 @@
     <button id="htmlBtn" data-i18n-title="popupHtmlBtnTitle" title="Export to HTML"><div class="spinner"></div><span data-i18n="popupBtnHtml">HTML</span></button>
     <button id="jsonBtn" data-i18n-title="popupJsonBtnTitle" title="Export to JSON (Alt+Shift+J)"><div class="spinner"></div><span data-i18n="popupBtnJson">JSON</span></button>
     <button id="docxBtn" data-i18n-title="popupDocxBtnTitle" title="Export to Word document (.docx)"><div class="spinner"></div><span data-i18n="popupBtnDocx">DOCX</span></button>
-    <button id="copyHtmlBtn" data-i18n-title="popupCopyHtmlBtnTitle" title="Copy standalone HTML to clipboard (Alt+Shift+H)"><div class="spinner"></div><span data-i18n="popupBtnCopyHtml">Copy HTML</span></button>
+    <button id="copyHtmlBtn" data-i18n-title="popupCopyHtmlBtnTitle" title="Copy standalone HTML to clipboard (Alt+Shift+H)"><div class="spinner"></div><span data-i18n="popupBtnCopyHtml">Copy to clipboard</span></button>
     <button id="allBtn" data-i18n-title="popupAllBtnTitle" title="Export MD + DOCX + ZIP simultaneously"><div class="spinner"></div><span data-i18n="popupBtnExportAll">⬇ Export All (MD + DOCX + ZIP)</span></button>
     <button id="gistBtn" data-i18n-title="popupGistBtnTitle" title="Upload Markdown to GitHub Gist" hidden><div class="spinner"></div><span data-i18n="popupBtnGist">Gist ↑</span></button>
     <button id="notionBtn" data-i18n-title="popupNotionBtnTitle" title="Append Markdown to a Notion page" hidden><div class="spinner"></div><span data-i18n="popupBtnNotion">Notion ↑</span></button>

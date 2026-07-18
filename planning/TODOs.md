@@ -353,6 +353,26 @@ path is one self-contained click handler (settings.js:138–162) building one
   - **Not yet verified**: real browser rendering of the new layout (quick
     row + picker + Export button stacked), same sandbox limitation as
     Batch 4c. Please take a look after reloading.
+- [x] **XS** Follow-up from live screenshot review: "copy md vs copy html
+  via dropdown also feels very counter intuitive" — Copy MD sat as an
+  always-visible quick button while Copy HTML was buried in the menu under
+  an unrelated "copy" grouping, with no visible reason for the split.
+  Considered dropping Copy HTML outright (Stefan's initial reaction — "why
+  would you want this for html? maybe even drop it as it exists as a file
+  anyway") but he asked to keep it, reframed as the clipboard alternative
+  to the HTML *file* export ("export to clipboard sounds pretty self
+  explaining").
+  Done — moved the `copy-html` row in `#exportMenu` to sit directly under
+  the `html` row (no longer separated from it by the old copy-cluster
+  divider), gave it a `.sub-item` CSS treatment (indented, slightly
+  smaller/muted) so it visually reads as "HTML, plus its clipboard
+  variant" rather than an unrelated peer action, and renamed the label
+  from "Copy HTML" to "Copy to clipboard" (same `popupBtnCopyHtml` i18n
+  key, just a new message — no new key needed). Translated the new wording
+  to all 26 locales (25 via subagent, full-suite + JSON-validity checked).
+  Copy MD's quick-button position is unchanged — it already reads clearly
+  on its own. Full suite still 300 passed, 0 failed (no test hardcoded the
+  old label or menu ordering, so nothing needed rewriting there).
 
 ## Batch 5 — Notion export (dedicated session; background.js + settings.html/.js + popup.js)
 - [x] **M → implemented, pending live test** BYO integration token + target

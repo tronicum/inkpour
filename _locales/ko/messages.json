@@ -114,7 +114,7 @@
     "message": "MD 복사"
   },
   "popupBtnCopyHtml": {
-    "message": "HTML 복사"
+    "message": "클립보드에 복사"
   },
   "popupBtnZip": {
     "message": "ZIP"

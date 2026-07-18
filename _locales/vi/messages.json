@@ -114,7 +114,7 @@
     "message": "Sao chép MD"
   },
   "popupBtnCopyHtml": {
-    "message": "Sao chép HTML"
+    "message": "Sao chép vào clipboard"
   },
   "popupBtnZip": {
     "message": "ZIP"

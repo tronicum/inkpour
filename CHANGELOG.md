@@ -42,6 +42,9 @@ new section here in the same commit as the version bump.
   dropdown, then run with a separate Export button — picking a format no
   longer fires it immediately, so there's always a chance to change your
   mind before a Gist/Notion upload (or any other export) actually runs.
+- Renamed "Copy HTML" to "Copy to clipboard" and moved it directly under
+  the HTML option in that dropdown, so it reads as the clipboard version
+  of the HTML export rather than an unrelated action.
 
 ## [0.4.28.1] - 2026-07-17
 ### Fixed
