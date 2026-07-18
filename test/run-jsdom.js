@@ -2170,6 +2170,26 @@ async function main() {
       'expected an explicit setBadgeText({text:\'\'...}) clearing any previously-set badge text');
   });
 
+  // Regression: reloading the extension while an already-open, already-
+  // focused tab sits on a supported page used to leave that tab's icon on
+  // its default (non-green) state — neither tabs.onUpdated (navigation
+  // only) nor tabs.onActivated (switching TO a tab) fire just because the
+  // extension itself reloaded, so nothing ever told that tab's icon to
+  // update. Fixed by syncing every open tab's icon on install/update/
+  // reload and on browser startup.
+  await test('syncs every open tab\'s icon on install/update/reload (not just on navigate/switch)', () => {
+    assert(/onInstalled\.addListener\(\s*\(\)\s*=>\s*\{\s*syncAllTabIcons/.test(BACKGROUND_JS),
+      'expected onInstalled to call syncAllTabIcons()');
+    assert(/function syncAllTabIcons/.test(BACKGROUND_JS), 'expected a syncAllTabIcons() helper');
+    assert(/tabs\.query\(\{\}\)/.test(BACKGROUND_JS),
+      'expected syncAllTabIcons() to query all open tabs, not just the active one');
+  });
+
+  await test('also syncs icons on browser startup (restored tabs from a previous session)', () => {
+    assert(/onStartup\?\.addListener\(\s*\(\)\s*=>\s*\{\s*syncAllTabIcons/.test(BACKGROUND_JS),
+      'expected onStartup to also call syncAllTabIcons()');
+  });
+
   // ─── CHANGELOG.md — release notes source of truth (Batch 10 prep) ────────
   // CHANGELOG.md is the file Batch 10's future automated store-publishing
   // workflow will read release-note text from for each tagged version. This

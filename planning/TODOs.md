@@ -177,14 +177,25 @@ path is one self-contained click handler (settings.js:138–162) building one
   (`.github/workflows/ci.yml`) alongside the existing icon-48/icon-96
   entries. Full suite 281→286 passed, 0 failed (unchanged by the recolor
   rework — same 5 tests, same file names, just different pixel content).
-  **Not yet verified**: how the green actually reads in a real Chrome/
-  Firefox toolbar (dark vs. light toolbar theme, native DPI) — image
-  generation and JSDOM-level checks were done in this sandbox, but there's
-  no way to render an actual browser toolbar here. The corner-badge version
-  was already caught and rejected this way (Stefan looking at the real
-  rendering, not something a screenshot in this sandbox could have caught
-  either), so the same live look is worth a second glance after loading
-  unpacked.
+  **Real bug found and fixed after Stefan reloaded the unpacked extension
+  and didn't see the green icon at all**: `updateBadge()` only ran from
+  `tabs.onUpdated` (fires on navigation) and `tabs.onActivated` (fires on
+  switching TO a tab) — reloading the extension itself, while an
+  already-open tab was already the focused one, triggers neither, so that
+  tab's icon just never got told to update. Fixed with a new
+  `syncAllTabIcons()` that queries every open tab and runs the same
+  `updateBadge()` on each, wired to both `runtime.onInstalled` (fires on
+  install/update/every unpacked-reload) and `runtime.onStartup` (browser
+  restart, restoring previously-open tabs). 2 more JSDOM tests added (288
+  total, 0 failed) checking both listeners are wired and that the sync
+  queries *all* tabs, not just the active one. Still **not yet verified**:
+  how the green actually reads in a real Chrome/Firefox toolbar (dark vs.
+  light toolbar theme, native DPI) — image generation and JSDOM-level
+  checks were done in this sandbox, but there's no way to render an actual
+  browser toolbar here. The corner-badge version was already caught and
+  rejected this way (Stefan looking at the real rendering, not something a
+  screenshot in this sandbox could have caught either), so the same live
+  look is worth a second glance after reloading again with this fix.
 
 ## Batch 5 — Notion export (dedicated session; background.js + settings.html/.js + popup.js)
 - [x] **M → implemented, pending live test** BYO integration token + target

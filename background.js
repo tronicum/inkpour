@@ -684,3 +684,23 @@ api.tabs.onActivated.addListener(async ({ tabId }) => {
     if (tab?.url) updateBadge(tabId, tab.url);
   } catch { /* tab may be gone */ }
 });
+
+// Sync every already-open tab's icon on install/update/reload, and on
+// browser startup. Without this, a tab that was already open and already
+// the active tab BEFORE the extension loaded/reloaded never gets an icon
+// update — neither onUpdated (only fires on navigation) nor onActivated
+// (only fires on switching TO a tab) fire just because the extension
+// itself reloaded. Confirmed live: reloading the unpacked extension while
+// sitting on an already-open, already-focused ChatGPT/Claude tab left the
+// icon on its default (non-green) state until the page was reloaded or the
+// user switched away and back — this closes that gap.
+async function syncAllTabIcons() {
+  try {
+    const tabs = await api.tabs.query({});
+    for (const tab of tabs) {
+      if (tab.id != null && tab.url) updateBadge(tab.id, tab.url);
+    }
+  } catch { /* best-effort */ }
+}
+api.runtime.onInstalled.addListener(() => { syncAllTabIcons(); });
+api.runtime.onStartup?.addListener(() => { syncAllTabIcons(); });
