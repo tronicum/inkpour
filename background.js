@@ -608,13 +608,17 @@ api.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
 // read as "a tiny green dot" next to other extensions (uBlock Origin,
 // Bitwarden) that show a much more noticeable count badge. Since the badge
 // canvas itself can't grow, the fix moves the signal into the icon bitmap
-// instead, which we fully control: icons/icon-*-active.png (generated
-// once, checked into the repo — see icons/ directory) bakes a large green
-// checkmark accent directly into the icon art, swapped in via
+// instead, which we fully control: icons/icon-*-active.png (generated once,
+// checked into the repo — see icons/ directory) is the same logo art with
+// its background hue-shifted from purple/blue to green (a first attempt
+// that overlaid a corner checkmark badge instead was tried and rejected —
+// it visibly clipped/overlapped the logo at 32px, so a full-icon recolor
+// replaced it: the whole shape stays intact and legible at every size,
+// down to 16px, since nothing is drawn on top of it). Swapped in via
 // api.action.setIcon() per-tab. This is still a purely passive, no-click
 // state change — same mechanism as the old badge, just a bigger, more
 // legible visual result. No native badge text is set any more for the
-// supported case, to avoid stacking two indicators in the same corner.
+// supported case, to avoid stacking an indicator on top of the recolored icon.
 
 const ICON_DEFAULT = { 16: 'icons/icon-16.png', 32: 'icons/icon-32.png', 48: 'icons/icon-48.png', 128: 'icons/icon-128.png' };
 const ICON_ACTIVE  = { 16: 'icons/icon-16-active.png', 32: 'icons/icon-32-active.png', 48: 'icons/icon-48-active.png', 128: 'icons/icon-128-active.png' };
