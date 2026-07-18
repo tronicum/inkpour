@@ -1075,5 +1075,8 @@
   },
   "popupBtnAllShort": {
     "message": "Vše"
+  },
+  "popupExportGoBtn": {
+    "message": "Exportovat"
   }
 }

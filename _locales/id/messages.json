@@ -1100,5 +1100,8 @@
   },
   "popupBtnAllShort": {
     "message": "Semua"
+  },
+  "popupExportGoBtn": {
+    "message": "Ekspor"
   }
 }

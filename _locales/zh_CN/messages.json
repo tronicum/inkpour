@@ -1100,5 +1100,8 @@
   },
   "popupBtnAllShort": {
     "message": "全部"
+  },
+  "popupExportGoBtn": {
+    "message": "导出"
   }
 }

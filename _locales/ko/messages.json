@@ -1100,5 +1100,8 @@
   },
   "popupBtnAllShort": {
     "message": "모두"
+  },
+  "popupExportGoBtn": {
+    "message": "내보내기"
   }
 }

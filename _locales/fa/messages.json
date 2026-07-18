@@ -1100,5 +1100,8 @@
   },
   "popupBtnAllShort": {
     "message": "همه"
+  },
+  "popupExportGoBtn": {
+    "message": "خروجی گرفتن"
   }
 }

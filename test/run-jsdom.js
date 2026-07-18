@@ -2116,33 +2116,66 @@ async function main() {
     assert(!JSON.stringify(result.report.url).includes('?'), 'query string leaked into sanitized url');
   });
 
-  // ─── Popup split export button (replaces the old ~11-button grid) ───────
+  // ─── Popup export picker (selector + separate "Export" button) ──────────
   // popup.js/popup.html aren't loaded/executed by this JSDOM harness (they
   // depend on chrome.tabs/chrome.runtime APIs JSDOM doesn't provide — same
   // reason background.js has no JSDOM coverage either, see below). These
   // checks are structural: parse popup.html for the expected elements, and
   // grep popup.js's source for the wiring that ties them together, so a
   // future refactor can't silently drop one without a test noticing.
-  console.log('\nPopup split export button (structure)');
+  //
+  // Design note this suite encodes: picking a row in the menu must only
+  // change the selection, never fire the real export/copy/upload — that
+  // only happens when the Export button is clicked. An earlier version
+  // fired instantly on picking a menu row, which read as "no chance to
+  // abort" for a Gist/Notion upload in particular; see TODOs.md.
+  console.log('\nPopup export picker (structure)');
 
   const POPUP_HTML = fs.readFileSync(path.resolve(__dirname, '../popup.html'), 'utf8');
   const POPUP_JS   = fs.readFileSync(path.resolve(__dirname, '../popup.js'), 'utf8');
   const POPUP_DOM  = new JSDOM(POPUP_HTML).window.document;
 
-  const EXPORT_MENU_IDS = ['mdBtn', 'pdfBtn', 'htmlBtn', 'jsonBtn', 'docxBtn', 'copyBtn', 'copyHtmlBtn', 'zipBtn', 'allBtn', 'gistBtn', 'notionBtn'];
+  // Formats reachable only through the picker + Export button.
+  const PICKER_MENU_IDS = ['mdBtn', 'pdfBtn', 'htmlBtn', 'jsonBtn', 'docxBtn', 'copyHtmlBtn', 'allBtn', 'gistBtn', 'notionBtn'];
+  // Formats that stayed real, always-visible, directly-clickable quick buttons.
+  const QUICK_ACTION_IDS = ['copyBtn', 'zipBtn'];
 
-  await test('primary face, caret, and menu container all exist', () => {
-    ['exportPrimaryBtn', 'exportPrimaryLabel', 'exportCaretBtn', 'exportMenu'].forEach(id => {
+  await test('selector and Export button both exist', () => {
+    ['exportSelectBtn', 'exportSelectedLabel', 'exportGoBtn', 'exportMenu'].forEach(id => {
       assert(POPUP_DOM.getElementById(id), `#${id} missing from popup.html`);
     });
   });
 
-  await test('every export action still exists inside the menu, with its original id', () => {
+  await test('Copy MD and ZIP are real, visible, directly-clickable quick buttons (not inside the menu)', () => {
     const menu = POPUP_DOM.getElementById('exportMenu');
-    EXPORT_MENU_IDS.forEach(id => {
+    const realActions = POPUP_DOM.getElementById('realExportActions');
+    QUICK_ACTION_IDS.forEach(id => {
       const el = POPUP_DOM.getElementById(id);
       assert(el, `#${id} missing from popup.html`);
-      assert(menu.contains(el), `#${id} is no longer inside #exportMenu`);
+      assert(!menu.contains(el), `#${id} should not be inside #exportMenu`);
+      assert(!realActions.contains(el), `#${id} should not be hidden inside #realExportActions`);
+      assert(el.hidden !== true, `#${id} should be visible by default`);
+    });
+  });
+
+  await test('every other export action exists, hidden, inside #realExportActions with its original id', () => {
+    const realActions = POPUP_DOM.getElementById('realExportActions');
+    assert(realActions, '#realExportActions missing from popup.html');
+    assert(realActions.hidden, '#realExportActions should be hidden — never directly clickable');
+    PICKER_MENU_IDS.forEach(id => {
+      const el = POPUP_DOM.getElementById(id);
+      assert(el, `#${id} missing from popup.html`);
+      assert(realActions.contains(el), `#${id} should live inside #realExportActions`);
+    });
+  });
+
+  await test('the menu contains one inert, data-format-only row per picker format (no shared ids with the real buttons)', () => {
+    const menu = POPUP_DOM.getElementById('exportMenu');
+    const formats = ['md', 'pdf', 'html', 'json', 'docx', 'copy-html', 'all', 'gist', 'notion'];
+    formats.forEach(format => {
+      const row = menu.querySelector(`.export-menu-item[data-format="${format}"]`);
+      assert(row, `no .export-menu-item[data-format="${format}"] in #exportMenu`);
+      assert(!PICKER_MENU_IDS.includes(row.id), `menu row for ${format} should not reuse a real button's id`);
     });
   });
 
@@ -2158,26 +2191,43 @@ async function main() {
     assert(!menu.contains(debugGroup), '#debug-group should not have been folded into the export menu');
   });
 
-  await test('popup.js maps every menu format to its button element (FORMAT_TO_BTN)', () => {
-    const formats = ['md', 'pdf', 'html', 'json', 'docx', "'copy-md'", "'copy-html'", 'zip', 'all', 'gist', 'notion'];
+  await test('popup.js maps every picker format to its hidden button element (FORMAT_TO_BTN)', () => {
+    const formats = ['md', 'pdf', 'html', 'json', 'docx', "'copy-html'", 'all', 'gist', 'notion'];
     formats.forEach(f => {
       assert(new RegExp(`${f}:\\s*\\w+Btn`).test(POPUP_JS), `FORMAT_TO_BTN appears to be missing an entry for ${f}`);
     });
+    // Copy MD/ZIP are deliberately NOT in this map — they're quick buttons now.
+    assert(!/'copy-md':\s*copyBtn/.test(POPUP_JS), "FORMAT_TO_BTN should no longer include 'copy-md'");
+    assert(!/zip:\s*zipBtn/.test(POPUP_JS), 'FORMAT_TO_BTN should no longer include zip');
   });
 
-  await test('setLoading() mirrors state onto the primary face', () => {
-    assert(/exportPrimaryBtn\.disabled = on/.test(POPUP_JS) && /exportPrimaryBtn\.classList\.toggle\('loading', on\)/.test(POPUP_JS),
-      'expected setLoading() to also toggle exportPrimaryBtn state');
+  await test('setLoading() mirrors state onto the Export button', () => {
+    assert(/exportGoBtn\.disabled = on/.test(POPUP_JS) && /exportGoBtn\.classList\.toggle\('loading', on\)/.test(POPUP_JS),
+      'expected setLoading() to also toggle exportGoBtn state');
   });
 
-  await test('primary face proxies its click to whichever format is preferred', () => {
-    assert(/exportPrimaryBtn\?\.addEventListener\('click',\s*\(\)\s*=>\s*\{\s*FORMAT_TO_BTN\[preferredFormat\]\?\.click\(\)/.test(POPUP_JS),
-      "expected exportPrimaryBtn's click handler to call FORMAT_TO_BTN[preferredFormat]?.click()");
+  await test('picking a menu row only updates the selection — it must not call the real button\'s .click()', () => {
+    const menuClickBlock = POPUP_JS.match(/el\.addEventListener\('click',\s*\(\)\s*=>\s*\{[\s\S]*?\}\);\s*\}\);/);
+    assert(menuClickBlock, "expected an el.addEventListener('click', ...) wiring block for menu rows");
+    assert(/setSelectedFormat/.test(menuClickBlock[0]), 'expected the menu row handler to call setSelectedFormat(...)');
+    assert(!/\.click\(\)/.test(menuClickBlock[0]), 'menu row click handler must not fire a real .click() — that must be the Export button\'s job only');
   });
 
-  await test('seeds the preferred format from the last successful export, falling back to the Settings default', () => {
+  await test('only the Export button\'s click handler proxies to FORMAT_TO_BTN[selectedFormat]', () => {
+    assert(/exportGoBtn\?\.addEventListener\('click',\s*\(\)\s*=>\s*\{\s*FORMAT_TO_BTN\[selectedFormat\]\?\.click\(\)/.test(POPUP_JS),
+      "expected exportGoBtn's click handler to call FORMAT_TO_BTN[selectedFormat]?.click()");
+  });
+
+  await test('seeds the selected format from the last successful export, falling back to the Settings default', () => {
     assert(/inkpour_last_export/.test(POPUP_JS) && /userSettings\.defaultFormat/.test(POPUP_JS),
-      'expected the primary face to read inkpour_last_export.format with a userSettings.defaultFormat fallback');
+      'expected the picker to read inkpour_last_export.format with a userSettings.defaultFormat fallback');
+  });
+
+  await test('Gist/Notion visibility gating targets the menu rows, not the (always-hidden) real buttons', () => {
+    assert(/gistMenuOption.*userSettings\.githubToken/.test(POPUP_JS) || /userSettings\.githubToken.*gistMenuOption/.test(POPUP_JS),
+      'expected the githubToken gate to show/hide #gistMenuOption');
+    assert(/notionMenuOption.*userSettings\.notionToken/.test(POPUP_JS) || /userSettings\.notionToken.*notionMenuOption/.test(POPUP_JS),
+      'expected the notionToken gate to show/hide #notionMenuOption');
   });
 
   // ─── Toolbar icon — bigger supported-site signal ─────────────────────────
