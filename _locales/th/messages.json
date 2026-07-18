@@ -1100,5 +1100,8 @@
   },
   "popupBtnAllShort": {
     "message": "ทั้งหมด"
+  },
+  "popupExportGoBtn": {
+    "message": "ส่งออก"
   }
 }

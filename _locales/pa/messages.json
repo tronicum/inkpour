@@ -1075,5 +1075,8 @@
   },
   "popupBtnAllShort": {
     "message": "ਸਭ"
+  },
+  "popupExportGoBtn": {
+    "message": "ਐਕਸਪੋਰਟ ਕਰੋ"
   }
 }

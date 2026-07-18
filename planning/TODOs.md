@@ -281,6 +281,79 @@ path is one self-contained click handler (settings.js:138–162) building one
     popup.html, not by rendering it), but there's no way to screenshot a
     real popup in this sandbox. Please take a look after reloading.
 
+## Batch 4d — Popup export picker rework (real usage feedback on Batch 4c, 2026-07)
+- [x] **M** Stefan reloaded the split-button popup from Batch 4c and reported
+  real usage feedback: the design felt "puristic"/unintuitive; Copy MD and
+  ZIP were his two most-used actions and got buried in the collapsed menu
+  when they used to be one click away; and, most importantly, picking a
+  format in the menu fired the real export/upload *instantly* — no chance
+  to reconsider, which he flagged as a real risk for the Gist/Notion upload
+  case in particular ("this automagic export might annoy people if they
+  just selected something and it fires without any chance to abort").
+  Also floated, not yet scoped/built: a Settings option letting each user
+  choose which 1-2 formats act as their own quick-access default(s) (e.g.
+  "MD+PDF" vs "MD+DOCX") — flagged below as a good follow-up, deliberately
+  not bundled into this pass.
+  Done — reworked the picker into two decoupled pieces:
+  - **Quick-actions row** (`#copyBtn`, `#zipBtn`): Copy MD and ZIP moved
+    back out of the menu into their own always-visible, directly-clickable
+    buttons — ordinary one-click actions, unchanged handlers, matching how
+    they worked before Batch 4c.
+  - **Picker + Export button** (`#exportSelectBtn` + `#exportGoBtn`) for
+    everything else (MD/PDF/HTML/JSON/DOCX/Copy HTML/Export All/Gist/
+    Notion): clicking a row in `#exportMenu` now only calls
+    `setSelectedFormat()` — updates the selector's label and the row's
+    `.selected` highlight — and does **not** touch the real button at all.
+    The real export/copy/upload logic still lives, byte-for-byte
+    unchanged, in the original `mdBtn`/`pdfBtn`/…/`gistBtn`/`notionBtn`
+    elements, just relocated into a permanently-`hidden` container
+    (`#realExportActions`) so they can no longer be reached by a direct
+    user click — the *only* thing that ever fires one now is
+    `exportGoBtn`'s click handler, which proxies `FORMAT_TO_BTN
+    [selectedFormat]?.click()`. This is a stronger decoupling than "add an
+    extra listener" (Batch 4c's approach): the menu rows are brand-new
+    inert elements (`data-format` attribute only, no shared ids with the
+    real buttons), so there's no event-ordering subtlety to reason about —
+    a menu-row click structurally cannot reach a real handler.
+  - Gist/Notion's show-only-when-configured gating moved from
+    `gistBtn.hidden`/`notionBtn.hidden` (now moot — those live inside the
+    unconditionally-hidden `#realExportActions`) to the new menu stand-ins
+    `#gistMenuOption`/`#notionMenuOption`.
+  - Selection seeding logic unchanged in spirit (still reads
+    `inkpour_last_export.format`, falls back to Settings' default format)
+    but now falls back further to a hardcoded `'md'` if the last-used
+    format was `copy-md` or `zip` — formats no longer in `FORMAT_TO_BTN`
+    since they're quick buttons, not picker options.
+  - 1 new i18n key (`popupExportGoBtn`, "Export" — the button's label),
+    translated to all 26 locales (25 via subagent, verified via full
+    key-set diff + JSON validity check on all 25 files). Reused
+    `popupBtnAllShort` as-is for the picker's "All" label, same as before.
+  - Rewrote the JSDOM structural suite (now "Popup export picker
+    (structure)") to match: real buttons live hidden inside
+    `#realExportActions`; Copy MD/ZIP are visible outside both the menu
+    and that hidden container; menu rows are inert and share no ids with
+    the real buttons; `FORMAT_TO_BTN` explicitly excludes `copy-md`/`zip`;
+    picking a menu row calls `setSelectedFormat()` and never `.click()`;
+    only `exportGoBtn`'s handler proxies to the real button. Full suite:
+    300 passed, 0 failed.
+  - Rewrote/added Playwright e2e coverage to match (still **not run in
+    this sandbox** — Playwright Chromium download blocked, same as every
+    prior e2e change this project; `node -c` syntax-checked only): quick
+    buttons + picker visible by default, real buttons hidden, menu opens
+    with correctly-labelled rows and hidden Gist/Notion rows, picking a
+    row updates the label/closes the menu *without* changing `#status`,
+    and a separate test confirms clicking Export afterward is what
+    actually fires the (now-erroring, blank-context) real action.
+  - **Not yet built, follow-up idea**: a Settings-page option for
+    configurable quick-access formats (which 1-2 formats besides Copy MD/
+    ZIP get their own always-visible button, per-user). Needs its own
+    design pass — how many slots, which formats are eligible, UI for
+    picking them, migration for existing installs — deliberately left out
+    of this pass rather than bolted on.
+  - **Not yet verified**: real browser rendering of the new layout (quick
+    row + picker + Export button stacked), same sandbox limitation as
+    Batch 4c. Please take a look after reloading.
+
 ## Batch 5 — Notion export (dedicated session; background.js + settings.html/.js + popup.js)
 - [x] **M → implemented, pending live test** BYO integration token + target
   page ID in settings, client-side `fetch` to the Notion API. Verified live

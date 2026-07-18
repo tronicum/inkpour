@@ -1100,5 +1100,8 @@
   },
   "popupBtnAllShort": {
     "message": "Tất cả"
+  },
+  "popupExportGoBtn": {
+    "message": "Xuất"
   }
 }

@@ -37,9 +37,11 @@ new section here in the same commit as the version bump.
 - Obsidian-flavored front matter now always includes a `type: ai-chat` key.
 - The toolbar icon now turns green on supported AI chat sites, replacing
   the old small "ON" badge — much easier to spot at a glance.
-- The popup's export buttons are now a single split button (pick your
-  format from a dropdown) instead of a crowded grid of up to 11 buttons.
-  The main button remembers whichever format you used last.
+- The popup's export buttons are now a compact picker: Copy MD and ZIP stay
+  one click away as before, and every other format is chosen from a
+  dropdown, then run with a separate Export button — picking a format no
+  longer fires it immediately, so there's always a chance to change your
+  mind before a Gist/Notion upload (or any other export) actually runs.
 
 ## [0.4.28.1] - 2026-07-17
 ### Fixed

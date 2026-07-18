@@ -1100,5 +1100,8 @@
   },
   "popupBtnAllShort": {
     "message": "Tout"
+  },
+  "popupExportGoBtn": {
+    "message": "Exporter"
   }
 }

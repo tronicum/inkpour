@@ -1100,5 +1100,8 @@
   },
   "popupBtnAllShort": {
     "message": "सभी"
+  },
+  "popupExportGoBtn": {
+    "message": "एक्सपोर्ट करें"
   }
 }

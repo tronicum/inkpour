@@ -1100,5 +1100,8 @@
   },
   "popupBtnAllShort": {
     "message": "সব"
+  },
+  "popupExportGoBtn": {
+    "message": "এক্সপোর্ট করুন"
   }
 }
