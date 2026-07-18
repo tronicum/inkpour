@@ -91,19 +91,19 @@
     "message": "Kopírovat MD"
   },
   "popupBtnCopyHtml": {
-    "message": "Kopírovat do schránky"
+    "message": "Kopírovat"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ Exportovat vše (MD + DOCX + ZIP)"
+    "message": "Exportovat vše (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "Exportovat pouze zprávy přidané od posledního exportu"
@@ -585,7 +585,7 @@
     "message": "Token integrace Notion"
   },
   "settingsNotionTokenDesc": {
-    "message": "Interní token integrace — zpřístupní tlačítko „Notion ↑“ v okně rozšíření, které připojí exporty ke stránce níže."
+    "message": "Interní token integrace — zpřístupní tlačítko „Notion“ v okně rozšíření, které připojí exporty ke stránce níže."
   },
   "settingsNotionTokenLink": {
     "message": "Vytvořit →"

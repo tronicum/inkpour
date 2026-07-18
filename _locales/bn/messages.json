@@ -114,19 +114,19 @@
     "message": "MD কপি করুন"
   },
   "popupBtnCopyHtml": {
-    "message": "ক্লিপবোর্ডে কপি করুন"
+    "message": "কপি করুন"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ সব এক্সপোর্ট করুন (MD + DOCX + ZIP)"
+    "message": "সব এক্সপোর্ট করুন (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "শুধু আপনার শেষ এক্সপোর্টের পর যোগ হওয়া বার্তাগুলো এক্সপোর্ট করুন",
@@ -610,7 +610,7 @@
     "message": "Notion ইন্টিগ্রেশন টোকেন"
   },
   "settingsNotionTokenDesc": {
-    "message": "অভ্যন্তরীণ ইন্টিগ্রেশন টোকেন — পপআপে \"Notion ↑\" বাটন সক্রিয় করে, নিচের পেজে এক্সপোর্ট যুক্ত করে।"
+    "message": "অভ্যন্তরীণ ইন্টিগ্রেশন টোকেন — পপআপে \"Notion\" বাটন সক্রিয় করে, নিচের পেজে এক্সপোর্ট যুক্ত করে।"
   },
   "settingsNotionTokenLink": {
     "message": "একটি তৈরি করুন →"

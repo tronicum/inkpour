@@ -114,19 +114,19 @@
     "message": "Copia MD"
   },
   "popupBtnCopyHtml": {
-    "message": "Copia negli appunti"
+    "message": "Copia"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ Esporta tutto (MD + DOCX + ZIP)"
+    "message": "Esporta tutto (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "Esporta solo i messaggi aggiunti dopo l'ultima esportazione",
@@ -610,7 +610,7 @@
     "message": "Token di integrazione Notion"
   },
   "settingsNotionTokenDesc": {
-    "message": "Token di integrazione interna — abilita il pulsante \"Notion ↑\" nel popup, che aggiunge le esportazioni alla pagina sottostante."
+    "message": "Token di integrazione interna — abilita il pulsante \"Notion\" nel popup, che aggiunge le esportazioni alla pagina sottostante."
   },
   "settingsNotionTokenLink": {
     "message": "Creane uno →"

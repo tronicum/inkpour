@@ -114,19 +114,19 @@
     "message": "نسخ MD"
   },
   "popupBtnCopyHtml": {
-    "message": "نسخ إلى الحافظة"
+    "message": "نسخ"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ تصدير الكل (MD + DOCX + ZIP)"
+    "message": "تصدير الكل (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "تصدير الرسائل المضافة منذ آخر تصدير فقط",
@@ -610,7 +610,7 @@
     "message": "رمز تكامل Notion"
   },
   "settingsNotionTokenDesc": {
-    "message": "رمز تكامل داخلي — يفعّل زر \"Notion ↑\" في النافذة المنبثقة، ويُلحق الصادرات بالصفحة أدناه."
+    "message": "رمز تكامل داخلي — يفعّل زر \"Notion\" في النافذة المنبثقة، ويُلحق الصادرات بالصفحة أدناه."
   },
   "settingsNotionTokenLink": {
     "message": "أنشئ رمزًا ←"

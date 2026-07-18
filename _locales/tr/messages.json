@@ -114,19 +114,19 @@
     "message": "MD Kopyala"
   },
   "popupBtnCopyHtml": {
-    "message": "Panoya Kopyala"
+    "message": "Kopyala"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ Tümünü Dışa Aktar (MD + DOCX + ZIP)"
+    "message": "Tümünü Dışa Aktar (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "Yalnızca son dışa aktarımdan sonra eklenen mesajları dışa aktarır",
@@ -610,7 +610,7 @@
     "message": "Notion entegrasyon token'ı"
   },
   "settingsNotionTokenDesc": {
-    "message": "Dahili entegrasyon token'ı — popup'ta \"Notion ↑\" düğmesini etkinleştirir ve dışa aktarımları aşağıdaki sayfaya ekler."
+    "message": "Dahili entegrasyon token'ı — popup'ta \"Notion\" düğmesini etkinleştirir ve dışa aktarımları aşağıdaki sayfaya ekler."
   },
   "settingsNotionTokenLink": {
     "message": "Bir tane oluştur →"

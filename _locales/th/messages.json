@@ -114,19 +114,19 @@
     "message": "คัดลอก MD"
   },
   "popupBtnCopyHtml": {
-    "message": "คัดลอกไปยังคลิปบอร์ด"
+    "message": "คัดลอก"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ ส่งออกทั้งหมด (MD + DOCX + ZIP)"
+    "message": "ส่งออกทั้งหมด (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "ส่งออกเฉพาะข้อความที่เพิ่มขึ้นตั้งแต่การส่งออกครั้งล่าสุด",
@@ -610,7 +610,7 @@
     "message": "โทเคนการเชื่อมต่อ Notion"
   },
   "settingsNotionTokenDesc": {
-    "message": "โทเคนการเชื่อมต่อภายใน — เปิดใช้งานปุ่ม \"Notion ↑\" ในหน้าต่างป๊อปอัป ซึ่งจะเพิ่มการส่งออกไปยังหน้าด้านล่าง"
+    "message": "โทเคนการเชื่อมต่อภายใน — เปิดใช้งานปุ่ม \"Notion\" ในหน้าต่างป๊อปอัป ซึ่งจะเพิ่มการส่งออกไปยังหน้าด้านล่าง"
   },
   "settingsNotionTokenLink": {
     "message": "สร้างโทเคน →"
