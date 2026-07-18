@@ -142,20 +142,29 @@ path is one self-contained click handler (settings.js:138–162) building one
   pages (it should stay a passive state signal, same as today).
   Done — the native OS badge corner (`action.setBadgeText`) is fixed-size by
   the browser itself; no manifest/API setting can make its text or
-  background any bigger, so that lever was a dead end. Instead, baked a
-  large green checkmark accent directly into new icon art
-  (`icons/icon-{16,32,48,96,128}-active.png`, generated once via Pillow —
-  a white-ringed green circle with a white checkmark, ~62% of the icon's
-  width, bottom-right quadrant; the 16px variant drops the checkmark detail
-  since it doesn't survive that small, keeping just the ringed dot) and
-  swap it in per-tab via `api.action.setIcon()` in `background.js`'s
-  existing `updateBadge()` — same passive, no-click mechanism as before,
-  just operating on the icon bitmap (which we fully control) instead of the
-  OS-constrained badge overlay. Dropped the native `setBadgeText('ON', …)`
-  call entirely for the supported case (would otherwise stack two
-  indicators in the same corner) but kept an explicit
-  `setBadgeText({text:''})` call to clear out any stale "ON" text a
-  previous version of the extension may have left behind on an
+  background any bigger, so that lever was a dead end. First attempt baked
+  a green checkmark badge into the icon's corner — Stefan flagged (live,
+  looking at the real 32px rendering) that it visibly overlapped/clipped
+  the logo's arrow at that size, which is a real regression in a different
+  direction (legible size fixed, but now covering the brand mark). Replaced
+  with a full-icon recolor instead: `icons/icon-{16,32,48,96,128}-active.png`
+  (generated via Pillow) is the *same* logo art, hue-shifted from its
+  original purple/blue gradient to green (`#16a34a`'s hue, ≈142°) — nothing
+  drawn on top, so the arrow/lines stay 100% intact and legible at every
+  size including 16px, confirmed by inspecting a 16x nearest-neighbor
+  upscale of the 16px output. Implementation: convert to HSV, shift the H
+  channel to the target hue only for pixels above a saturation threshold
+  (~30/255 — cleanly separates the colorful background gradient, sat.
+  ~146-148, from the pure-white glyph pixels, sat. 0), leaving S/V
+  untouched so the original gradient's shading/highlight pattern is
+  preserved, just in green instead of purple/blue. Swapped in per-tab via
+  `api.action.setIcon()` in `background.js`'s existing `updateBadge()` —
+  same passive, no-click mechanism as before, just operating on the icon
+  bitmap (which we fully control) instead of the OS-constrained badge
+  overlay. Dropped the native `setBadgeText('ON', …)` call entirely for the
+  supported case (would otherwise sit on top of the recolored icon) but
+  kept an explicit `setBadgeText({text:''})` call to clear out any stale
+  "ON" text a previous version of the extension may have left behind on an
   already-open tab after updating. 5 new JSDOM tests guard against this
   silently regressing: all 4 manifest icon sizes have a matching `-active`
   file referenced in `background.js`, every referenced file exists/is
@@ -166,13 +175,16 @@ path is one self-contained click handler (settings.js:138–162) building one
   and the stale-badge-clearing call is still present. Also added the 4
   active icon files to the CI "required files" check
   (`.github/workflows/ci.yml`) alongside the existing icon-48/icon-96
-  entries. Full suite 281→286 passed, 0 failed. **Not yet verified**: how
-  this actually renders in a real Chrome/Firefox toolbar (icon rendering at
-  native DPI, dark/light toolbar theme contrast, and whether the circle
-  reads clearly against Firefox's slightly different icon padding) — image
+  entries. Full suite 281→286 passed, 0 failed (unchanged by the recolor
+  rework — same 5 tests, same file names, just different pixel content).
+  **Not yet verified**: how the green actually reads in a real Chrome/
+  Firefox toolbar (dark vs. light toolbar theme, native DPI) — image
   generation and JSDOM-level checks were done in this sandbox, but there's
-  no way to render an actual browser toolbar here. Take a look after
-  loading unpacked and let me know if the accent needs repositioning/resizing.
+  no way to render an actual browser toolbar here. The corner-badge version
+  was already caught and rejected this way (Stefan looking at the real
+  rendering, not something a screenshot in this sandbox could have caught
+  either), so the same live look is worth a second glance after loading
+  unpacked.
 
 ## Batch 5 — Notion export (dedicated session; background.js + settings.html/.js + popup.js)
 - [x] **M → implemented, pending live test** BYO integration token + target
