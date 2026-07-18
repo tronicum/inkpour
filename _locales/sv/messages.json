@@ -114,19 +114,19 @@
     "message": "Kopiera MD"
   },
   "popupBtnCopyHtml": {
-    "message": "Kopiera till urklipp"
+    "message": "Kopiera"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ Exportera allt (MD + DOCX + ZIP)"
+    "message": "Exportera allt (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "Exportera endast meddelanden som tillkommit sedan din senaste export",
@@ -610,7 +610,7 @@
     "message": "Notion-integrationstoken"
   },
   "settingsNotionTokenDesc": {
-    "message": "Intern integrationstoken — aktiverar knappen \"Notion ↑\" i popupen, som lägger till exporter på sidan nedan."
+    "message": "Intern integrationstoken — aktiverar knappen \"Notion\" i popupen, som lägger till exporter på sidan nedan."
   },
   "settingsNotionTokenLink": {
     "message": "Skapa en →"

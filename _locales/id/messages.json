@@ -114,19 +114,19 @@
     "message": "Salin MD"
   },
   "popupBtnCopyHtml": {
-    "message": "Salin ke clipboard"
+    "message": "Salin"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ Ekspor Semua (MD + DOCX + ZIP)"
+    "message": "Ekspor Semua (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "Ekspor hanya pesan yang ditambahkan sejak ekspor terakhir Anda",
@@ -610,7 +610,7 @@
     "message": "Token integrasi Notion"
   },
   "settingsNotionTokenDesc": {
-    "message": "Token integrasi internal — mengaktifkan tombol \"Notion ↑\" di popup, menambahkan ekspor ke halaman di bawah."
+    "message": "Token integrasi internal — mengaktifkan tombol \"Notion\" di popup, menambahkan ekspor ke halaman di bawah."
   },
   "settingsNotionTokenLink": {
     "message": "Buat satu →"

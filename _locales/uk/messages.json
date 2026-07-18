@@ -114,19 +114,19 @@
     "message": "Копіювати MD"
   },
   "popupBtnCopyHtml": {
-    "message": "Скопіювати в буфер обміну"
+    "message": "Скопіювати"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ Експортувати все (MD + DOCX + ZIP)"
+    "message": "Експортувати все (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "Експортувати лише повідомлення, додані після останнього експорту",
@@ -610,7 +610,7 @@
     "message": "Токен інтеграції Notion"
   },
   "settingsNotionTokenDesc": {
-    "message": "Внутрішній токен інтеграції — вмикає кнопку «Notion ↑» у спливному вікні, яка додає експорт на вказану нижче сторінку."
+    "message": "Внутрішній токен інтеграції — вмикає кнопку «Notion» у спливному вікні, яка додає експорт на вказану нижче сторінку."
   },
   "settingsNotionTokenLink": {
     "message": "Створити →"

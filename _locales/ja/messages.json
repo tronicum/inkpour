@@ -114,19 +114,19 @@
     "message": "MDをコピー"
   },
   "popupBtnCopyHtml": {
-    "message": "クリップボードにコピー"
+    "message": "コピー"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ 全てエクスポート（MD + DOCX + ZIP）"
+    "message": "全てエクスポート（MD + DOCX + ZIP）"
   },
   "popupIncrementalBtnTitle": {
     "message": "前回のエクスポート以降に追加されたメッセージのみをエクスポート",
@@ -610,7 +610,7 @@
     "message": "Notion統合トークン"
   },
   "settingsNotionTokenDesc": {
-    "message": "内部統合トークン — ポップアップの「Notion ↑」ボタンが有効になり、下記のページにエクスポートを追加します。"
+    "message": "内部統合トークン — ポップアップの「Notion」ボタンが有効になり、下記のページにエクスポートを追加します。"
   },
   "settingsNotionTokenLink": {
     "message": "作成する →"

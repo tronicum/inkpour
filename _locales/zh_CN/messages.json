@@ -114,19 +114,19 @@
     "message": "复制 MD"
   },
   "popupBtnCopyHtml": {
-    "message": "复制到剪贴板"
+    "message": "复制"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ 导出全部（MD + DOCX + ZIP）"
+    "message": "导出全部（MD + DOCX + ZIP）"
   },
   "popupIncrementalBtnTitle": {
     "message": "仅导出自上次导出以来新增的消息",
@@ -610,7 +610,7 @@
     "message": "Notion 集成令牌"
   },
   "settingsNotionTokenDesc": {
-    "message": "内部集成令牌 — 用于启用弹出窗口中的“Notion ↑”按钮，将导出内容追加到下方页面。"
+    "message": "内部集成令牌 — 用于启用弹出窗口中的\"Notion\"按钮，将导出内容追加到下方页面。"
   },
   "settingsNotionTokenLink": {
     "message": "创建令牌 →"
