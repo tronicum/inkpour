@@ -1094,5 +1094,11 @@
   },
   "popupBatchExportFailed": {
     "message": "一括エクスポートに失敗しました"
+  },
+  "popupExportMoreOptions": {
+    "message": "他のエクスポートオプション"
+  },
+  "popupBtnAllShort": {
+    "message": "全て"
   }
 }

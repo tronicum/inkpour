@@ -2116,6 +2116,70 @@ async function main() {
     assert(!JSON.stringify(result.report.url).includes('?'), 'query string leaked into sanitized url');
   });
 
+  // ─── Popup split export button (replaces the old ~11-button grid) ───────
+  // popup.js/popup.html aren't loaded/executed by this JSDOM harness (they
+  // depend on chrome.tabs/chrome.runtime APIs JSDOM doesn't provide — same
+  // reason background.js has no JSDOM coverage either, see below). These
+  // checks are structural: parse popup.html for the expected elements, and
+  // grep popup.js's source for the wiring that ties them together, so a
+  // future refactor can't silently drop one without a test noticing.
+  console.log('\nPopup split export button (structure)');
+
+  const POPUP_HTML = fs.readFileSync(path.resolve(__dirname, '../popup.html'), 'utf8');
+  const POPUP_JS   = fs.readFileSync(path.resolve(__dirname, '../popup.js'), 'utf8');
+  const POPUP_DOM  = new JSDOM(POPUP_HTML).window.document;
+
+  const EXPORT_MENU_IDS = ['mdBtn', 'pdfBtn', 'htmlBtn', 'jsonBtn', 'docxBtn', 'copyBtn', 'copyHtmlBtn', 'zipBtn', 'allBtn', 'gistBtn', 'notionBtn'];
+
+  await test('primary face, caret, and menu container all exist', () => {
+    ['exportPrimaryBtn', 'exportPrimaryLabel', 'exportCaretBtn', 'exportMenu'].forEach(id => {
+      assert(POPUP_DOM.getElementById(id), `#${id} missing from popup.html`);
+    });
+  });
+
+  await test('every export action still exists inside the menu, with its original id', () => {
+    const menu = POPUP_DOM.getElementById('exportMenu');
+    EXPORT_MENU_IDS.forEach(id => {
+      const el = POPUP_DOM.getElementById(id);
+      assert(el, `#${id} missing from popup.html`);
+      assert(menu.contains(el), `#${id} is no longer inside #exportMenu`);
+    });
+  });
+
+  await test('the old always-visible button grid is gone (.export-label, .all-group)', () => {
+    assert(POPUP_DOM.querySelectorAll('.export-label').length === 0, '.export-label should have been removed');
+    assert(POPUP_DOM.querySelectorAll('.all-group').length === 0, '.all-group should have been removed');
+  });
+
+  await test('debug-mode buttons were left alone, outside the export menu', () => {
+    const menu = POPUP_DOM.getElementById('exportMenu');
+    const debugGroup = POPUP_DOM.getElementById('debug-group');
+    assert(debugGroup, '#debug-group missing');
+    assert(!menu.contains(debugGroup), '#debug-group should not have been folded into the export menu');
+  });
+
+  await test('popup.js maps every menu format to its button element (FORMAT_TO_BTN)', () => {
+    const formats = ['md', 'pdf', 'html', 'json', 'docx', "'copy-md'", "'copy-html'", 'zip', 'all', 'gist', 'notion'];
+    formats.forEach(f => {
+      assert(new RegExp(`${f}:\\s*\\w+Btn`).test(POPUP_JS), `FORMAT_TO_BTN appears to be missing an entry for ${f}`);
+    });
+  });
+
+  await test('setLoading() mirrors state onto the primary face', () => {
+    assert(/exportPrimaryBtn\.disabled = on/.test(POPUP_JS) && /exportPrimaryBtn\.classList\.toggle\('loading', on\)/.test(POPUP_JS),
+      'expected setLoading() to also toggle exportPrimaryBtn state');
+  });
+
+  await test('primary face proxies its click to whichever format is preferred', () => {
+    assert(/exportPrimaryBtn\?\.addEventListener\('click',\s*\(\)\s*=>\s*\{\s*FORMAT_TO_BTN\[preferredFormat\]\?\.click\(\)/.test(POPUP_JS),
+      "expected exportPrimaryBtn's click handler to call FORMAT_TO_BTN[preferredFormat]?.click()");
+  });
+
+  await test('seeds the preferred format from the last successful export, falling back to the Settings default', () => {
+    assert(/inkpour_last_export/.test(POPUP_JS) && /userSettings\.defaultFormat/.test(POPUP_JS),
+      'expected the primary face to read inkpour_last_export.format with a userSettings.defaultFormat fallback');
+  });
+
   // ─── Toolbar icon — bigger supported-site signal ─────────────────────────
   // The native OS badge corner is fixed-size by the browser and can't be
   // made bigger, so the "you can export this page" signal moved into the

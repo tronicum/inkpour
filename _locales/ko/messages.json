@@ -1094,5 +1094,11 @@
   },
   "popupBatchExportFailed": {
     "message": "일괄 내보내기 실패"
+  },
+  "popupExportMoreOptions": {
+    "message": "더 많은 내보내기 옵션"
+  },
+  "popupBtnAllShort": {
+    "message": "모두"
   }
 }

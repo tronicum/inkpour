@@ -1094,5 +1094,11 @@
   },
   "popupBatchExportFailed": {
     "message": "Toplu dışa aktarma başarısız oldu"
+  },
+  "popupExportMoreOptions": {
+    "message": "Diğer dışa aktarma seçenekleri"
+  },
+  "popupBtnAllShort": {
+    "message": "Tümü"
   }
 }

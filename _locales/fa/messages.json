@@ -1094,5 +1094,11 @@
   },
   "popupBatchExportFailed": {
     "message": "خروجی‌گیری دسته‌ای ناموفق بود"
+  },
+  "popupExportMoreOptions": {
+    "message": "گزینه‌های بیشتر خروجی"
+  },
+  "popupBtnAllShort": {
+    "message": "همه"
   }
 }

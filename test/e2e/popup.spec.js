@@ -8,20 +8,64 @@
 const { test, expect } = require('../helpers/extension');
 
 test.describe('Popup UI', () => {
-  test('shows all three export buttons', async ({ popupPage }) => {
-    await expect(popupPage.locator('#mdBtn')).toBeVisible();
-    await expect(popupPage.locator('#pdfBtn')).toBeVisible();
-    await expect(popupPage.locator('#htmlBtn')).toBeVisible();
+  // The old always-visible ~11-button grid (TODOs.md "Popup layout" item)
+  // was replaced by a single split export button: a primary face showing/
+  // triggering whichever format was used most recently (or the Settings
+  // default before anything's ever been exported) plus a caret that opens
+  // a menu containing every other format/action — including the same
+  // mdBtn/pdfBtn/htmlBtn/etc. elements the old tests below referenced
+  // directly, just relocated into that menu instead of the main view.
+
+  test('primary export button and caret are visible by default', async ({ popupPage }) => {
+    await expect(popupPage.locator('#exportPrimaryBtn')).toBeVisible();
+    await expect(popupPage.locator('#exportCaretBtn')).toBeVisible();
+    // Fresh profile, nothing exported yet — falls back to the Settings
+    // default format ('md'), whose menu-item label is "MD".
+    await expect(popupPage.locator('#exportPrimaryLabel')).toHaveText('MD');
   });
 
-  test('export label reads "Export as"', async ({ popupPage }) => {
-    await expect(popupPage.locator('.export-label')).toHaveText('Export as');
+  test('the old always-visible button grid is gone', async ({ popupPage }) => {
+    await expect(popupPage.locator('.export-label')).toHaveCount(0);
+    await expect(popupPage.locator('.all-group')).toHaveCount(0);
   });
 
-  test('buttons are labelled correctly', async ({ popupPage }) => {
-    await expect(popupPage.locator('#mdBtn span')).toHaveText('Markdown');
+  test('caret opens a menu with every export action, correctly labelled', async ({ popupPage }) => {
+    await expect(popupPage.locator('#exportMenu')).toBeHidden();
+    await popupPage.click('#exportCaretBtn');
+    await expect(popupPage.locator('#exportMenu')).toBeVisible();
+    await expect(popupPage.locator('#exportCaretBtn')).toHaveAttribute('aria-expanded', 'true');
+
+    await expect(popupPage.locator('#mdBtn span')).toHaveText('MD');
     await expect(popupPage.locator('#pdfBtn span')).toHaveText('PDF');
     await expect(popupPage.locator('#htmlBtn span')).toHaveText('HTML');
+    await expect(popupPage.locator('#jsonBtn span')).toHaveText('JSON');
+    await expect(popupPage.locator('#docxBtn span')).toHaveText('DOCX');
+    await expect(popupPage.locator('#zipBtn span')).toHaveText('ZIP');
+    // Gist/Notion stay hidden inside the menu too, same gating as before —
+    // no GitHub/Notion token configured in a fresh test profile.
+    await expect(popupPage.locator('#gistBtn')).toBeHidden();
+    await expect(popupPage.locator('#notionBtn')).toBeHidden();
+  });
+
+  test('clicking outside the menu closes it', async ({ popupPage }) => {
+    await popupPage.click('#exportCaretBtn');
+    await expect(popupPage.locator('#exportMenu')).toBeVisible();
+    await popupPage.click('#platformIndicator');
+    await expect(popupPage.locator('#exportMenu')).toBeHidden();
+  });
+
+  test('Escape key closes the menu', async ({ popupPage }) => {
+    await popupPage.click('#exportCaretBtn');
+    await expect(popupPage.locator('#exportMenu')).toBeVisible();
+    await popupPage.keyboard.press('Escape');
+    await expect(popupPage.locator('#exportMenu')).toBeHidden();
+  });
+
+  test('picking a menu item updates the primary face and closes the menu', async ({ popupPage }) => {
+    await popupPage.click('#exportCaretBtn');
+    await popupPage.click('#pdfBtn');
+    await expect(popupPage.locator('#exportMenu')).toBeHidden();
+    await expect(popupPage.locator('#exportPrimaryLabel')).toHaveText('PDF');
   });
 
   test('settings gear button is visible', async ({ popupPage }) => {
@@ -36,19 +80,22 @@ test.describe('Popup UI', () => {
   });
 
   test('shows error when no chat page is open', async ({ popupPage }) => {
-    // Clicking export on a blank context should show an error status
-    await popupPage.click('#mdBtn');
+    // Clicking export on a blank context should show an error status.
+    // Primary face defaults to 'md' in a fresh profile, same action the old
+    // test triggered by clicking #mdBtn directly.
+    await popupPage.click('#exportPrimaryBtn');
     await expect(popupPage.locator('#status')).toHaveClass(/error/, { timeout: 5000 });
     const msg = await popupPage.locator('#status').textContent();
     expect(msg.length).toBeGreaterThan(0);
   });
 
-  test('buttons are disabled during export', async ({ popupPage }) => {
-    await popupPage.click('#mdBtn');
-    // Immediately check — button should be disabled while working
-    await expect(popupPage.locator('#mdBtn')).toBeDisabled();
+  test('primary button is disabled during export', async ({ popupPage }) => {
+    await popupPage.click('#exportPrimaryBtn');
+    // Immediately check — button should be disabled while working (mirrors
+    // the underlying mdBtn's own loading state, see popup.js's setLoading()).
+    await expect(popupPage.locator('#exportPrimaryBtn')).toBeDisabled();
     // Eventually re-enabled after error
-    await expect(popupPage.locator('#mdBtn')).toBeEnabled({ timeout: 5000 });
+    await expect(popupPage.locator('#exportPrimaryBtn')).toBeEnabled({ timeout: 5000 });
   });
 
   // Batch 8: getConversationList() (src/content.js) returns [] on any

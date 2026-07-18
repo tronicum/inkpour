@@ -1094,5 +1094,11 @@
   },
   "popupBatchExportFailed": {
     "message": "Η μαζική εξαγωγή απέτυχε"
+  },
+  "popupExportMoreOptions": {
+    "message": "Περισσότερες επιλογές εξαγωγής"
+  },
+  "popupBtnAllShort": {
+    "message": "Όλα"
   }
 }

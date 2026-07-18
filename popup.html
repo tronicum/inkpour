@@ -169,14 +169,67 @@
     }
 
     /* ── Export section ── */
-    .export-label {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: var(--subtext);
-      margin-bottom: 8px;
+    /* ── Split export button (main face + caret → menu) ── */
+    .split-export {
+      display: flex;
+      margin-top: 2px;
     }
+    .split-export-main {
+      flex: 1;
+      min-width: 0;
+      padding: 10px 6px;
+      border-radius: var(--radius) 0 0 var(--radius);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: var(--accent);
+      color: var(--accent-text);
+      border: 1.5px solid var(--accent);
+      border-inline-end: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: background 0.15s, opacity 0.15s;
+    }
+    .split-export-main:hover:not(:disabled) {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+    .split-export-main:disabled { opacity: 0.5; cursor: default; }
+    .split-export-main .spinner {
+      width: 12px;
+      height: 12px;
+      border: 2px solid currentColor;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+      flex-shrink: 0;
+    }
+    .split-export-main.loading .spinner { display: block; }
+    .split-export-main.loading span { display: none; }
+
+    .split-export-caret {
+      width: 32px;
+      flex-shrink: 0;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      background: var(--accent);
+      color: var(--accent-text);
+      border: 1.5px solid var(--accent);
+      border-inline-start: 1px solid rgba(255, 255, 255, 0.35);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      transition: background 0.15s;
+    }
+    .split-export-caret:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .split-export-caret[aria-expanded="true"] { background: var(--accent-hover); border-color: var(--accent-hover); }
 
     .btn-group {
       display: flex;
@@ -220,6 +273,45 @@
     .btn.loading .spinner { display: block; }
     .btn.loading span { display: none; }
 
+    /* ── Export menu (opened by the split button's caret) ── */
+    /* Rules placed after .btn on purpose — .export-menu-item buttons also
+       carry the "btn" class (to inherit spinner/loading behavior), and
+       these overrides need to win the cascade against .btn's own
+       flex/border/background at equal specificity. */
+    .export-menu {
+      margin-top: 6px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 4px;
+    }
+    .export-menu-item {
+      width: 100%;
+      flex: none;
+      justify-content: flex-start;
+      gap: 8px;
+      padding: 8px 10px;
+      background: transparent;
+      border: none;
+      border-radius: 7px;
+      color: var(--text);
+      font-size: 12.5px;
+      font-weight: 500;
+    }
+    .export-menu-item:hover:not(:disabled) {
+      background: var(--bg);
+      color: var(--text);
+    }
+    .export-menu-item .spinner {
+      width: 11px;
+      height: 11px;
+    }
+    .export-menu-sep {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 6px;
+    }
+
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ── Secondary copy row ── */
@@ -246,22 +338,6 @@
     #status.success  { color: var(--success); }
     #status.error    { color: var(--error); }
     #status.warning  { color: #d97706; }
-
-    /* ── Export All button ── */
-    .all-group {
-      margin-top: 8px;
-    }
-    .all-group .btn {
-      background: var(--accent);
-      color: var(--accent-text);
-      border-color: var(--accent);
-      font-size: 13px;
-    }
-    .all-group .btn:hover:not(:disabled) {
-      background: var(--accent-hover);
-      border-color: var(--accent-hover);
-      color: var(--accent-text);
-    }
 
     /* ── Gist link ── */
     #gist-link {
@@ -395,47 +471,69 @@
 
   <p class="platform-indicator" id="platformIndicator"></p>
 
-  <p class="export-label" data-i18n="popupExportAsLabel">Export as</p>
-  <div class="btn-group">
-    <button class="btn" id="mdBtn" data-i18n-title="popupMdBtnTitle" title="Export to Markdown (Alt+Shift+M)">
+  <!-- Split export button (replaces the old ~11-button grid, TODOs.md
+       "Popup layout" item): the main face always shows/triggers whichever
+       format was used most recently (falls back to Settings → Default
+       format before any export has happened yet), the caret opens a menu
+       with every other format/action. The menu below still contains the
+       EXACT SAME button elements (same ids) that used to sit directly in
+       the grid — only their container/styling changed — so every existing
+       click handler in popup.js keeps working completely unmodified; the
+       split button's main face just re-dispatches a .click() to whichever
+       one is "preferred" right now (see popup.js's FORMAT_TO_BTN). -->
+  <div class="split-export">
+    <button class="split-export-main" id="exportPrimaryBtn" type="button">
+      <div class="spinner"></div>
+      <span id="exportPrimaryLabel">MD</span>
+    </button>
+    <button class="split-export-caret" id="exportCaretBtn" type="button"
+      aria-haspopup="true" aria-expanded="false"
+      data-i18n-title="popupExportMoreOptions" title="More export options">▾</button>
+  </div>
+  <div class="export-menu" id="exportMenu" hidden style="display:none;" role="menu">
+    <button class="btn export-menu-item" id="mdBtn" data-i18n-title="popupMdBtnTitle" title="Export to Markdown (Alt+Shift+M)">
       <div class="spinner"></div>
       <span data-i18n="popupBtnMd">MD</span>
     </button>
-    <button class="btn" id="pdfBtn" data-i18n-title="popupPdfBtnTitle" title="Export to PDF">
+    <button class="btn export-menu-item" id="pdfBtn" data-i18n-title="popupPdfBtnTitle" title="Export to PDF">
       <div class="spinner"></div>
       <span data-i18n="popupBtnPdf">PDF</span>
     </button>
-    <button class="btn" id="htmlBtn" data-i18n-title="popupHtmlBtnTitle" title="Export to HTML">
+    <button class="btn export-menu-item" id="htmlBtn" data-i18n-title="popupHtmlBtnTitle" title="Export to HTML">
       <div class="spinner"></div>
       <span data-i18n="popupBtnHtml">HTML</span>
     </button>
-    <button class="btn" id="jsonBtn" data-i18n-title="popupJsonBtnTitle" title="Export to JSON (Alt+Shift+J)">
+    <button class="btn export-menu-item" id="jsonBtn" data-i18n-title="popupJsonBtnTitle" title="Export to JSON (Alt+Shift+J)">
       <div class="spinner"></div>
       <span data-i18n="popupBtnJson">JSON</span>
     </button>
-    <button class="btn" id="docxBtn" data-i18n-title="popupDocxBtnTitle" title="Export to Word document (.docx)">
+    <button class="btn export-menu-item" id="docxBtn" data-i18n-title="popupDocxBtnTitle" title="Export to Word document (.docx)">
       <div class="spinner"></div>
       <span data-i18n="popupBtnDocx">DOCX</span>
     </button>
-  </div>
-  <div class="btn-group copy-group">
-    <button class="btn copy-btn" id="copyBtn" data-i18n-title="popupCopyBtnTitle" title="Copy Markdown to clipboard (Alt+Shift+C)">
+    <div class="export-menu-sep"></div>
+    <button class="btn export-menu-item" id="copyBtn" data-i18n-title="popupCopyBtnTitle" title="Copy Markdown to clipboard (Alt+Shift+C)">
       <div class="spinner"></div>
       <span data-i18n="popupBtnCopyMd">Copy MD</span>
     </button>
-    <button class="btn copy-btn" id="copyHtmlBtn" data-i18n-title="popupCopyHtmlBtnTitle" title="Copy standalone HTML to clipboard (Alt+Shift+H)">
+    <button class="btn export-menu-item" id="copyHtmlBtn" data-i18n-title="popupCopyHtmlBtnTitle" title="Copy standalone HTML to clipboard (Alt+Shift+H)">
       <div class="spinner"></div>
       <span data-i18n="popupBtnCopyHtml">Copy HTML</span>
     </button>
-    <button class="btn copy-btn" id="zipBtn" data-i18n-title="popupZipBtnTitle" title="Export ZIP with chat.md + extracted code files (Alt+Shift+Z)">
+    <button class="btn export-menu-item" id="zipBtn" data-i18n-title="popupZipBtnTitle" title="Export ZIP with chat.md + extracted code files (Alt+Shift+Z)">
       <div class="spinner"></div>
       <span data-i18n="popupBtnZip">ZIP</span>
     </button>
-    <button class="btn copy-btn" id="gistBtn" data-i18n-title="popupGistBtnTitle" title="Upload Markdown to GitHub Gist" hidden>
+    <div class="export-menu-sep"></div>
+    <button class="btn export-menu-item" id="allBtn" data-i18n-title="popupAllBtnTitle" title="Export MD + DOCX + ZIP simultaneously">
+      <div class="spinner"></div>
+      <span data-i18n="popupBtnExportAll">⬇ Export All (MD + DOCX + ZIP)</span>
+    </button>
+    <button class="btn export-menu-item" id="gistBtn" data-i18n-title="popupGistBtnTitle" title="Upload Markdown to GitHub Gist" hidden>
       <div class="spinner"></div>
       <span data-i18n="popupBtnGist">Gist ↑</span>
     </button>
-    <button class="btn copy-btn" id="notionBtn" data-i18n-title="popupNotionBtnTitle" title="Append Markdown to a Notion page" hidden>
+    <button class="btn export-menu-item" id="notionBtn" data-i18n-title="popupNotionBtnTitle" title="Append Markdown to a Notion page" hidden>
       <div class="spinner"></div>
       <span data-i18n="popupBtnNotion">Notion ↑</span>
     </button>
@@ -450,13 +548,6 @@
     <button class="btn copy-btn" id="reportBugBtn" data-i18n-title="popupReportBugBtnTitle" title="Report a bug on GitHub (no chat content included)">
       <div class="spinner"></div>
       <span data-i18n="popupBtnReportBug">Report bug</span>
-    </button>
-  </div>
-
-  <div class="btn-group all-group">
-    <button class="btn" id="allBtn" data-i18n-title="popupAllBtnTitle" title="Export MD + DOCX + ZIP simultaneously">
-      <div class="spinner"></div>
-      <span data-i18n="popupBtnExportAll">⬇ Export All (MD + DOCX + ZIP)</span>
     </button>
   </div>
 

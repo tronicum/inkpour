@@ -37,6 +37,9 @@ new section here in the same commit as the version bump.
 - Obsidian-flavored front matter now always includes a `type: ai-chat` key.
 - The toolbar icon now turns green on supported AI chat sites, replacing
   the old small "ON" badge — much easier to spot at a glance.
+- The popup's export buttons are now a single split button (pick your
+  format from a dropdown) instead of a crowded grid of up to 11 buttons.
+  The main button remembers whichever format you used last.
 
 ## [0.4.28.1] - 2026-07-17
 ### Fixed

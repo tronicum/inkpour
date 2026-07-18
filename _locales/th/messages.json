@@ -1094,5 +1094,11 @@
   },
   "popupBatchExportFailed": {
     "message": "ส่งออกเป็นชุดไม่สำเร็จ"
+  },
+  "popupExportMoreOptions": {
+    "message": "ตัวเลือกการส่งออกเพิ่มเติม"
+  },
+  "popupBtnAllShort": {
+    "message": "ทั้งหมด"
   }
 }
