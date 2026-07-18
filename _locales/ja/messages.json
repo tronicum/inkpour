@@ -114,7 +114,7 @@
     "message": "MDをコピー"
   },
   "popupBtnCopyHtml": {
-    "message": "HTMLをコピー"
+    "message": "クリップボードにコピー"
   },
   "popupBtnZip": {
     "message": "ZIP"

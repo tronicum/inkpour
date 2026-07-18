@@ -160,7 +160,7 @@
     "message": "Copy MD"
   },
   "popupBtnCopyHtml": {
-    "message": "Copy HTML"
+    "message": "Copy to clipboard"
   },
   "popupBtnZip": {
     "message": "ZIP"

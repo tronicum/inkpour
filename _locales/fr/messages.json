@@ -114,7 +114,7 @@
     "message": "Copier MD"
   },
   "popupBtnCopyHtml": {
-    "message": "Copier HTML"
+    "message": "Copier dans le presse-papiers"
   },
   "popupBtnZip": {
     "message": "ZIP"

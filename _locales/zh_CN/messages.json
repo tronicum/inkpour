@@ -114,7 +114,7 @@
     "message": "复制 MD"
   },
   "popupBtnCopyHtml": {
-    "message": "复制 HTML"
+    "message": "复制到剪贴板"
   },
   "popupBtnZip": {
     "message": "ZIP"
