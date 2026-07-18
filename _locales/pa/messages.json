@@ -91,19 +91,19 @@
     "message": "MD ਕਾਪੀ ਕਰੋ"
   },
   "popupBtnCopyHtml": {
-    "message": "ਕਲਿੱਪਬੋਰਡ 'ਤੇ ਕਾਪੀ ਕਰੋ"
+    "message": "ਕਾਪੀ ਕਰੋ"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ ਸਭ ਐਕਸਪੋਰਟ ਕਰੋ (MD + DOCX + ZIP)"
+    "message": "ਸਭ ਐਕਸਪੋਰਟ ਕਰੋ (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "ਸਿਰਫ਼ ਪਿਛਲੀ ਐਕਸਪੋਰਟ ਤੋਂ ਬਾਅਦ ਜੋੜੇ ਗਏ ਸੁਨੇਹੇ ਐਕਸਪੋਰਟ ਕਰੋ"
@@ -585,7 +585,7 @@
     "message": "Notion ਏਕੀਕਰਨ ਟੋਕਨ"
   },
   "settingsNotionTokenDesc": {
-    "message": "ਅੰਦਰੂਨੀ ਏਕੀਕਰਨ ਟੋਕਨ — ਪੌਪਅੱਪ ਵਿੱਚ \"Notion ↑\" ਬਟਨ ਚਾਲੂ ਕਰਦਾ ਹੈ, ਜੋ ਐਕਸਪੋਰਟ ਨੂੰ ਹੇਠਾਂ ਦਿੱਤੇ ਪੇਜ ਵਿੱਚ ਜੋੜਦਾ ਹੈ।"
+    "message": "ਅੰਦਰੂਨੀ ਏਕੀਕਰਨ ਟੋਕਨ — ਪੌਪਅੱਪ ਵਿੱਚ \"Notion\" ਬਟਨ ਚਾਲੂ ਕਰਦਾ ਹੈ, ਜੋ ਐਕਸਪੋਰਟ ਨੂੰ ਹੇਠਾਂ ਦਿੱਤੇ ਪੇਜ ਵਿੱਚ ਜੋੜਦਾ ਹੈ।"
   },
   "settingsNotionTokenLink": {
     "message": "ਇੱਕ ਬਣਾਓ →"

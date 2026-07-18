@@ -114,19 +114,19 @@
     "message": "MD 복사"
   },
   "popupBtnCopyHtml": {
-    "message": "클립보드에 복사"
+    "message": "복사"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ 모두 내보내기 (MD + DOCX + ZIP)"
+    "message": "모두 내보내기 (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "마지막 내보내기 이후 추가된 메시지만 내보냅니다",
@@ -610,7 +610,7 @@
     "message": "Notion 통합 토큰"
   },
   "settingsNotionTokenDesc": {
-    "message": "내부 통합 토큰 — 팝업에서 \"Notion ↑\" 버튼을 활성화하여 아래 페이지에 내보내기를 추가합니다."
+    "message": "내부 통합 토큰 — 팝업에서 \"Notion\" 버튼을 활성화하여 아래 페이지에 내보내기를 추가합니다."
   },
   "settingsNotionTokenLink": {
     "message": "토큰 만들기 →"

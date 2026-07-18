@@ -114,19 +114,19 @@
     "message": "Αντιγραφή MD"
   },
   "popupBtnCopyHtml": {
-    "message": "Αντιγραφή στο πρόχειρο"
+    "message": "Αντιγραφή"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ Εξαγωγή όλων (MD + DOCX + ZIP)"
+    "message": "Εξαγωγή όλων (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "Εξαγωγή μόνο των μηνυμάτων που προστέθηκαν από την τελευταία εξαγωγή",
@@ -610,7 +610,7 @@
     "message": "Token ενσωμάτωσης Notion"
   },
   "settingsNotionTokenDesc": {
-    "message": "Εσωτερικό token ενσωμάτωσης — ενεργοποιεί το κουμπί «Notion ↑» στο popup, προσαρτώντας τις εξαγωγές στην παρακάτω σελίδα."
+    "message": "Εσωτερικό token ενσωμάτωσης — ενεργοποιεί το κουμπί «Notion» στο popup, προσαρτώντας τις εξαγωγές στην παρακάτω σελίδα."
   },
   "settingsNotionTokenLink": {
     "message": "Δημιουργήστε ένα →"

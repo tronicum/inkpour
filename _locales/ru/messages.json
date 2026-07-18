@@ -114,19 +114,19 @@
     "message": "Копировать MD"
   },
   "popupBtnCopyHtml": {
-    "message": "Скопировать в буфер обмена"
+    "message": "Скопировать"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ Экспортировать всё (MD + DOCX + ZIP)"
+    "message": "Экспортировать всё (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "Экспортировать только сообщения, добавленные после последнего экспорта",
@@ -610,7 +610,7 @@
     "message": "Токен интеграции Notion"
   },
   "settingsNotionTokenDesc": {
-    "message": "Внутренний токен интеграции — включает кнопку «Notion ↑» во всплывающем окне, добавляющую экспорт на указанную ниже страницу."
+    "message": "Внутренний токен интеграции — включает кнопку «Notion» во всплывающем окне, добавляющую экспорт на указанную ниже страницу."
   },
   "settingsNotionTokenLink": {
     "message": "Создать →"

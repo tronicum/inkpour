@@ -114,19 +114,19 @@
     "message": "کپی MD"
   },
   "popupBtnCopyHtml": {
-    "message": "کپی در کلیپ‌بورد"
+    "message": "کپی"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ خروجی همه (MD + DOCX + ZIP)"
+    "message": "خروجی همه (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "فقط پیام‌های افزوده‌شده از آخرین خروجی گرفتن را خروجی می‌گیرد",
@@ -610,7 +610,7 @@
     "message": "توکن یکپارچه‌سازی Notion"
   },
   "settingsNotionTokenDesc": {
-    "message": "توکن یکپارچه‌سازی داخلی — دکمه «Notion ↑» را در پاپ‌آپ فعال می‌کند و خروجی‌ها را به صفحه زیر می‌افزاید."
+    "message": "توکن یکپارچه‌سازی داخلی — دکمه «Notion» را در پاپ‌آپ فعال می‌کند و خروجی‌ها را به صفحه زیر می‌افزاید."
   },
   "settingsNotionTokenLink": {
     "message": "ساخت یک توکن →"

@@ -205,9 +205,18 @@
     .export-select-btn:hover { border-color: var(--accent); }
     .export-select-btn[aria-expanded="true"] { border-color: var(--accent); }
     .export-select-caret {
-      font-size: 10px;
+      font-size: 15px;
+      line-height: 1;
       color: var(--subtext);
       flex-shrink: 0;
+      transition: transform 0.15s;
+    }
+    /* Rotate to point "up" while the menu is open, so the same control
+       visibly signals both "open" and "click here to close" — feedback:
+       the caret was too small/static to read as a toggle. */
+    .export-select-btn[aria-expanded="true"] .export-select-caret {
+      transform: rotate(180deg);
+      color: var(--accent);
     }
     .export-go-btn {
       flex-shrink: 0;
@@ -322,6 +331,26 @@
       visibility: hidden;
     }
     .export-menu-item.selected .export-menu-check { visibility: visible; }
+    /* Icon language (download / copy / upload) — a fixed, non-translated
+       SVG per row communicating where the export goes, so no locale's
+       string has to spell that out in words (see TODOs.md: an earlier
+       version baked "⬇"/"↑" straight into a few translated strings, which
+       meant every future wording tweak touched 26 locale files). Every
+       row gets one of these, including the ones that used to bake a
+       symbol into their own label. */
+    .export-menu-icon {
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0;
+      opacity: 0.6;
+    }
+    .export-menu-item.selected .export-menu-icon { opacity: 0.9; }
+    .quick-icon {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      opacity: 0.75;
+    }
     /* Sub-option of the row directly above it (currently: "Copy to
        clipboard" under "HTML") — indented and slightly muted so it reads
        as a variant of that row, not an unrelated peer action. */
@@ -506,10 +535,12 @@
   <div class="btn-group copy-group" id="quick-actions">
     <button class="btn copy-btn" id="copyBtn" data-i18n-title="popupCopyBtnTitle" title="Copy Markdown to clipboard (Alt+Shift+C)">
       <div class="spinner"></div>
+      <svg class="quick-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
       <span data-i18n="popupBtnCopyMd">Copy MD</span>
     </button>
     <button class="btn copy-btn" id="zipBtn" data-i18n-title="popupZipBtnTitle" title="Export ZIP with chat.md + extracted code files (Alt+Shift+Z)">
       <div class="spinner"></div>
+      <svg class="quick-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
       <span data-i18n="popupBtnZip">ZIP</span>
     </button>
   </div>
@@ -533,40 +564,67 @@
       <span data-i18n="popupExportGoBtn">Export</span>
     </button>
   </div>
+  <!--
+    Icon language, consistent across every row below, none of it baked
+    into translated strings (see the .export-menu-icon CSS comment):
+      - download arrow (arrow into a tray) = saved as a file
+      - copy icon (two overlapping squares) = copied to the clipboard
+      - upload arrow (arrow out of a tray)  = sent to an external service
+  -->
   <div class="export-menu" id="exportMenu" hidden style="display:none;" role="menu">
     <button class="export-menu-item" type="button" data-format="md" role="menuitemradio">
-      <span class="export-menu-check">✓</span><span data-i18n="popupBtnMd">MD</span>
+      <span class="export-menu-check">✓</span>
+      <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
+      <span data-i18n="popupBtnMd">MD</span>
     </button>
     <button class="export-menu-item" type="button" data-format="pdf" role="menuitemradio">
-      <span class="export-menu-check">✓</span><span data-i18n="popupBtnPdf">PDF</span>
+      <span class="export-menu-check">✓</span>
+      <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
+      <span data-i18n="popupBtnPdf">PDF</span>
     </button>
     <button class="export-menu-item" type="button" data-format="html" role="menuitemradio">
-      <span class="export-menu-check">✓</span><span data-i18n="popupBtnHtml">HTML</span>
+      <span class="export-menu-check">✓</span>
+      <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
+      <span data-i18n="popupBtnHtml">HTML</span>
     </button>
     <!-- Sits directly under HTML (not off in an unrelated "copy" cluster,
          which read as arbitrary — feedback: "copy md vs copy html via
          dropdown also feels very counter intuitive"): it's the clipboard
          alternative to that same HTML export, so it's positioned and
-         styled as a sub-option of the row right above it. -->
+         styled as a sub-option of the row right above it. Its own copy
+         icon (rather than repeating the download arrow) now carries the
+         "goes to clipboard, not a file" meaning instead of the label text. -->
     <button class="export-menu-item sub-item" type="button" data-format="copy-html" role="menuitemradio">
-      <span class="export-menu-check">✓</span><span data-i18n="popupBtnCopyHtml">Copy to clipboard</span>
+      <span class="export-menu-check">✓</span>
+      <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      <span data-i18n="popupBtnCopyHtml">Copy</span>
     </button>
     <button class="export-menu-item" type="button" data-format="json" role="menuitemradio">
-      <span class="export-menu-check">✓</span><span data-i18n="popupBtnJson">JSON</span>
+      <span class="export-menu-check">✓</span>
+      <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
+      <span data-i18n="popupBtnJson">JSON</span>
     </button>
     <button class="export-menu-item" type="button" data-format="docx" role="menuitemradio">
-      <span class="export-menu-check">✓</span><span data-i18n="popupBtnDocx">DOCX</span>
+      <span class="export-menu-check">✓</span>
+      <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
+      <span data-i18n="popupBtnDocx">DOCX</span>
     </button>
     <div class="export-menu-sep"></div>
     <button class="export-menu-item" type="button" data-format="all" role="menuitemradio">
-      <span class="export-menu-check">✓</span><span data-i18n="popupBtnExportAll">⬇ Export All (MD + DOCX + ZIP)</span>
+      <span class="export-menu-check">✓</span>
+      <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
+      <span data-i18n="popupBtnExportAll">Export All (MD + DOCX + ZIP)</span>
     </button>
     <div class="export-menu-sep"></div>
     <button class="export-menu-item" type="button" data-format="gist" id="gistMenuOption" role="menuitemradio" hidden>
-      <span class="export-menu-check">✓</span><span data-i18n="popupBtnGist">Gist ↑</span>
+      <span class="export-menu-check">✓</span>
+      <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V10"/><path d="M7 14l5-5 5 5"/><path d="M4 4h16"/></svg>
+      <span data-i18n="popupBtnGist">Gist</span>
     </button>
     <button class="export-menu-item" type="button" data-format="notion" id="notionMenuOption" role="menuitemradio" hidden>
-      <span class="export-menu-check">✓</span><span data-i18n="popupBtnNotion">Notion ↑</span>
+      <span class="export-menu-check">✓</span>
+      <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V10"/><path d="M7 14l5-5 5 5"/><path d="M4 4h16"/></svg>
+      <span data-i18n="popupBtnNotion">Notion</span>
     </button>
   </div>
 
@@ -583,10 +641,10 @@
     <button id="htmlBtn" data-i18n-title="popupHtmlBtnTitle" title="Export to HTML"><div class="spinner"></div><span data-i18n="popupBtnHtml">HTML</span></button>
     <button id="jsonBtn" data-i18n-title="popupJsonBtnTitle" title="Export to JSON (Alt+Shift+J)"><div class="spinner"></div><span data-i18n="popupBtnJson">JSON</span></button>
     <button id="docxBtn" data-i18n-title="popupDocxBtnTitle" title="Export to Word document (.docx)"><div class="spinner"></div><span data-i18n="popupBtnDocx">DOCX</span></button>
-    <button id="copyHtmlBtn" data-i18n-title="popupCopyHtmlBtnTitle" title="Copy standalone HTML to clipboard (Alt+Shift+H)"><div class="spinner"></div><span data-i18n="popupBtnCopyHtml">Copy to clipboard</span></button>
-    <button id="allBtn" data-i18n-title="popupAllBtnTitle" title="Export MD + DOCX + ZIP simultaneously"><div class="spinner"></div><span data-i18n="popupBtnExportAll">⬇ Export All (MD + DOCX + ZIP)</span></button>
-    <button id="gistBtn" data-i18n-title="popupGistBtnTitle" title="Upload Markdown to GitHub Gist" hidden><div class="spinner"></div><span data-i18n="popupBtnGist">Gist ↑</span></button>
-    <button id="notionBtn" data-i18n-title="popupNotionBtnTitle" title="Append Markdown to a Notion page" hidden><div class="spinner"></div><span data-i18n="popupBtnNotion">Notion ↑</span></button>
+    <button id="copyHtmlBtn" data-i18n-title="popupCopyHtmlBtnTitle" title="Copy standalone HTML to clipboard (Alt+Shift+H)"><div class="spinner"></div><span data-i18n="popupBtnCopyHtml">Copy</span></button>
+    <button id="allBtn" data-i18n-title="popupAllBtnTitle" title="Export MD + DOCX + ZIP simultaneously"><div class="spinner"></div><span data-i18n="popupBtnExportAll">Export All (MD + DOCX + ZIP)</span></button>
+    <button id="gistBtn" data-i18n-title="popupGistBtnTitle" title="Upload Markdown to GitHub Gist" hidden><div class="spinner"></div><span data-i18n="popupBtnGist">Gist</span></button>
+    <button id="notionBtn" data-i18n-title="popupNotionBtnTitle" title="Append Markdown to a Notion page" hidden><div class="spinner"></div><span data-i18n="popupBtnNotion">Notion</span></button>
   </div>
 
   <!-- Debug mode (Settings → Advanced → Debug mode) — never includes chat content -->
