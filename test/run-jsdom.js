@@ -2116,6 +2116,60 @@ async function main() {
     assert(!JSON.stringify(result.report.url).includes('?'), 'query string leaked into sanitized url');
   });
 
+  // ─── Toolbar icon — bigger supported-site signal ─────────────────────────
+  // The native OS badge corner is fixed-size by the browser and can't be
+  // made bigger, so the "you can export this page" signal moved into the
+  // icon bitmap itself: icons/icon-*-active.png bakes in a large green
+  // checkmark, swapped per-tab via background.js's updateBadge(). This
+  // guards against the files going missing (background.js would then call
+  // setIcon() with a broken path and silently fail — no error surfaces
+  // anywhere a developer would see it) and against the active/default sets
+  // accidentally pointing at the same file.
+  console.log('\nToolbar icon — bigger supported-site signal');
+
+  const BACKGROUND_JS = fs.readFileSync(path.resolve(__dirname, '../background.js'), 'utf8');
+  const ICON_SIZES = [16, 32, 48, 128];
+
+  await test('background.js references an -active icon variant for every manifest icon size', () => {
+    ICON_SIZES.forEach(size => {
+      assert(BACKGROUND_JS.includes(`icons/icon-${size}-active.png`),
+        `background.js's ICON_ACTIVE map is missing icons/icon-${size}-active.png`);
+    });
+  });
+
+  await test('every referenced -active icon file actually exists and is non-empty', () => {
+    ICON_SIZES.forEach(size => {
+      const p = path.resolve(__dirname, `../icons/icon-${size}-active.png`);
+      assert(fs.existsSync(p), `missing icons/icon-${size}-active.png`);
+      assert(fs.statSync(p).size > 0, `icons/icon-${size}-active.png is empty`);
+    });
+  });
+
+  await test('active icon variant is a different file from the default (not a copy-paste no-op)', () => {
+    ICON_SIZES.forEach(size => {
+      const activeBytes  = fs.readFileSync(path.resolve(__dirname, `../icons/icon-${size}-active.png`));
+      const defaultBytes = fs.readFileSync(path.resolve(__dirname, `../icons/icon-${size}.png`));
+      assert(!activeBytes.equals(defaultBytes), `icon-${size}-active.png is byte-identical to icon-${size}.png`);
+    });
+  });
+
+  await test('active icon files are valid PNGs of the declared size', () => {
+    ICON_SIZES.forEach(size => {
+      const buf = fs.readFileSync(path.resolve(__dirname, `../icons/icon-${size}-active.png`));
+      // PNG signature, then IHDR chunk: width/height are the first 8 bytes
+      // after the 4-byte length + 4-byte "IHDR" tag, i.e. offset 16/20.
+      assert(buf.readUInt32BE(0) === 0x89504e47, `icon-${size}-active.png missing PNG signature`);
+      const width  = buf.readUInt32BE(16);
+      const height = buf.readUInt32BE(20);
+      assert(width === size && height === size, `icon-${size}-active.png is ${width}x${height}, expected ${size}x${size}`);
+    });
+  });
+
+  await test('background.js clears leftover native badge text (no stale "ON" badge stacked on the new icon)', () => {
+    assert(/setBadgeText\(\s*\{\s*text:\s*''/.test(BACKGROUND_JS),
+      'expected an explicit setBadgeText({text:\'\'...}) clearing any previously-set badge text');
+  });
+
   // ─── CHANGELOG.md — release notes source of truth (Batch 10 prep) ────────
   // CHANGELOG.md is the file Batch 10's future automated store-publishing
   // workflow will read release-note text from for each tagged version. This

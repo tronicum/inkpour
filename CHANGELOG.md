@@ -35,6 +35,9 @@ new section here in the same commit as the version bump.
 - Settings page sections are now collapsible, for easier scanning.
 - Context-menu export entries only appear on supported chat sites.
 - Obsidian-flavored front matter now always includes a `type: ai-chat` key.
+- The toolbar icon now shows a big green checkmark on supported AI chat
+  sites, replacing the old small "ON" badge — much easier to spot at a
+  glance.
 
 ## [0.4.28.1] - 2026-07-17
 ### Fixed

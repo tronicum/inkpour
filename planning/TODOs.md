@@ -135,6 +135,45 @@ path is one self-contained click handler (settings.js:138–162) building one
   footer, wired up and i18n'd across all locales (`historyLifetimeStatsOne`/
   `historyLifetimeStatsOther`). No code changed for this item.
 
+## Batch 4b — Bigger "you can export this" toolbar signal (Stefan's UX feedback, 2026-07)
+- [x] **S** Stefan compared the existing "ON" badge to uBlock Origin/Bitwarden's
+  much more noticeable toolbar badges and asked for something bigger — but
+  explicitly not a number, and no click/interaction needed on supported
+  pages (it should stay a passive state signal, same as today).
+  Done — the native OS badge corner (`action.setBadgeText`) is fixed-size by
+  the browser itself; no manifest/API setting can make its text or
+  background any bigger, so that lever was a dead end. Instead, baked a
+  large green checkmark accent directly into new icon art
+  (`icons/icon-{16,32,48,96,128}-active.png`, generated once via Pillow —
+  a white-ringed green circle with a white checkmark, ~62% of the icon's
+  width, bottom-right quadrant; the 16px variant drops the checkmark detail
+  since it doesn't survive that small, keeping just the ringed dot) and
+  swap it in per-tab via `api.action.setIcon()` in `background.js`'s
+  existing `updateBadge()` — same passive, no-click mechanism as before,
+  just operating on the icon bitmap (which we fully control) instead of the
+  OS-constrained badge overlay. Dropped the native `setBadgeText('ON', …)`
+  call entirely for the supported case (would otherwise stack two
+  indicators in the same corner) but kept an explicit
+  `setBadgeText({text:''})` call to clear out any stale "ON" text a
+  previous version of the extension may have left behind on an
+  already-open tab after updating. 5 new JSDOM tests guard against this
+  silently regressing: all 4 manifest icon sizes have a matching `-active`
+  file referenced in `background.js`, every referenced file exists/is
+  non-empty, each active variant is confirmed to actually differ from its
+  default counterpart (byte comparison — catches an accidental
+  copy-paste-without-editing mistake), each is a structurally valid PNG at
+  its declared size (parsed the IHDR chunk directly, no dependency added),
+  and the stale-badge-clearing call is still present. Also added the 4
+  active icon files to the CI "required files" check
+  (`.github/workflows/ci.yml`) alongside the existing icon-48/icon-96
+  entries. Full suite 281→286 passed, 0 failed. **Not yet verified**: how
+  this actually renders in a real Chrome/Firefox toolbar (icon rendering at
+  native DPI, dark/light toolbar theme contrast, and whether the circle
+  reads clearly against Firefox's slightly different icon padding) — image
+  generation and JSDOM-level checks were done in this sandbox, but there's
+  no way to render an actual browser toolbar here. Take a look after
+  loading unpacked and let me know if the accent needs repositioning/resizing.
+
 ## Batch 5 — Notion export (dedicated session; background.js + settings.html/.js + popup.js)
 - [x] **M → implemented, pending live test** BYO integration token + target
   page ID in settings, client-side `fetch` to the Notion API. Verified live

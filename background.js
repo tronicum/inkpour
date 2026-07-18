@@ -597,9 +597,27 @@ api.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   }
 });
 
-// ─── Action badge — show "ON" on supported AI chat pages ──────────────────
+// ─── Action badge/icon — signal "you can export this page" ────────────────
 // Canonical source of truth is supported-sites.json — this flat array is
 // derived from it (service workers can't fetch local extension files at runtime).
+//
+// The signal used to be a small native "ON" text badge (setBadgeText) in
+// the toolbar icon's bottom-right corner. Feedback from real usage: that
+// corner is fixed-size by the browser chrome itself — no manifest/API
+// setting can make native badge text or its background any bigger, so it
+// read as "a tiny green dot" next to other extensions (uBlock Origin,
+// Bitwarden) that show a much more noticeable count badge. Since the badge
+// canvas itself can't grow, the fix moves the signal into the icon bitmap
+// instead, which we fully control: icons/icon-*-active.png (generated
+// once, checked into the repo — see icons/ directory) bakes a large green
+// checkmark accent directly into the icon art, swapped in via
+// api.action.setIcon() per-tab. This is still a purely passive, no-click
+// state change — same mechanism as the old badge, just a bigger, more
+// legible visual result. No native badge text is set any more for the
+// supported case, to avoid stacking two indicators in the same corner.
+
+const ICON_DEFAULT = { 16: 'icons/icon-16.png', 32: 'icons/icon-32.png', 48: 'icons/icon-48.png', 128: 'icons/icon-128.png' };
+const ICON_ACTIVE  = { 16: 'icons/icon-16-active.png', 32: 'icons/icon-32-active.png', 48: 'icons/icon-48-active.png', 128: 'icons/icon-128-active.png' };
 
 const SUPPORTED_HOSTS = [
   'chatgpt.com', 'chat.openai.com',
@@ -626,18 +644,25 @@ const SUPPORTED_HOSTS = [
 ];
 
 function updateBadge(tabId, url) {
-  if (!api.action?.setBadgeText) return; // not available in all browsers/contexts
+  if (!api.action) return; // not available in all browsers/contexts
   let isSupported = false;
   try {
     const hostname = new URL(url).hostname;
     isSupported = SUPPORTED_HOSTS.some(h => hostname === h || hostname.endsWith('.' + h));
   } catch { /* not a real URL */ }
 
-  if (isSupported) {
-    api.action.setBadgeText({ text: 'ON', tabId });
-    api.action.setBadgeBackgroundColor({ color: '#16a34a', tabId }); // green
-  } else {
-    api.action.setBadgeText({ text: '', tabId });
+  if (api.action.setIcon) {
+    // Firefox MV3 support for per-tab setIcon is recent-ish and some very
+    // old browser builds may reject an unknown tabId (already-closed tab
+    // raced with this callback) — best-effort, never throw.
+    api.action.setIcon({ tabId, path: isSupported ? ICON_ACTIVE : ICON_DEFAULT }).catch(() => {});
+  }
+  // No native badge text any more (see comment above) — the icon itself
+  // carries the signal now. Still clear any leftover text from a version
+  // that set it previously (e.g. right after an extension update), so
+  // nobody gets stuck with a stale "ON" badge sitting on top of the new icon.
+  if (api.action.setBadgeText) {
+    api.action.setBadgeText({ text: '', tabId }).catch(() => {});
   }
 }
 
