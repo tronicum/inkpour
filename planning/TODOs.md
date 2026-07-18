@@ -373,6 +373,43 @@ path is one self-contained click handler (settings.js:138–162) building one
   Copy MD's quick-button position is unchanged — it already reads clearly
   on its own. Full suite still 300 passed, 0 failed (no test hardcoded the
   old label or menu ordering, so nothing needed rewriting there).
+- [x] **S** Two more rounds of feedback on the same screenshot: the export
+  selector's caret was "tiny, hard to understand how to un-dropdown it",
+  and singling out "Copy to clipboard" with destination wording made the
+  *other* rows' silent destination (a downloaded file, or an upload) feel
+  unexplained by contrast — "not really clear where the exports goes for
+  the other formats". Brainstormed icon-only vs. label-everything vs.
+  revert-the-one-row; Stefan picked a symbol/icon language matching what
+  Gist/Notion's "↑" already implied, plus explicitly asked to make it
+  future-proof: icons as separate elements, not baked into translated
+  strings, so a future wording change never again means touching 26
+  locale files just to move a symbol around.
+  Done:
+  - Selector caret: bigger (10px → 15px) and now rotates 180° when the
+    menu is open (`.export-select-btn[aria-expanded="true"]
+    .export-select-caret`), so the same glyph visibly signals both "open"
+    and "click to close".
+  - Added a small non-translated inline SVG icon to every quick button and
+    every menu row: a download-arrow-into-a-tray icon for anything saved
+    as a file (MD/PDF/HTML/JSON/DOCX/Export All/ZIP), a two-squares copy
+    icon for anything clipboard-bound (Copy MD, HTML's "Copy" sub-item),
+    and an upload-arrow-out-of-a-tray icon for anything sent to an
+    external service (Gist, Notion). These are plain `<svg>` markup in
+    popup.html, entirely outside any `data-i18n` span — no locale file
+    references them at all.
+  - Because the icons now carry the destination meaning, stripped the
+    symbols that used to be baked into the *translated* strings
+    themselves: `popupBtnExportAll` lost its leading "⬇ ", `popupBtnGist`/
+    `popupBtnNotion` lost their trailing " ↑", and `popupBtnCopyHtml`
+    shortened from "Copy to clipboard" (this session's earlier fix) down
+    to just "Copy" — the copy icon now says what the wording used to say.
+    Also fixed `settingsNotionTokenDesc`'s description text, which quoted
+    the old "Notion ↑" button name.
+  - All 5 changed keys' values re-translated across all 26 locales (25 via
+    subagent, verified: full suite passes, no leftover ⬇/↑ characters in
+    any of the 4 button-label keys via grep, spot-checked JSON validity).
+  - Full suite: 300 passed, 0 failed. Same sandbox caveat as always for
+    the actual rendered look — please take a look after reloading.
 
 ## Batch 5 — Notion export (dedicated session; background.js + settings.html/.js + popup.js)
 - [x] **M → implemented, pending live test** BYO integration token + target

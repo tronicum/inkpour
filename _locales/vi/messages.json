@@ -114,19 +114,19 @@
     "message": "Sao chép MD"
   },
   "popupBtnCopyHtml": {
-    "message": "Sao chép vào clipboard"
+    "message": "Sao chép"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ Xuất tất cả (MD + DOCX + ZIP)"
+    "message": "Xuất tất cả (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "Chỉ xuất các tin nhắn được thêm kể từ lần xuất gần nhất",
@@ -610,7 +610,7 @@
     "message": "Token tích hợp Notion"
   },
   "settingsNotionTokenDesc": {
-    "message": "Token tích hợp nội bộ — kích hoạt nút \"Notion ↑\" trong popup, thêm bản xuất vào trang bên dưới."
+    "message": "Token tích hợp nội bộ — kích hoạt nút \"Notion\" trong popup, thêm bản xuất vào trang bên dưới."
   },
   "settingsNotionTokenLink": {
     "message": "Tạo một token →"

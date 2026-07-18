@@ -114,19 +114,19 @@
     "message": "複製 MD"
   },
   "popupBtnCopyHtml": {
-    "message": "複製到剪貼簿"
+    "message": "複製"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ 匯出全部 (MD + DOCX + ZIP)"
+    "message": "匯出全部 (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "僅匯出自上次匯出後新增的訊息",
@@ -610,7 +610,7 @@
     "message": "Notion 整合權杖"
   },
   "settingsNotionTokenDesc": {
-    "message": "內部整合權杖 — 可啟用彈出視窗中的「Notion ↑」按鈕，將匯出內容附加到下方頁面。"
+    "message": "內部整合權杖 — 可啟用彈出視窗中的「Notion」按鈕，將匯出內容附加到下方頁面。"
   },
   "settingsNotionTokenLink": {
     "message": "建立權杖 →"
