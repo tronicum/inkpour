@@ -114,19 +114,19 @@
     "message": "MD Kopyala"
   },
   "popupBtnCopyHtml": {
-    "message": "HTML Kopyala"
+    "message": "Kopyala"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ Tümünü Dışa Aktar (MD + DOCX + ZIP)"
+    "message": "Tümünü Dışa Aktar (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "Yalnızca son dışa aktarımdan sonra eklenen mesajları dışa aktarır",
@@ -610,7 +610,7 @@
     "message": "Notion entegrasyon token'ı"
   },
   "settingsNotionTokenDesc": {
-    "message": "Dahili entegrasyon token'ı — popup'ta \"Notion ↑\" düğmesini etkinleştirir ve dışa aktarımları aşağıdaki sayfaya ekler."
+    "message": "Dahili entegrasyon token'ı — popup'ta \"Notion\" düğmesini etkinleştirir ve dışa aktarımları aşağıdaki sayfaya ekler."
   },
   "settingsNotionTokenLink": {
     "message": "Bir tane oluştur →"
@@ -1035,5 +1035,73 @@
   },
   "popupBtnReportBug": {
     "message": "Hata bildir"
+  },
+  "popupBatchExportToggle": {
+    "message": "📦 Geçmiş sohbetleri toplu dışa aktar…"
+  },
+  "popupBatchExportStartBtnTitle": {
+    "message": "İşaretlenen sohbetleri tek bir ZIP olarak dışa aktarır"
+  },
+  "popupBatchExportStartBtn": {
+    "message": "Seçilenleri ZIP olarak dışa aktar"
+  },
+  "popupBatchExportCount": {
+    "message": "$2 içinde $1 seçildi",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportNoneSelected": {
+    "message": "Önce en az bir sohbet seçin."
+  },
+  "popupBatchExportStarting": {
+    "message": "$1 sohbet dışa aktarılıyor…",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupBatchExportProgress": {
+    "message": "$2 içinden $1 dışa aktarılıyor: $3",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupBatchExportDone": {
+    "message": "Toplu dışa aktarma tamamlandı: $1 başarılı, $2 atlandı",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportFailed": {
+    "message": "Toplu dışa aktarma başarısız oldu"
+  },
+  "popupExportMoreOptions": {
+    "message": "Diğer dışa aktarma seçenekleri"
+  },
+  "popupBtnAllShort": {
+    "message": "Tümü"
+  },
+  "popupExportGoBtn": {
+    "message": "Dışa Aktar"
   }
 }

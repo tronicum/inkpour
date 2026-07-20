@@ -80,6 +80,10 @@ jobs:
             src/content.js
             icons/icon-48.png
             icons/icon-96.png
+            icons/icon-16-active.png
+            icons/icon-32-active.png
+            icons/icon-48-active.png
+            icons/icon-128-active.png
           )
           MISSING=0
           for f in "${REQUIRED[@]}"; do

@@ -114,19 +114,19 @@
     "message": "MDをコピー"
   },
   "popupBtnCopyHtml": {
-    "message": "HTMLをコピー"
+    "message": "コピー"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ 全てエクスポート（MD + DOCX + ZIP）"
+    "message": "全てエクスポート（MD + DOCX + ZIP）"
   },
   "popupIncrementalBtnTitle": {
     "message": "前回のエクスポート以降に追加されたメッセージのみをエクスポート",
@@ -610,7 +610,7 @@
     "message": "Notion統合トークン"
   },
   "settingsNotionTokenDesc": {
-    "message": "内部統合トークン — ポップアップの「Notion ↑」ボタンが有効になり、下記のページにエクスポートを追加します。"
+    "message": "内部統合トークン — ポップアップの「Notion」ボタンが有効になり、下記のページにエクスポートを追加します。"
   },
   "settingsNotionTokenLink": {
     "message": "作成する →"
@@ -1035,5 +1035,73 @@
   },
   "popupBtnReportBug": {
     "message": "バグを報告"
+  },
+  "popupBatchExportToggle": {
+    "message": "📦 過去のチャットを一括エクスポート…"
+  },
+  "popupBatchExportStartBtnTitle": {
+    "message": "チェックしたチャットを1つのZIPとしてエクスポート"
+  },
+  "popupBatchExportStartBtn": {
+    "message": "選択項目をZIPでエクスポート"
+  },
+  "popupBatchExportCount": {
+    "message": "$2件中$1件選択",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportNoneSelected": {
+    "message": "まず少なくとも1件のチャットを選択してください"
+  },
+  "popupBatchExportStarting": {
+    "message": "$1件のチャットをエクスポート中…",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupBatchExportProgress": {
+    "message": "$2件中$1件をエクスポート中: $3",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupBatchExportDone": {
+    "message": "一括エクスポート完了: 成功$1件、スキップ$2件",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportFailed": {
+    "message": "一括エクスポートに失敗しました"
+  },
+  "popupExportMoreOptions": {
+    "message": "他のエクスポートオプション"
+  },
+  "popupBtnAllShort": {
+    "message": "全て"
+  },
+  "popupExportGoBtn": {
+    "message": "エクスポート"
   }
 }

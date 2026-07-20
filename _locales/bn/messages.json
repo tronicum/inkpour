@@ -114,19 +114,19 @@
     "message": "MD কপি করুন"
   },
   "popupBtnCopyHtml": {
-    "message": "HTML কপি করুন"
+    "message": "কপি করুন"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ সব এক্সপোর্ট করুন (MD + DOCX + ZIP)"
+    "message": "সব এক্সপোর্ট করুন (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "শুধু আপনার শেষ এক্সপোর্টের পর যোগ হওয়া বার্তাগুলো এক্সপোর্ট করুন",
@@ -610,7 +610,7 @@
     "message": "Notion ইন্টিগ্রেশন টোকেন"
   },
   "settingsNotionTokenDesc": {
-    "message": "অভ্যন্তরীণ ইন্টিগ্রেশন টোকেন — পপআপে \"Notion ↑\" বাটন সক্রিয় করে, নিচের পেজে এক্সপোর্ট যুক্ত করে।"
+    "message": "অভ্যন্তরীণ ইন্টিগ্রেশন টোকেন — পপআপে \"Notion\" বাটন সক্রিয় করে, নিচের পেজে এক্সপোর্ট যুক্ত করে।"
   },
   "settingsNotionTokenLink": {
     "message": "একটি তৈরি করুন →"
@@ -1035,5 +1035,73 @@
   },
   "popupBtnReportBug": {
     "message": "বাগ রিপোর্ট করুন"
+  },
+  "popupBatchExportToggle": {
+    "message": "📦 পূর্ববর্তী কথোপকথন ব্যাচ এক্সপোর্ট করুন…"
+  },
+  "popupBatchExportStartBtnTitle": {
+    "message": "টিক দেওয়া কথোপকথনগুলো একটি ZIP হিসেবে এক্সপোর্ট করুন"
+  },
+  "popupBatchExportStartBtn": {
+    "message": "নির্বাচিতগুলো ZIP হিসেবে এক্সপোর্ট করুন"
+  },
+  "popupBatchExportCount": {
+    "message": "$2 এর মধ্যে $1 নির্বাচিত",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportNoneSelected": {
+    "message": "প্রথমে অন্তত একটি কথোপকথন নির্বাচন করুন"
+  },
+  "popupBatchExportStarting": {
+    "message": "$1টি কথোপকথন এক্সপোর্ট করা হচ্ছে…",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupBatchExportProgress": {
+    "message": "$2 এর মধ্যে $1 এক্সপোর্ট করা হচ্ছে: $3",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupBatchExportDone": {
+    "message": "ব্যাচ এক্সপোর্ট সম্পন্ন: $1টি সফল, $2টি বাদ দেওয়া হয়েছে",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportFailed": {
+    "message": "ব্যাচ এক্সপোর্ট ব্যর্থ হয়েছে"
+  },
+  "popupExportMoreOptions": {
+    "message": "আরও এক্সপোর্ট বিকল্প"
+  },
+  "popupBtnAllShort": {
+    "message": "সব"
+  },
+  "popupExportGoBtn": {
+    "message": "এক্সপোর্ট করুন"
   }
 }

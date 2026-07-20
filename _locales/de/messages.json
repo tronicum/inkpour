@@ -114,19 +114,19 @@
     "message": "MD kopieren"
   },
   "popupBtnCopyHtml": {
-    "message": "HTML kopieren"
+    "message": "Kopieren"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ Alle exportieren (MD + DOCX + ZIP)"
+    "message": "Alle exportieren (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "Nur die Nachrichten seit dem letzten Export exportieren",
@@ -610,7 +610,7 @@
     "message": "Notion-Integrationstoken"
   },
   "settingsNotionTokenDesc": {
-    "message": "Interner Integrationstoken — aktiviert die Schaltfläche „Notion ↑“ im Popup, die Exporte an die unten stehende Seite anhängt."
+    "message": "Interner Integrationstoken — aktiviert die Schaltfläche „Notion“ im Popup, die Exporte an die unten stehende Seite anhängt."
   },
   "settingsNotionTokenLink": {
     "message": "Einen erstellen →"
@@ -1035,5 +1035,73 @@
   },
   "popupBtnReportBug": {
     "message": "Fehler melden"
+  },
+  "popupBatchExportToggle": {
+    "message": "📦 Vergangene Chats als Batch exportieren…"
+  },
+  "popupBatchExportStartBtnTitle": {
+    "message": "Die markierten Chats als ein ZIP exportieren"
+  },
+  "popupBatchExportStartBtn": {
+    "message": "Auswahl als ZIP exportieren"
+  },
+  "popupBatchExportCount": {
+    "message": "$1 von $2 ausgewählt",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportNoneSelected": {
+    "message": "Wähle zuerst mindestens einen Chat aus"
+  },
+  "popupBatchExportStarting": {
+    "message": "$1 Chats werden exportiert…",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupBatchExportProgress": {
+    "message": "Exportiere $1 von $2: $3",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupBatchExportDone": {
+    "message": "Batch-Export abgeschlossen: $1 erfolgreich, $2 übersprungen",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportFailed": {
+    "message": "Batch-Export fehlgeschlagen"
+  },
+  "popupExportMoreOptions": {
+    "message": "Weitere Exportoptionen"
+  },
+  "popupBtnAllShort": {
+    "message": "Alle"
+  },
+  "popupExportGoBtn": {
+    "message": "Exportieren"
   }
 }

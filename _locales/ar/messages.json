@@ -114,19 +114,19 @@
     "message": "نسخ MD"
   },
   "popupBtnCopyHtml": {
-    "message": "نسخ HTML"
+    "message": "نسخ"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ تصدير الكل (MD + DOCX + ZIP)"
+    "message": "تصدير الكل (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "تصدير الرسائل المضافة منذ آخر تصدير فقط",
@@ -610,7 +610,7 @@
     "message": "رمز تكامل Notion"
   },
   "settingsNotionTokenDesc": {
-    "message": "رمز تكامل داخلي — يفعّل زر \"Notion ↑\" في النافذة المنبثقة، ويُلحق الصادرات بالصفحة أدناه."
+    "message": "رمز تكامل داخلي — يفعّل زر \"Notion\" في النافذة المنبثقة، ويُلحق الصادرات بالصفحة أدناه."
   },
   "settingsNotionTokenLink": {
     "message": "أنشئ رمزًا ←"
@@ -1035,5 +1035,73 @@
   },
   "popupBtnReportBug": {
     "message": "الإبلاغ عن خطأ"
+  },
+  "popupBatchExportToggle": {
+    "message": "📦 تصدير دفعي للمحادثات السابقة…"
+  },
+  "popupBatchExportStartBtnTitle": {
+    "message": "تصدير المحادثات المحددة كملف ZIP واحد"
+  },
+  "popupBatchExportStartBtn": {
+    "message": "تصدير المحدد كملف ZIP"
+  },
+  "popupBatchExportCount": {
+    "message": "$1 من $2 محدد",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportNoneSelected": {
+    "message": "حدد محادثة واحدة على الأقل أولًا"
+  },
+  "popupBatchExportStarting": {
+    "message": "جارٍ تصدير $1 محادثة…",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupBatchExportProgress": {
+    "message": "جارٍ تصدير $1 من $2: $3",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupBatchExportDone": {
+    "message": "اكتمل التصدير الدفعي: نجح $1، وتم تخطي $2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportFailed": {
+    "message": "فشل التصدير الدفعي"
+  },
+  "popupExportMoreOptions": {
+    "message": "المزيد من خيارات التصدير"
+  },
+  "popupBtnAllShort": {
+    "message": "الكل"
+  },
+  "popupExportGoBtn": {
+    "message": "تصدير"
   }
 }

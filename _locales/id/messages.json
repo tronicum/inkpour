@@ -114,19 +114,19 @@
     "message": "Salin MD"
   },
   "popupBtnCopyHtml": {
-    "message": "Salin HTML"
+    "message": "Salin"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ Ekspor Semua (MD + DOCX + ZIP)"
+    "message": "Ekspor Semua (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "Ekspor hanya pesan yang ditambahkan sejak ekspor terakhir Anda",
@@ -610,7 +610,7 @@
     "message": "Token integrasi Notion"
   },
   "settingsNotionTokenDesc": {
-    "message": "Token integrasi internal — mengaktifkan tombol \"Notion ↑\" di popup, menambahkan ekspor ke halaman di bawah."
+    "message": "Token integrasi internal — mengaktifkan tombol \"Notion\" di popup, menambahkan ekspor ke halaman di bawah."
   },
   "settingsNotionTokenLink": {
     "message": "Buat satu →"
@@ -1035,5 +1035,73 @@
   },
   "popupBtnReportBug": {
     "message": "Laporkan bug"
+  },
+  "popupBatchExportToggle": {
+    "message": "📦 Ekspor massal percakapan sebelumnya…"
+  },
+  "popupBatchExportStartBtnTitle": {
+    "message": "Ekspor percakapan yang dicentang sebagai satu ZIP"
+  },
+  "popupBatchExportStartBtn": {
+    "message": "Ekspor yang dipilih sebagai ZIP"
+  },
+  "popupBatchExportCount": {
+    "message": "$1 dari $2 dipilih",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportNoneSelected": {
+    "message": "Pilih setidaknya satu percakapan terlebih dahulu"
+  },
+  "popupBatchExportStarting": {
+    "message": "Mengekspor $1 percakapan…",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupBatchExportProgress": {
+    "message": "Mengekspor $1 dari $2: $3",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupBatchExportDone": {
+    "message": "Ekspor massal selesai: $1 berhasil, $2 dilewati",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportFailed": {
+    "message": "Ekspor massal gagal"
+  },
+  "popupExportMoreOptions": {
+    "message": "Opsi ekspor lainnya"
+  },
+  "popupBtnAllShort": {
+    "message": "Semua"
+  },
+  "popupExportGoBtn": {
+    "message": "Ekspor"
   }
 }

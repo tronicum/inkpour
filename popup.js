@@ -25,6 +25,12 @@
   const debugDomBtn  = document.getElementById('debugDomBtn');
   const reportBugBtn = document.getElementById('reportBugBtn');
   const allBtn      = document.getElementById('allBtn');
+  const exportSelectBtn    = document.getElementById('exportSelectBtn');
+  const exportSelectedLabel = document.getElementById('exportSelectedLabel');
+  const exportGoBtn       = document.getElementById('exportGoBtn');
+  const exportMenu        = document.getElementById('exportMenu');
+  const gistMenuOption    = document.getElementById('gistMenuOption');
+  const notionMenuOption  = document.getElementById('notionMenuOption');
   const settingsBtn  = document.getElementById('settingsBtn');
   const historyBtn   = document.getElementById('historyBtn');
   const settingsBtn2 = document.getElementById('settingsBtn2');
@@ -46,6 +52,14 @@
   const selectNoneBtn = document.getElementById('selectNone');
   const selectUserBtn = document.getElementById('selectUser');
   const selectAIBtn   = document.getElementById('selectAI');
+  const batchExportToggle      = document.getElementById('batchExportToggle');
+  const batchExportSection     = document.getElementById('batch-export-section');
+  const batchExportCount       = document.getElementById('batchExportCount');
+  const batchExportCheckboxes  = document.getElementById('batchExportCheckboxes');
+  const batchExportSelectAllBtn  = document.getElementById('batchExportSelectAll');
+  const batchExportSelectNoneBtn = document.getElementById('batchExportSelectNone');
+  const batchExportStartBtn   = document.getElementById('batchExportStartBtn');
+  const batchExportStatus     = document.getElementById('batchExportStatus');
   const importBtn         = document.getElementById('importBtn');
   const importSection     = document.getElementById('import-section');
   const importText        = document.getElementById('importText');
@@ -99,18 +113,33 @@
 
   api.storage.local.get('inkpour_settings', (result) => {
     userSettings = Object.assign({}, SETTING_DEFAULTS, result?.inkpour_settings ?? {});
-    // Highlight default format button
-    const btnMap = { md: mdBtn, pdf: pdfBtn, html: htmlBtn, json: jsonBtn, zip: zipBtn };
-    const defaultBtn = btnMap[userSettings.defaultFormat];
-    if (defaultBtn) defaultBtn.classList.add('default-format');
-    // Show Gist button only when a token is configured
-    if (gistBtn && userSettings.githubToken) gistBtn.hidden = false;
-    // Show Notion button only when both a token and a target page ID are configured
-    if (notionBtn && userSettings.notionToken && userSettings.notionPageId) notionBtn.hidden = false;
+    // Highlight default format on the always-visible ZIP quick button; the
+    // rest of the formats live behind the picker now, where the "selected"
+    // state (see setSelectedFormat()) already communicates this.
+    if (userSettings.defaultFormat === 'zip') zipBtn?.classList.add('default-format');
+    // Show the Gist/Notion picker rows only when configured. The real
+    // gistBtn/notionBtn stay hidden unconditionally now (they live inside
+    // #realExportActions and are only ever .click()-proxied) — it's their
+    // menu stand-ins that need the token gating.
+    if (gistMenuOption && userSettings.githubToken) gistMenuOption.hidden = false;
+    if (notionMenuOption && userSettings.notionToken && userSettings.notionPageId) notionMenuOption.hidden = false;
     // Debug-mode buttons — "Copy debug info" needs no token (opens/copies
     // locally); "Report bug" also works without one (opens a pre-filled
     // GitHub issue the user reviews and submits themselves), so both show
     // together under the same Debug mode toggle regardless of token state.
+    // Seed the picker's selection: prefer the most recently used format
+    // (persisted by saveLastExport() further below on every successful
+    // export), falling back to this "Default format" setting before
+    // anything has ever been exported. Nested inside this same callback
+    // (rather than a separate storage.local.get call) so
+    // userSettings.defaultFormat is guaranteed to already be the real
+    // configured value, not the synchronous SETTING_DEFAULTS placeholder,
+    // by the time it's used as the fallback.
+    api.storage.local.get('inkpour_last_export', (lastResult) => {
+      const lastFormat = lastResult?.inkpour_last_export?.format;
+      const fallback = FORMAT_TO_BTN[userSettings.defaultFormat] ? userSettings.defaultFormat : 'md';
+      setSelectedFormat(lastFormat && FORMAT_TO_BTN[lastFormat] ? lastFormat : fallback);
+    });
     if (debugGroupEl && userSettings.debugMode) {
       debugGroupEl.hidden = false;
       debugGroupEl.style.display = 'flex';
@@ -349,6 +378,125 @@
     return originalTitle;
   }
 
+  // ─── Batch export (Batch 8) ─────────────────────────────────────────────
+  // Picks multiple PAST conversations from the current tab's own history
+  // sidebar (ChatGPT/Claude only for now) and exports them all as one ZIP.
+  // This is strictly additive: getConversationList() (src/content.js)
+  // returns [] on any unsupported/logged-out page, so batchExportToggle
+  // simply never appears there — the single-conversation export flow above
+  // is completely untouched either way.
+
+  let batchExportConversations = [];
+
+  /** Ask the current tab for its history-sidebar conversation list and, if
+   *  any are found, reveal the batch-export toggle button. Best-effort and
+   *  silent on failure — this must never interfere with the main peek/export
+   *  flow above, which already ran (or is running) independently. */
+  async function initBatchExport() {
+    if (!batchExportToggle) return;
+    try {
+      const [tab] = await api.tabs.query({ active: true, currentWindow: true });
+      if (!tab?.id) return;
+      const response = await api.tabs.sendMessage(tab.id, { action: 'getConversationList' });
+      const conversations = response?.conversations ?? [];
+      if (!conversations.length) return;
+      batchExportConversations = conversations;
+      batchExportToggle.hidden = false;
+      batchExportToggle.style.display = 'block';
+    } catch {
+      // Not a supported page, or content script not ready — stay silent,
+      // same as runPeek()'s own catch above.
+    }
+  }
+
+  function renderBatchExportCheckboxes() {
+    if (!batchExportCheckboxes) return;
+    batchExportCheckboxes.textContent = '';
+    batchExportConversations.forEach((conv, i) => {
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.dataset.idx = String(i);
+      checkbox.checked = false; // opt-in, not opt-out — this fires N background tabs
+      checkbox.addEventListener('change', updateBatchExportCount);
+
+      const titleSpan = document.createElement('span');
+      titleSpan.className = 'msg-preview';
+      titleSpan.textContent = conv.title;
+
+      const row = document.createElement('label');
+      row.className = 'msg-row';
+      row.append(checkbox, titleSpan);
+      batchExportCheckboxes.appendChild(row);
+    });
+    updateBatchExportCount();
+  }
+
+  function updateBatchExportCount() {
+    if (!batchExportCheckboxes || !batchExportCount) return;
+    const checked = batchExportCheckboxes.querySelectorAll('input[type=checkbox]:checked').length;
+    batchExportCount.textContent = t('popupBatchExportCount', [String(checked), String(batchExportConversations.length)]);
+  }
+
+  function getSelectedBatchExportConversations() {
+    const boxes = batchExportCheckboxes?.querySelectorAll('input[type=checkbox]') ?? [];
+    const selected = [];
+    boxes.forEach((box, i) => {
+      if (box.checked && batchExportConversations[i]) selected.push(batchExportConversations[i]);
+    });
+    return selected;
+  }
+
+  batchExportToggle?.addEventListener('click', () => {
+    const open = batchExportSection && !batchExportSection.hidden;
+    if (!open) renderBatchExportCheckboxes(); // (re-)populate on every open, list may be stale
+    if (batchExportSection) {
+      batchExportSection.hidden = open;
+      batchExportSection.style.display = open ? 'none' : 'block';
+    }
+  });
+
+  batchExportSelectAllBtn?.addEventListener('click', () => {
+    batchExportCheckboxes?.querySelectorAll('input[type=checkbox]').forEach(b => { b.checked = true; });
+    updateBatchExportCount();
+  });
+  batchExportSelectNoneBtn?.addEventListener('click', () => {
+    batchExportCheckboxes?.querySelectorAll('input[type=checkbox]').forEach(b => { b.checked = false; });
+    updateBatchExportCount();
+  });
+
+  batchExportStartBtn?.addEventListener('click', async () => {
+    if (!batchExportStatus) return;
+    const selected = getSelectedBatchExportConversations();
+    if (!selected.length) {
+      batchExportStatus.textContent = t('popupBatchExportNoneSelected');
+      return;
+    }
+    const [tab] = await api.tabs.query({ active: true, currentWindow: true });
+    setLoading(batchExportStartBtn, true);
+    batchExportStatus.textContent = t('popupBatchExportStarting', [String(selected.length)]);
+    try {
+      // background.js owns the actual tab-cycling loop so the run survives
+      // this popup closing; it reports back once every conversation has
+      // been tried (success or skip), not incrementally — see
+      // background.js's runBatchExport() for the per-conversation progress
+      // toasts it fires on this same origin tab in the meantime.
+      const result = await api.runtime.sendMessage({
+        action: 'startBatchExport',
+        conversations: selected,
+        originTabId: tab?.id,
+      });
+      if (result?.ok) {
+        batchExportStatus.textContent = t('popupBatchExportDone', [String(result.succeeded), String(result.skipped)]);
+      } else {
+        batchExportStatus.textContent = result?.error || t('popupBatchExportFailed');
+      }
+    } catch (err) {
+      batchExportStatus.textContent = err?.message || t('popupBatchExportFailed');
+    } finally {
+      setLoading(batchExportStartBtn, false);
+    }
+  });
+
   async function runPeek() {
     try {
       const [tab] = await api.tabs.query({ active: true, currentWindow: true });
@@ -417,6 +565,7 @@
     if (onSupportedHost) {
       await clearImportState(); // live page wins; drop any stale pending import
       runPeek();
+      initBatchExport();
       return;
     }
 
@@ -1308,7 +1457,107 @@
   function setLoading(btn, on) {
     btn.disabled = on;
     btn.classList.toggle('loading', on);
+    // Mirror onto the visible Export button (see "Export picker" below) —
+    // the real buttons this proxies to live hidden in #realExportActions,
+    // so their own spinner isn't visible on its own.
+    if (exportGoBtn && Object.values(FORMAT_TO_BTN).includes(btn)) {
+      exportGoBtn.disabled = on;
+      exportGoBtn.classList.toggle('loading', on);
+    }
   }
+
+  // ─── Export picker (selector + separate "Export" button) ───────────────
+  // Replaces the old instant-fire split button (TODOs.md "Popup layout"
+  // item). Picking a row in the menu only changes the selection — nothing
+  // runs until the Export button is pressed. This decouples "choose" from
+  // "commit" so a stray click while browsing the menu can't fire a Gist/
+  // Notion upload (or any other export) with no chance to back out.
+  //
+  // Menu rows are plain UI (data-format attribute only, no handler of their
+  // own); the actual export/copy/upload logic lives, completely unchanged,
+  // in the hidden buttons in #realExportActions — this map is how the
+  // Export button finds which one to .click()-proxy to. Copy MD and ZIP
+  // aren't in this map: they stayed real, directly-clickable, always-
+  // visible buttons in the quick-actions row (see popup.html), since the
+  // instant-fire concern was specifically about picking from a dropdown.
+  const FORMAT_TO_BTN = {
+    md:          mdBtn,
+    pdf:         pdfBtn,
+    html:        htmlBtn,
+    json:        jsonBtn,
+    docx:        docxBtn,
+    'copy-html': copyHtmlBtn,
+    all:         allBtn,
+    gist:        gistBtn,
+    notion:      notionBtn,
+  };
+
+  let selectedFormat = 'md';
+
+  function menuItemFor(format) {
+    return exportMenu?.querySelector(`.export-menu-item[data-format="${format}"]`) || null;
+  }
+
+  /** Label for the selector face — reuses the menu row's own (already-
+   *  localized) span text, except 'all' which gets its own much shorter
+   *  dedicated string (the real row's label is a full sentence, "⬇ Export
+   *  All (MD + DOCX + ZIP)", too long for the compact selector). */
+  function labelFor(format) {
+    if (format === 'all') return t('popupBtnAllShort');
+    return menuItemFor(format)?.querySelector('span:last-child')?.textContent || format.toUpperCase();
+  }
+
+  function setSelectedFormat(format) {
+    if (!FORMAT_TO_BTN[format]) return; // unknown/stale format string — ignore
+    selectedFormat = format;
+    if (exportSelectedLabel) exportSelectedLabel.textContent = labelFor(format);
+    exportMenu?.querySelectorAll('.export-menu-item').forEach((el) => {
+      el.classList.toggle('selected', el.dataset.format === format);
+    });
+  }
+
+  function closeExportMenu() {
+    if (!exportMenu || exportMenu.hidden) return;
+    exportMenu.hidden = true;
+    exportMenu.style.display = 'none';
+    exportSelectBtn?.setAttribute('aria-expanded', 'false');
+  }
+
+  function openExportMenu() {
+    if (!exportMenu) return;
+    exportMenu.hidden = false;
+    exportMenu.style.display = 'flex';
+    exportMenu.style.flexDirection = 'column';
+    exportSelectBtn?.setAttribute('aria-expanded', 'true');
+  }
+
+  exportSelectBtn?.addEventListener('click', () => {
+    if (exportMenu?.hidden) openExportMenu(); else closeExportMenu();
+  });
+
+  // Picking a row only updates the selection and closes the menu — it never
+  // touches the real (hidden) button, so nothing fires yet.
+  exportMenu?.querySelectorAll('.export-menu-item').forEach((el) => {
+    el.addEventListener('click', () => {
+      setSelectedFormat(el.dataset.format);
+      closeExportMenu();
+    });
+  });
+
+  // The one and only place a picker-selected format actually fires: proxy a
+  // real .click() to whichever hidden button matches the current selection.
+  exportGoBtn?.addEventListener('click', () => {
+    FORMAT_TO_BTN[selectedFormat]?.click();
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!exportMenu || exportMenu.hidden) return;
+    const withinPicker = e.target.closest('.export-picker, .export-menu');
+    if (!withinPicker) closeExportMenu();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeExportMenu();
+  });
 
   // ─── Export persistence (last hint + rolling history) ─────────────────────
 

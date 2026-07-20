@@ -674,6 +674,199 @@ async function main() {
     });
   });
 
+  // ── ChatGPT Canvas code block language detection (Batch 7) ──────────────
+  // Structure verified live 2026-07 against a real ChatGPT Canvas code
+  // document: the code renders via a CodeMirror editor (.cm-editor/
+  // .cm-content) nested inside the same outer <pre> as a "sticky" toolbar
+  // header (language-name text + Copy/Run buttons). querySelector('code')
+  // already reaches through to clean code text with no toolbar leakage, but
+  // none of the three pre-existing language-detection heuristics (class,
+  // sibling span, hljs) find anything here, so the fenced code block always
+  // came out with no language tag (``` instead of ```python).
+  await suite('htmlToMarkdown — ChatGPT Canvas code block language tag (regression)', async () => {
+    const dom = new JSDOM(`<!DOCTYPE html><body>
+      <div id="canvas">
+        <pre class="overflow-visible! px-0!">
+          <div class="select-none sticky z-2 top-0">
+            <div class="flex w-full items-center justify-between py-1.5">
+              <div class="flex max-w-[75%] min-w-0 cursor-default items-center text-sm font-medium">Python</div>
+              <div class="flex items-center gap-1">
+                <button aria-label="Copy"></button>
+                <button aria-label="Run code">Run</button>
+              </div>
+            </div>
+          </div>
+          <div class="cm-editor" id="code-block-viewer">
+            <div class="cm-scroller">
+              <pre class="cm-content q9tKkq_readonly m-0"><code>def reverse_string(text):
+    return text[::-1]</code></pre>
+            </div>
+          </div>
+        </pre>
+      </div>
+      <div id="plain">
+        <pre><code class="language-javascript">console.log("no canvas here");</code></pre>
+      </div>
+      <div id="unrelated-sticky">
+        <pre class="sticky">some other platform's unrelated sticky pre with no CodeMirror editor
+        <code>plain code, no language info anywhere</code></pre>
+      </div>
+    </body>`, { url: 'https://chatgpt.com/', runScripts: 'dangerously' });
+    dom.window.__inkpourTestHostname = 'chatgpt.com';
+    dom.window.HTMLElement.prototype.scrollTo = function () {};
+    dom.window.document.documentElement.scrollTo = function () {};
+    const ls = [];
+    dom.window.browser = { runtime: { onMessage: { addListener: fn => ls.push(fn) }, id: 't' }, i18n: mockI18n() };
+    dom.window.chrome  = dom.window.browser;
+    const s = dom.window.document.createElement('script');
+    s.textContent = CONTENT_JS;
+    dom.window.document.body.appendChild(s);
+    await new Promise(r => setTimeout(r, 50));
+    const fn = dom.window.__inkpourHtmlToMarkdown;
+    assert(typeof fn === 'function', 'hook not exposed');
+
+    await test('Canvas code block gets a python language tag from the sticky header', () => {
+      const md = fn(dom.window.document.getElementById('canvas'));
+      assert(md.includes('```python'), `expected \`\`\`python fence. Got: ${md}`);
+    });
+    await test('Canvas code block content is clean (no "PythonRun" toolbar leakage)', () => {
+      const md = fn(dom.window.document.getElementById('canvas'));
+      assert(!md.includes('PythonRun'), `toolbar text leaked into code. Got: ${md}`);
+      assert(md.includes('def reverse_string(text):'), `code content missing. Got: ${md}`);
+    });
+    await test('existing language-class detection still works unaffected', () => {
+      const md = fn(dom.window.document.getElementById('plain'));
+      assert(md.includes('```javascript'), `expected \`\`\`javascript fence. Got: ${md}`);
+    });
+    await test('a ".sticky" pre with no CodeMirror editor does not misfire the new heuristic', () => {
+      const md = fn(dom.window.document.getElementById('unrelated-sticky'));
+      assert(md.startsWith('\n\n```\n') || md.includes('```\n'), `expected no language tag. Got: ${md}`);
+      assert(!/```(python|javascript|typescript)/.test(md), `heuristic wrongly fired. Got: ${md}`);
+    });
+  });
+
+  // ── getConversationList (Batch 8 history-sidebar enumeration spike) ─────
+  // Fixtures mirror the real DOM shapes confirmed live 2026-07 against
+  // logged-in ChatGPT and Claude accounts (see planning/TODOs.md Batch 8):
+  // ChatGPT wraps each link in <li class="list-none"> with a
+  // data-sidebarItem attribute and a matching aria-label; Claude's link
+  // textContent is doubled (.sr-only + a sibling aria-hidden display span
+  // carrying the same text) and must be de-doubled via .sr-only.
+  await suite('getConversationList — ChatGPT sidebar', async () => {
+    const dom = new JSDOM(`<!DOCTYPE html><body>
+      <nav>
+        <ol>
+          <li class="list-none">
+            <a href="/c/11111111-1111-1111-1111-111111111111" data-sidebarItem aria-label="Python String Reversal">
+              <div>Python String Reversal</div>
+            </a>
+          </li>
+          <li class="list-none">
+            <a href="/c/22222222-2222-2222-2222-222222222222" data-sidebarItem aria-label="History of Coffee">
+              <div>History of Coffee</div>
+            </a>
+          </li>
+          <li class="list-none">
+            <a href="/c/11111111-1111-1111-1111-111111111111" data-sidebarItem aria-label="Python String Reversal">
+              <div>Python String Reversal (duplicate DOM entry, e.g. pinned + recents)</div>
+            </a>
+          </li>
+        </ol>
+      </nav>
+    </body>`, { url: 'https://chatgpt.com/', runScripts: 'dangerously' });
+    dom.window.__inkpourTestHostname = 'chatgpt.com';
+    dom.window.HTMLElement.prototype.scrollTo = function () {};
+    dom.window.document.documentElement.scrollTo = function () {};
+    const ls = [];
+    dom.window.browser = { runtime: { onMessage: { addListener: fn => ls.push(fn) }, id: 't' }, i18n: mockI18n() };
+    dom.window.chrome  = dom.window.browser;
+    const s = dom.window.document.createElement('script');
+    s.textContent = CONTENT_JS;
+    dom.window.document.body.appendChild(s);
+    await new Promise(r => setTimeout(r, 50));
+    const getConversationList = dom.window.__inkpourGetConversationList;
+    assert(typeof getConversationList === 'function', '__inkpourGetConversationList not exposed');
+
+    await test('finds every unique conversation link', () => {
+      const list = getConversationList();
+      assert(list.length === 2, `expected 2 unique conversations, got ${list.length}: ${JSON.stringify(list)}`);
+    });
+    await test('title comes from aria-label', () => {
+      const list = getConversationList();
+      const first = list.find(c => c.url.includes('11111111'));
+      assert(first && first.title === 'Python String Reversal', `unexpected title: ${JSON.stringify(first)}`);
+    });
+    await test('url is resolved to an absolute /c/<uuid> path', () => {
+      const list = getConversationList();
+      assert(list.every(c => /^https:\/\/chatgpt\.com\/c\//.test(c.url)), `unexpected urls: ${JSON.stringify(list)}`);
+    });
+    await test('duplicate href (same conversation linked twice) is de-duplicated', () => {
+      const list = getConversationList();
+      const urls = list.map(c => c.url);
+      assert(new Set(urls).size === urls.length, `expected no duplicate urls: ${JSON.stringify(list)}`);
+    });
+  });
+
+  await suite('getConversationList — Claude sidebar', async () => {
+    const dom = new JSDOM(`<!DOCTYPE html><body>
+      <nav>
+        <a href="/chat/aaaa-1111">
+          <span class="sr-only">Debugging old Raspberry Pi firmware</span>
+          <span aria-hidden="true" class="block truncate">Debugging old Raspberry Pi firm…</span>
+        </a>
+        <a href="/chat/bbbb-2222">
+          <span class="sr-only">Weeknight pasta ideas</span>
+          <span aria-hidden="true" class="block truncate">Weeknight pasta ideas</span>
+        </a>
+      </nav>
+    </body>`, { url: 'https://claude.ai/', runScripts: 'dangerously' });
+    dom.window.__inkpourTestHostname = 'claude.ai';
+    dom.window.HTMLElement.prototype.scrollTo = function () {};
+    dom.window.document.documentElement.scrollTo = function () {};
+    const ls = [];
+    dom.window.browser = { runtime: { onMessage: { addListener: fn => ls.push(fn) }, id: 't' }, i18n: mockI18n() };
+    dom.window.chrome  = dom.window.browser;
+    const s = dom.window.document.createElement('script');
+    s.textContent = CONTENT_JS;
+    dom.window.document.body.appendChild(s);
+    await new Promise(r => setTimeout(r, 50));
+    const getConversationList = dom.window.__inkpourGetConversationList;
+    assert(typeof getConversationList === 'function', '__inkpourGetConversationList not exposed');
+
+    await test('finds every conversation link', () => {
+      const list = getConversationList();
+      assert(list.length === 2, `expected 2 conversations, got ${list.length}: ${JSON.stringify(list)}`);
+    });
+    await test('title uses .sr-only, not the doubled textContent', () => {
+      const list = getConversationList();
+      const first = list.find(c => c.url.includes('aaaa-1111'));
+      assert(first && first.title === 'Debugging old Raspberry Pi firmware',
+        `expected clean single-instance title, got: ${JSON.stringify(first)}`);
+    });
+  });
+
+  await suite('getConversationList — unsupported/logged-out platform', async () => {
+    const dom = new JSDOM(`<!DOCTYPE html><body>
+      <nav><a href="/some/other/link">Not a conversation link</a></nav>
+    </body>`, { url: 'https://gemini.google.com/', runScripts: 'dangerously' });
+    dom.window.__inkpourTestHostname = 'gemini.google.com';
+    dom.window.HTMLElement.prototype.scrollTo = function () {};
+    dom.window.document.documentElement.scrollTo = function () {};
+    const ls = [];
+    dom.window.browser = { runtime: { onMessage: { addListener: fn => ls.push(fn) }, id: 't' }, i18n: mockI18n() };
+    dom.window.chrome  = dom.window.browser;
+    const s = dom.window.document.createElement('script');
+    s.textContent = CONTENT_JS;
+    dom.window.document.body.appendChild(s);
+    await new Promise(r => setTimeout(r, 50));
+    const getConversationList = dom.window.__inkpourGetConversationList;
+
+    await test('returns an empty list rather than throwing (feature-detect point)', () => {
+      const list = getConversationList();
+      assert(Array.isArray(list) && list.length === 0, `expected empty array, got: ${JSON.stringify(list)}`);
+    });
+  });
+
   // ── buildMarkdown (from src/utils.js) ────────────────────────────────────
   await suite('buildMarkdown', async () => {
     const msgs = [
@@ -1921,6 +2114,232 @@ async function main() {
     const result = await extractFromFixture('chatgpt.html', 'chatgpt.com', 'debugDom');
     assert('path' in result.report.url && 'hostname' in result.report.url, 'missing url.path/url.hostname');
     assert(!JSON.stringify(result.report.url).includes('?'), 'query string leaked into sanitized url');
+  });
+
+  // ─── Popup export picker (selector + separate "Export" button) ──────────
+  // popup.js/popup.html aren't loaded/executed by this JSDOM harness (they
+  // depend on chrome.tabs/chrome.runtime APIs JSDOM doesn't provide — same
+  // reason background.js has no JSDOM coverage either, see below). These
+  // checks are structural: parse popup.html for the expected elements, and
+  // grep popup.js's source for the wiring that ties them together, so a
+  // future refactor can't silently drop one without a test noticing.
+  //
+  // Design note this suite encodes: picking a row in the menu must only
+  // change the selection, never fire the real export/copy/upload — that
+  // only happens when the Export button is clicked. An earlier version
+  // fired instantly on picking a menu row, which read as "no chance to
+  // abort" for a Gist/Notion upload in particular; see TODOs.md.
+  console.log('\nPopup export picker (structure)');
+
+  const POPUP_HTML = fs.readFileSync(path.resolve(__dirname, '../popup.html'), 'utf8');
+  const POPUP_JS   = fs.readFileSync(path.resolve(__dirname, '../popup.js'), 'utf8');
+  const POPUP_DOM  = new JSDOM(POPUP_HTML).window.document;
+
+  // Formats reachable only through the picker + Export button.
+  const PICKER_MENU_IDS = ['mdBtn', 'pdfBtn', 'htmlBtn', 'jsonBtn', 'docxBtn', 'copyHtmlBtn', 'allBtn', 'gistBtn', 'notionBtn'];
+  // Formats that stayed real, always-visible, directly-clickable quick buttons.
+  const QUICK_ACTION_IDS = ['copyBtn', 'zipBtn'];
+
+  await test('selector and Export button both exist', () => {
+    ['exportSelectBtn', 'exportSelectedLabel', 'exportGoBtn', 'exportMenu'].forEach(id => {
+      assert(POPUP_DOM.getElementById(id), `#${id} missing from popup.html`);
+    });
+  });
+
+  await test('Copy MD and ZIP are real, visible, directly-clickable quick buttons (not inside the menu)', () => {
+    const menu = POPUP_DOM.getElementById('exportMenu');
+    const realActions = POPUP_DOM.getElementById('realExportActions');
+    QUICK_ACTION_IDS.forEach(id => {
+      const el = POPUP_DOM.getElementById(id);
+      assert(el, `#${id} missing from popup.html`);
+      assert(!menu.contains(el), `#${id} should not be inside #exportMenu`);
+      assert(!realActions.contains(el), `#${id} should not be hidden inside #realExportActions`);
+      assert(el.hidden !== true, `#${id} should be visible by default`);
+    });
+  });
+
+  await test('every other export action exists, hidden, inside #realExportActions with its original id', () => {
+    const realActions = POPUP_DOM.getElementById('realExportActions');
+    assert(realActions, '#realExportActions missing from popup.html');
+    assert(realActions.hidden, '#realExportActions should be hidden — never directly clickable');
+    PICKER_MENU_IDS.forEach(id => {
+      const el = POPUP_DOM.getElementById(id);
+      assert(el, `#${id} missing from popup.html`);
+      assert(realActions.contains(el), `#${id} should live inside #realExportActions`);
+    });
+  });
+
+  await test('the menu contains one inert, data-format-only row per picker format (no shared ids with the real buttons)', () => {
+    const menu = POPUP_DOM.getElementById('exportMenu');
+    const formats = ['md', 'pdf', 'html', 'json', 'docx', 'copy-html', 'all', 'gist', 'notion'];
+    formats.forEach(format => {
+      const row = menu.querySelector(`.export-menu-item[data-format="${format}"]`);
+      assert(row, `no .export-menu-item[data-format="${format}"] in #exportMenu`);
+      assert(!PICKER_MENU_IDS.includes(row.id), `menu row for ${format} should not reuse a real button's id`);
+    });
+  });
+
+  await test('the old always-visible button grid is gone (.export-label, .all-group)', () => {
+    assert(POPUP_DOM.querySelectorAll('.export-label').length === 0, '.export-label should have been removed');
+    assert(POPUP_DOM.querySelectorAll('.all-group').length === 0, '.all-group should have been removed');
+  });
+
+  await test('debug-mode buttons were left alone, outside the export menu', () => {
+    const menu = POPUP_DOM.getElementById('exportMenu');
+    const debugGroup = POPUP_DOM.getElementById('debug-group');
+    assert(debugGroup, '#debug-group missing');
+    assert(!menu.contains(debugGroup), '#debug-group should not have been folded into the export menu');
+  });
+
+  await test('popup.js maps every picker format to its hidden button element (FORMAT_TO_BTN)', () => {
+    const formats = ['md', 'pdf', 'html', 'json', 'docx', "'copy-html'", 'all', 'gist', 'notion'];
+    formats.forEach(f => {
+      assert(new RegExp(`${f}:\\s*\\w+Btn`).test(POPUP_JS), `FORMAT_TO_BTN appears to be missing an entry for ${f}`);
+    });
+    // Copy MD/ZIP are deliberately NOT in this map — they're quick buttons now.
+    assert(!/'copy-md':\s*copyBtn/.test(POPUP_JS), "FORMAT_TO_BTN should no longer include 'copy-md'");
+    assert(!/zip:\s*zipBtn/.test(POPUP_JS), 'FORMAT_TO_BTN should no longer include zip');
+  });
+
+  await test('setLoading() mirrors state onto the Export button', () => {
+    assert(/exportGoBtn\.disabled = on/.test(POPUP_JS) && /exportGoBtn\.classList\.toggle\('loading', on\)/.test(POPUP_JS),
+      'expected setLoading() to also toggle exportGoBtn state');
+  });
+
+  await test('picking a menu row only updates the selection — it must not call the real button\'s .click()', () => {
+    const menuClickBlock = POPUP_JS.match(/el\.addEventListener\('click',\s*\(\)\s*=>\s*\{[\s\S]*?\}\);\s*\}\);/);
+    assert(menuClickBlock, "expected an el.addEventListener('click', ...) wiring block for menu rows");
+    assert(/setSelectedFormat/.test(menuClickBlock[0]), 'expected the menu row handler to call setSelectedFormat(...)');
+    assert(!/\.click\(\)/.test(menuClickBlock[0]), 'menu row click handler must not fire a real .click() — that must be the Export button\'s job only');
+  });
+
+  await test('only the Export button\'s click handler proxies to FORMAT_TO_BTN[selectedFormat]', () => {
+    assert(/exportGoBtn\?\.addEventListener\('click',\s*\(\)\s*=>\s*\{\s*FORMAT_TO_BTN\[selectedFormat\]\?\.click\(\)/.test(POPUP_JS),
+      "expected exportGoBtn's click handler to call FORMAT_TO_BTN[selectedFormat]?.click()");
+  });
+
+  await test('seeds the selected format from the last successful export, falling back to the Settings default', () => {
+    assert(/inkpour_last_export/.test(POPUP_JS) && /userSettings\.defaultFormat/.test(POPUP_JS),
+      'expected the picker to read inkpour_last_export.format with a userSettings.defaultFormat fallback');
+  });
+
+  await test('Gist/Notion visibility gating targets the menu rows, not the (always-hidden) real buttons', () => {
+    assert(/gistMenuOption.*userSettings\.githubToken/.test(POPUP_JS) || /userSettings\.githubToken.*gistMenuOption/.test(POPUP_JS),
+      'expected the githubToken gate to show/hide #gistMenuOption');
+    assert(/notionMenuOption.*userSettings\.notionToken/.test(POPUP_JS) || /userSettings\.notionToken.*notionMenuOption/.test(POPUP_JS),
+      'expected the notionToken gate to show/hide #notionMenuOption');
+  });
+
+  // ─── Toolbar icon — bigger supported-site signal ─────────────────────────
+  // The native OS badge corner is fixed-size by the browser and can't be
+  // made bigger, so the "you can export this page" signal moved into the
+  // icon bitmap itself: icons/icon-*-active.png bakes in a large green
+  // checkmark, swapped per-tab via background.js's updateBadge(). This
+  // guards against the files going missing (background.js would then call
+  // setIcon() with a broken path and silently fail — no error surfaces
+  // anywhere a developer would see it) and against the active/default sets
+  // accidentally pointing at the same file.
+  console.log('\nToolbar icon — bigger supported-site signal');
+
+  const BACKGROUND_JS = fs.readFileSync(path.resolve(__dirname, '../background.js'), 'utf8');
+  const ICON_SIZES = [16, 32, 48, 128];
+
+  await test('background.js references an -active icon variant for every manifest icon size', () => {
+    ICON_SIZES.forEach(size => {
+      assert(BACKGROUND_JS.includes(`icons/icon-${size}-active.png`),
+        `background.js's ICON_ACTIVE map is missing icons/icon-${size}-active.png`);
+    });
+  });
+
+  await test('every referenced -active icon file actually exists and is non-empty', () => {
+    ICON_SIZES.forEach(size => {
+      const p = path.resolve(__dirname, `../icons/icon-${size}-active.png`);
+      assert(fs.existsSync(p), `missing icons/icon-${size}-active.png`);
+      assert(fs.statSync(p).size > 0, `icons/icon-${size}-active.png is empty`);
+    });
+  });
+
+  await test('active icon variant is a different file from the default (not a copy-paste no-op)', () => {
+    ICON_SIZES.forEach(size => {
+      const activeBytes  = fs.readFileSync(path.resolve(__dirname, `../icons/icon-${size}-active.png`));
+      const defaultBytes = fs.readFileSync(path.resolve(__dirname, `../icons/icon-${size}.png`));
+      assert(!activeBytes.equals(defaultBytes), `icon-${size}-active.png is byte-identical to icon-${size}.png`);
+    });
+  });
+
+  await test('active icon files are valid PNGs of the declared size', () => {
+    ICON_SIZES.forEach(size => {
+      const buf = fs.readFileSync(path.resolve(__dirname, `../icons/icon-${size}-active.png`));
+      // PNG signature, then IHDR chunk: width/height are the first 8 bytes
+      // after the 4-byte length + 4-byte "IHDR" tag, i.e. offset 16/20.
+      assert(buf.readUInt32BE(0) === 0x89504e47, `icon-${size}-active.png missing PNG signature`);
+      const width  = buf.readUInt32BE(16);
+      const height = buf.readUInt32BE(20);
+      assert(width === size && height === size, `icon-${size}-active.png is ${width}x${height}, expected ${size}x${size}`);
+    });
+  });
+
+  await test('background.js clears leftover native badge text (no stale "ON" badge stacked on the new icon)', () => {
+    assert(/setBadgeText\(\s*\{\s*text:\s*''/.test(BACKGROUND_JS),
+      'expected an explicit setBadgeText({text:\'\'...}) clearing any previously-set badge text');
+  });
+
+  // Regression: reloading the extension while an already-open, already-
+  // focused tab sits on a supported page used to leave that tab's icon on
+  // its default (non-green) state — neither tabs.onUpdated (navigation
+  // only) nor tabs.onActivated (switching TO a tab) fire just because the
+  // extension itself reloaded, so nothing ever told that tab's icon to
+  // update. Fixed by syncing every open tab's icon on install/update/
+  // reload and on browser startup.
+  await test('syncs every open tab\'s icon on install/update/reload (not just on navigate/switch)', () => {
+    assert(/onInstalled\.addListener\(\s*\(\)\s*=>\s*\{\s*syncAllTabIcons/.test(BACKGROUND_JS),
+      'expected onInstalled to call syncAllTabIcons()');
+    assert(/function syncAllTabIcons/.test(BACKGROUND_JS), 'expected a syncAllTabIcons() helper');
+    assert(/tabs\.query\(\{\}\)/.test(BACKGROUND_JS),
+      'expected syncAllTabIcons() to query all open tabs, not just the active one');
+  });
+
+  await test('also syncs icons on browser startup (restored tabs from a previous session)', () => {
+    assert(/onStartup\?\.addListener\(\s*\(\)\s*=>\s*\{\s*syncAllTabIcons/.test(BACKGROUND_JS),
+      'expected onStartup to also call syncAllTabIcons()');
+  });
+
+  // ─── CHANGELOG.md — release notes source of truth (Batch 10 prep) ────────
+  // CHANGELOG.md is the file Batch 10's future automated store-publishing
+  // workflow will read release-note text from for each tagged version. This
+  // guards against the two ways that could silently go stale: a version bump
+  // landing with no matching section, and an "Unreleased" section that's
+  // supposed to get renamed at release time being forgotten.
+  console.log('\nCHANGELOG.md — release notes source of truth');
+
+  const CHANGELOG_PATH = path.resolve(__dirname, '../CHANGELOG.md');
+  const CHANGELOG = fs.readFileSync(CHANGELOG_PATH, 'utf8');
+  const MANIFEST_FOR_CHANGELOG = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../manifest.json'), 'utf8'));
+
+  await test('has an "Unreleased" section', () => {
+    assert(/^## \[Unreleased\]/m.test(CHANGELOG), 'no "## [Unreleased]" heading found');
+  });
+
+  await test('has a section for the current manifest.json version', () => {
+    const heading = `## [${MANIFEST_FOR_CHANGELOG.version}]`;
+    assert(CHANGELOG.includes(heading),
+      `no "${heading}" section — every tagged release needs a matching CHANGELOG entry`);
+  });
+
+  await test('every "## [x.y.z...]" heading is either Unreleased or a real git tag', () => {
+    const { execSync } = require('child_process');
+    let tags;
+    try {
+      tags = new Set(
+        execSync('git tag -l', { cwd: path.resolve(__dirname, '..') })
+          .toString().split('\n').filter(Boolean).map(t => t.replace(/^v/, ''))
+      );
+    } catch {
+      return; // not a git checkout (e.g. a source-only CI archive) — skip silently
+    }
+    const headings = [...CHANGELOG.matchAll(/^## \[([^\]]+)\]/gm)].map(m => m[1]);
+    const unknown = headings.filter(h => h !== 'Unreleased' && h !== MANIFEST_FOR_CHANGELOG.version && !tags.has(h));
+    assert(unknown.length === 0, `CHANGELOG has headings with no matching git tag: ${unknown.join(', ')}`);
   });
 
   // ─── Firefox AMO manifest validation ─────────────────────────────────────

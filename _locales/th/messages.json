@@ -114,19 +114,19 @@
     "message": "คัดลอก MD"
   },
   "popupBtnCopyHtml": {
-    "message": "คัดลอก HTML"
+    "message": "คัดลอก"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ ส่งออกทั้งหมด (MD + DOCX + ZIP)"
+    "message": "ส่งออกทั้งหมด (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "ส่งออกเฉพาะข้อความที่เพิ่มขึ้นตั้งแต่การส่งออกครั้งล่าสุด",
@@ -610,7 +610,7 @@
     "message": "โทเคนการเชื่อมต่อ Notion"
   },
   "settingsNotionTokenDesc": {
-    "message": "โทเคนการเชื่อมต่อภายใน — เปิดใช้งานปุ่ม \"Notion ↑\" ในหน้าต่างป๊อปอัป ซึ่งจะเพิ่มการส่งออกไปยังหน้าด้านล่าง"
+    "message": "โทเคนการเชื่อมต่อภายใน — เปิดใช้งานปุ่ม \"Notion\" ในหน้าต่างป๊อปอัป ซึ่งจะเพิ่มการส่งออกไปยังหน้าด้านล่าง"
   },
   "settingsNotionTokenLink": {
     "message": "สร้างโทเคน →"
@@ -1035,5 +1035,73 @@
   },
   "popupBtnReportBug": {
     "message": "รายงานข้อบกพร่อง"
+  },
+  "popupBatchExportToggle": {
+    "message": "📦 ส่งออกบทสนทนาที่ผ่านมาเป็นชุด…"
+  },
+  "popupBatchExportStartBtnTitle": {
+    "message": "ส่งออกบทสนทนาที่ทำเครื่องหมายไว้เป็น ZIP ไฟล์เดียว"
+  },
+  "popupBatchExportStartBtn": {
+    "message": "ส่งออกที่เลือกเป็น ZIP"
+  },
+  "popupBatchExportCount": {
+    "message": "เลือกแล้ว $1 จาก $2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportNoneSelected": {
+    "message": "กรุณาเลือกบทสนทนาอย่างน้อยหนึ่งรายการก่อน"
+  },
+  "popupBatchExportStarting": {
+    "message": "กำลังส่งออกบทสนทนา $1 รายการ…",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupBatchExportProgress": {
+    "message": "กำลังส่งออก $1 จาก $2: $3",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupBatchExportDone": {
+    "message": "ส่งออกเป็นชุดเสร็จสิ้น: สำเร็จ $1 รายการ ข้ามไป $2 รายการ",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportFailed": {
+    "message": "ส่งออกเป็นชุดไม่สำเร็จ"
+  },
+  "popupExportMoreOptions": {
+    "message": "ตัวเลือกการส่งออกเพิ่มเติม"
+  },
+  "popupBtnAllShort": {
+    "message": "ทั้งหมด"
+  },
+  "popupExportGoBtn": {
+    "message": "ส่งออก"
   }
 }

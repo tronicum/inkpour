@@ -114,19 +114,19 @@
     "message": "Sao chép MD"
   },
   "popupBtnCopyHtml": {
-    "message": "Sao chép HTML"
+    "message": "Sao chép"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ Xuất tất cả (MD + DOCX + ZIP)"
+    "message": "Xuất tất cả (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "Chỉ xuất các tin nhắn được thêm kể từ lần xuất gần nhất",
@@ -610,7 +610,7 @@
     "message": "Token tích hợp Notion"
   },
   "settingsNotionTokenDesc": {
-    "message": "Token tích hợp nội bộ — kích hoạt nút \"Notion ↑\" trong popup, thêm bản xuất vào trang bên dưới."
+    "message": "Token tích hợp nội bộ — kích hoạt nút \"Notion\" trong popup, thêm bản xuất vào trang bên dưới."
   },
   "settingsNotionTokenLink": {
     "message": "Tạo một token →"
@@ -1035,5 +1035,73 @@
   },
   "popupBtnReportBug": {
     "message": "Báo cáo lỗi"
+  },
+  "popupBatchExportToggle": {
+    "message": "📦 Xuất hàng loạt các cuộc trò chuyện trước đây…"
+  },
+  "popupBatchExportStartBtnTitle": {
+    "message": "Xuất các cuộc trò chuyện đã đánh dấu chọn thành một tệp ZIP duy nhất"
+  },
+  "popupBatchExportStartBtn": {
+    "message": "Xuất các mục đã chọn sang ZIP"
+  },
+  "popupBatchExportCount": {
+    "message": "Đã chọn $1/$2",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportNoneSelected": {
+    "message": "Hãy chọn ít nhất một cuộc trò chuyện trước."
+  },
+  "popupBatchExportStarting": {
+    "message": "Đang xuất $1 cuộc trò chuyện…",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupBatchExportProgress": {
+    "message": "Đang xuất $1/$2: $3",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupBatchExportDone": {
+    "message": "Xuất hàng loạt hoàn tất: $1 thành công, $2 bị bỏ qua",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportFailed": {
+    "message": "Xuất hàng loạt thất bại"
+  },
+  "popupExportMoreOptions": {
+    "message": "Thêm tùy chọn xuất"
+  },
+  "popupBtnAllShort": {
+    "message": "Tất cả"
+  },
+  "popupExportGoBtn": {
+    "message": "Xuất"
   }
 }

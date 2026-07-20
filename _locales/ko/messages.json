@@ -114,19 +114,19 @@
     "message": "MD 복사"
   },
   "popupBtnCopyHtml": {
-    "message": "HTML 복사"
+    "message": "복사"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ 모두 내보내기 (MD + DOCX + ZIP)"
+    "message": "모두 내보내기 (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "마지막 내보내기 이후 추가된 메시지만 내보냅니다",
@@ -610,7 +610,7 @@
     "message": "Notion 통합 토큰"
   },
   "settingsNotionTokenDesc": {
-    "message": "내부 통합 토큰 — 팝업에서 \"Notion ↑\" 버튼을 활성화하여 아래 페이지에 내보내기를 추가합니다."
+    "message": "내부 통합 토큰 — 팝업에서 \"Notion\" 버튼을 활성화하여 아래 페이지에 내보내기를 추가합니다."
   },
   "settingsNotionTokenLink": {
     "message": "토큰 만들기 →"
@@ -1035,5 +1035,73 @@
   },
   "popupBtnReportBug": {
     "message": "버그 신고"
+  },
+  "popupBatchExportToggle": {
+    "message": "📦 이전 채팅 일괄 내보내기…"
+  },
+  "popupBatchExportStartBtnTitle": {
+    "message": "선택한 채팅을 하나의 ZIP으로 내보내기"
+  },
+  "popupBatchExportStartBtn": {
+    "message": "선택 항목을 ZIP으로 내보내기"
+  },
+  "popupBatchExportCount": {
+    "message": "$2개 중 $1개 선택됨",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportNoneSelected": {
+    "message": "먼저 채팅을 하나 이상 선택하세요"
+  },
+  "popupBatchExportStarting": {
+    "message": "채팅 $1개를 내보내는 중…",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupBatchExportProgress": {
+    "message": "$2개 중 $1개 내보내는 중: $3",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupBatchExportDone": {
+    "message": "일괄 내보내기 완료: $1개 성공, $2개 건너뜀",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportFailed": {
+    "message": "일괄 내보내기 실패"
+  },
+  "popupExportMoreOptions": {
+    "message": "더 많은 내보내기 옵션"
+  },
+  "popupBtnAllShort": {
+    "message": "모두"
+  },
+  "popupExportGoBtn": {
+    "message": "내보내기"
   }
 }

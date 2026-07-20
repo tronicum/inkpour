@@ -114,19 +114,19 @@
     "message": "複製 MD"
   },
   "popupBtnCopyHtml": {
-    "message": "複製 HTML"
+    "message": "複製"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ 匯出全部 (MD + DOCX + ZIP)"
+    "message": "匯出全部 (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "僅匯出自上次匯出後新增的訊息",
@@ -610,7 +610,7 @@
     "message": "Notion 整合權杖"
   },
   "settingsNotionTokenDesc": {
-    "message": "內部整合權杖 — 可啟用彈出視窗中的「Notion ↑」按鈕，將匯出內容附加到下方頁面。"
+    "message": "內部整合權杖 — 可啟用彈出視窗中的「Notion」按鈕，將匯出內容附加到下方頁面。"
   },
   "settingsNotionTokenLink": {
     "message": "建立權杖 →"
@@ -1035,5 +1035,73 @@
   },
   "popupBtnReportBug": {
     "message": "回報問題"
+  },
+  "popupBatchExportToggle": {
+    "message": "📦 批次匯出過去的對話…"
+  },
+  "popupBatchExportStartBtnTitle": {
+    "message": "將勾選的對話匯出為單一 ZIP"
+  },
+  "popupBatchExportStartBtn": {
+    "message": "將所選匯出為 ZIP"
+  },
+  "popupBatchExportCount": {
+    "message": "已選取 $2 項中的 $1 項",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportNoneSelected": {
+    "message": "請先至少選取一個對話。"
+  },
+  "popupBatchExportStarting": {
+    "message": "正在匯出 $1 個對話…",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupBatchExportProgress": {
+    "message": "正在匯出第 $1 項（共 $2 項）：$3",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupBatchExportDone": {
+    "message": "批次匯出完成：成功 $1 個，略過 $2 個",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportFailed": {
+    "message": "批次匯出失敗"
+  },
+  "popupExportMoreOptions": {
+    "message": "更多匯出選項"
+  },
+  "popupBtnAllShort": {
+    "message": "全部"
+  },
+  "popupExportGoBtn": {
+    "message": "匯出"
   }
 }

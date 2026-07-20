@@ -169,14 +169,86 @@
     }
 
     /* ── Export section ── */
-    .export-label {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: var(--subtext);
-      margin-bottom: 8px;
+    /* ── Export picker (selector + separate "Export" button) ──
+       Picking a format in the menu only changes the selection; nothing
+       runs until the Export button is pressed. An earlier version fired
+       the real action the instant a menu row was clicked, which for a
+       Gist/Notion upload in particular meant "it happens before you can
+       change your mind" — see TODOs.md's popup-layout item. */
+    .export-picker {
+      display: flex;
+      gap: 7px;
+      margin-top: 2px;
     }
+    .export-select-btn {
+      flex: 1;
+      min-width: 0;
+      padding: 9px 10px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      background: var(--surface);
+      color: var(--text);
+      border: 1.5px solid var(--border);
+      white-space: nowrap;
+      transition: border-color 0.15s;
+    }
+    .export-select-btn span:first-child {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .export-select-btn:hover { border-color: var(--accent); }
+    .export-select-btn[aria-expanded="true"] { border-color: var(--accent); }
+    .export-select-caret {
+      font-size: 15px;
+      line-height: 1;
+      color: var(--subtext);
+      flex-shrink: 0;
+      transition: transform 0.15s;
+    }
+    /* Rotate to point "up" while the menu is open, so the same control
+       visibly signals both "open" and "click here to close" — feedback:
+       the caret was too small/static to read as a toggle. */
+    .export-select-btn[aria-expanded="true"] .export-select-caret {
+      transform: rotate(180deg);
+      color: var(--accent);
+    }
+    .export-go-btn {
+      flex-shrink: 0;
+      min-width: 84px;
+      padding: 9px 12px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: var(--accent);
+      color: var(--accent-text);
+      border: 1.5px solid var(--accent);
+      transition: background 0.15s, opacity 0.15s;
+    }
+    .export-go-btn:hover:not(:disabled) { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .export-go-btn:disabled { opacity: 0.5; cursor: default; }
+    .export-go-btn .spinner {
+      width: 12px;
+      height: 12px;
+      border: 2px solid currentColor;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+      flex-shrink: 0;
+    }
+    .export-go-btn.loading .spinner { display: block; }
+    .export-go-btn.loading span { display: none; }
 
     .btn-group {
       display: flex;
@@ -220,6 +292,82 @@
     .btn.loading .spinner { display: block; }
     .btn.loading span { display: none; }
 
+    /* ── Export menu (opened by the picker's selector button) ── */
+    /* These rows are a pure picker — clicking one only changes the
+       selection (popup.js's setSelectedFormat()). The real export/copy/
+       upload logic lives, unmodified, in the hidden buttons further down
+       popup.html and only ever runs when the Export button is clicked. */
+    .export-menu {
+      margin-top: 6px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 4px;
+    }
+    .export-menu-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+      padding: 8px 10px;
+      background: transparent;
+      border: none;
+      border-radius: 7px;
+      color: var(--text);
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: start;
+    }
+    .export-menu-item:hover { background: var(--bg); }
+    .export-menu-item.selected {
+      background: var(--accent);
+      color: var(--accent-text);
+    }
+    .export-menu-check {
+      width: 12px;
+      flex-shrink: 0;
+      visibility: hidden;
+    }
+    .export-menu-item.selected .export-menu-check { visibility: visible; }
+    /* Icon language (download / copy / upload) — a fixed, non-translated
+       SVG per row communicating where the export goes, so no locale's
+       string has to spell that out in words (see TODOs.md: an earlier
+       version baked "⬇"/"↑" straight into a few translated strings, which
+       meant every future wording tweak touched 26 locale files). Every
+       row gets one of these, including the ones that used to bake a
+       symbol into their own label. */
+    .export-menu-icon {
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0;
+      opacity: 0.6;
+    }
+    .export-menu-item.selected .export-menu-icon { opacity: 0.9; }
+    .quick-icon {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      opacity: 0.75;
+    }
+    /* Sub-option of the row directly above it (currently: "Copy to
+       clipboard" under "HTML") — indented and slightly muted so it reads
+       as a variant of that row, not an unrelated peer action. */
+    .export-menu-item.sub-item {
+      padding-inline-start: 28px;
+      font-size: 11.5px;
+      color: var(--subtext);
+    }
+    .export-menu-item.sub-item.selected {
+      color: var(--accent-text);
+    }
+    .export-menu-sep {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 6px;
+    }
+
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ── Secondary copy row ── */
@@ -246,22 +394,6 @@
     #status.success  { color: var(--success); }
     #status.error    { color: var(--error); }
     #status.warning  { color: #d97706; }
-
-    /* ── Export All button ── */
-    .all-group {
-      margin-top: 8px;
-    }
-    .all-group .btn {
-      background: var(--accent);
-      color: var(--accent-text);
-      border-color: var(--accent);
-      font-size: 13px;
-    }
-    .all-group .btn:hover:not(:disabled) {
-      background: var(--accent-hover);
-      border-color: var(--accent-hover);
-      color: var(--accent-text);
-    }
 
     /* ── Gist link ── */
     #gist-link {
@@ -395,50 +527,124 @@
 
   <p class="platform-indicator" id="platformIndicator"></p>
 
-  <p class="export-label" data-i18n="popupExportAsLabel">Export as</p>
-  <div class="btn-group">
-    <button class="btn" id="mdBtn" data-i18n-title="popupMdBtnTitle" title="Export to Markdown (Alt+Shift+M)">
-      <div class="spinner"></div>
-      <span data-i18n="popupBtnMd">MD</span>
-    </button>
-    <button class="btn" id="pdfBtn" data-i18n-title="popupPdfBtnTitle" title="Export to PDF">
-      <div class="spinner"></div>
-      <span data-i18n="popupBtnPdf">PDF</span>
-    </button>
-    <button class="btn" id="htmlBtn" data-i18n-title="popupHtmlBtnTitle" title="Export to HTML">
-      <div class="spinner"></div>
-      <span data-i18n="popupBtnHtml">HTML</span>
-    </button>
-    <button class="btn" id="jsonBtn" data-i18n-title="popupJsonBtnTitle" title="Export to JSON (Alt+Shift+J)">
-      <div class="spinner"></div>
-      <span data-i18n="popupBtnJson">JSON</span>
-    </button>
-    <button class="btn" id="docxBtn" data-i18n-title="popupDocxBtnTitle" title="Export to Word document (.docx)">
-      <div class="spinner"></div>
-      <span data-i18n="popupBtnDocx">DOCX</span>
-    </button>
-  </div>
-  <div class="btn-group copy-group">
+  <!-- Quick actions: the two most-used single-click exports, always
+       visible (feedback: burying Copy MD/ZIP behind a dropdown made them
+       harder to reach, even though they're what people reach for most).
+       Ordinary one-click buttons — same instant-fire behavior as before
+       the redesign, unchanged handlers. -->
+  <div class="btn-group copy-group" id="quick-actions">
     <button class="btn copy-btn" id="copyBtn" data-i18n-title="popupCopyBtnTitle" title="Copy Markdown to clipboard (Alt+Shift+C)">
       <div class="spinner"></div>
+      <svg class="quick-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
       <span data-i18n="popupBtnCopyMd">Copy MD</span>
-    </button>
-    <button class="btn copy-btn" id="copyHtmlBtn" data-i18n-title="popupCopyHtmlBtnTitle" title="Copy standalone HTML to clipboard (Alt+Shift+H)">
-      <div class="spinner"></div>
-      <span data-i18n="popupBtnCopyHtml">Copy HTML</span>
     </button>
     <button class="btn copy-btn" id="zipBtn" data-i18n-title="popupZipBtnTitle" title="Export ZIP with chat.md + extracted code files (Alt+Shift+Z)">
       <div class="spinner"></div>
+      <svg class="quick-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
       <span data-i18n="popupBtnZip">ZIP</span>
     </button>
-    <button class="btn copy-btn" id="gistBtn" data-i18n-title="popupGistBtnTitle" title="Upload Markdown to GitHub Gist" hidden>
-      <div class="spinner"></div>
-      <span data-i18n="popupBtnGist">Gist ↑</span>
+  </div>
+
+  <!-- Format picker + Export (replaces the old instant-fire split button,
+       TODOs.md "Popup layout" item). Picking a row in the menu below only
+       changes the selection — nothing runs until "Export" is pressed. Menu
+       rows are plain UI (data-format only, no real click handlers); the
+       actual export/copy/upload logic lives, completely unchanged, in the
+       hidden buttons further down, which the Export button proxies to via
+       .click(). See popup.js's FORMAT_TO_BTN / selectedFormat. -->
+  <div class="export-picker">
+    <button class="export-select-btn" id="exportSelectBtn" type="button"
+      aria-haspopup="true" aria-expanded="false"
+      data-i18n-title="popupExportMoreOptions" title="Choose a format">
+      <span id="exportSelectedLabel">MD</span>
+      <span class="export-select-caret">▾</span>
     </button>
-    <button class="btn copy-btn" id="notionBtn" data-i18n-title="popupNotionBtnTitle" title="Append Markdown to a Notion page" hidden>
+    <button class="export-go-btn" id="exportGoBtn" type="button">
       <div class="spinner"></div>
-      <span data-i18n="popupBtnNotion">Notion ↑</span>
+      <span data-i18n="popupExportGoBtn">Export</span>
     </button>
+  </div>
+  <!--
+    Icon language, consistent across every row below, none of it baked
+    into translated strings (see the .export-menu-icon CSS comment):
+      - download arrow (arrow into a tray) = saved as a file
+      - copy icon (two overlapping squares) = copied to the clipboard
+      - upload arrow (arrow out of a tray)  = sent to an external service
+  -->
+  <div class="export-menu" id="exportMenu" hidden style="display:none;" role="menu">
+    <button class="export-menu-item" type="button" data-format="md" role="menuitemradio">
+      <span class="export-menu-check">✓</span>
+      <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
+      <span data-i18n="popupBtnMd">MD</span>
+    </button>
+    <button class="export-menu-item" type="button" data-format="pdf" role="menuitemradio">
+      <span class="export-menu-check">✓</span>
+      <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
+      <span data-i18n="popupBtnPdf">PDF</span>
+    </button>
+    <button class="export-menu-item" type="button" data-format="html" role="menuitemradio">
+      <span class="export-menu-check">✓</span>
+      <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
+      <span data-i18n="popupBtnHtml">HTML</span>
+    </button>
+    <!-- Sits directly under HTML (not off in an unrelated "copy" cluster,
+         which read as arbitrary — feedback: "copy md vs copy html via
+         dropdown also feels very counter intuitive"): it's the clipboard
+         alternative to that same HTML export, so it's positioned and
+         styled as a sub-option of the row right above it. Its own copy
+         icon (rather than repeating the download arrow) now carries the
+         "goes to clipboard, not a file" meaning instead of the label text. -->
+    <button class="export-menu-item sub-item" type="button" data-format="copy-html" role="menuitemradio">
+      <span class="export-menu-check">✓</span>
+      <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      <span data-i18n="popupBtnCopyHtml">Copy</span>
+    </button>
+    <button class="export-menu-item" type="button" data-format="json" role="menuitemradio">
+      <span class="export-menu-check">✓</span>
+      <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
+      <span data-i18n="popupBtnJson">JSON</span>
+    </button>
+    <button class="export-menu-item" type="button" data-format="docx" role="menuitemradio">
+      <span class="export-menu-check">✓</span>
+      <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
+      <span data-i18n="popupBtnDocx">DOCX</span>
+    </button>
+    <div class="export-menu-sep"></div>
+    <button class="export-menu-item" type="button" data-format="all" role="menuitemradio">
+      <span class="export-menu-check">✓</span>
+      <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
+      <span data-i18n="popupBtnExportAll">Export All (MD + DOCX + ZIP)</span>
+    </button>
+    <div class="export-menu-sep"></div>
+    <button class="export-menu-item" type="button" data-format="gist" id="gistMenuOption" role="menuitemradio" hidden>
+      <span class="export-menu-check">✓</span>
+      <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V10"/><path d="M7 14l5-5 5 5"/><path d="M4 4h16"/></svg>
+      <span data-i18n="popupBtnGist">Gist</span>
+    </button>
+    <button class="export-menu-item" type="button" data-format="notion" id="notionMenuOption" role="menuitemradio" hidden>
+      <span class="export-menu-check">✓</span>
+      <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V10"/><path d="M7 14l5-5 5 5"/><path d="M4 4h16"/></svg>
+      <span data-i18n="popupBtnNotion">Notion</span>
+    </button>
+  </div>
+
+  <!-- Real export/copy/upload actions: same ids, same unmodified handlers
+       popup.js has always had — just never shown or directly clickable
+       any more. The Export button above fires whichever one matches the
+       current selection via .click(). (Copy MD/ZIP stayed real, visible,
+       directly-clickable buttons in the quick-actions row instead — the
+       safety concern was specifically an accidental instant-fire from
+       inside a dropdown, in particular for Gist/Notion uploads.) -->
+  <div id="realExportActions" hidden style="display:none;">
+    <button id="mdBtn" data-i18n-title="popupMdBtnTitle" title="Export to Markdown (Alt+Shift+M)"><div class="spinner"></div><span data-i18n="popupBtnMd">MD</span></button>
+    <button id="pdfBtn" data-i18n-title="popupPdfBtnTitle" title="Export to PDF"><div class="spinner"></div><span data-i18n="popupBtnPdf">PDF</span></button>
+    <button id="htmlBtn" data-i18n-title="popupHtmlBtnTitle" title="Export to HTML"><div class="spinner"></div><span data-i18n="popupBtnHtml">HTML</span></button>
+    <button id="jsonBtn" data-i18n-title="popupJsonBtnTitle" title="Export to JSON (Alt+Shift+J)"><div class="spinner"></div><span data-i18n="popupBtnJson">JSON</span></button>
+    <button id="docxBtn" data-i18n-title="popupDocxBtnTitle" title="Export to Word document (.docx)"><div class="spinner"></div><span data-i18n="popupBtnDocx">DOCX</span></button>
+    <button id="copyHtmlBtn" data-i18n-title="popupCopyHtmlBtnTitle" title="Copy standalone HTML to clipboard (Alt+Shift+H)"><div class="spinner"></div><span data-i18n="popupBtnCopyHtml">Copy</span></button>
+    <button id="allBtn" data-i18n-title="popupAllBtnTitle" title="Export MD + DOCX + ZIP simultaneously"><div class="spinner"></div><span data-i18n="popupBtnExportAll">Export All (MD + DOCX + ZIP)</span></button>
+    <button id="gistBtn" data-i18n-title="popupGistBtnTitle" title="Upload Markdown to GitHub Gist" hidden><div class="spinner"></div><span data-i18n="popupBtnGist">Gist</span></button>
+    <button id="notionBtn" data-i18n-title="popupNotionBtnTitle" title="Append Markdown to a Notion page" hidden><div class="spinner"></div><span data-i18n="popupBtnNotion">Notion</span></button>
   </div>
 
   <!-- Debug mode (Settings → Advanced → Debug mode) — never includes chat content -->
@@ -450,13 +656,6 @@
     <button class="btn copy-btn" id="reportBugBtn" data-i18n-title="popupReportBugBtnTitle" title="Report a bug on GitHub (no chat content included)">
       <div class="spinner"></div>
       <span data-i18n="popupBtnReportBug">Report bug</span>
-    </button>
-  </div>
-
-  <div class="btn-group all-group">
-    <button class="btn" id="allBtn" data-i18n-title="popupAllBtnTitle" title="Export MD + DOCX + ZIP simultaneously">
-      <div class="spinner"></div>
-      <span data-i18n="popupBtnExportAll">⬇ Export All (MD + DOCX + ZIP)</span>
     </button>
   </div>
 
@@ -509,6 +708,38 @@
     </div>
     <div id="msgCheckboxes" style="max-height:140px;overflow-y:auto;border:1px solid var(--border);
          border-radius:7px;padding:4px 0;background:var(--surface);"></div>
+  </div>
+
+  <!-- Batch export (Batch 8): pick multiple PAST conversations from this
+       platform's own history sidebar and get one ZIP. Only revealed when
+       getConversationList() (src/content.js) finds a history sidebar on the
+       current page — logged-out pages and unsupported platforms never see
+       this at all, so it can't regress the single-conversation export path
+       above. Runs as a sequential background-tab automation in
+       background.js; stays running even if this popup closes. -->
+  <button id="batchExportToggle" hidden
+    style="display:none;width:100%;margin-top:5px;font-size:11px;color:var(--subtext);
+           background:none;border:none;cursor:pointer;text-align:start;padding:2px 0;">
+    <span data-i18n="popupBatchExportToggle">📦 Batch export past conversations…</span>
+  </button>
+  <div id="batch-export-section" hidden style="display:none;margin-top:6px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+      <span style="font-size:10.5px;color:var(--subtext);" id="batchExportCount"></span>
+      <span style="font-size:10.5px;">
+        <button id="batchExportSelectAll" style="background:none;border:none;cursor:pointer;color:var(--accent);font-size:10.5px;padding:0 3px;" data-i18n="popupSelectAll">All</button>
+        <button id="batchExportSelectNone" style="background:none;border:none;cursor:pointer;color:var(--accent);font-size:10.5px;padding:0 3px;" data-i18n="popupSelectNone">None</button>
+      </span>
+    </div>
+    <div id="batchExportCheckboxes" style="max-height:140px;overflow-y:auto;border:1px solid var(--border);
+         border-radius:7px;padding:4px 0;background:var(--surface);"></div>
+    <button class="btn" id="batchExportStartBtn" data-i18n-title="popupBatchExportStartBtnTitle" title="Export the ticked conversations as one ZIP"
+      style="margin-top:6px;width:100%;padding:6px 6px;font-size:11.5px;
+             font-weight:600;color:var(--accent-text);background:var(--accent);
+             border:none;border-radius:7px;cursor:pointer;">
+      <div class="spinner"></div>
+      <span data-i18n="popupBatchExportStartBtn">Export selected as ZIP</span>
+    </button>
+    <div id="batchExportStatus" style="margin-top:4px;font-size:10.5px;color:var(--subtext);text-align:center;"></div>
   </div>
 
   <div id="gist-link"></div>

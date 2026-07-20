@@ -139,6 +139,25 @@
             if (/^[a-z][a-z0-9+#.-]{0,20}$/.test(t)) lang = t;
           }
         }
+        // ChatGPT Canvas code blocks: rendered via a CodeMirror editor
+        // (.cm-editor/.cm-content) nested inside this same <pre>, with the
+        // language name sitting as plain text in a "sticky" toolbar header
+        // alongside Copy/Run buttons — no "language-x" class or preceding
+        // sibling span exists here, so the two checks above always miss it.
+        // Verified live 2026-07: codeEl.textContent is already clean (this
+        // querySelector('code') call reaches through the CodeMirror markup
+        // correctly), so the only actual gap is the missing language tag.
+        // Scoped to only fire when a CodeMirror editor is actually present,
+        // so it can't misfire on some other platform's unrelated ".sticky".
+        if (!lang && node.querySelector('.cm-editor, .cm-content, #code-block-viewer')) {
+          const header = node.querySelector('.sticky');
+          const labelEl = header && Array.from(header.querySelectorAll('div, span'))
+            .find(el => el.children.length === 0 && el.textContent.trim() && !el.closest('button'));
+          if (labelEl) {
+            const t = labelEl.textContent.trim().toLowerCase();
+            if (/^[a-z][a-z0-9+#.-]{0,20}$/.test(t)) lang = t;
+          }
+        }
         const code = (codeEl ?? node).textContent;
         return `\n\n\`\`\`${lang}\n${code.trimEnd()}\n\`\`\`\n\n`;
       }
@@ -334,6 +353,59 @@
     if (host.includes('coral.cohere.com'))                                   return 'cohere';
     if (host.includes('pi.ai'))                                              return 'piai';
     return 'generic';
+  }
+
+  // ─── Batch export: history sidebar enumeration (Batch 8 spike) ────────────
+  // Reads the CURRENT tab's own history sidebar and returns the list of past
+  // conversations as { title, url } pairs — the popup's batch-export picker
+  // list. Returns [] when the platform isn't supported for this yet, or when
+  // no sidebar is present (e.g. logged out) — this is also the feature's
+  // natural logged-in detection point: an empty list means "don't show the
+  // batch-export entry point," never an error.
+  //
+  // Selectors confirmed live against real accounts 2026-07 (see planning/
+  // TODOs.md Batch 8 for the investigation notes):
+  //  - ChatGPT: `a[href^="/c/"]`, title from `aria-label` (falls back to
+  //    textContent — aria-label matches visible title exactly today, but a
+  //    future icon/nested-span change to the link could muddy textContent
+  //    without touching aria-label).
+  //  - Claude: `a[href^="/chat/"]`; textContent is DOUBLED (a `.sr-only`
+  //    span plus a sibling `aria-hidden` display span both carry the same
+  //    text), so `.sr-only` must be preferred when present.
+  // Only currently wired for chatgpt/claude, per the batch's own scope note
+  // ("Start with ChatGPT + Claude only").
+  function getConversationList() {
+    const site = detectSite();
+    const seen = new Set();
+    const out  = [];
+
+    function pushUnique(href, rawTitle) {
+      if (!href) return;
+      let url;
+      try {
+        url = new URL(href, location.origin).href;
+      } catch {
+        return;
+      }
+      if (seen.has(url)) return;
+      const title = (rawTitle || '').replace(/\s+/g, ' ').trim();
+      if (!title) return;
+      seen.add(url);
+      out.push({ title, url });
+    }
+
+    if (site === 'chatgpt') {
+      document.querySelectorAll('a[href^="/c/"]').forEach(a => {
+        pushUnique(a.getAttribute('href'), a.getAttribute('aria-label') || a.textContent);
+      });
+    } else if (site === 'claude') {
+      document.querySelectorAll('a[href^="/chat/"]').forEach(a => {
+        const srOnly = a.querySelector('.sr-only');
+        pushUnique(a.getAttribute('href'), srOnly ? srOnly.textContent : a.textContent);
+      });
+    }
+
+    return out;
   }
 
   // ─── Per-site extractors ──────────────────────────────────────────────────
@@ -2000,6 +2072,7 @@
   // Never used by real extension code.
   if (typeof window !== 'undefined' && window.__inkpourTestHostname !== undefined) {
     window.__inkpourHtmlToMarkdown = htmlToMarkdown;
+    window.__inkpourGetConversationList = getConversationList;
   }
 
   // ─── In-page toast notification ───────────────────────────────────────────
@@ -2179,6 +2252,17 @@
     if (msg.action === 'showToast') {
       showToast(msg.text, msg.variant);
       sendResponse({ ok: true });
+      return;
+    }
+
+    // Batch export (Batch 8): popup asks the current tab for its own history
+    // sidebar's conversation list, to populate the picker checkbox list.
+    if (msg.action === 'getConversationList') {
+      try {
+        sendResponse({ conversations: getConversationList() });
+      } catch (err) {
+        sendResponse({ error: err.message, conversations: [] });
+      }
       return;
     }
 

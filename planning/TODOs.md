@@ -24,9 +24,23 @@ path is one self-contained click handler (settings.js:138–162) building one
   text fields debounce, Save button flushes a pending debounce immediately).
 - [x] **XS** Sticky save bar: `.save-row { position: sticky; bottom: 0; }` +
   background/top border. Do alongside autosave — it becomes the toast's home.
-- [ ] **S** (optional) Collapsible sections: `<details>` per `<section>`
+- [x] **S** (optional) Collapsible sections: `<details>` per `<section>`
   (4 sections, settings.html:193–392). Scannability only — doesn't fix
   "forgot to save" by itself; skip if session budget is tight.
+  Done — all 5 sections (Language, Export, Direct-to-vault, Integrations,
+  Advanced — one more than the original note counted, since Direct-to-vault
+  landed later in Batch 6) converted from `<section><h2>` to
+  `<details class="settings-section" open><summary><h2>`, all starting
+  `open` so the default view is pixel-identical to before. Custom chevron
+  marker (rotates on open/close) replaces the native `::marker` triangle.
+  The Direct-to-vault section's existing `hidden`/`style.display` Chrome-
+  only feature-detect toggle (settings.js `initVaultSection()`) is
+  untouched and confirmed still correct — `hidden`/`display` and `<details
+  open>` are independent concerns, verified via a quick JSDOM parse (5
+  `details.settings-section` elements, correct open/hidden state each, zero
+  leftover `<section>` tags). No JS or test file referenced the `<section>`
+  tag name, so nothing else needed updating; full suite still 281 passed,
+  0 failed.
 
 ## Batch 2 — Google AI Mode turn-duplication bug (dedicated session; src/content.js + new fixture)
 - [x] **M** Extractor duplicates every turn: each exchange appears twice (once
@@ -120,6 +134,282 @@ path is one self-contained click handler (settings.js:138–162) building one
   `history.js`'s `renderLifetimeStats()` already reads and displays it in the
   footer, wired up and i18n'd across all locales (`historyLifetimeStatsOne`/
   `historyLifetimeStatsOther`). No code changed for this item.
+
+## Batch 4b — Bigger "you can export this" toolbar signal (Stefan's UX feedback, 2026-07)
+- [x] **S** Stefan compared the existing "ON" badge to uBlock Origin/Bitwarden's
+  much more noticeable toolbar badges and asked for something bigger — but
+  explicitly not a number, and no click/interaction needed on supported
+  pages (it should stay a passive state signal, same as today).
+  Done — the native OS badge corner (`action.setBadgeText`) is fixed-size by
+  the browser itself; no manifest/API setting can make its text or
+  background any bigger, so that lever was a dead end. First attempt baked
+  a green checkmark badge into the icon's corner — Stefan flagged (live,
+  looking at the real 32px rendering) that it visibly overlapped/clipped
+  the logo's arrow at that size, which is a real regression in a different
+  direction (legible size fixed, but now covering the brand mark). Replaced
+  with a full-icon recolor instead: `icons/icon-{16,32,48,96,128}-active.png`
+  (generated via Pillow) is the *same* logo art, hue-shifted from its
+  original purple/blue gradient to green (`#16a34a`'s hue, ≈142°) — nothing
+  drawn on top, so the arrow/lines stay 100% intact and legible at every
+  size including 16px, confirmed by inspecting a 16x nearest-neighbor
+  upscale of the 16px output. Implementation: convert to HSV, shift the H
+  channel to the target hue only for pixels above a saturation threshold
+  (~30/255 — cleanly separates the colorful background gradient, sat.
+  ~146-148, from the pure-white glyph pixels, sat. 0), leaving S/V
+  untouched so the original gradient's shading/highlight pattern is
+  preserved, just in green instead of purple/blue. Swapped in per-tab via
+  `api.action.setIcon()` in `background.js`'s existing `updateBadge()` —
+  same passive, no-click mechanism as before, just operating on the icon
+  bitmap (which we fully control) instead of the OS-constrained badge
+  overlay. Dropped the native `setBadgeText('ON', …)` call entirely for the
+  supported case (would otherwise sit on top of the recolored icon) but
+  kept an explicit `setBadgeText({text:''})` call to clear out any stale
+  "ON" text a previous version of the extension may have left behind on an
+  already-open tab after updating. 5 new JSDOM tests guard against this
+  silently regressing: all 4 manifest icon sizes have a matching `-active`
+  file referenced in `background.js`, every referenced file exists/is
+  non-empty, each active variant is confirmed to actually differ from its
+  default counterpart (byte comparison — catches an accidental
+  copy-paste-without-editing mistake), each is a structurally valid PNG at
+  its declared size (parsed the IHDR chunk directly, no dependency added),
+  and the stale-badge-clearing call is still present. Also added the 4
+  active icon files to the CI "required files" check
+  (`.github/workflows/ci.yml`) alongside the existing icon-48/icon-96
+  entries. Full suite 281→286 passed, 0 failed (unchanged by the recolor
+  rework — same 5 tests, same file names, just different pixel content).
+  **Real bug found and fixed after Stefan reloaded the unpacked extension
+  and didn't see the green icon at all**: `updateBadge()` only ran from
+  `tabs.onUpdated` (fires on navigation) and `tabs.onActivated` (fires on
+  switching TO a tab) — reloading the extension itself, while an
+  already-open tab was already the focused one, triggers neither, so that
+  tab's icon just never got told to update. Fixed with a new
+  `syncAllTabIcons()` that queries every open tab and runs the same
+  `updateBadge()` on each, wired to both `runtime.onInstalled` (fires on
+  install/update/every unpacked-reload) and `runtime.onStartup` (browser
+  restart, restoring previously-open tabs). 2 more JSDOM tests added (288
+  total, 0 failed) checking both listeners are wired and that the sync
+  queries *all* tabs, not just the active one. Still **not yet verified**:
+  how the green actually reads in a real Chrome/Firefox toolbar (dark vs.
+  light toolbar theme, native DPI) — image generation and JSDOM-level
+  checks were done in this sandbox, but there's no way to render an actual
+  browser toolbar here. The corner-badge version was already caught and
+  rejected this way (Stefan looking at the real rendering, not something a
+  screenshot in this sandbox could have caught either), so the same live
+  look is worth a second glance after reloading again with this fix.
+
+## Batch 4c — Popup layout: split export button replaces the button grid (Stefan's UX feedback, 2026-07)
+- [x] **M** Stefan flagged the popup as crowded — a screenshot showed up to
+  11 buttons visible at once (MD/PDF/HTML/JSON/DOCX, Copy MD/Copy HTML/ZIP,
+  Gist↑/Notion↑ once configured, Export All). Brainstormed three directions
+  (overflow menu / format-selector + single button / just tighten spacing);
+  Stefan picked a synthesis: a GitHub-style split button (primary face +
+  caret) where the caret opens a menu holding everything else, including
+  folding Gist/Notion into that same menu instead of separate always-there
+  buttons. Design choices settled during the brainstorm: the primary face
+  remembers the most recently used format (not a static setting), Copy MD/
+  Copy HTML stay as plain menu rows (no separate copy-vs-download icon
+  toggle), and the other popup sections (batch export, select-messages,
+  notes) were explicitly left out of scope.
+  Done — `popup.html`'s "Export as" label + three `.btn-group` rows
+  (formats / copy+zip+gist+notion / Export All) replaced with a
+  `.split-export` control (`#exportPrimaryBtn` + `#exportCaretBtn`) and a
+  collapsible `#exportMenu`. Critically, **the menu contains the exact same
+  11 button elements, same ids** (`mdBtn`, `pdfBtn`, …, `gistBtn`,
+  `notionBtn`) that used to sit directly in the grid — only their
+  container/CSS class changed from `.btn` grid cells to `.export-menu-item`
+  rows — so every existing click handler in `popup.js` (extraction,
+  vault-write branching, Gist/Notion upload, webhook firing, history
+  persistence, etc.) keeps running completely unmodified. The redesign
+  only adds a thin layer on top:
+  - `FORMAT_TO_BTN` maps each format string to its (now-hidden-until-
+    opened) button element.
+  - `exportPrimaryBtn`'s click just does
+    `FORMAT_TO_BTN[preferredFormat]?.click()` — a proxy dispatch to the
+    real, unmodified handler.
+  - Each of the 11 buttons gets one extra lightweight listener (alongside
+    its pre-existing real handler — multiple listeners on one element
+    don't interfere with each other) that updates `preferredFormat` and
+    closes the menu; the real export logic is untouched.
+  - `preferredFormat` is seeded on popup open from `inkpour_last_export`
+    .format — a field `saveLastExport()` already wrote on every successful
+    export, reused as-is, no new storage key needed — falling back to the
+    existing "Default format" setting before anything's ever been
+    exported. Nested inside the existing settings-load callback so the
+    fallback value is guaranteed to be the real configured default, not
+    the synchronous placeholder.
+  - `setLoading()` (the one shared helper every handler already calls) got
+    one additive line mirroring its disabled/spinner state onto
+    `exportPrimaryBtn`, so the visible button shows progress regardless of
+    whether the action was triggered via the primary face or by opening
+    the menu and clicking a row directly.
+  - Gist/Notion's existing show-only-when-configured gating
+    (`gistBtn.hidden`/`notionBtn.hidden`) is completely unchanged — they
+    just now toggle visibility of a menu row instead of a grid button.
+  - Menu closes on: picking any item, clicking anywhere outside
+    `.split-export`/`.export-menu`, or pressing Escape.
+  - 2 new i18n keys (`popupExportMoreOptions` — the caret's tooltip;
+    `popupBtnAllShort` — a short "All" label for the primary face when the
+    preferred format is Export All, since its real button's full label
+    "⬇ Export All (MD + DOCX + ZIP)" is too long for the compact face),
+    translated to all 26 locales (25 via subagent, matching each locale's
+    existing `popupBtnExportAll` tone, spot-checked + full key-set diff —
+    zero mismatches). Every other menu label reuses its pre-existing i18n
+    key verbatim — zero new translation work needed for those.
+  - 8 new structural JSDOM tests (popup.js/popup.html aren't executed by
+    this harness — same `chrome.tabs`/`chrome.runtime`-dependency reason
+    background.js has none either — so these parse popup.html and grep
+    popup.js's source instead): primary face/caret/menu all exist, all 11
+    original buttons still exist *inside* the menu with their original
+    ids, the old grid/label classes are gone, debug-mode buttons were left
+    alone outside the menu, `FORMAT_TO_BTN` covers all 11 formats,
+    `setLoading()` mirrors onto the primary face, the primary face proxies
+    to the preferred format, and the preferred-format seeding logic is
+    present. Full suite 288→296 passed, 0 failed.
+  - Updated the 5 Playwright e2e tests that referenced the old grid
+    directly (`#mdBtn`/`.export-label` visible-by-default assertions) to
+    match the new structure, and added 5 new ones covering the menu
+    open/close/pick behavior specifically. **Not run in this sandbox** —
+    same Playwright Chromium-binary-download network restriction as the
+    batch-export toggle test earlier; syntax-verified via `node -c` only.
+    Needs a real run in CI or on Stefan's machine.
+  - **Not yet verified**: actual visual/spacing rendering in a real
+    browser popup (320px wide) — CSS was written to reuse existing
+    variables/patterns (`.btn`'s spinner/loading convention, the existing
+    accent color scheme) and reviewed for cascade-order correctness (the
+    `.export-menu-item` overrides are deliberately placed after `.btn` in
+    the stylesheet so they win at equal specificity — verified by parsing
+    popup.html, not by rendering it), but there's no way to screenshot a
+    real popup in this sandbox. Please take a look after reloading.
+
+## Batch 4d — Popup export picker rework (real usage feedback on Batch 4c, 2026-07)
+- [x] **M** Stefan reloaded the split-button popup from Batch 4c and reported
+  real usage feedback: the design felt "puristic"/unintuitive; Copy MD and
+  ZIP were his two most-used actions and got buried in the collapsed menu
+  when they used to be one click away; and, most importantly, picking a
+  format in the menu fired the real export/upload *instantly* — no chance
+  to reconsider, which he flagged as a real risk for the Gist/Notion upload
+  case in particular ("this automagic export might annoy people if they
+  just selected something and it fires without any chance to abort").
+  Also floated, not yet scoped/built: a Settings option letting each user
+  choose which 1-2 formats act as their own quick-access default(s) (e.g.
+  "MD+PDF" vs "MD+DOCX") — flagged below as a good follow-up, deliberately
+  not bundled into this pass.
+  Done — reworked the picker into two decoupled pieces:
+  - **Quick-actions row** (`#copyBtn`, `#zipBtn`): Copy MD and ZIP moved
+    back out of the menu into their own always-visible, directly-clickable
+    buttons — ordinary one-click actions, unchanged handlers, matching how
+    they worked before Batch 4c.
+  - **Picker + Export button** (`#exportSelectBtn` + `#exportGoBtn`) for
+    everything else (MD/PDF/HTML/JSON/DOCX/Copy HTML/Export All/Gist/
+    Notion): clicking a row in `#exportMenu` now only calls
+    `setSelectedFormat()` — updates the selector's label and the row's
+    `.selected` highlight — and does **not** touch the real button at all.
+    The real export/copy/upload logic still lives, byte-for-byte
+    unchanged, in the original `mdBtn`/`pdfBtn`/…/`gistBtn`/`notionBtn`
+    elements, just relocated into a permanently-`hidden` container
+    (`#realExportActions`) so they can no longer be reached by a direct
+    user click — the *only* thing that ever fires one now is
+    `exportGoBtn`'s click handler, which proxies `FORMAT_TO_BTN
+    [selectedFormat]?.click()`. This is a stronger decoupling than "add an
+    extra listener" (Batch 4c's approach): the menu rows are brand-new
+    inert elements (`data-format` attribute only, no shared ids with the
+    real buttons), so there's no event-ordering subtlety to reason about —
+    a menu-row click structurally cannot reach a real handler.
+  - Gist/Notion's show-only-when-configured gating moved from
+    `gistBtn.hidden`/`notionBtn.hidden` (now moot — those live inside the
+    unconditionally-hidden `#realExportActions`) to the new menu stand-ins
+    `#gistMenuOption`/`#notionMenuOption`.
+  - Selection seeding logic unchanged in spirit (still reads
+    `inkpour_last_export.format`, falls back to Settings' default format)
+    but now falls back further to a hardcoded `'md'` if the last-used
+    format was `copy-md` or `zip` — formats no longer in `FORMAT_TO_BTN`
+    since they're quick buttons, not picker options.
+  - 1 new i18n key (`popupExportGoBtn`, "Export" — the button's label),
+    translated to all 26 locales (25 via subagent, verified via full
+    key-set diff + JSON validity check on all 25 files). Reused
+    `popupBtnAllShort` as-is for the picker's "All" label, same as before.
+  - Rewrote the JSDOM structural suite (now "Popup export picker
+    (structure)") to match: real buttons live hidden inside
+    `#realExportActions`; Copy MD/ZIP are visible outside both the menu
+    and that hidden container; menu rows are inert and share no ids with
+    the real buttons; `FORMAT_TO_BTN` explicitly excludes `copy-md`/`zip`;
+    picking a menu row calls `setSelectedFormat()` and never `.click()`;
+    only `exportGoBtn`'s handler proxies to the real button. Full suite:
+    300 passed, 0 failed.
+  - Rewrote/added Playwright e2e coverage to match (still **not run in
+    this sandbox** — Playwright Chromium download blocked, same as every
+    prior e2e change this project; `node -c` syntax-checked only): quick
+    buttons + picker visible by default, real buttons hidden, menu opens
+    with correctly-labelled rows and hidden Gist/Notion rows, picking a
+    row updates the label/closes the menu *without* changing `#status`,
+    and a separate test confirms clicking Export afterward is what
+    actually fires the (now-erroring, blank-context) real action.
+  - **Not yet built, follow-up idea**: a Settings-page option for
+    configurable quick-access formats (which 1-2 formats besides Copy MD/
+    ZIP get their own always-visible button, per-user). Needs its own
+    design pass — how many slots, which formats are eligible, UI for
+    picking them, migration for existing installs — deliberately left out
+    of this pass rather than bolted on.
+  - **Not yet verified**: real browser rendering of the new layout (quick
+    row + picker + Export button stacked), same sandbox limitation as
+    Batch 4c. Please take a look after reloading.
+- [x] **XS** Follow-up from live screenshot review: "copy md vs copy html
+  via dropdown also feels very counter intuitive" — Copy MD sat as an
+  always-visible quick button while Copy HTML was buried in the menu under
+  an unrelated "copy" grouping, with no visible reason for the split.
+  Considered dropping Copy HTML outright (Stefan's initial reaction — "why
+  would you want this for html? maybe even drop it as it exists as a file
+  anyway") but he asked to keep it, reframed as the clipboard alternative
+  to the HTML *file* export ("export to clipboard sounds pretty self
+  explaining").
+  Done — moved the `copy-html` row in `#exportMenu` to sit directly under
+  the `html` row (no longer separated from it by the old copy-cluster
+  divider), gave it a `.sub-item` CSS treatment (indented, slightly
+  smaller/muted) so it visually reads as "HTML, plus its clipboard
+  variant" rather than an unrelated peer action, and renamed the label
+  from "Copy HTML" to "Copy to clipboard" (same `popupBtnCopyHtml` i18n
+  key, just a new message — no new key needed). Translated the new wording
+  to all 26 locales (25 via subagent, full-suite + JSON-validity checked).
+  Copy MD's quick-button position is unchanged — it already reads clearly
+  on its own. Full suite still 300 passed, 0 failed (no test hardcoded the
+  old label or menu ordering, so nothing needed rewriting there).
+- [x] **S** Two more rounds of feedback on the same screenshot: the export
+  selector's caret was "tiny, hard to understand how to un-dropdown it",
+  and singling out "Copy to clipboard" with destination wording made the
+  *other* rows' silent destination (a downloaded file, or an upload) feel
+  unexplained by contrast — "not really clear where the exports goes for
+  the other formats". Brainstormed icon-only vs. label-everything vs.
+  revert-the-one-row; Stefan picked a symbol/icon language matching what
+  Gist/Notion's "↑" already implied, plus explicitly asked to make it
+  future-proof: icons as separate elements, not baked into translated
+  strings, so a future wording change never again means touching 26
+  locale files just to move a symbol around.
+  Done:
+  - Selector caret: bigger (10px → 15px) and now rotates 180° when the
+    menu is open (`.export-select-btn[aria-expanded="true"]
+    .export-select-caret`), so the same glyph visibly signals both "open"
+    and "click to close".
+  - Added a small non-translated inline SVG icon to every quick button and
+    every menu row: a download-arrow-into-a-tray icon for anything saved
+    as a file (MD/PDF/HTML/JSON/DOCX/Export All/ZIP), a two-squares copy
+    icon for anything clipboard-bound (Copy MD, HTML's "Copy" sub-item),
+    and an upload-arrow-out-of-a-tray icon for anything sent to an
+    external service (Gist, Notion). These are plain `<svg>` markup in
+    popup.html, entirely outside any `data-i18n` span — no locale file
+    references them at all.
+  - Because the icons now carry the destination meaning, stripped the
+    symbols that used to be baked into the *translated* strings
+    themselves: `popupBtnExportAll` lost its leading "⬇ ", `popupBtnGist`/
+    `popupBtnNotion` lost their trailing " ↑", and `popupBtnCopyHtml`
+    shortened from "Copy to clipboard" (this session's earlier fix) down
+    to just "Copy" — the copy icon now says what the wording used to say.
+    Also fixed `settingsNotionTokenDesc`'s description text, which quoted
+    the old "Notion ↑" button name.
+  - All 5 changed keys' values re-translated across all 26 locales (25 via
+    subagent, verified: full suite passes, no leftover ⬇/↑ characters in
+    any of the 4 button-label keys via grep, spot-checked JSON validity).
+  - Full suite: 300 passed, 0 failed. Same sandbox caveat as always for
+    the actual rendered look — please take a look after reloading.
 
 ## Batch 5 — Notion export (dedicated session; background.js + settings.html/.js + popup.js)
 - [x] **M → implemented, pending live test** BYO integration token + target
@@ -231,10 +521,121 @@ path is one self-contained click handler (settings.js:138–162) building one
   landed immediately before this one on `main`).
 
 ## Batch 7 — New extraction surfaces (needs live logged-in pages — Stefan's browser; flag before starting)
-- [ ] **L** ChatGPT Canvas export: non-linear side-panel UI, needs its own
-  extraction rules + fixture. DOM unknown until inspected live.
-- [ ] **L** Claude Artifacts: extract as structured blocks alongside the chat,
-  not as plain code. Same caveat: live DOM inspection required first.
+- [x] **L → smaller than scoped, fixed** ChatGPT Canvas export — investigated
+  live 2026-07 against a real logged-in ChatGPT account, both Canvas variants:
+  - **Code canvas** (asked ChatGPT to "open canvas and write a python script"):
+    turned out NOT to need the non-linear side-panel handling the original
+    note assumed. The code renders via a CodeMirror editor (`.cm-editor`/
+    `.cm-content`) nested inside the SAME `<pre>` that's already a normal
+    direct child of the turn's `.markdown` div — no separate panel, no new
+    turn-enumeration logic needed. The existing `case 'pre':` handler in
+    `convertNode()` already extracts CLEAN code (its `querySelector('code')`
+    happens to reach straight through the CodeMirror markup), so there was no
+    "PythonRun" toolbar-text leakage as initially suspected from a raw
+    `textContent` check — that was a red herring from comparing the wrong
+    thing (plain DOM `textContent` vs. what `htmlToMarkdown()` actually
+    produces). The one real, confirmed gap: none of the three existing
+    language-detection heuristics (class, sibling span, hljs) find anything
+    for Canvas blocks, because the language name ("Python") sits as plain text
+    in a `.sticky` toolbar header alongside Copy/Run `<button>`s inside the
+    same `<pre>` — so every Canvas code export shipped with no language tag on
+    the fence. Fixed with a 4th heuristic, scoped to only fire when a
+    CodeMirror editor is actually present (`.cm-editor`/`.cm-content`/
+    `#code-block-viewer`) so it can't misfire on some other platform's
+    unrelated `.sticky` element: find the toolbar's non-button text label and
+    use it as the language. 4 new JSDOM tests added (language tag applied,
+    code stays clean, existing language-class path unaffected, false-positive
+    guard for an unrelated `.sticky` pre with no CodeMirror editor) — all 4
+    confirmed to fail pre-fix (missing language tag) and pass post-fix; full
+    suite 267→271 passed, 0 failed, before and after.
+  - **Text/document canvas** (asked ChatGPT to "open a text canvas document
+    and write a note about coffee"): could NOT be verified — on this Free-plan
+    account, the model's canvas tool call itself misfired and leaked as raw
+    JSON text directly into the chat bubble (`{"name":"...","type":"document",
+    "content":"..."}`) instead of opening a real canvas UI. This looks like a
+    ChatGPT-side degradation (possibly free-tier/model-specific), not
+    something to build extraction around — a real text-canvas document was
+    never actually observed. Needs a retry (ideally on a paid plan) before
+    concluding anything about that variant's DOM.
+- [ ] **L → investigated live, still L, not implemented** Claude Artifacts —
+  investigated live 2026-07 against a real logged-in Claude account, creating
+  two artifacts (Python + JS) in one conversation. Unlike ChatGPT Canvas, this
+  one really does need the multi-session/side-panel handling the original
+  note assumed — confirmed structure:
+  - Each artifact shows as a small preview card in the chat column
+    (`.artifact-block-cell`, matched 2/2 as expected) with just a title +
+    filetype badge (e.g. "Reverse string · PY") — **no code inside it at all**.
+    This is exactly why the CURRENT `artifactSuffix` logic in `extractClaude()`
+    (`clone.querySelectorAll('.artifact-block-cell, [class*="artifact-block"]')`
+    then `artEl.querySelector('code, pre, .cm-content, ...')`) silently
+    extracts nothing today — that querySelector has nothing to find inside the
+    card. Confirmed live: Claude Artifacts exports currently ship with ZERO
+    artifact content, only whatever prose summary the model writes alongside
+    the card (e.g. "Here's a simple script that reverses a string...").
+  - The actual code lives in a completely separate right-side panel, anchored
+    by a distinctive, likely-stable id: `#wiggle-file-content` (confirmed
+    outside any `[data-testid="user-message"]`/`[data-testid="assistant-message"]`
+    turn — `.closest()` on those returns nothing). Its `textContent` is clean
+    code but each line is prefixed with a line-number gutter baked into the
+    same text flow (`"  1 def reverse_string(s: str) -> str:\n  2     return..."`)
+    — needs a per-line strip (e.g. `/^\s*\d+\s?/` per line) before use.
+  - **Only one artifact's content is ever mounted in the DOM at a time** —
+    confirmed with 2 real artifacts open in one conversation: `.artifact-block-cell`
+    count was 2, but `#wiggle-file-content` count stayed 1, showing whichever
+    artifact was created/opened most recently. Getting ALL artifacts in a
+    multi-artifact conversation requires clicking each preview card in turn,
+    reading the panel after each click, same click-through requirement found
+    for NotebookLM citations — but proportionally far less disruptive here
+    (a conversation typically has a handful of artifacts, not up to 192).
+  - **Real implementation gotcha confirmed live**: a bare `cardEl.click()` via
+    injected JS did NOT swap the panel (tried it, panel didn't change) — only
+    a genuine synthetic mouse click (dispatched via the browser's real input
+    pipeline, not the DOM `.click()` method) actually triggered the swap.
+    A real fix will need to dispatch a proper `MouseEvent` sequence
+    (mousedown/mouseup/click, `bubbles: true`) rather than `el.click()`.
+  - Not attempted as a fix this session: this needs (a) the synthetic-click
+    mechanism above validated more rigorously, (b) correctly associating each
+    extracted artifact's content back to the message/turn that created it
+    (the panel is conversation-wide, not turn-scoped, so this needs tracking
+    which card belongs to which turn), and (c) testing across Claude's other
+    artifact types (React components, HTML, SVG, Mermaid, plain markdown) —
+    which likely render very differently inside `#wiggle-file-content` than
+    the plain-code case tested here. Genuinely multi-session work, matching
+    the original L estimate — unlike Canvas, this one didn't shrink.
+  - **Synthetic-click mechanism — conclusively ruled out 2026-07, downgrading
+    this item's viability**: re-tested live against the same 2-artifact
+    conversation with a much more thorough synthetic sequence than a bare
+    `.click()` — `pointerdown` → `mousedown` → `pointerup` → `mouseup` →
+    `click`, all `bubbles:true, cancelable:true`, with real `clientX/clientY`
+    coordinates from the card's actual `getBoundingClientRect()` (i.e.
+    everything a real click event carries, not just a bare `.click()` call).
+    Confirmed via before/after `#wiggle-file-content` text comparison: still
+    NO swap. Only a genuinely OS-level input event (dispatched through
+    Chrome's real input pipeline, e.g. what the `computer`/CDP tool used in
+    the original investigation, or equivalently `chrome.debugger`'s
+    `Input.dispatchMouseEvent`) triggers it. This means the gap isn't "using
+    the wrong DOM event type" as first hoped — it's that Claude's frontend
+    (likely a Radix/shadcn-style component checking real pointer capture or
+    `event.isTrusted`) rejects any JS-dispatched event regardless of how
+    complete the sequence is. A content script has no way to produce a
+    trusted input event; the only extension-side mechanism that can is the
+    `chrome.debugger` API, which requires the `debugger` permission — a
+    heavy, scary ask (Chrome shows a persistent "Inkpour is debugging this
+    browser" banner the whole time it's attached) for what should be a
+    read-only export feature, and a plausible Chrome Web Store review
+    friction point. Each artifact card also has its own "Download" button
+    (confirmed present, not clicked live to avoid triggering a real file
+    save on Stefan's machine) that likely goes through the same
+    click-handler gating, so it's probably not a viable synthetic-click
+    workaround either — not tested further given the download side effect.
+    **Recommendation: don't pursue the click-through approach further.**
+    Either accept the current zero-content-artifact limitation as a known
+    gap (document it plainly for users instead), or revisit only if a
+    non-click extraction path turns up (e.g. Claude ships a stable
+    public/internal API for artifact content, or a future DOM version
+    embeds all artifacts' content up front instead of swapping one panel).
+    Downgrading from "L, not implemented" to effectively blocked pending a
+    non-click approach — not purely a matter of more engineering time.
 - [x] **M → investigated, not implemented** NotebookLM inline source citations —
   investigated live 2026-07 against a real 54-source notebook. `extractCitations()`
   already pulls the correct citation numbers from `button.citation-marker`
@@ -316,13 +717,53 @@ path is one self-contained click handler (settings.js:138–162) building one
      load or returns empty extraction is skipped and counted in a final
      "N succeeded, M skipped" summary toast.
 
-  **Open questions needing a live logged-in session (flag before starting,
-  same caveat as Batch 7):**
-  - Exact sidebar selectors for ChatGPT's and Claude's history lists —
-    unverified this session (no logged-in ChatGPT/Claude tab was available).
-  - Whether either sidebar lazy-loads/paginates on scroll for accounts with
-    many conversations — the picker UI would need to handle "load more"
-    before the full list can be ticked.
+  **ChatGPT sidebar selectors — confirmed live 2026-07** (Claude still
+  unverified, no logged-in Claude tab was available this session):
+  `a[href^="/c/"]` reliably finds every conversation link, each wrapped in
+  `<li class="list-none">` and carrying a `data-sidebarItem` attribute — a
+  stable marker that isn't part of a generated/obfuscated class name, so it's
+  a solid extraction anchor. `aria-label` matches the link's visible title
+  text exactly (redundant with `textContent`, but a good fallback if the link
+  ever gets an icon/nested-span structure that muddies `textContent`). The
+  `href` gives the conversation's `/c/<uuid>` path directly — exactly the
+  `{title, url}` pair the orchestration sketch above needs. The scrollable
+  container is the `<nav>` with `overflow-y: auto/scroll` where
+  `scrollHeight > clientHeight` (class name includes `scrollport`, but that's
+  not guaranteed stable — detect by computed style + scroll dimensions instead
+  of hardcoding the class). **Lazy-load behavior — confirmed live via
+  bulk-create test 2026-07**: an earlier test that set `nav.scrollTop =
+  nav.scrollHeight` as an instant jump reached the correct max scroll position
+  but triggered ZERO additional loading, which was wrongly read as "nothing
+  more to load." Bulk-creating extra test conversations and retrying showed
+  the real mechanism: a loop of small incremental `scrollTop += 40-60` steps,
+  each followed by `nav.dispatchEvent(new Event('scroll', {bubbles:true}))`
+  and a short (150-300ms) wait, DOES trigger real lazy-loading — count jumped
+  28 → 56, then stabilized exactly at `scrollTop === scrollHeight -
+  clientHeight` (true max) with no further growth. This means the lazy-load
+  trigger is very likely an IntersectionObserver-style sentinel that only
+  fires on genuine progressive scroll events, not an instant `scrollTop`
+  assignment. **Implementation implication for Batch 8 orchestration code**:
+  the background-tab scroll-to-load-more step must simulate real incremental
+  scrolling (small steps + dispatched scroll events + waits between them),
+  not a single jump to max scrollTop, or it will silently under-collect
+  conversations on accounts with more history than fits in the initial page.
+
+  **Claude sidebar selectors — confirmed live 2026-07**: `a[href^="/chat/"]`
+  reliably finds every conversation link. Unlike ChatGPT, the visible/`textContent`
+  title is DOUBLED (e.g. `"Debugging old Raspberry Pi firmwareDebugging old
+  Raspberry Pi firmware"`) — confirmed why: each link contains both a
+  `.sr-only` span (screen-reader-only, full clean title) and a sibling
+  `aria-hidden="true"` `.block.truncate` span (the visually-truncated display
+  copy) with the same text, so naive `textContent` concatenates both. Use
+  `link.querySelector('.sr-only')?.textContent` for a clean single-instance
+  title instead. More importantly: Claude has a dedicated, separate
+  **`/recents` page** ("Chats" in the sidebar nav) with a full searchable/
+  filterable list, distinct from the abbreviated sidebar preview — it even
+  ships its own native "Select chats" multi-select button already, and is a
+  much better enumeration target for Batch 8 than scraping the sidebar
+  (search, filter-by, and timestamps are all already there for free). Same
+  lazy-load caveat as ChatGPT: this account only has 7 conversations total, so
+  no pagination could be observed either way.
   - Realistic per-tab load timeout per platform (chatgpt/gemini/aistudio are
     already known to be slow lazy-loaders from the streaming-toast work).
   - How many conversations per run before it risks looking bot-like or
@@ -330,6 +771,107 @@ path is one self-contained click handler (settings.js:138–162) building one
 
   Spend the first coding session on the sidebar-enumeration spike (step 1
   above) against a real logged-in account, not on the full orchestration.
+
+  **Step 1 spike — implemented and verified live 2026-07**: added
+  `getConversationList()` to `src/content.js` (right after `detectSite()`)
+  plus a new `{action:'getConversationList'}` message handler, returning
+  `{conversations: [{title, url}]}`. Encodes exactly the selectors confirmed
+  above (ChatGPT: `a[href^="/c/"]`, title from `aria-label`; Claude:
+  `a[href^="/chat/"]`, title from `.sr-only`), de-duplicated by resolved
+  absolute URL. Returns `[]` (not an error) for any unsupported/logged-out
+  page — this is the feature's natural feature-detect point, so popup.js's
+  future entry point can just check `conversations.length` to decide whether
+  to show the batch-export UI at all, never gating the existing
+  single-conversation extraction path. Exposed via the existing test-hook
+  pattern (`window.__inkpourGetConversationList`, gated on
+  `window.__inkpourTestHostname`, same as `__inkpourHtmlToMarkdown`). 7 new
+  JSDOM tests added (ChatGPT: finds every unique link, title from
+  aria-label, absolute-URL resolution, de-dup of a same-href double DOM
+  entry; Claude: finds every link, `.sr-only`-based de-doubled title;
+  unsupported platform: returns `[]` without throwing) — full suite
+  271→278 passed, 0 failed. **Live-verified against the real open
+  ChatGPT/Claude tabs from this session's earlier cleanup work**: re-ran the
+  equivalent selector logic directly in both tabs via injected JS — ChatGPT
+  returned the correct 28 conversations (back to baseline post-cleanup) with
+  clean titles and correct `/c/<uuid>` paths; Claude returned 8 conversations
+  with correctly de-doubled titles (e.g. "Debugging old Raspberry Pi
+  firmware", not the doubled textContent). Not yet done: the popup.js picker
+  UI and the background.js tab-cycling orchestration itself (steps 2-5 of
+  the sketch above) — this session only covered step 1 as scoped.
+
+  **Steps 2-5 — implemented 2026-07, pending live test (same status as
+  Batch 5/6 when they landed)**:
+  - `popup.html`/`popup.js`: a new "Batch export past conversations…" toggle
+    (styled/behaving exactly like the existing "Select messages" toggle)
+    appears only when `getConversationList()` returns a non-empty list for
+    the current tab — `initBatchExport()` queries it once at popup open,
+    alongside the existing `runPeek()`, and simply does nothing (stays
+    silent, toggle stays `hidden`) on any page where it's empty. Ticking
+    conversations and clicking "Export selected as ZIP" sends
+    `{action:'startBatchExport', conversations, originTabId}` to
+    background.js and shows the returned `{succeeded, skipped}` summary.
+  - `background.js`: new `runBatchExport()` — the actual sequential
+    background-tab loop, living entirely in the service worker so it
+    survives the popup closing (this was the whole reason the design sketch
+    chose background-tab automation over hijacking the active tab). Per
+    conversation: `tabs.create({active:false})` → `waitForTabLoad()` (new
+    helper, 20s timeout) → a fixed 1.5s settle delay → `{action:'extract'}`
+    with a 15s race-timeout → on success, `buildMarkdown()` + `buildFilename()`
+    (both already `importScripts`-loaded here, same as every other
+    background.js export path) into one `.md` file per conversation, with a
+    `-2`/`-3` suffix if two conversations resolve to the same filename →
+    `tabs.remove()` in a `finally`, then an 800ms pause before the next tab.
+    Failures are caught per-conversation (counted as skipped, never abort
+    the run — matches the original "errors are per-conversation, not fatal"
+    design). All conversations' `.md` files are aggregated into one ZIP via
+    the existing `buildZip()` and downloaded via the existing
+    `safeDownload()`/`withSubfolder()` helpers, named
+    `inkpour-batch-<YYYY-MM-DD>.zip`. Progress and the final summary are
+    sent as toasts to the *originating* tab (`originTabId`, captured by
+    popup.js before sending the message) via the existing `showToast`
+    content-script action — reused exactly as-is, no new toast mechanism.
+  - 9 new i18n keys (`popupBatchExportToggle`/`StartBtnTitle`/`StartBtn`/
+    `Count`/`NoneSelected`/`Starting`/`Progress`/`Done`/`Failed`), added with
+    real (non-stub) translations to all 26 locales — 25 done by parallel
+    subagents, then spot-checked directly (`de`/`ar` samples) plus a full
+    programmatic key-set diff against `en/messages.json` across all 26
+    files (zero mismatches). Full suite 281 passed, 0 failed throughout
+    (content.js's own 7 Batch-8 tests from the step-1 spike are unaffected;
+    no JSDOM coverage was attempted for popup.js/background.js themselves —
+    see below for why).
+  - One new Playwright e2e test added (`test/e2e/popup.spec.js`, "batch
+    export toggle stays hidden with no chat page open") asserting the
+    single most safety-critical property: the feature never appears where
+    it can't work. **Not run in this sandbox** — Playwright's Chromium
+    binary download failed here (network-restricted sandbox, `502` from
+    both of Playwright's CDN mirrors); the test's syntax was verified
+    (`node -c`) and it follows the exact pattern of the existing adjacent
+    test ("shows error when no chat page is open"), but it needs a real run
+    in CI or Stefan's machine to confirm it actually passes.
+  - **Why no JSDOM coverage of popup.js/background.js**: consistent with
+    how this whole file already works — `test/run-jsdom.js` has never
+    loaded either file (both depend on `chrome.tabs`/`chrome.runtime` APIs
+    that don't exist in JSDOM, unlike `src/content.js`/`src/utils.js` which
+    are pure-DOM/pure-function and get full JSDOM coverage). This isn't a
+    gap specific to this feature.
+  - **Known gaps / explicitly NOT resolved by this pass** (matches the
+    design sketch's own open questions, still open): the 20s tab-load
+    timeout, 1.5s settle delay, and 15s extract timeout are reasonable
+    starting guesses, not measured against real slow-loading accounts
+    (ChatGPT/Gemini/AI Studio are already known to be slow lazy-loaders
+    elsewhere in this codebase); how many conversations per run is safe
+    before it risks looking bot-like or tripping a platform rate limit is
+    still completely unmeasured — no data existed before this pass and none
+    was generated now, since generating it would mean running a large real
+    batch against a live account, which needs an explicit go-ahead (this
+    repo's session history shows real caution here: Stefan explicitly
+    scoped an earlier bulk-conversation-creation test to "ChatGPT only", so
+    a large-N live batch-export test should get the same explicit scoping
+    before anyone runs one). **This needs a real, watched, small-N (e.g.
+    3-5 conversations) live test on Stefan's own ChatGPT and Claude
+    accounts before being considered done** — same "implemented, pending
+    live test" status Batch 5 (Notion) and Batch 6 (vault) shipped in, not
+    a claim that this is fully verified.
 
 ## Batch 9 — Distribution (XL; blocked on Stefan — accounts, fees, listing assets)
 - [x] **XL** Submit to Firefox Add-ons (AMO) + Chrome Web Store — in progress,
@@ -347,6 +889,29 @@ cut. It also auto-versions daily via `fregante/daily-version-action` — that's 
 different philosophy than Inkpour's current manual-bump-then-tag flow (which
 Stefan controls deliberately); don't copy that part, just the two upload jobs,
 triggered off the existing tag-driven release instead of on a schedule.
+
+**Release notes source — `CHANGELOG.md` added 2026-07**: rather than
+inventing a release-notes format when this batch actually gets built, a
+`CHANGELOG.md` now exists at repo root, one `## [x.y.z.w]` section per
+tagged version (backfilled for the full history, `v0.2.0` through the
+current `v0.4.28.1`), plus an `## [Unreleased]` section at the top that
+should get renamed to the new version heading in the same commit as every
+future version bump. A JSDOM test (`test/run-jsdom.js`, "CHANGELOG.md —
+release notes source of truth") guards against drift: fails if the current
+`manifest.json` version has no matching section, if the `Unreleased` heading
+ever goes missing, or if a heading doesn't correspond to either
+`Unreleased`, the current version, or a real git tag. When Batch 10's
+workflow job runs, it should extract the section between the tag's own
+`## [x.y.z.w]` heading and the next `## [` heading and pass that text as:
+  - AMO's `release_notes` field (per-locale in the submission API's
+    `--amo-metadata` JSON — English text is enough for v1, matching this
+    repo's English-first i18n rollout elsewhere)
+  - the Chrome Web Store listing has no real per-version "what's new" API
+    field as of this writing (unlike AMO) — store the same extracted text
+    as the GitHub Release body instead (already generated via
+    `generate_release_notes: true` in `release.yml`; consider swapping that
+    for this file's text once Batch 10 lands, since it'll read better than
+    GitHub's auto-generated commit-list) and skip trying to push it to CWS.
 
 Both store CLIs need one-time credentials that only exist once the extension
 is *first* submitted manually — this is why it's blocked on Batch 9 actually

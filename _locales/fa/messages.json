@@ -114,19 +114,19 @@
     "message": "کپی MD"
   },
   "popupBtnCopyHtml": {
-    "message": "کپی HTML"
+    "message": "کپی"
   },
   "popupBtnZip": {
     "message": "ZIP"
   },
   "popupBtnGist": {
-    "message": "Gist ↑"
+    "message": "Gist"
   },
   "popupBtnNotion": {
-    "message": "Notion ↑"
+    "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "⬇ خروجی همه (MD + DOCX + ZIP)"
+    "message": "خروجی همه (MD + DOCX + ZIP)"
   },
   "popupIncrementalBtnTitle": {
     "message": "فقط پیام‌های افزوده‌شده از آخرین خروجی گرفتن را خروجی می‌گیرد",
@@ -610,7 +610,7 @@
     "message": "توکن یکپارچه‌سازی Notion"
   },
   "settingsNotionTokenDesc": {
-    "message": "توکن یکپارچه‌سازی داخلی — دکمه «Notion ↑» را در پاپ‌آپ فعال می‌کند و خروجی‌ها را به صفحه زیر می‌افزاید."
+    "message": "توکن یکپارچه‌سازی داخلی — دکمه «Notion» را در پاپ‌آپ فعال می‌کند و خروجی‌ها را به صفحه زیر می‌افزاید."
   },
   "settingsNotionTokenLink": {
     "message": "ساخت یک توکن →"
@@ -1035,5 +1035,73 @@
   },
   "popupBtnReportBug": {
     "message": "گزارش اشکال"
+  },
+  "popupBatchExportToggle": {
+    "message": "📦 خروجی گرفتن دسته‌ای از گفتگوهای گذشته…"
+  },
+  "popupBatchExportStartBtnTitle": {
+    "message": "خروجی گرفتن از گفتگوهای تیک‌خورده به‌صورت یک ZIP"
+  },
+  "popupBatchExportStartBtn": {
+    "message": "خروجی گرفتن از انتخاب‌شده‌ها به‌صورت ZIP"
+  },
+  "popupBatchExportCount": {
+    "message": "$1 از $2 انتخاب شد",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportNoneSelected": {
+    "message": "ابتدا حداقل یک گفتگو را انتخاب کنید"
+  },
+  "popupBatchExportStarting": {
+    "message": "در حال خروجی گرفتن از $1 گفتگو…",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupBatchExportProgress": {
+    "message": "در حال خروجی گرفتن از $1 از $2: $3",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      },
+      "3": {
+        "content": "$3"
+      }
+    }
+  },
+  "popupBatchExportDone": {
+    "message": "خروجی‌گیری دسته‌ای به پایان رسید: $1 موفق، $2 نادیده گرفته شد",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      },
+      "2": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupBatchExportFailed": {
+    "message": "خروجی‌گیری دسته‌ای ناموفق بود"
+  },
+  "popupExportMoreOptions": {
+    "message": "گزینه‌های بیشتر خروجی"
+  },
+  "popupBtnAllShort": {
+    "message": "همه"
+  },
+  "popupExportGoBtn": {
+    "message": "خروجی گرفتن"
   }
 }
