@@ -14,6 +14,8 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+## [0.4.30.0] - 2026-07-23
+
 ### Added
 - Notion export — send a conversation straight to a Notion page (bring your
   own integration token + page ID).
