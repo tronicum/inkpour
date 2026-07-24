@@ -991,6 +991,10 @@ landing, not just started:
 - [ ] **XS** First real run needs to be watched live and treated as a dry run
   even though the CLIs don't offer one — can't fully verify secrets/permissions
   are right without actually attempting a submission.
+- GitHub issue drafted 2026-07 condensing the above into a tracked ticket
+  (same no-GitHub-auth-in-this-sandbox situation as Batch 11's debug/ bug —
+  handed Stefan a pre-filled `issues/new?title=...&body=...` link to sign
+  in and submit himself, rather than filing it directly).
 
 ## Deferred (don't pick up without a trigger)
 - [ ] **XL** Safari App Store: `xcrun safari-web-extension-converter`, open
