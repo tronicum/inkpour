@@ -873,6 +873,56 @@ path is one self-contained click handler (settings.js:138–162) building one
     live test" status Batch 5 (Notion) and Batch 6 (vault) shipped in, not
     a claim that this is fully verified.
 
+## Batch 11 — PDF-import debug tools: release-packaging bug + N-up layout support
+- [ ] **XS, high priority — real user-facing bug, filed 2026-07** Settings →
+  Advanced → Debug mode exposes two links ("Import debug", "PDF fuzzer")
+  that open `debug/import-debug.html` / `debug/import-pdf-fuzzer.html`
+  directly (`settings.js` lines ~133-141, via
+  `api.tabs.create({ url: api.runtime.getURL(...) })`). But
+  `scripts/release.sh` — the script that builds the actual Chrome Web
+  Store / Firefox AMO submission zip — explicitly does
+  `--exclude "debug/*"`. Net effect: anyone who installs Inkpour from
+  either store, turns on Debug mode, and clicks either link gets a
+  broken/missing-file result, since `debug/import-debug.html`,
+  `debug/import-pdf-fuzzer.html`, `debug/import-pdf-fuzzer.js`, and the
+  bundled `debug/vendor/pdf.min.js` + `pdf.worker.min.js` all simply
+  aren't in their installed package. Only works when running unpacked
+  from a git checkout. GitHub issue drafted (couldn't file it directly —
+  no GitHub auth available in this sandbox, no `gh` CLI, and no connected
+  GitHub MCP found in the connector registry; also not something to sign
+  into on Stefan's behalf). Handed Stefan a pre-filled
+  `github.com/tronicum/inkpour/issues/new?title=...&body=...` link instead
+  — GitHub preserves the query string through its login redirect, so he
+  just needs to sign in once and submit.
+  Needs a product decision before a fix: either (a) stop excluding
+  `debug/` from the release zip so these tools ship for real (they're
+  already gated behind an opt-in toggle, which may have been the original
+  intent), or (b) keep `debug/` dev-only and instead hide/disable these
+  two Settings links whenever running from a packaged/installed build.
+- [ ] **M — scoped, not started** N-up PDF support: can the PDF-import
+  debug fuzzer (`debug/import-pdf-fuzzer.js`) handle a PDF where multiple
+  logical pages are printed onto one physical landscape sheet at reduced
+  scale (a common "N-up" print layout, e.g. 8 pages arranged in a grid)?
+  Investigated 2026-07 (research only, no code changes): **no** — today's
+  `extractLinesFromPdf()` pulls every text item's raw `x`/`y` per physical
+  PDF page via pdf.js, sorts them by descending Y then ascending X (a
+  single-column, top-to-bottom assumption), and never reads page
+  geometry/orientation or clusters items into columns/cells at all. Pages
+  stay in page-number order relative to *each other* (good — no cross-page
+  Y-sort), but within an N-up sheet every cell's text would get
+  interleaved into one nonsense reading order, braiding unrelated logical
+  pages together.
+  This is a real, bounded addition, not a tweak: needs a grid-detection
+  pre-pass — cluster each page's text items into row/column bands from
+  their coordinates, infer the N-up grid shape, then virtually split that
+  one physical page into N logical sub-pages — inserted *before* the
+  existing per-page line-grouping logic runs. Downstream, `parseImportedText()`
+  (`src/utils.js`) needs zero changes — it's pure text heuristics with no
+  coordinate awareness, so it doesn't care how the PDF got sliced up
+  upstream. Entirely contained to `debug/import-pdf-fuzzer.js`. Needs a
+  real N-up test fixture (an actual multi-page-per-sheet PDF export) before
+  implementation — none exists in the repo yet.
+
 ## Batch 9 — Distribution (XL; blocked on Stefan — accounts, fees, listing assets)
 - [x] **XL** Submit to Firefox Add-ons (AMO) + Chrome Web Store — in progress,
   Stefan is doing this directly (developer accounts, listing copy/screenshots,
