@@ -2458,6 +2458,21 @@ async function main() {
       broken.map(b => `${b.ref} (referenced from ${b.file})`).join(', '));
   });
 
+  // .github/workflows/release.yml used to hand-maintain its own, separate
+  // --exclude list for the CI-built zip — which had drifted from
+  // scripts/release.sh (it was missing this file's debug/ narrowing, plus
+  // never excluded test/scripts/README.md/etc. at all, so real GitHub
+  // Release zips likely shipped extra dev-only files). Now it just calls
+  // scripts/release.sh, so there's exactly one place that decides what
+  // ships. This guards against that duplication creeping back in.
+  await test('release.yml builds the zip via scripts/release.sh, not a second hand-maintained exclude list', () => {
+    const RELEASE_YML = fs.readFileSync(path.resolve(__dirname, '../.github/workflows/release.yml'), 'utf8');
+    assert(/bash scripts\/release\.sh/.test(RELEASE_YML),
+      'expected release.yml\'s build step to call scripts/release.sh instead of maintaining its own zip/exclude logic');
+    assert(!/zip -r/.test(RELEASE_YML),
+      'release.yml has its own "zip -r" command again — zip-building logic should live only in scripts/release.sh');
+  });
+
   // ─── i18n manifest/locale consistency ──────────────────────────────────────
   // Regression coverage for a real bug: release.yml reads manifest.json's
   // "name" field directly as plain text to build the GitHub release title.

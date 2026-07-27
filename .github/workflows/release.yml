@@ -7,7 +7,7 @@ on:
 
 jobs:
   release:
-    name: Build & publish release
+    name: Build & publish GitHub Release
     runs-on: ubuntu-latest
     permissions:
       contents: write   # needed to create GitHub Releases
@@ -27,7 +27,8 @@ jobs:
           ")
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "name=$NAME"       >> $GITHUB_OUTPUT
-          echo "zip=inkpour-$VERSION.zip" >> $GITHUB_OUTPUT
+          # scripts/release.sh writes next to the checkout, not inside it
+          echo "zip=../inkpour-$VERSION.zip" >> $GITHUB_OUTPUT
 
       - name: Verify tag matches manifest version
         run: |
@@ -40,13 +41,16 @@ jobs:
           echo "✓ Tag and manifest version both: $MANIFEST"
 
       - name: Build extension zip
+        # scripts/release.sh is the single source of truth for what's
+        # included/excluded in the shipped package — this used to be a
+        # second, hand-maintained --exclude list right here, which had
+        # drifted out of sync with scripts/release.sh (e.g. it excluded all
+        # of debug/, breaking Settings' "Import debug"/"PDF fuzzer" links in
+        # every real install; see CHANGELOG.md Unreleased / TODOs.md Batch
+        # 11). Calling the script here means there's only ever one place
+        # that decides what ships.
         run: |
-          zip -r "${{ steps.meta.outputs.zip }}" . \
-            --exclude '.git/*' \
-            --exclude '.github/*' \
-            --exclude '*.lock' \
-            --exclude 'planning/*' \
-            --exclude 'debug/*'
+          bash scripts/release.sh "${{ steps.meta.outputs.version }}"
           echo "✓ Built ${{ steps.meta.outputs.zip }} ($(du -sh ${{ steps.meta.outputs.zip }} | cut -f1))"
 
       - name: Create GitHub Release
@@ -56,3 +60,56 @@ jobs:
           files: ${{ steps.meta.outputs.zip }}
           generate_release_notes: true
           fail_on_unmatched_files: true
+
+  publish-firefox:
+    name: Publish to Firefox Add-ons (AMO)
+    needs: release
+    runs-on: ubuntu-latest
+    # A GitHub Environment named "Firefox" scopes these secrets to just this
+    # job and lets you optionally require manual approval before it runs
+    # (Settings → Environments → New environment → "Firefox" → add required
+    # reviewers). The environment is auto-created on first run if it
+    # doesn't exist yet, but with no protection rules until configured.
+    environment: Firefox
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build extension zip (same script as the release job, so the
+          submitted package is byte-identical to what's on the GitHub Release)
+        run: bash scripts/release.sh
+
+      - name: Unpack for web-ext (it signs a source directory, not a zip)
+        run: |
+          VERSION=$(node -e "process.stdout.write(require('./manifest.json').version)")
+          mkdir -p unpacked
+          unzip -q "../inkpour-${VERSION}.zip" -d unpacked
+
+      - name: Submit to Firefox Add-ons (AMO)
+        env:
+          WEB_EXT_API_KEY: ${{ secrets.WEB_EXT_API_KEY }}
+          WEB_EXT_API_SECRET: ${{ secrets.WEB_EXT_API_SECRET }}
+        run: |
+          npx web-ext sign \
+            --source-dir unpacked \
+            --artifacts-dir web-ext-artifacts \
+            --channel listed \
+            --use-submission-api \
+            --api-key "$WEB_EXT_API_KEY" \
+            --api-secret "$WEB_EXT_API_SECRET"
+
+      - name: Upload signed artifact (for inspection if anything looks off)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: firefox-submission
+          path: web-ext-artifacts/
+          retention-days: 14
+
+  # publish-chrome:
+  #   Deferred — see TODOs.md "Batch 10". Needs a Google Cloud project, the
+  #   Chrome Web Store API enabled, an OAuth 2.0 client, and a one-time
+  #   authorization flow to mint a refresh token before this can be wired
+  #   up the same way publish-firefox is above (chrome-webstore-upload-cli,
+  #   EXTENSION_ID/CLIENT_ID/CLIENT_SECRET/REFRESH_TOKEN as secrets, an
+  #   Environment named "Chrome"). Left as a placeholder so the shape of
+  #   the full pipeline is visible in one file.

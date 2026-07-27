@@ -986,11 +986,38 @@ Both store CLIs need one-time credentials that only exist once the extension
 is *first* submitted manually — this is why it's blocked on Batch 9 actually
 landing, not just started:
 
-- [ ] **M** Firefox (AMO) auto-submit: `npx web-ext sign --use-submission-api
-  --channel listed`, needs `WEB_EXT_API_KEY` + `WEB_EXT_API_SECRET` as GitHub
-  Actions secrets. Get these from addons.mozilla.org → Developer Hub → Manage
-  API Keys (one-time, needs an existing AMO developer account — Batch 9). This
-  is the smaller lift: one CLI call, two secrets, no external OAuth dance.
+- [x] **M — implemented 2026-07, needs Stefan's secrets + a live run** Firefox
+  (AMO) auto-submit. Added a `publish-firefox` job to `.github/workflows/
+  release.yml`, `needs: release` (only runs after the GitHub Release job
+  succeeds), gated behind a GitHub Environment named `Firefox` (auto-created
+  on first run if it doesn't exist; add required reviewers under Settings →
+  Environments → Firefox for a manual-approval gate, since AMO submission is
+  otherwise irreversible). It rebuilds the zip via `scripts/release.sh` (same
+  script as the release job, so the submitted package is byte-identical to
+  what's on the GitHub Release — no second copy of the file list to keep in
+  sync), unzips it into a plain directory (`web-ext sign` needs a source
+  directory, not a zip), then runs `npx web-ext sign --source-dir unpacked
+  --channel listed --use-submission-api --api-key "$WEB_EXT_API_KEY"
+  --api-secret "$WEB_EXT_API_SECRET"`, with the signed output uploaded as a
+  workflow artifact for inspection regardless of pass/fail.
+  **Stefan still needs to, before the first tag+push relying on this**: (1)
+  get `WEB_EXT_API_KEY` + `WEB_EXT_API_SECRET` from addons.mozilla.org →
+  Developer Hub → Manage API Keys (needs an existing AMO developer account
+  — Batch 9), (2) add them as repo secrets scoped to the `Firefox`
+  environment (Settings → Environments → Firefox → Environment secrets — not
+  the repo-wide Secrets tab, so `publish-chrome` below can't see them once it
+  exists), (3) treat the first real tag push as a live dry run per the item
+  below — this has never actually been run.
+  **Bonus fix found while wiring this up**: `release.yml`'s "Build extension
+  zip" step used to hand-maintain its *own* separate `zip -r ... --exclude`
+  list, independent of `scripts/release.sh` — and it had drifted: it never
+  excluded `test/`, `scripts/`, `README.md`, `PRIVACY.md`, `package*.json`,
+  or `playwright.config.js` the way `release.sh` does, so real past GitHub
+  Release zips likely shipped extra dev-only files that were never meant to
+  be there. Now `release.yml` just calls `bash scripts/release.sh` — one
+  source of truth for what ships, guarded by a new test ("release.yml builds
+  the zip via scripts/release.sh, not a second hand-maintained exclude
+  list", `test/run-jsdom.js`, 304 passed 0 failed).
 - [ ] **L** Chrome Web Store auto-submit: `npx chrome-webstore-upload-cli
   upload --auto-publish`, needs `EXTENSION_ID` + `CLIENT_ID` + `CLIENT_SECRET`
   + `REFRESH_TOKEN`. Bigger lift than Firefox: requires a Google Cloud project,
