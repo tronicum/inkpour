@@ -2402,6 +2402,62 @@ async function main() {
     assert(Array.isArray(MANIFEST.content_scripts) && MANIFEST.content_scripts.length > 0, 'no content_scripts');
   });
 
+  // ─── Release packaging — shipped files must match runtime references ──────
+  // Real bug, filed 2026-07 (TODOs.md "Batch 11"): Settings' "Import debug"/
+  // "PDF fuzzer" links open debug/import-debug.html / debug/import-pdf-
+  // fuzzer.html via api.runtime.getURL(), but scripts/release.sh — the
+  // script that builds the actual store-submission zip — excluded the
+  // entire debug/ folder, so both links were dead in every real installed
+  // build. Fixed by narrowing release.sh's exclude list to just the
+  // personal/local-only fixtures (mirroring .gitignore's own debug/ entries)
+  // instead of the whole folder. This test guards against that shape of bug
+  // recurring for any current or future runtime.getURL() reference: it
+  // fails if release.sh's --exclude patterns would strip out a file that
+  // shipped JS actually navigates to at runtime.
+  console.log('\nRelease packaging — shipped files match runtime references');
+
+  const RELEASE_SH = fs.readFileSync(path.resolve(__dirname, '../scripts/release.sh'), 'utf8');
+
+  function globToRegExp(glob) {
+    const escaped = glob.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*');
+    return new RegExp(`^${escaped}$`);
+  }
+
+  const RELEASE_EXCLUDE_PATTERNS = [...RELEASE_SH.matchAll(/--exclude\s+"([^"]+)"/g)].map(m => m[1]);
+
+  function isExcludedByReleaseZip(relativePath) {
+    return RELEASE_EXCLUDE_PATTERNS.some(pattern => globToRegExp(pattern).test(relativePath));
+  }
+
+  // Every file directly referenced via api.runtime.getURL('...') across the
+  // shipped JS — pages/resources the extension navigates to at runtime, so
+  // they must both exist and survive packaging.
+  const RUNTIME_REFERENCED_FILES = [];
+  ['background.js', 'popup.js', 'settings.js', 'history.js'].forEach((file) => {
+    const src = fs.readFileSync(path.resolve(__dirname, `../${file}`), 'utf8');
+    for (const m of src.matchAll(/runtime\.getURL\(\s*['"]([^'"]+)['"]\s*\)/g)) {
+      RUNTIME_REFERENCED_FILES.push({ file, ref: m[1] });
+    }
+  });
+
+  await test('scan found at least one runtime.getURL() reference (sanity check on the scan itself)', () => {
+    assert(RUNTIME_REFERENCED_FILES.length > 0, 'found zero getURL() references — the regex above may be stale');
+  });
+
+  await test('every runtime.getURL()-referenced file actually exists in the repo', () => {
+    RUNTIME_REFERENCED_FILES.forEach(({ file, ref }) => {
+      const p = path.resolve(__dirname, `../${ref}`);
+      assert(fs.existsSync(p), `${ref} (referenced from ${file} via getURL()) does not exist`);
+    });
+  });
+
+  await test("every runtime.getURL()-referenced file survives release.sh's --exclude filters", () => {
+    const broken = RUNTIME_REFERENCED_FILES.filter(({ ref }) => isExcludedByReleaseZip(ref));
+    assert(broken.length === 0,
+      'release.sh excludes file(s) referenced at runtime, breaking them in every installed build: ' +
+      broken.map(b => `${b.ref} (referenced from ${b.file})`).join(', '));
+  });
+
   // ─── i18n manifest/locale consistency ──────────────────────────────────────
   // Regression coverage for a real bug: release.yml reads manifest.json's
   // "name" field directly as plain text to build the GitHub release title.
