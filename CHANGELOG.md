@@ -14,6 +14,12 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+### Fixed
+- Settings' "Import debug" and "PDF fuzzer" links were dead in every
+  installed build — the release zip was accidentally excluding the whole
+  `debug/` folder those pages live in. Fixed; personal test fixtures stay
+  excluded as before.
+
 ## [0.4.30.0] - 2026-07-23
 
 ### Added

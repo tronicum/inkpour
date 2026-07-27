@@ -899,6 +899,25 @@ path is one self-contained click handler (settings.js:138–162) building one
   already gated behind an opt-in toggle, which may have been the original
   intent), or (b) keep `debug/` dev-only and instead hide/disable these
   two Settings links whenever running from a packaged/installed build.
+  **Resolved (a)** — checked the actual size cost first: the git-tracked
+  debug/ files (fuzzer + pdf.js vendor bundle) total ~1.4MB against a
+  ~1.6MB non-debug shippable size, so shipping them roughly doubles the
+  package to ~3MB. Small enough, and the code only ever loads if someone
+  opts into Debug mode, so: narrowed `release.sh`'s exclude from the
+  blanket `"debug/*"` down to just the three personal/local-only fixtures
+  `.gitignore` already excludes from git itself (`debug/input/*`,
+  `debug/playonwords`, `debug/rendertest.pdf`) — those stay out (they're
+  real, private chat exports, never meant to leave Stefan's machine),
+  everything else in `debug/` now ships. Verified with a real
+  `bash scripts/release.sh` dry-run build + `unzip -l`: the fuzzer/vendor
+  files are in the zip, the personal fixtures are not.
+  Added a permanent regression test ("Release packaging — shipped files
+  match runtime references" in `test/run-jsdom.js`): scans
+  background.js/popup.js/settings.js/history.js for every
+  `api.runtime.getURL('...')` call, and fails if `release.sh`'s
+  `--exclude` patterns would strip out any referenced file — catches this
+  exact bug shape for any current or future getURL() reference, not just
+  these two links. Full suite: 303 passed, 0 failed.
 - [ ] **M — scoped, not started** N-up PDF support: can the PDF-import
   debug fuzzer (`debug/import-pdf-fuzzer.js`) handle a PDF where multiple
   logical pages are printed onto one physical landscape sheet at reduced

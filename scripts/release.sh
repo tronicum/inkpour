@@ -26,7 +26,9 @@ zip -r "${ZIP}" . \
   --exclude "node_modules/*" \
   --exclude "test/*" \
   --exclude "test-results/*" \
-  --exclude "debug/*" \
+  --exclude "debug/input/*" \
+  --exclude "debug/playonwords" \
+  --exclude "debug/rendertest.pdf" \
   --exclude "safari/*" \
   --exclude "scripts/*" \
   --exclude "planning/*" \
