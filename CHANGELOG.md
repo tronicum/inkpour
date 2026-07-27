@@ -14,6 +14,8 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+## [0.4.30.1] - 2026-07-27
+
 ### Fixed
 - Settings' "Import debug" and "PDF fuzzer" links were dead in every
   installed build — the release zip was accidentally excluding the whole
