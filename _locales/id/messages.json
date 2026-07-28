@@ -1036,6 +1036,15 @@
   "popupBtnReportBug": {
     "message": "Laporkan bug"
   },
+  "popupProbeAiModeBtnTitle": {
+    "message": "Mengisi prompt uji ke Google AI Mode untuk mendiagnosis alasan ekstraksi tidak menemukan pesan (khusus Google AI Mode)"
+  },
+  "popupBtnProbeAiMode": {
+    "message": "Uji AI Mode"
+  },
+  "popupStatusProbeStarted": {
+    "message": "Prompt uji telah diisi — tekan kirim di halaman. Setelah balasan tiba, laporan otomatis disalin ke clipboard."
+  },
   "popupBatchExportToggle": {
     "message": "📦 Ekspor massal percakapan sebelumnya…"
   },

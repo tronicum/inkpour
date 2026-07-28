@@ -1036,6 +1036,15 @@
   "popupBtnReportBug": {
     "message": "回報問題"
   },
+  "popupProbeAiModeBtnTitle": {
+    "message": "在 Google AI 模式中填入測試提示詞，以診斷擷取功能為何找不到訊息（僅限 Google AI 模式）"
+  },
+  "popupBtnProbeAiMode": {
+    "message": "診斷 AI 模式"
+  },
+  "popupStatusProbeStarted": {
+    "message": "測試提示詞已填入——請在頁面上按下傳送。收到回覆後，報告會自動複製到剪貼簿。"
+  },
   "popupBatchExportToggle": {
     "message": "📦 批次匯出過去的對話…"
   },

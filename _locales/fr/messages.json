@@ -1036,6 +1036,15 @@
   "popupBtnReportBug": {
     "message": "Signaler un bug"
   },
+  "popupProbeAiModeBtnTitle": {
+    "message": "Remplit une requête de test dans le mode IA de Google pour diagnostiquer pourquoi l'extraction ne trouve pas les messages (mode IA de Google uniquement)"
+  },
+  "popupBtnProbeAiMode": {
+    "message": "Tester le mode IA"
+  },
+  "popupStatusProbeStarted": {
+    "message": "Requête de test remplie — appuyez sur envoyer sur la page. Dès que la réponse arrive, le rapport est copié automatiquement dans le presse-papiers."
+  },
   "popupBatchExportToggle": {
     "message": "📦 Exporter en lot les conversations précédentes…"
   },

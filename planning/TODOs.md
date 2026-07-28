@@ -942,6 +942,77 @@ path is one self-contained click handler (settings.js:138–162) building one
   real N-up test fixture (an actual multi-page-per-sheet PDF export) before
   implementation — none exists in the repo yet.
 
+## Batch 12 — Google AI Mode probe (Debug mode tool, 2026-07)
+- [x] **M** Real bug report: Stefan tested extraction on a logged-in Google
+  AI Mode session (Fedora 42) and it "did not catch items" — likely a
+  DOM-shape difference between logged-in and logged-out sessions, on top
+  of AI Mode's selectors already having changed twice before (see the
+  existing `extractGoogleAiModeTurnsByGeometry` comments). Couldn't
+  reproduce directly — this sandbox has no Google login, Playwright's
+  Chromium download is still network-blocked here, and logging into an
+  account isn't something to automate regardless.
+  Brainstormed a fix-finding tool instead of guessing from a generic DOM
+  dump: fill a unique, known marker string into the query box, let the
+  known text tell us exactly which DOM elements to look at once it shows
+  up in the reply, rather than hunting through a real conversation by eye.
+  Scoped to two decisions before building: (1) semi-automated (auto-fill
+  the marker, a real person clicks send) over fully-automated (auto-fill
+  *and* auto-submit) — a synthetic submit risks the same silent no-op that
+  sank the synthetic-click approach for Claude Artifacts earlier this
+  project; a real click always works. (2) Google AI Mode only for now, not
+  a general "probe any site" tool — smallest surface to get right first.
+  Done — new Debug-mode popup button "Probe AI Mode" (next to "Copy debug
+  info"/"Report bug"):
+  - `src/content.js`: `startGoogleAiModeProbe()` validates the page is
+    actually AI Mode (`?udm=50`), finds a best-guess input box
+    (`findAiModeInputBox()` — Google exposes no stable documented hook for
+    this, so it's a prioritized selector-guess list), and fills a prompt
+    like "Reply with exactly this text and nothing else: INKPOUR-PROBE-
+    xxxxxx" via `fillProbeInput()` — the native-setter-plus-real-event
+    technique (plain `.value =` is silently ignored by React/Angular-style
+    UIs), the same class of technique that's reliable where synthetic
+    *clicks* aren't.
+  - Deliberately does **not** submit the query itself — see above.
+  - `watchForProbeMarker()` sets a `MutationObserver` on `document.body`
+    that fires once the marker text shows up anywhere on the page (no need
+    to know Google's send-button selector at all — sidesteps needing yet
+    another fragile hook), plus a 60s timeout. On success, walks up from
+    every text node containing the marker (`buildProbeReport()` /
+    `describeAncestorChain()`) and reports the tag/class/role/aria/jsname
+    chain around each — in a real turn this is exactly two matches (the
+    echoed query, then the AI's reply), which is what tells us both "user
+    turn" and "AI turn" shapes from one probe.
+  - **Popup-lifetime problem, solved**: the popup closes the instant you
+    click the actual page to press send, which would kill any pending
+    response the popup was waiting on. So the popup's click handler only
+    confirms the *fill* succeeded (fast, synchronous) and returns
+    immediately; the whole wait-for-reply-and-report part runs
+    independently inside the content script, unaffected by the popup's
+    lifetime, surfacing the result via `navigator.clipboard.writeText()` +
+    an in-page toast (both already proven to work from a non-click-handler
+    context elsewhere in this file) instead of a message response.
+  - 8 new executing JSDOM tests for the actual probe logic (marker-finding,
+    ancestor-chain description, truncated snippets, zero-match handling,
+    `maxLevels` bound) against a synthetic fixture with a known marker —
+    this is genuinely pure DOM logic and needed no live-page faking. Plus 2
+    structural tests for the popup wiring. 3 new i18n keys, translated to
+    all 26 locales. Full suite: 314 passed, 0 failed.
+  - **Not yet verified live** — same as every DOM-interacting tool in this
+    project, needs Stefan to actually run it against his logged-in Fedora
+    session to confirm the input-box heuristic finds the real box and the
+    reported chain matches reality.
+  - **Deliberately not built**: the bigger idea floated alongside this —
+    a "? messages not processed" in-page hint, guided debug capture with a
+    transparent redacted preview, and a pre-filled "submit to GitHub"
+    form (modeled on how github.com/OhMyGuus/I-Still-Dont-Care-About-Cookies
+    crowdsources broken-selector reports) — Stefan is reconsidering whether
+    it's worth it given how small the current user base is. Noting it here
+    rather than scoping it as an active backlog item; revisit if/when it
+    comes up again. (The existing "Report bug" button already covers a good
+    chunk of the same idea — pre-filled GitHub issue from a debug report,
+    optional secret-Gist attachment for the full payload — just without the
+    DOM-change-specific hint or a redaction-preview step.)
+
 ## Batch 9 — Distribution (XL; blocked on Stefan — accounts, fees, listing assets)
 - [x] **XL** Submit to Firefox Add-ons (AMO) + Chrome Web Store — in progress,
   Stefan is doing this directly (developer accounts, listing copy/screenshots,

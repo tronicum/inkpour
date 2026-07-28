@@ -1011,6 +1011,15 @@
   "popupBtnReportBug": {
     "message": "ਬੱਗ ਰਿਪੋਰਟ ਕਰੋ"
   },
+  "popupProbeAiModeBtnTitle": {
+    "message": "ਇਹ ਪਤਾ ਲਗਾਉਣ ਲਈ ਕਿ ਐਕਸਟਰੈਕਸ਼ਨ ਨੂੰ ਮੈਸੇਜ ਕਿਉਂ ਨਹੀਂ ਮਿਲ ਰਹੇ, Google AI Mode ਵਿੱਚ ਇੱਕ ਟੈਸਟ ਪ੍ਰੌਂਪਟ ਭਰਦਾ ਹੈ (ਸਿਰਫ਼ Google AI Mode ਲਈ)"
+  },
+  "popupBtnProbeAiMode": {
+    "message": "AI Mode ਜਾਂਚੋ"
+  },
+  "popupStatusProbeStarted": {
+    "message": "ਟੈਸਟ ਪ੍ਰੌਂਪਟ ਭਰ ਦਿੱਤਾ ਗਿਆ ਹੈ — ਪੇਜ 'ਤੇ ਭੇਜੋ ਦਬਾਓ। ਜਵਾਬ ਆਉਂਦੇ ਹੀ ਰਿਪੋਰਟ ਆਪਣੇ-ਆਪ ਕਲਿੱਪਬੋਰਡ ਵਿੱਚ ਕਾਪੀ ਹੋ ਜਾਵੇਗੀ।"
+  },
   "popupBatchExportToggle": {
     "message": "📦 ਪਿਛਲੀਆਂ ਗੱਲਬਾਤਾਂ ਬੈਚ ਐਕਸਪੋਰਟ ਕਰੋ…"
   },

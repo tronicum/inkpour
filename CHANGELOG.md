@@ -14,6 +14,11 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+### Added
+- Debug mode: a "Probe AI Mode" button that fills a test prompt into
+  Google AI Mode and reports which page elements end up wrapping it —
+  for diagnosing why extraction sometimes finds nothing there.
+
 ## [0.4.30.1] - 2026-07-27
 
 ### Fixed

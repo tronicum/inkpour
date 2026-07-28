@@ -1036,6 +1036,15 @@
   "popupBtnReportBug": {
     "message": "Báo cáo lỗi"
   },
+  "popupProbeAiModeBtnTitle": {
+    "message": "Điền một câu lệnh thử nghiệm vào Google AI Mode để chẩn đoán lý do trích xuất không tìm thấy tin nhắn (chỉ dành cho Google AI Mode)"
+  },
+  "popupBtnProbeAiMode": {
+    "message": "Kiểm tra AI Mode"
+  },
+  "popupStatusProbeStarted": {
+    "message": "Đã điền câu lệnh thử nghiệm — hãy nhấn gửi trên trang. Ngay khi có phản hồi, báo cáo sẽ tự động được sao chép vào khay nhớ tạm."
+  },
   "popupBatchExportToggle": {
     "message": "📦 Xuất hàng loạt các cuộc trò chuyện trước đây…"
   },

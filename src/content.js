@@ -2073,6 +2073,9 @@
   if (typeof window !== 'undefined' && window.__inkpourTestHostname !== undefined) {
     window.__inkpourHtmlToMarkdown = htmlToMarkdown;
     window.__inkpourGetConversationList = getConversationList;
+    window.__inkpourDescribeAncestorChain = describeAncestorChain;
+    window.__inkpourBuildProbeReport = buildProbeReport;
+    window.__inkpourFindAiModeInputBox = findAiModeInputBox;
   }
 
   // ─── In-page toast notification ───────────────────────────────────────────
@@ -2235,6 +2238,218 @@
     };
   }
 
+  // ─── Google AI Mode probe (Debug mode) ─────────────────────────────────────
+  // Diagnosing extraction breakage from a generic full-page DOM skeleton
+  // means hunting through a real conversation for the right nodes by eye.
+  // This is more surgical: fill a known marker string into the query box, wait
+  // for it to show up in the page (once you press send yourself — this tool
+  // deliberately never submits for you, see the comment on watchForProbeMarker
+  // below for why), then report the exact tag/class/role/aria chain wrapping
+  // every place that marker landed. Since the marker is unique, whichever
+  // occurrences show up ARE the current "user turn" and "AI turn" DOM shapes —
+  // no guessing, and it self-heals across Google's own markup changes instead
+  // of needing a person to notice and go digging every time.
+  //
+  // Scoped to Google AI Mode only for now (that's the platform with an actual
+  // reported bug — logged-in sessions apparently render differently enough
+  // that extraction finds nothing). Generalizing to every supported site is a
+  // reasonable follow-up once this shape is proven, not before.
+
+  /** Best-effort search box finder — Google doesn't expose a stable, documented
+   *  hook for this, so this is a prioritized guess list, most-specific first. */
+  function findAiModeInputBox() {
+    const candidates = [
+      'textarea[aria-label]',
+      '[contenteditable="true"][role="textbox"]',
+      'textarea',
+      '[contenteditable="true"]',
+      'input[type="text"]',
+    ];
+    for (const sel of candidates) {
+      const el = Array.from(document.querySelectorAll(sel)).find(isVisibleForExtraction);
+      if (el) return el;
+    }
+    return null;
+  }
+
+  /** Sets text into a real <textarea>/<input> or a contenteditable box using
+   *  the framework-safe "native setter + dispatch a real event" technique —
+   *  a plain `el.value = x` is silently ignored by React/Angular-style UIs
+   *  (they only listen for actual input events), which is exactly the kind
+   *  of thing that made synthetic clicks a dead end for Claude Artifacts
+   *  earlier — text input via the native setter is a much more reliable
+   *  technique than synthetic clicks are, which is why this tool fills the
+   *  box this way but still leaves the actual *submit* step to a real user
+   *  action (see watchForProbeMarker). */
+  function fillProbeInput(el, text) {
+    el.focus();
+    const tag = el.tagName.toLowerCase();
+    if (tag === 'textarea' || tag === 'input') {
+      const proto  = tag === 'textarea' ? window.HTMLTextAreaElement.prototype : window.HTMLInputElement.prototype;
+      const setter = Object.getOwnPropertyDescriptor(proto, 'value').set;
+      setter.call(el, text);
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    } else {
+      el.textContent = text;
+      el.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText', data: text }));
+    }
+  }
+
+  /** Walks up from a node capturing tag/class/safe-attrs at each level — same
+   *  "safe" filtering as buildDomSkeleton's safeAttrs, plus jsname (Google's
+   *  own stable-ish hook, already referenced by the legacy AI Mode selectors
+   *  above) since that's exactly the kind of attribute this tool exists to
+   *  surface. */
+  function describeAncestorChain(el, maxLevels) {
+    const chain = [];
+    let node = el;
+    let levels = 0;
+    while (node && node.nodeType === Node.ELEMENT_NODE && levels < maxLevels) {
+      const tag = node.tagName.toLowerCase();
+      const cls = (typeof node.className === 'string' && node.className.trim())
+        ? '.' + node.className.trim().split(/\s+/).slice(0, 6).join('.')
+        : '';
+      const attrs = [];
+      for (const attr of node.attributes) {
+        if (attr.name === 'class') continue;
+        if (!/^(data-|aria-|role$|id$|jsname$)/i.test(attr.name)) continue;
+        const looksSafe = attr.value.length <= 40 && !/\s{2,}|[.!?](?:\s|$)/.test(attr.value);
+        attrs.push(looksSafe && attr.value ? `${attr.name}="${attr.value}"` : attr.name);
+      }
+      chain.push(`<${tag}${cls}${attrs.length ? ' ' + attrs.join(' ') : ''}>`);
+      node = node.parentElement;
+      levels++;
+    }
+    return chain;
+  }
+
+  /** Finds every text node containing the marker and reports the DOM chain
+   *  around each — in a real AI Mode turn there should be exactly two: the
+   *  echoed query (since the prompt itself contains the marker) and the AI's
+   *  reply, in that DOM order, which is what tells us both "user turn" and
+   *  "AI turn" shapes from a single marker. */
+  function buildProbeReport(marker, prompt) {
+    const matches = [];
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node = walker.nextNode()) && matches.length < 6) {
+      const text = node.textContent;
+      if (!text || !text.includes(marker)) continue;
+      const idx = text.indexOf(marker);
+      const start = Math.max(0, idx - 20);
+      const end = Math.min(text.length, idx + marker.length + 20);
+      matches.push({
+        snippet:       (start > 0 ? '…' : '') + text.slice(start, end).trim() + (end < text.length ? '…' : ''),
+        ancestorChain: describeAncestorChain(node.parentElement, 10),
+      });
+    }
+    return {
+      url:              sanitizeUrlForDebug(location.href),
+      detectedPlatform: detectSite(),
+      timestamp:        new Date().toISOString(),
+      marker,
+      promptSent:       prompt,
+      matchesFound:     matches.length,
+      matches,
+    };
+  }
+
+  function formatProbeReportForClipboard(report) {
+    const lines = [
+      'Inkpour — Google AI Mode probe',
+      `URL: ${report.url.hostname}${report.url.path}`,
+      `Timestamp: ${report.timestamp}`,
+      `Marker: ${report.marker}`,
+      `Prompt sent: ${report.promptSent}`,
+      `Matches found: ${report.matchesFound}`,
+      '',
+    ];
+    report.matches.forEach((m, i) => {
+      lines.push(`--- Match ${i + 1} ---`);
+      lines.push(`Text: ${m.snippet}`);
+      lines.push('DOM chain (innermost → outermost):');
+      m.ancestorChain.forEach((c) => lines.push(`  ${c}`));
+      lines.push('');
+    });
+    if (!report.matches.length) {
+      lines.push('(no matches — the marker never showed up anywhere on the page)');
+    }
+    return lines.join('\n');
+  }
+
+  /** Waits for the marker to land, then copies the report to the clipboard
+   *  and shows an in-page toast — deliberately NOT something the popup
+   *  awaits (see startGoogleAiModeProbe's message handler): the popup closes
+   *  the instant you click anywhere on the actual page to press send, which
+   *  would tear down any pending response callback along with it. Running
+   *  entirely here in the content script, independent of the popup's
+   *  lifetime, and surfacing the result via clipboard + an in-page toast
+   *  (both of which already work today from a non-click-handler context —
+   *  see the 'copyToClipboard' message handler below) sidesteps that
+   *  entirely. */
+  function watchForProbeMarker(marker, prompt) {
+    const TIMEOUT_MS = 60000;
+    let settled = false;
+
+    function finish(result, err) {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeoutId);
+      observer.disconnect();
+      if (err) {
+        showToast(`Inkpour probe: ${err.message}`, 'error');
+        return;
+      }
+      const text = formatProbeReportForClipboard(result);
+      navigator.clipboard.writeText(text)
+        .then(() => showToast('Inkpour probe complete — report copied to clipboard.', 'success'))
+        .catch(() => showToast('Inkpour probe complete, but could not copy automatically — check the console (window.__inkpourLastProbe).', 'warning'));
+      window.__inkpourLastProbe = result; // last-resort manual fallback, see above
+    }
+
+    const timeoutId = setTimeout(() => {
+      finish(null, new Error(`timed out after ${TIMEOUT_MS / 1000}s waiting for the reply — did you press send?`));
+    }, TIMEOUT_MS);
+
+    const observer = new MutationObserver(() => {
+      if (settled || !document.body.textContent.includes(marker)) return;
+      // Give the DOM a beat to finish rendering the rest of the turn before
+      // walking it, rather than reacting to the very first partial mutation.
+      setTimeout(() => {
+        try { finish(buildProbeReport(marker, prompt)); }
+        catch (err) { finish(null, err); }
+      }, 500);
+    });
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+  }
+
+  /** Kicks the probe off: validates the page, fills the marker prompt into
+   *  the query box, and hands off to watchForProbeMarker. Deliberately does
+   *  NOT submit the query itself — auto-filling text via the native setter
+   *  is reliable (see fillProbeInput), but synthesizing the actual send
+   *  action would mean either faking a click (already proven unreliable for
+   *  React-style UIs elsewhere in this codebase, see the Claude Artifacts
+   *  investigation notes in TODOs.md) or hard-coding yet another Google
+   *  selector for the send button — exactly the kind of fragile dependency
+   *  this tool exists to avoid needing. A real keypress/click from you is
+   *  both simpler and more reliable. */
+  function startGoogleAiModeProbe(customMarker) {
+    const sp = new URLSearchParams(location.search);
+    if (detectSite() !== 'googlesearch' || sp.get('udm') !== '50') {
+      throw new Error('This probe only works on a Google AI Mode page (google.com/search?udm=50).');
+    }
+    const input = findAiModeInputBox();
+    if (!input) {
+      throw new Error("Could not find a query input box on this page — Google's AI Mode markup may have changed.");
+    }
+    const marker = customMarker || `INKPOUR-PROBE-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+    const prompt = `Reply with exactly this text and nothing else, no punctuation, no extra words: ${marker}`;
+    fillProbeInput(input, prompt);
+    watchForProbeMarker(marker, prompt);
+    return { marker, prompt };
+  }
+
   // ─── Message listener ─────────────────────────────────────────────────────
 
   // Chrome requires the sendResponse + return true pattern for async handlers.
@@ -2243,6 +2458,19 @@
     if (msg.action === 'debugDom') {
       try {
         sendResponse({ report: buildDebugReport() });
+      } catch (err) {
+        sendResponse({ error: err.message });
+      }
+      return;
+    }
+
+    // Kicks off the AI Mode probe and responds immediately (just "did the
+    // fill succeed"), deliberately not waiting for the actual reply — see
+    // watchForProbeMarker's comment on why the popup can't stay around for
+    // that part.
+    if (msg.action === 'startAiModeProbe') {
+      try {
+        sendResponse(startGoogleAiModeProbe(msg.marker));
       } catch (err) {
         sendResponse({ error: err.message });
       }

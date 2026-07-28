@@ -1036,6 +1036,15 @@
   "popupBtnReportBug": {
     "message": "Zgłoś błąd"
   },
+  "popupProbeAiModeBtnTitle": {
+    "message": "Wypełnia testowe zapytanie w Google AI Mode, aby zdiagnozować, dlaczego ekstrakcja nie znajduje wiadomości (tylko Google AI Mode)"
+  },
+  "popupBtnProbeAiMode": {
+    "message": "Testuj AI Mode"
+  },
+  "popupStatusProbeStarted": {
+    "message": "Testowe zapytanie zostało wypełnione — naciśnij wyślij na stronie. Gdy tylko nadejdzie odpowiedź, raport zostanie automatycznie skopiowany do schowka."
+  },
   "popupBatchExportToggle": {
     "message": "📦 Eksportuj masowo poprzednie rozmowy…"
   },

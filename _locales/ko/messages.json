@@ -1036,6 +1036,15 @@
   "popupBtnReportBug": {
     "message": "버그 신고"
   },
+  "popupProbeAiModeBtnTitle": {
+    "message": "추출이 메시지를 찾지 못하는 이유를 진단하기 위해 Google AI 모드에 테스트 프롬프트를 입력합니다 (Google AI 모드 전용)"
+  },
+  "popupBtnProbeAiMode": {
+    "message": "AI 모드 진단"
+  },
+  "popupStatusProbeStarted": {
+    "message": "테스트 프롬프트를 입력했습니다 — 페이지에서 전송 버튼을 누르세요. 답변이 도착하면 보고서가 자동으로 클립보드에 복사됩니다."
+  },
   "popupBatchExportToggle": {
     "message": "📦 이전 채팅 일괄 내보내기…"
   },

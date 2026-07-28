@@ -1036,6 +1036,15 @@
   "popupBtnReportBug": {
     "message": "バグを報告"
   },
+  "popupProbeAiModeBtnTitle": {
+    "message": "抽出でメッセージが見つからない原因を診断するため、Google AI モードにテスト用プロンプトを入力します（Google AI モード専用）"
+  },
+  "popupBtnProbeAiMode": {
+    "message": "AI モードを診断"
+  },
+  "popupStatusProbeStarted": {
+    "message": "テスト用プロンプトを入力しました。ページ上で送信ボタンを押してください。返信が届くと、レポートが自動的にクリップボードにコピーされます。"
+  },
   "popupBatchExportToggle": {
     "message": "📦 過去のチャットを一括エクスポート…"
   },

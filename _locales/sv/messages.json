@@ -1036,6 +1036,15 @@
   "popupBtnReportBug": {
     "message": "Rapportera bugg"
   },
+  "popupProbeAiModeBtnTitle": {
+    "message": "Fyller i en testprompt i Googles AI-läge för att diagnostisera varför extraheringen inte hittar meddelanden (endast Googles AI-läge)"
+  },
+  "popupBtnProbeAiMode": {
+    "message": "Testa AI-läge"
+  },
+  "popupStatusProbeStarted": {
+    "message": "Testprompt ifylld — tryck på skicka på sidan. Så snart svaret kommer kopieras rapporten automatiskt till urklipp."
+  },
   "popupBatchExportToggle": {
     "message": "📦 Massexportera tidigare konversationer…"
   },

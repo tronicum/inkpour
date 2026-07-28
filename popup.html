@@ -657,6 +657,16 @@
       <div class="spinner"></div>
       <span data-i18n="popupBtnReportBug">Report bug</span>
     </button>
+    <!-- Google AI Mode only for now — fills a unique test prompt into the
+         query box; you press send yourself, then the content script reports
+         (via clipboard + an in-page toast, not back through this popup,
+         which closes the moment you click the actual page) exactly which
+         DOM elements ended up wrapping it. See src/content.js's
+         startGoogleAiModeProbe for why. -->
+    <button class="btn copy-btn" id="probeAiModeBtn" data-i18n-title="popupProbeAiModeBtnTitle" title="Fill a test prompt into Google AI Mode to diagnose why extraction isn't finding messages (Google AI Mode only)">
+      <div class="spinner"></div>
+      <span data-i18n="popupBtnProbeAiMode">Probe AI Mode</span>
+    </button>
   </div>
 
   <div id="status"></div>

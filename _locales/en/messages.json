@@ -567,6 +567,9 @@
   "popupStatusDomCopied": { "message": "✓ Debug info copied to clipboard" },
   "popupReportBugBtnTitle": { "message": "Report a bug on GitHub (no chat content included)" },
   "popupBtnReportBug": { "message": "Report bug" },
+  "popupProbeAiModeBtnTitle": { "message": "Fill a test prompt into Google AI Mode to diagnose why extraction isn't finding messages (Google AI Mode only)" },
+  "popupBtnProbeAiMode": { "message": "Probe AI Mode" },
+  "popupStatusProbeStarted": { "message": "Test prompt filled in — press send on the page. Once the reply arrives, the report copies to your clipboard automatically." },
   "settingsSectionExport": {
     "message": "Export"
   },

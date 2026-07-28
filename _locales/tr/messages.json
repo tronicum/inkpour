@@ -1036,6 +1036,15 @@
   "popupBtnReportBug": {
     "message": "Hata bildir"
   },
+  "popupProbeAiModeBtnTitle": {
+    "message": "Ayıklamanın neden mesaj bulamadığını teşhis etmek için Google AI Mode'a bir test istemi doldurur (yalnızca Google AI Mode)"
+  },
+  "popupBtnProbeAiMode": {
+    "message": "AI Mode'u test et"
+  },
+  "popupStatusProbeStarted": {
+    "message": "Test istemi dolduruldu — sayfada gönder'e basın. Yanıt geldiğinde rapor otomatik olarak panoya kopyalanır."
+  },
   "popupBatchExportToggle": {
     "message": "📦 Geçmiş sohbetleri toplu dışa aktar…"
   },
