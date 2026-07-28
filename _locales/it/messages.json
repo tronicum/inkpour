@@ -1036,6 +1036,15 @@
   "popupBtnReportBug": {
     "message": "Segnala un bug"
   },
+  "popupProbeAiModeBtnTitle": {
+    "message": "Compila un prompt di prova in Google AI Mode per capire perché l'estrazione non trova i messaggi (solo Google AI Mode)"
+  },
+  "popupBtnProbeAiMode": {
+    "message": "Prova AI Mode"
+  },
+  "popupStatusProbeStarted": {
+    "message": "Prompt di prova inserito: premi invio nella pagina. Non appena arriva la risposta, il report viene copiato automaticamente negli appunti."
+  },
   "popupBatchExportToggle": {
     "message": "📦 Esporta in blocco le conversazioni precedenti…"
   },

@@ -1036,6 +1036,15 @@
   "popupBtnReportBug": {
     "message": "Bug melden"
   },
+  "popupProbeAiModeBtnTitle": {
+    "message": "Vult een testprompt in bij Google AI-modus om te achterhalen waarom extractie geen berichten vindt (alleen Google AI-modus)"
+  },
+  "popupBtnProbeAiMode": {
+    "message": "AI-modus testen"
+  },
+  "popupStatusProbeStarted": {
+    "message": "Testprompt ingevuld — druk op de pagina op verzenden. Zodra het antwoord binnenkomt, wordt het rapport automatisch naar het klembord gekopieerd."
+  },
   "popupBatchExportToggle": {
     "message": "📦 Eerdere gesprekken in bulk exporteren…"
   },

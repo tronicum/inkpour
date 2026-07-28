@@ -24,6 +24,7 @@
   const debugGroupEl = document.getElementById('debug-group');
   const debugDomBtn  = document.getElementById('debugDomBtn');
   const reportBugBtn = document.getElementById('reportBugBtn');
+  const probeAiModeBtn = document.getElementById('probeAiModeBtn');
   const allBtn      = document.getElementById('allBtn');
   const exportSelectBtn    = document.getElementById('exportSelectBtn');
   const exportSelectedLabel = document.getElementById('exportSelectedLabel');
@@ -1350,6 +1351,35 @@
       setStatus(err.message, 'error');
     } finally {
       setLoading(reportBugBtn, false);
+    }
+  });
+
+  // Fires off the AI Mode DOM probe (see src/content.js's
+  // startGoogleAiModeProbe/watchForProbeMarker for the full design and why
+  // this deliberately doesn't wait for the actual reply): this only confirms
+  // the marker prompt was filled into the query box. The eventual report
+  // (once you press send and the AI replies) arrives via clipboard + an
+  // in-page toast on the actual tab, not back through this popup — the popup
+  // closes the instant you click the page to hit send, which would tear
+  // down any pending response here along with it.
+  probeAiModeBtn?.addEventListener('click', async () => {
+    clearStatus();
+    setLoading(probeAiModeBtn, true);
+    try {
+      let tab;
+      try {
+        [tab] = await api.tabs.query({ active: true, currentWindow: true });
+      } catch {
+        throw new Error(t('popupStatusCannotAccessTab'));
+      }
+      const response = await api.tabs.sendMessage(tab.id, { action: 'startAiModeProbe' }).catch(() => null);
+      if (!response) throw new Error(t('popupStatusRefreshTab'));
+      if (response.error) throw new Error(response.error);
+      setStatus(t('popupStatusProbeStarted'), 'success');
+    } catch (err) {
+      setStatus(err.message, 'error');
+    } finally {
+      setLoading(probeAiModeBtn, false);
     }
   });
 

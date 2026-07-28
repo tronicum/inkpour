@@ -1036,6 +1036,15 @@
   "popupBtnReportBug": {
     "message": "الإبلاغ عن خطأ"
   },
+  "popupProbeAiModeBtnTitle": {
+    "message": "تعبئة رسالة اختبارية في Google AI Mode لتشخيص سبب عدم عثور الاستخراج على الرسائل (خاص بـ Google AI Mode فقط)"
+  },
+  "popupBtnProbeAiMode": {
+    "message": "فحص Google AI Mode"
+  },
+  "popupStatusProbeStarted": {
+    "message": "تم ملء الرسالة الاختبارية — اضغط زر الإرسال في الصفحة. بمجرد وصول الرد، يُنسخ التقرير تلقائيًا إلى الحافظة."
+  },
   "popupBatchExportToggle": {
     "message": "📦 تصدير دفعي للمحادثات السابقة…"
   },

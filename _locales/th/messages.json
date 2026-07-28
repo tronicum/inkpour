@@ -1036,6 +1036,15 @@
   "popupBtnReportBug": {
     "message": "รายงานข้อบกพร่อง"
   },
+  "popupProbeAiModeBtnTitle": {
+    "message": "กรอกพรอมป์ททดสอบลงใน Google AI Mode เพื่อวินิจฉัยว่าทำไมการดึงข้อมูลจึงหาข้อความไม่พบ (เฉพาะ Google AI Mode เท่านั้น)"
+  },
+  "popupBtnProbeAiMode": {
+    "message": "ทดสอบ AI Mode"
+  },
+  "popupStatusProbeStarted": {
+    "message": "กรอกพรอมป์ททดสอบแล้ว — กดส่งบนหน้าเพจ เมื่อคำตอบมาถึง รายงานจะถูกคัดลอกไปยังคลิปบอร์ดโดยอัตโนมัติ"
+  },
   "popupBatchExportToggle": {
     "message": "📦 ส่งออกบทสนทนาที่ผ่านมาเป็นชุด…"
   },

@@ -1011,6 +1011,15 @@
   "popupBtnReportBug": {
     "message": "Nahlásit chybu"
   },
+  "popupProbeAiModeBtnTitle": {
+    "message": "Vyplní testovací dotaz do Google AI Mode a zjistí, proč extrakce nenachází zprávy (pouze Google AI Mode)"
+  },
+  "popupBtnProbeAiMode": {
+    "message": "Otestovat AI Mode"
+  },
+  "popupStatusProbeStarted": {
+    "message": "Testovací dotaz byl vyplněn — na stránce stiskněte Odeslat. Jakmile dorazí odpověď, report se automaticky zkopíruje do schránky."
+  },
   "popupBatchExportToggle": {
     "message": "📦 Hromadný export minulých konverzací…"
   },

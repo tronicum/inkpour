@@ -1036,6 +1036,15 @@
   "popupBtnReportBug": {
     "message": "বাগ রিপোর্ট করুন"
   },
+  "popupProbeAiModeBtnTitle": {
+    "message": "নিষ্কাশন কেন বার্তা খুঁজে পাচ্ছে না তা নির্ণয় করতে Google AI Mode-এ একটি পরীক্ষামূলক প্রম্পট পূরণ করে (শুধু Google AI Mode-এর জন্য)"
+  },
+  "popupBtnProbeAiMode": {
+    "message": "AI Mode পরীক্ষা করুন"
+  },
+  "popupStatusProbeStarted": {
+    "message": "পরীক্ষামূলক প্রম্পট পূরণ করা হয়েছে — পেজে সেন্ড চাপুন। উত্তর এলে রিপোর্ট স্বয়ংক্রিয়ভাবে ক্লিপবোর্ডে কপি হয়ে যাবে।"
+  },
   "popupBatchExportToggle": {
     "message": "📦 পূর্ববর্তী কথোপকথন ব্যাচ এক্সপোর্ট করুন…"
   },

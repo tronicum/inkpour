@@ -1036,6 +1036,15 @@
   "popupBtnReportBug": {
     "message": "बग रिपोर्ट करें"
   },
+  "popupProbeAiModeBtnTitle": {
+    "message": "यह पता लगाने के लिए कि एक्सट्रैक्शन को मैसेज क्यों नहीं मिल रहे, Google AI मोड में एक टेस्ट प्रॉम्प्ट भरता है (सिर्फ़ Google AI मोड के लिए)"
+  },
+  "popupBtnProbeAiMode": {
+    "message": "AI मोड जांचें"
+  },
+  "popupStatusProbeStarted": {
+    "message": "टेस्ट प्रॉम्प्ट भर दिया गया है — पेज पर सेंड दबाएं। जवाब आते ही रिपोर्ट अपने आप क्लिपबोर्ड पर कॉपी हो जाएगी।"
+  },
   "popupBatchExportToggle": {
     "message": "📦 पिछली बातचीत को बैच में एक्सपोर्ट करें…"
   },

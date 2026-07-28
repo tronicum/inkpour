@@ -1036,6 +1036,15 @@
   "popupBtnReportBug": {
     "message": "Сообщить об ошибке"
   },
+  "popupProbeAiModeBtnTitle": {
+    "message": "Заполняет тестовый запрос в Google AI Mode, чтобы выяснить, почему извлечение не находит сообщения (только для Google AI Mode)"
+  },
+  "popupBtnProbeAiMode": {
+    "message": "Проверить AI Mode"
+  },
+  "popupStatusProbeStarted": {
+    "message": "Тестовый запрос заполнен — нажмите «Отправить» на странице. Как только придёт ответ, отчёт автоматически скопируется в буфер обмена."
+  },
   "popupBatchExportToggle": {
     "message": "📦 Пакетный экспорт прошлых переписок…"
   },

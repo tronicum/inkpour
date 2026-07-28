@@ -867,6 +867,88 @@ async function main() {
     });
   });
 
+  // ── Google AI Mode probe (Debug mode tool) ──────────────────────────────
+  // The live parts (filling a real Google search box, waiting on a
+  // MutationObserver for an actual AI reply, clipboard writes) need a real
+  // logged-in session and can't run here — same reason this project's other
+  // extractors get live-tested on Stefan's own accounts rather than faked.
+  // What IS pure DOM logic, and so IS tested here: given a page with a known
+  // marker string buried somewhere in it, does the tool find every
+  // occurrence and correctly describe the element chain wrapping each one.
+  await suite('Google AI Mode probe — buildProbeReport / describeAncestorChain', async () => {
+    const dom = new JSDOM(`<!DOCTYPE html><body>
+      <div class="query-turn" role="heading" aria-level="2">
+        <span data-testid="user-query">Reply with exactly this text and nothing else, no punctuation, no extra words: INKPOUR-PROBE-ABC123</span>
+      </div>
+      <div class="answer-turn" jsname="rfDRyf">
+        <div class="prose">INKPOUR-PROBE-ABC123</div>
+      </div>
+    </body>`, { url: 'https://www.google.com/search?q=test&udm=50', runScripts: 'dangerously' });
+    dom.window.__inkpourTestHostname = 'www.google.com';
+    dom.window.HTMLElement.prototype.scrollTo = function () {};
+    dom.window.document.documentElement.scrollTo = function () {};
+    const ls = [];
+    dom.window.browser = { runtime: { onMessage: { addListener: fn => ls.push(fn) }, id: 't' }, i18n: mockI18n() };
+    dom.window.chrome  = dom.window.browser;
+    const s = dom.window.document.createElement('script');
+    s.textContent = CONTENT_JS;
+    dom.window.document.body.appendChild(s);
+    await new Promise(r => setTimeout(r, 50));
+
+    const buildProbeReport       = dom.window.__inkpourBuildProbeReport;
+    const describeAncestorChain  = dom.window.__inkpourDescribeAncestorChain;
+    const findAiModeInputBox     = dom.window.__inkpourFindAiModeInputBox;
+
+    await test('probe helpers are exposed for testing', () => {
+      assert(typeof buildProbeReport === 'function', '__inkpourBuildProbeReport not exposed');
+      assert(typeof describeAncestorChain === 'function', '__inkpourDescribeAncestorChain not exposed');
+      assert(typeof findAiModeInputBox === 'function', '__inkpourFindAiModeInputBox not exposed');
+    });
+
+    await test('finds both the echoed query and the AI reply containing the marker', () => {
+      const report = buildProbeReport('INKPOUR-PROBE-ABC123', 'Reply with exactly this text…');
+      assert(report.matchesFound === 2, `expected 2 matches, got ${report.matchesFound}: ${JSON.stringify(report.matches)}`);
+    });
+
+    await test('reports the DOM chain wrapping the query turn (role=heading, aria-level=2)', () => {
+      const report = buildProbeReport('INKPOUR-PROBE-ABC123', 'x');
+      const queryMatch = report.matches[0];
+      const chainStr = queryMatch.ancestorChain.join(' ');
+      assert(/data-testid="user-query"/.test(chainStr), `expected data-testid in chain: ${chainStr}`);
+      assert(/role="heading"/.test(chainStr) && /aria-level="2"/.test(chainStr), `expected role/aria-level in chain: ${chainStr}`);
+    });
+
+    await test('reports the DOM chain wrapping the AI answer turn (jsname preserved)', () => {
+      const report = buildProbeReport('INKPOUR-PROBE-ABC123', 'x');
+      const answerMatch = report.matches[1];
+      const chainStr = answerMatch.ancestorChain.join(' ');
+      assert(/jsname="rfDRyf"/.test(chainStr), `expected jsname in chain: ${chainStr}`);
+      assert(/\.prose/.test(chainStr), `expected .prose class in chain: ${chainStr}`);
+    });
+
+    await test('snippet is truncated context around the marker, not the full text node', () => {
+      const report = buildProbeReport('INKPOUR-PROBE-ABC123', 'x');
+      assert(report.matches[0].snippet.includes('INKPOUR-PROBE-ABC123'), 'snippet missing the marker itself');
+      assert(report.matches[0].snippet.length < 100, `snippet unexpectedly long: ${report.matches[0].snippet.length} chars`);
+    });
+
+    await test('reports zero matches (not a throw) when the marker never appears', () => {
+      const report = buildProbeReport('SOME-MARKER-THAT-IS-NOT-ON-THE-PAGE', 'x');
+      assert(report.matchesFound === 0, `expected 0 matches, got ${report.matchesFound}`);
+      assert(Array.isArray(report.matches) && report.matches.length === 0, 'expected an empty matches array');
+    });
+
+    await test('describeAncestorChain stops at maxLevels', () => {
+      const deepest = dom.window.document.querySelector('[data-testid="user-query"]');
+      const chain = describeAncestorChain(deepest, 2);
+      assert(chain.length === 2, `expected exactly 2 levels, got ${chain.length}: ${JSON.stringify(chain)}`);
+    });
+
+    await test('findAiModeInputBox finds nothing on a page with no input at all', () => {
+      assert(findAiModeInputBox() === null, 'expected null when no textarea/contenteditable/input exists');
+    });
+  });
+
   // ── buildMarkdown (from src/utils.js) ────────────────────────────────────
   await suite('buildMarkdown', async () => {
     const msgs = [
@@ -2228,6 +2310,33 @@ async function main() {
       'expected the githubToken gate to show/hide #gistMenuOption');
     assert(/notionMenuOption.*userSettings\.notionToken/.test(POPUP_JS) || /userSettings\.notionToken.*notionMenuOption/.test(POPUP_JS),
       'expected the notionToken gate to show/hide #notionMenuOption');
+  });
+
+  // ─── Google AI Mode probe button (popup wiring) ────────────────────────────
+  // popup.js/popup.html structural checks only (see the note at the top of
+  // this file on why those two aren't executed directly). The core probe
+  // logic itself (buildProbeReport/describeAncestorChain/findAiModeInputBox)
+  // has its own real, executing test suite above ("Google AI Mode probe —
+  // buildProbeReport / describeAncestorChain").
+  console.log('\nGoogle AI Mode probe button (popup wiring)');
+
+  await test('probe button exists inside #debug-group, alongside the other debug tools', () => {
+    const btn = POPUP_DOM.getElementById('probeAiModeBtn');
+    const debugGroup = POPUP_DOM.getElementById('debug-group');
+    assert(btn, '#probeAiModeBtn missing from popup.html');
+    assert(debugGroup.contains(btn), '#probeAiModeBtn should be inside #debug-group (only shown when Debug mode is on)');
+  });
+
+  await test('clicking it only confirms the fill succeeded — it does not await the actual reply', () => {
+    assert(/action:\s*'startAiModeProbe'/.test(POPUP_JS),
+      "expected popup.js to send {action: 'startAiModeProbe'} to the content script");
+    // The whole point of this design (see content.js's watchForProbeMarker
+    // comment) is that the popup can close mid-probe without losing
+    // anything — so its handler must not be waiting on the probe's eventual
+    // MutationObserver-driven result, just the synchronous "did the fill
+    // work" response.
+    assert(!/probeAiModeBtn[\s\S]{0,400}await new Promise/.test(POPUP_JS),
+      "popup.js's probe handler should not be awaiting the long-running part of the probe");
   });
 
   // ─── Toolbar icon — bigger supported-site signal ─────────────────────────
