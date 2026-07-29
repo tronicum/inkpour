@@ -2582,6 +2582,42 @@ async function main() {
       'release.yml has its own "zip -r" command again — zip-building logic should live only in scripts/release.sh');
   });
 
+  // ─── Midnight Snapshot — throwaway build artifacts, not real releases ─────
+  // A snapshot's whole point is to be quick and disposable: no store
+  // submission, no GitHub Release, no "tag must match manifest.json
+  // version" gate (its version is deliberately just <date>-<sha>-snapshot,
+  // decoupled from the real scheme). These tests guard against any of
+  // release.yml's real-release ceremony creeping in here by copy-paste.
+  console.log('\nMidnight Snapshot workflow (structure)');
+
+  const SNAPSHOT_YML_PATH = path.resolve(__dirname, '../.github/workflows/midnight-snapshot.yml');
+  const SNAPSHOT_YML = fs.readFileSync(SNAPSHOT_YML_PATH, 'utf8');
+
+  await test('builds the zip via scripts/release.sh (same single source of truth as release.yml)', () => {
+    assert(/bash scripts\/release\.sh/.test(SNAPSHOT_YML),
+      'expected the snapshot workflow to call scripts/release.sh');
+    assert(!/zip -r/.test(SNAPSHOT_YML), 'snapshot workflow should not hand-roll its own zip command');
+  });
+
+  await test('triggers on workflow_dispatch and on pushing a tag containing "snapshot"', () => {
+    assert(/workflow_dispatch:/.test(SNAPSHOT_YML), 'expected a workflow_dispatch trigger');
+    assert(/push:[\s\S]{0,40}tags:[\s\S]{0,40}\*snapshot\*/.test(SNAPSHOT_YML),
+      'expected a tag-push trigger matching *snapshot*');
+  });
+
+  await test('never verifies the tag against manifest.json version (that gate is release.yml-only, on purpose)', () => {
+    assert(!/Verify tag matches manifest version/i.test(SNAPSHOT_YML),
+      'a version-matching gate crept into the snapshot workflow — snapshots are meant to use an arbitrary <date>-<sha>-snapshot version, not manifest.json\'s');
+  });
+
+  await test('uploads a workflow artifact, never creates a GitHub Release or touches the store-publish jobs', () => {
+    assert(/actions\/upload-artifact/.test(SNAPSHOT_YML), 'expected actions/upload-artifact');
+    assert(!/softprops\/action-gh-release/.test(SNAPSHOT_YML),
+      'snapshot workflow should never create a real GitHub Release');
+    assert(!/web-ext sign|chrome-webstore-upload/.test(SNAPSHOT_YML),
+      'snapshot workflow should never touch the Firefox/Chrome store-submission steps');
+  });
+
   // ─── i18n manifest/locale consistency ──────────────────────────────────────
   // Regression coverage for a real bug: release.yml reads manifest.json's
   // "name" field directly as plain text to build the GitHub release title.
