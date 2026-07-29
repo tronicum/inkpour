@@ -1013,6 +1013,40 @@ path is one self-contained click handler (settings.js:138–162) building one
     optional secret-Gist attachment for the full payload — just without the
     DOM-change-specific hint or a redaction-preview step.)
 
+## Batch 13 — Midnight Snapshot: throwaway build artifacts (2026-07)
+- [x] **S** Stefan wanted a way to build the extension on one machine (e.g.
+  a laptop on a train), then grab a working zip on a completely different
+  machine/OS/browser to test with — without going through the real release
+  pipeline (which validates the tag against manifest.json's version and
+  publishes to the stores) or needing both machines to share a git remote
+  session.
+  Done — `.github/workflows/midnight-snapshot.yml`, deliberately kept
+  separate from `release.yml` rather than reusing it, since the two have
+  opposite requirements (snapshots need to skip every guard a real release
+  needs): triggers on `workflow_dispatch` (pick any branch/commit from the
+  Actions tab, optional custom label input) or on pushing any tag
+  containing "snapshot" (`*snapshot*`) from any branch — e.g. `git tag
+  20260729-<sha>-snapshot && git push origin 20260729-<sha>-snapshot`. No
+  tag-vs-manifest-version check (a snapshot's version is deliberately just
+  `<date>-<short-sha>-snapshot`, decoupled from the real scheme on
+  purpose), no GitHub Release, no Firefox/Chrome submission — just a zip
+  uploaded as a 14-day workflow artifact, built via the same
+  `scripts/release.sh` every other build path already uses.
+  4 new structural tests (mirroring the same guards written for
+  `release.yml`'s zip-building) confirming the snapshot workflow never
+  grows a real release's ceremony by copy-paste: no "tag must match
+  manifest" gate, no `action-gh-release`, no store-submission steps. Also
+  dry-run verified for real: computed a version the same way the workflow
+  does (`date -u +%Y%m%d`-`git rev-parse --short HEAD`-snapshot) and ran
+  `scripts/release.sh` with it directly — builds cleanly. 318 passed, 0
+  failed.
+  A dedicated branch (e.g. `dev`) for this kind of WIP work was floated
+  but turned out not to be necessary: `workflow_dispatch` already lets you
+  pick any branch/commit when triggering manually, and a tag push works
+  regardless of which branch it's sitting on — so nothing here required
+  adding new branch structure. Not built; can revisit if Stefan wants a
+  conventional home for this kind of work anyway.
+
 ## Batch 9 — Distribution (XL; blocked on Stefan — accounts, fees, listing assets)
 - [x] **XL** Submit to Firefox Add-ons (AMO) + Chrome Web Store — in progress,
   Stefan is doing this directly (developer accounts, listing copy/screenshots,

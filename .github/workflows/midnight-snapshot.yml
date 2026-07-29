@@ -1,0 +1,65 @@
+name: Midnight Snapshot
+
+# Quick, throwaway builds for testing on another machine/OS/browser — NOT a
+# real release. No store submission, no GitHub Release, no "tag must match
+# manifest.json version" check (a snapshot's version is deliberately just
+# <date>-<short-sha>-snapshot, decoupled from the real version scheme on
+# purpose — see scripts/release.sh, which already accepts any version
+# string, no format validation). Just a zip in this run's Artifacts tab
+# that you can download and move wherever you need it.
+#
+# Two ways to trigger:
+#   1. Manually: Actions tab → "Midnight Snapshot" → "Run workflow" → pick
+#      any branch/commit. Optionally type a custom label.
+#   2. Push any tag with "snapshot" in its name, from any branch:
+#        git tag 20260728-a1b2c3d-snapshot
+#        git push origin 20260728-a1b2c3d-snapshot
+
+on:
+  workflow_dispatch:
+    inputs:
+      label:
+        description: 'Optional custom label (default: <date>-<short-sha>-snapshot)'
+        required: false
+        default: ''
+  push:
+    tags:
+      - '*snapshot*'
+
+jobs:
+  snapshot:
+    name: Build snapshot zip
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compute snapshot version
+        id: meta
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            VERSION="${GITHUB_REF_NAME}"
+          elif [ -n "${{ github.event.inputs.label }}" ]; then
+            VERSION="${{ github.event.inputs.label }}"
+          else
+            VERSION="$(date -u +%Y%m%d)-$(git rev-parse --short HEAD)-snapshot"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "zip=../inkpour-$VERSION.zip" >> $GITHUB_OUTPUT
+          echo "→ Snapshot version: $VERSION"
+
+      - name: Build extension zip
+        # Same scripts/release.sh used for real releases — one source of
+        # truth for what ships, snapshot or not.
+        run: |
+          bash scripts/release.sh "${{ steps.meta.outputs.version }}"
+          echo "✓ Built ${{ steps.meta.outputs.zip }} ($(du -sh ${{ steps.meta.outputs.zip }} | cut -f1))"
+
+      - name: Upload as a workflow artifact (not a GitHub Release)
+        uses: actions/upload-artifact@v4
+        with:
+          name: inkpour-${{ steps.meta.outputs.version }}
+          path: ${{ steps.meta.outputs.zip }}
+          retention-days: 14
