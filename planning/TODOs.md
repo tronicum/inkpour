@@ -1047,6 +1047,87 @@ path is one self-contained click handler (settings.js:138–162) building one
   adding new branch structure. Not built; can revisit if Stefan wants a
   conventional home for this kind of work anyway.
 
+## Batch 14 — Developer docs: AGENTS.md + DEVELOPING.md (2026-07)
+- [x] **S** Stefan asked whether `AGENTS.md` was current — it didn't exist
+  at all (confirmed via a full-repo glob, not just repo root). Rather than
+  a single file trying to serve two different readers, wrote two:
+  `AGENTS.md` (dense, agent-facing reference — file map, the Debug-mode
+  tooling, testing/release commands, and the DOM-manipulation conventions
+  established this session) and `DEVELOPING.md` (a human ~5-minute guided
+  tour — architecture in 90 seconds, the three debug tools and when to
+  reach for each, then a numbered "fixing something that broke" loop
+  covering DOM/browser/OS breakage with copy-pasteable commands, ending
+  with cutting a Midnight Snapshot to verify on another machine before a
+  real release).
+  Real, previously-undocumented finding surfaced while mapping the
+  architecture for these docs: `src/extractors/`, `src/exporters/`, and
+  `src/browser/` are dead code — an earlier modular-refactor attempt that
+  nothing actually loads (confirmed via `manifest.json`'s `content_scripts`
+  list and a repo-wide grep for anything importing those paths outside
+  themselves). Only `src/content.js`'s `extract<Platform>()` functions are
+  real. Flagged prominently in both new docs as a trap for a future
+  contributor (or agent) to avoid; left the dead folders in place since
+  removing them is a separate, unrelated cleanup.
+  Also added `AGENTS.md`/`DEVELOPING.md` to `scripts/release.sh`'s exclude
+  list (same treatment as `README.md`/`PRIVACY.md` already got) — verified
+  with a real dry-run build + `unzip -l` that neither ships. 318 passed, 0
+  failed, unaffected by doc-only changes.
+
+## Batch 15 — Playwright e2e suite was fully broken; Orion (macOS) documented (2026-09)
+- [x] **M** Running `npx playwright test test/e2e` (asked for explicitly, alongside
+  `npm test`) turned up something the JSDOM suite alone couldn't catch: the
+  *entire* e2e suite failed to even collect, crashing on
+  `fs.readFileSync('../../tests/gemini-output.md')` at module load time in
+  `test/e2e/markdown-output.spec.js`. Root cause: commit `74ce7d1` ("chore:
+  remove unused tests/ scratch folder", 2026-07-17) deleted `tests/
+  gemini-output.md` believing it was dead scratch material — its own commit
+  message says "not referenced by the automated suite" — but that was
+  wrong; the spec still imports it by a hardcoded relative path. Nobody
+  caught it because this suite couldn't run in this sandbox anyway
+  (Chromium wasn't installed), so the collection-time crash went unnoticed
+  until Stefan asked to actually run it.
+  Fixed: restored `tests/gemini-output.md` from git history (`git show
+  74ce7d1^:tests/gemini-output.md`) — confirmed byte-identical to a copy
+  that had separately survived in an old session's scratch output. Left
+  `tests/gemini-copied.txt` (the other file that commit deleted) alone;
+  confirmed via grep it's genuinely unreferenced by anything.
+- [x] **S** With the fixture back, a second real bug surfaced: "code block
+  is properly closed" failed (expected 1, got 2). `/^```\w*/gm`'s `\w*` is
+  zero-or-more, so it also matches a bare closing fence, double-counting it
+  as an "open." Fixed to `/^```\w+/gm` (require at least one word char) so
+  it only counts fences that actually carry a language tag. All 19
+  `markdown-output.spec.js` tests pass now.
+- [x] **XS** Re-verified the "Chromium can't run here" limitation is still
+  real, but narrower than previously thought: `npx playwright install
+  chromium` actually succeeded this time (110MB downloaded fine — the
+  `502` from Playwright's CDN mirrors noted earlier this session was
+  apparently transient, not a standing block). The remaining blocker is
+  `sudo npx playwright install-deps` needing root (`libxdamage1` and other
+  shared libs for headless Chromium) — this sandbox has no root access and
+  the "no new privileges" flag blocks any `sudo`. So: extraction.spec.js
+  and popup.spec.js (28 tests needing a real launched browser) still can't
+  run here, but purely for this reason, not a download/network block.
+  Genuinely needs a real machine (Stefan's, or a Midnight Snapshot
+  environment with root) to run to completion.
+- [x] **S** Stefan asked to also document Orion (Kagi's WebKit-based macOS
+  browser) as a target. Researched via Kagi's own docs
+  (help.kagi.com/orion/browser-extensions/macos-extensions.html): unlike
+  Safari, Orion runs Chrome/Firefox extensions directly through its own
+  WebExtensions implementation — no Xcode conversion needed — but only
+  covers ~70% of the WebExtensions API surface as of this writing, so some
+  things may not work identically to Chrome/Firefox. Added a row to
+  README's "Supported browsers" table (Settings → Advanced → enable 3rd-
+  party Chrome extensions, then Tools → Extensions → Manage Extensions →
+  Add Extension → load the folder), a comment block in
+  `playwright.config.js` explaining why there's no Orion project (it's not
+  a Playwright-automatable browser channel — not Chromium, not Firefox,
+  not Playwright's own WebKit build, no CDP hook), and a mention in
+  `DEVELOPING.md`'s "one browser flavor only" diagnosis step (a
+  symptom that only shows up in Orion might just be an unimplemented
+  WebExtensions API there, not an Inkpour bug). Explicitly marked
+  untested — this sandbox is Linux-only, no way to actually launch Orion
+  and verify; needs Stefan (or a future session) on a real Mac.
+
 ## Batch 9 — Distribution (XL; blocked on Stefan — accounts, fees, listing assets)
 - [x] **XL** Submit to Firefox Add-ons (AMO) + Chrome Web Store — in progress,
   Stefan is doing this directly (developer accounts, listing copy/screenshots,
@@ -1142,6 +1223,20 @@ landing, not just started:
 - [ ] **XS** First real run needs to be watched live and treated as a dry run
   even though the CLIs don't offer one — can't fully verify secrets/permissions
   are right without actually attempting a submission.
+- [ ] **M — added 2026-07, not started** Microsoft Edge Add-ons auto-submit.
+  Edge accepts the same Manifest V3 package Chrome does — no separate build
+  needed, `scripts/release.sh`'s output should just work. Publishing is via
+  the [Microsoft Edge Add-ons submission API](https://learn.microsoft.com/en-us/microsoft-edge/extensions-chromium/publish/api/using-addons-api)
+  (REST, not a maintained CLI like `web-ext`/`chrome-webstore-upload-cli` —
+  likely a few `curl`/`gh-script` steps calling the API directly), needs a
+  Partner Center account + Azure AD app registration to get a `CLIENT_ID` /
+  `CLIENT_SECRET` / `ACCESS_TOKEN_URL`, plus the store's own `PRODUCT_ID`.
+  Same shape as `publish-firefox`/`publish-chrome`: a `needs: release` job,
+  gated behind a new `Edge` Environment, rebuild via `scripts/release.sh`,
+  upload the same zip. Worth doing once Chrome (above) is wired up, since the
+  two share the "any Chromium package works" assumption and Edge's install
+  base is meaningfully large in corporate/Windows environments. Not started —
+  keeping this as a TODO only, per Stefan.
 - GitHub issue drafted 2026-07 condensing the above into a tracked ticket
   (same no-GitHub-auth-in-this-sandbox situation as Batch 11's debug/ bug —
   handed Stefan a pre-filled `issues/new?title=...&body=...` link to sign
