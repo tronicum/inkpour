@@ -142,9 +142,12 @@ This is for developing Inkpour itself from a git checkout, or trying changes tha
 | Chrome | `chrome://extensions` → Developer mode → Load unpacked → select folder |
 | Edge | `edge://extensions` → Developer mode → Load unpacked → select folder |
 | Brave | `brave://extensions` → Developer mode → Load unpacked → select folder |
+| Orion (macOS) | Settings → Advanced → enable "Allow installation of 3rd party Chrome extensions", then Tools → Extensions → Manage Extensions → Add Extension → load the folder |
 | Safari | Planned, not yet published — see below |
 
 **Safari App Store**: a build scaffold exists ([`safari/XCODE_GUIDE.md`](./safari/XCODE_GUIDE.md)), but it's not currently maintained toward a store release — packaging through Xcode and keeping it current isn't worth doing speculatively. If you'd use it, [👍 or comment on #3](https://github.com/tronicum/inkpour/issues/3) so real demand can decide when this gets picked up.
+
+**Orion**: Kagi's WebKit-based macOS/iOS browser. Unlike Safari, it runs Chrome/Firefox extensions directly — no Xcode conversion needed — but it implements its own WebExtensions layer covering [~70% of the API surface](https://help.kagi.com/orion/browser-extensions/macos-extensions.html) as of this writing, so some things may not behave identically to Chrome/Firefox. Not yet verified against a real Inkpour install; treat as untested until someone (or a future session, on an actual Mac) confirms it.
 
 ## Quick start
 

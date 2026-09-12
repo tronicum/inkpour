@@ -34,6 +34,8 @@ zip -r "${ZIP}" . \
   --exclude "planning/*" \
   --exclude "README.md" \
   --exclude "PRIVACY.md" \
+  --exclude "AGENTS.md" \
+  --exclude "DEVELOPING.md" \
   --exclude "package*.json" \
   --exclude "playwright.config.js" \
   > /dev/null

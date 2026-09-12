@@ -43,5 +43,17 @@ module.exports = defineConfig({
     // WebKit in Playwright does NOT support browser extensions.
     // Real Safari extension testing requires macOS + Xcode conversion.
     // See planning/planning.md → Safari section for the roadmap.
+
+    // ── Orion (macOS) ────────────────────────────────────────────────────────
+    // Kagi's WebKit-based browser — unlike Safari it runs Chrome/Firefox
+    // extensions directly (its own WebExtensions implementation, ~70% API
+    // coverage as of this writing), no Xcode conversion needed. But Orion
+    // isn't a Playwright-automatable browser channel (it's not Chromium,
+    // Firefox, or Playwright's own WebKit build — no CDP/automation hook),
+    // so there's no project to add here. Verifying Inkpour in Orion means
+    // manual testing on a real Mac: Settings → Advanced → enable "Allow
+    // installation of 3rd party Chrome extensions", then Tools → Extensions
+    // → Manage Extensions → Add Extension → load this folder. See
+    // README.md → "Supported browsers" for the same instructions.
   ],
 });

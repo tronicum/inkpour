@@ -68,7 +68,10 @@ test.describe('gemini-output.md — structural checks', () => {
   });
 
   test('code block is properly closed', () => {
-    const opens  = (MD.match(/^```\w*/gm) ?? []).length;
+    // `\w*` (zero-or-more) also matches a bare closing fence, double-counting
+    // it as an "open" too — require at least one word char so this only
+    // counts fences that actually carry a language tag.
+    const opens  = (MD.match(/^```\w+/gm) ?? []).length;
     const closes = (MD.match(/^```$/gm) ?? []).length;
     expect(opens).toEqual(closes);
   });
