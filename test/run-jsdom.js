@@ -1473,6 +1473,135 @@ async function main() {
     });
   });
 
+  // ── filename edge-case hardening ───────────────────────────────────────────
+  await suite('buildFilename edge-case hardening', async () => {
+    // Invariants every buildFilename result must satisfy: non-empty string,
+    // no Windows-illegal characters or control chars, no dots or spaces
+    // anywhere (so no leading/trailing dot/space issues), no bare Windows
+    // device name, well-formed Unicode, and safely under the 255-byte
+    // filename cap with headroom for the extension callers append.
+    const RESERVED = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/i;
+    function assertSafe(fn, label) {
+      assert(typeof fn === 'string' && fn.length > 0, `${label}: empty or non-string: ${JSON.stringify(fn)}`);
+      assert(!/[<>:"/\\|?*\x00-\x1f]/.test(fn), `${label}: illegal chars: ${JSON.stringify(fn)}`);
+      assert(!/[. ]/.test(fn), `${label}: contains dot or space: ${JSON.stringify(fn)}`);
+      assert(!RESERVED.test(fn), `${label}: Windows-reserved name: ${fn}`);
+      assert(new TextEncoder().encode(fn).length <= 200, `${label}: over byte budget: ${fn.length} units`);
+      if (fn.isWellFormed) assert(fn.isWellFormed(), `${label}: lone surrogate in output: ${JSON.stringify(fn)}`);
+    }
+
+    await test('500-character title is truncated under the filesystem cap', () => {
+      const fn = buildFilename('{platform}-{title}', 'chatgpt', 'x'.repeat(500));
+      assertSafe(fn, '500-char');
+      assert(fn.startsWith('chatgpt-xxx'), `template prefix lost: ${fn}`);
+    });
+
+    await test('long CJK title truncates by bytes, not UTF-16 units', () => {
+      const fn = buildFilename('{title}', 'chatgpt', '中文标题'.repeat(80));
+      assertSafe(fn, 'cjk');
+      // 320 chars × 3 bytes each — a unit-count cap alone would exceed 255 bytes
+      assert(new TextEncoder().encode(fn).length <= 200, `byte cap not enforced: ${fn}`);
+      assert(fn.startsWith('中文标题'), `CJK letters were stripped: ${fn}`);
+    });
+
+    await test('title with every Windows-illegal character', () => {
+      const fn = buildFilename('{title}', 'gemini', 'a<b>c:d"e/f\\g|h?i*j kl');
+      assertSafe(fn, 'illegal');
+      assert(fn.includes('a-b-c'), `letters lost around illegal chars: ${fn}`);
+    });
+
+    await test('Windows-reserved device names are escaped (case-insensitive)', () => {
+      for (const bad of ['CON', 'con', 'PRN', 'aux', 'NUL', 'COM1', 'com9', 'LPT1', 'lpt9']) {
+        const fn = buildFilename('{title}', 'x', bad);
+        assertSafe(fn, `reserved:${bad}`);
+        assert(fn.toLowerCase().includes(bad.toLowerCase()), `title dropped entirely for ${bad}: ${fn}`);
+      }
+    });
+
+    await test('non-reserved lookalikes are left alone', () => {
+      assert(buildFilename('{title}', 'x', 'CONVERSATION') === 'CONVERSATION',
+        'CONVERSATION wrongly treated as reserved');
+      assert(buildFilename('{title}', 'x', 'COM10') === 'COM10',
+        'COM10 wrongly treated as reserved');
+    });
+
+    await test('title of only dots and spaces falls back to a dated default', () => {
+      const fn = buildFilename('{title}', 'claude', '... .. .');
+      assertSafe(fn, 'dots');
+      assert(/^inkpour-export-\d{4}-\d{2}-\d{2}$/.test(fn), `unexpected fallback: ${fn}`);
+    });
+
+    await test('empty, null, and undefined titles fall back sensibly', () => {
+      for (const t of ['', null, undefined]) {
+        const fn = buildFilename('{platform}-{title}', 'claude', t);
+        assertSafe(fn, `empty:${String(t)}`);
+        assert(fn === 'claude-export', `unexpected fallback for ${String(t)}: ${fn}`);
+      }
+    });
+
+    await test('all-undefined arguments never throw', () => {
+      const fn = buildFilename(undefined, undefined, undefined);
+      assertSafe(fn, 'undef-all');
+      assert(fn === 'chat-export', `unexpected: ${fn}`);
+    });
+
+    await test('emoji in titles are preserved, not over-stripped', () => {
+      const fn = buildFilename('{title}', 'x', '🚀 Rocket 👨‍👩‍👧‍👦 family 🇩🇪 flag');
+      assertSafe(fn, 'emoji');
+      assert(fn.includes('🚀'), `simple emoji stripped: ${fn}`);
+      assert(fn.includes('👨‍👩‍👧‍👦'), `ZWJ sequence broken: ${fn}`);
+      assert(fn.includes('🇩🇪'), `flag stripped: ${fn}`);
+    });
+
+    await test('emoji-heavy title truncates on grapheme boundaries (no mojibake)', () => {
+      const fn = buildFilename('{title}', 'x', '🚀'.repeat(300));
+      assertSafe(fn, 'emoji-heavy');
+      assert(/^(?:🚀)+$/u.test(fn), `truncation split an emoji: ${JSON.stringify(fn.slice(-4))}`);
+    });
+
+    await test('lone high surrogate (malformed Unicode) neither throws nor corrupts', () => {
+      const fn = buildFilename('{title}', 'x', 'bad' + String.fromCharCode(0xD800) + 'title');
+      assertSafe(fn, 'lone-surrogate');
+      assert(fn === 'bad-title', `unexpected: ${JSON.stringify(fn)}`);
+    });
+
+    await test('combining characters (NFD) keep their accents', () => {
+      // "café naïve" with the accents as separate combining marks (U+0301, U+0308)
+      const nfd = 'café naïve';
+      const fn = buildFilename('{title}', 'x', nfd);
+      assertSafe(fn, 'nfd');
+      assert(fn.normalize('NFC') === 'café-naïve', `combining marks mangled: ${JSON.stringify(fn)}`);
+    });
+
+    await test('Arabic and Hebrew titles survive intact', () => {
+      const ar = buildFilename('{title}', 'x', 'مرحبا بالعالم');
+      assertSafe(ar, 'arabic');
+      assert(ar === 'مرحبا-بالعالم', `Arabic mangled: ${JSON.stringify(ar)}`);
+      const he = buildFilename('{title}', 'x', 'שלום עולם');
+      assertSafe(he, 'hebrew');
+      assert(he === 'שלום-עולם', `Hebrew mangled: ${JSON.stringify(he)}`);
+    });
+
+    await test('illegal characters typed directly into the template are sanitised too', () => {
+      const fn = buildFilename('<{platform}>:"{title}"|?*', 'claude', 'safe');
+      assertSafe(fn, 'bad-template');
+      assert(fn.includes('claude') && fn.includes('safe'), `substitutions lost: ${fn}`);
+    });
+
+    await test('template that expands to only illegal characters falls back', () => {
+      const fn = buildFilename('<>:|?*', 'claude', 'ignored');
+      assertSafe(fn, 'all-illegal-template');
+    });
+
+    await test('truncation never leaves a trailing dash', () => {
+      // 119 chars, then a dash, then more text: the 120-unit cut lands
+      // right after the dash; the result must not end with '-'
+      const fn = buildFilename('{title}', 'x', ('y'.repeat(119) + '-' + 'z'.repeat(50)));
+      assertSafe(fn, 'trailing-dash');
+      assert(!fn.endsWith('-'), `trailing dash after truncation: ${fn}`);
+    });
+  });
+
   // ── ZIP builder ───────────────────────────────────────────────────────────
   await suite('ZIP builder', async () => {
     // Uses buildZip, _crc32, uint8ToBase64 from src/utils.js (loaded above)
@@ -1555,10 +1684,13 @@ async function main() {
     assert(name.length > 0, 'empty filename');
   });
 
-  await test('overlong filename truncated to 100 chars', () => {
+  await test('overlong filename truncated within the byte budget', () => {
     const longSlug = 'a'.repeat(200);
     const name = buildFilename('{title}', 'chatgpt', longSlug, '');
-    assert(name.length <= 100, `filename too long: ${name.length}`);
+    // Cap is now byte-aware (180 UTF-8 bytes / 120 UTF-16 units) with
+    // headroom under the 255-byte filesystem limit for the extension.
+    assert(name.length <= 120, `filename too long: ${name.length}`);
+    assert(new TextEncoder().encode(name).length <= 200, `filename over byte budget`);
   });
 
   // ─── buildJSON ─────────────────────────────────────────────────────────────
