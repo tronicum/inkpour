@@ -112,8 +112,15 @@
   };
   let userSettings = { ...SETTING_DEFAULTS };
 
-  api.storage.local.get('inkpour_settings', (result) => {
+  api.storage.local.get('inkpour_settings', async (result) => {
     userSettings = Object.assign({}, SETTING_DEFAULTS, result?.inkpour_settings ?? {});
+    // Merge in any preferences synced from another device (small UI/behavior
+    // toggles only — see src/settingsSync.js), then write the merged result
+    // back to storage.local so background.js (which only ever reads
+    // storage.local, never storage.sync) sees them too from this point on,
+    // without needing the user to open Settings again on this device.
+    userSettings = await loadWithSyncOverrides(api, userSettings);
+    api.storage.local.set({ inkpour_settings: userSettings });
     // Highlight default format on the always-visible ZIP quick button; the
     // rest of the formats live behind the picker now, where the "selected"
     // state (see setSelectedFormat()) already communicates this.
@@ -808,7 +815,7 @@
     try {
       const data        = await extractFromPage();
       const msgs        = getSelectedMessages(data.messages);
-      const bodyContent = buildPrintBodyHTML(msgs, data.title, data.site);
+      const bodyContent = buildPrintBodyHTML(msgs, data.title, data.site, userSettings);
       localStorage.setItem('inkpour_print', bodyContent);
       await api.tabs.create({ url: api.runtime.getURL('print.html') });
       saveLastExport('pdf', { ...data, messages: msgs }, bodyContent);
