@@ -1993,6 +1993,75 @@ async function main() {
     assert(!html.includes('class="toc"'), 'TOC should not appear when opts is omitted');
   });
 
+  // ─── buildPrintBodyHTML — PDF/print TOC wiring (issue #6 follow-up) ──────
+  // The "Generate table of contents" setting must govern PDF/print output the
+  // same way it already governs Markdown and standalone HTML, since
+  // buildPrintBodyHTML is the shared body builder both buildStandaloneHTML
+  // and the PDF/print call sites (popup.js, background.js) use.
+  console.log('\nbuildPrintBodyHTML — TOC (PDF/print export)');
+
+  await test('buildPrintBodyHTML adds a TOC nav with matching anchors when generateTOC is on and there are 3+ user turns', () => {
+    const msgs = [
+      { role: 'You',    content: 'What is the capital of France?' },
+      { role: 'Claude', content: 'Paris.' },
+      { role: 'You',    content: 'And of Germany?' },
+      { role: 'Claude', content: 'Berlin.' },
+      { role: 'You',    content: 'Thanks, one more: Italy?' },
+      { role: 'Claude', content: 'Rome.' },
+    ];
+    const html = buildPrintBodyHTML(msgs, 'Capitals', 'claude', { generateTOC: true });
+    assert(html.includes('class="toc"'), 'missing TOC nav block');
+    assert(html.includes('<a href="#msg-1">What is the capital of France?</a>'), 'missing/wrong first TOC link');
+    assert(html.includes('<a href="#msg-2">And of Germany?</a>'), 'missing/wrong second TOC link');
+    assert(html.includes('<a href="#msg-3">Thanks, one more: Italy?</a>'), 'missing/wrong third TOC link');
+    assert(html.includes('id="msg-1"'), 'missing anchor id for first user turn');
+    assert(html.includes('id="msg-2"'), 'missing anchor id for second user turn');
+    assert(html.includes('id="msg-3"'), 'missing anchor id for third user turn');
+    assert(!/id="msg-\d+"[^>]*class="message assistant"/.test(html)
+      && !/class="message assistant"[^>]*id="msg-\d+"/.test(html),
+      'no anchor id should be emitted on assistant turns');
+  });
+
+  await test('buildPrintBodyHTML omits TOC for short conversations even when generateTOC is on', () => {
+    const msgs = [
+      { role: 'You',    content: 'Hi' },
+      { role: 'Claude', content: 'Hello!' },
+      { role: 'You',    content: 'How are you?' },
+      { role: 'Claude', content: 'Doing well.' },
+    ];
+    const html = buildPrintBodyHTML(msgs, 'Short Chat', 'claude', { generateTOC: true });
+    assert(!html.includes('class="toc"'), 'TOC should be skipped for short chats');
+    assert(!html.includes('id="msg-'), 'no message anchors should be emitted when TOC is skipped');
+  });
+
+  await test('buildPrintBodyHTML omits TOC when generateTOC is false', () => {
+    const msgs = Array.from({ length: 8 }, (_, i) => ({
+      role: i % 2 === 0 ? 'You' : 'Claude',
+      content: `Message ${i}`,
+    }));
+    const html = buildPrintBodyHTML(msgs, 'Long Chat', 'claude', { generateTOC: false });
+    assert(!html.includes('class="toc"'), 'TOC should not appear when generateTOC is false');
+    assert(!html.includes('id="msg-'), 'no message anchors should be emitted when generateTOC is false');
+  });
+
+  await test('buildPrintBodyHTML omits TOC by default (no opts passed) — safe default preserved', () => {
+    const msgs = Array.from({ length: 8 }, (_, i) => ({
+      role: i % 2 === 0 ? 'You' : 'Claude',
+      content: `Message ${i}`,
+    }));
+    const html = buildPrintBodyHTML(msgs, 'Long Chat', 'claude');
+    assert(!html.includes('class="toc"'), 'TOC should not appear when opts is omitted');
+    assert(!html.includes('id="msg-'), 'no message anchors should be emitted when opts is omitted');
+  });
+
+  await test('print.html stylesheet defines .toc rules (regression guard)', () => {
+    const PRINT_HTML_PATH = path.resolve(__dirname, '../print.html');
+    const PRINT_HTML = fs.readFileSync(PRINT_HTML_PATH, 'utf8');
+    assert(/\.toc\s*\{/.test(PRINT_HTML), 'print.html is missing a .toc style rule');
+    assert(/\.toc-title\s*\{/.test(PRINT_HTML), 'print.html is missing a .toc-title style rule');
+    assert(/\.toc\s+a\s*\{/.test(PRINT_HTML), 'print.html is missing a .toc a style rule');
+  });
+
   // ─── mdToHTML — additional coverage ──────────────────────────────────────
   console.log('\nmdToHTML — tables / blockquotes / ordered lists');
 
