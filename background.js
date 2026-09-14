@@ -33,6 +33,21 @@ function withSubfolder(settings, filename) {
   return sub ? sub + '/' + filename : filename;
 }
 
+// ─── Local-export scrub helper ────────────────────────────────────────────
+// Applies the opt-in "scrub local exports" setting (scrubLocalExports,
+// default OFF) at the message level, once, before any builder runs. Returns
+// { messages, title } — redacted copies when the setting is on, the
+// originals untouched otherwise. Deliberately NOT used for the Gist/webhook
+// upload paths, which are governed by the separate scrubSecrets setting
+// (network upload = opt-out, local file = opt-in).
+function applyLocalScrub(settings, messages, title) {
+  if (!settings.scrubLocalExports) return { messages, title };
+  return {
+    messages: redactMessages(messages),
+    title:    redactSecrets(title || '').cleaned,
+  };
+}
+
 // ─── In-page button export requests ──────────────────────────────────────
 // Content script sends { action: 'inPageExport', format: 'pdf'|'zip'|'docx'|'html' }
 // Background handles it so the SW can download files / open tabs.
@@ -57,21 +72,23 @@ api.runtime.onMessage.addListener((message, sender) => {
 
     const stored   = await api.storage.local.get('inkpour_settings');
     const settings = Object.assign(
-      { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}', downloadSubfolder: '', obsidianVault: '', obsidianTags: false, scrubSecrets: true },
+      { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}', downloadSubfolder: '', obsidianVault: '', obsidianTags: false, scrubSecrets: true, scrubLocalExports: false },
       stored?.inkpour_settings ?? {}
     );
     const sourceUrl = sender.tab.url || '';
     const wordCount = (response.messages || []).reduce((s, m) => s + m.content.trim().split(/\s+/).filter(Boolean).length, 0);
   const filename  = buildFilename(settings.filenameTemplate, response.platform, response.filename, sourceUrl, wordCount, (response.messages||[]).length);
+    // Opt-in local-export scrub — all in-page FAB formats are local exports.
+    const { messages: msgs, title } = applyLocalScrub(settings, response.messages, response.title);
 
     if (message.format === 'pdf') {
-      const bodyContent = buildPrintBodyHTML(response.messages, response.title, response.site);
+      const bodyContent = buildPrintBodyHTML(msgs, title, response.site, settings);
       await api.storage.local.set({ inkpour_print_pending: bodyContent });
       api.tabs.create({ url: api.runtime.getURL('print.html') });
     }
 
     if (message.format === 'zip') {
-      const { files } = buildZipExport(response.messages, response.title, response.site, settings, sourceUrl);
+      const { files } = buildZipExport(msgs, title, response.site, settings, sourceUrl);
       const zipBytes  = buildZip(files);
       const b64  = uint8ToBase64(zipBytes);
       const url  = 'data:application/zip;base64,' + b64;
@@ -79,14 +96,14 @@ api.runtime.onMessage.addListener((message, sender) => {
     }
 
     if (message.format === 'docx') {
-      const docxBytes = buildDocx(response.messages, response.title, response.site, settings, sourceUrl);
+      const docxBytes = buildDocx(msgs, title, response.site, settings, sourceUrl);
       const b64  = uint8ToBase64(docxBytes);
       const url  = 'data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,' + b64;
       safeDownload(tabId, url, withSubfolder(settings, filename + '.docx'));
     }
 
     if (message.format === 'html') {
-      const html = buildStandaloneHTML(response.messages, response.title, response.site, settings);
+      const html = buildStandaloneHTML(msgs, title, response.site, settings);
       const url  = 'data:text/html;charset=utf-8,' + encodeURIComponent(html);
       safeDownload(tabId, url, withSubfolder(settings, filename + '.html'));
     }
@@ -155,7 +172,7 @@ function waitForTabLoad(tabId, timeoutMs) {
 async function runBatchExport(conversations, originTabId) {
   const stored   = await api.storage.local.get('inkpour_settings');
   const settings = Object.assign(
-    { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}', downloadSubfolder: '', obsidianVault: '', obsidianTags: false, scrubSecrets: true },
+    { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}', downloadSubfolder: '', obsidianVault: '', obsidianTags: false, scrubSecrets: true, scrubLocalExports: false },
     stored?.inkpour_settings ?? {}
   );
 
@@ -199,7 +216,9 @@ async function runBatchExport(conversations, originTabId) {
       while (usedNames.has(unique)) unique = `${name}-${n++}`; // two conversations can share a title
       usedNames.add(unique);
 
-      const md = buildMarkdown(response.messages, response.title, response.site, settings, sourceUrl);
+      // Opt-in local-export scrub — the batch ZIP is a local download.
+      const scrubbed = applyLocalScrub(settings, response.messages, response.title);
+      const md = buildMarkdown(scrubbed.messages, scrubbed.title, response.site, settings, sourceUrl);
       files.push({ name: unique + '.md', content: md });
       succeeded++;
     } catch {
@@ -308,32 +327,35 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
 
   const stored   = await api.storage.local.get('inkpour_settings');
   const settings = Object.assign(
-    { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}', downloadSubfolder: '', obsidianVault: '', obsidianTags: false, scrubSecrets: true },
+    { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}', downloadSubfolder: '', obsidianVault: '', obsidianTags: false, scrubSecrets: true, scrubLocalExports: false },
     stored?.inkpour_settings ?? {}
   );
   const sourceUrl = tab?.url || '';
   const wordCount = (response.messages || []).reduce((s, m) => s + m.content.trim().split(/\s+/).filter(Boolean).length, 0);
   const filename  = buildFilename(settings.filenameTemplate, response.platform, response.filename, sourceUrl, wordCount, (response.messages||[]).length);
+  // Opt-in local-export scrub — applied to the local context-menu formats
+  // only; the Gist path below keeps its own scrubSecrets handling untouched.
+  const { messages: msgs, title } = applyLocalScrub(settings, response.messages, response.title);
 
   if (info.menuItemId === 'inkpour-md') {
-    const md  = buildMarkdown(response.messages, response.title, response.site, settings, sourceUrl);
+    const md  = buildMarkdown(msgs, title, response.site, settings, sourceUrl);
     const url = 'data:text/markdown;charset=utf-8,' + encodeURIComponent(md);
     safeDownload(tab.id, url, withSubfolder(settings, filename + '.md'));
   }
 
   if (info.menuItemId === 'inkpour-copy') {
-    const md = buildMarkdown(response.messages, response.title, response.site, settings, sourceUrl);
+    const md = buildMarkdown(msgs, title, response.site, settings, sourceUrl);
     await api.tabs.sendMessage(tab.id, { action: 'copyToClipboard', text: md });
   }
 
   if (info.menuItemId === 'inkpour-json') {
-    const json = buildJSON(response.messages, response.title, response.site, response.platform);
+    const json = buildJSON(msgs, title, response.site, response.platform);
     const url  = 'data:application/json;charset=utf-8,' + encodeURIComponent(json);
     safeDownload(tab.id, url, withSubfolder(settings, filename + '.json'));
   }
 
   if (info.menuItemId === 'inkpour-zip') {
-    const { files } = buildZipExport(response.messages, response.title, response.site, settings, sourceUrl);
+    const { files } = buildZipExport(msgs, title, response.site, settings, sourceUrl);
     const zipBytes  = buildZip(files);
     const b64  = uint8ToBase64(zipBytes);
     const url  = 'data:application/zip;base64,' + b64;
@@ -341,7 +363,7 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
   }
 
   if (info.menuItemId === 'inkpour-docx') {
-    const docxBytes = buildDocx(response.messages, response.title, response.site, settings, sourceUrl);
+    const docxBytes = buildDocx(msgs, title, response.site, settings, sourceUrl);
     const b64  = uint8ToBase64(docxBytes);
     const url  = 'data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,' + b64;
     safeDownload(tab.id, url, withSubfolder(settings, filename + '.docx'));
@@ -509,47 +531,50 @@ async function runCommand(command) {
   // Load user settings so keyboard shortcuts respect all preferences
   const stored   = await api.storage.local.get('inkpour_settings');
   const settings = Object.assign(
-    { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}', downloadSubfolder: '', obsidianVault: '', obsidianTags: false, scrubSecrets: true },
+    { yamlFrontMatter: false, generateTOC: false, filenameTemplate: '{platform}-{title}', downloadSubfolder: '', obsidianVault: '', obsidianTags: false, scrubSecrets: true, scrubLocalExports: false },
     stored?.inkpour_settings ?? {}
   );
 
   const sourceUrl = tab.url || '';
   const wordCount = (response.messages || []).reduce((s, m) => s + m.content.trim().split(/\s+/).filter(Boolean).length, 0);
   const filename  = buildFilename(settings.filenameTemplate, response.platform, response.filename, sourceUrl, wordCount, (response.messages||[]).length);
+  // Opt-in local-export scrub — applied to the local shortcut formats only;
+  // the upload-gist path below keeps its own scrubSecrets handling untouched.
+  const { messages: msgs, title } = applyLocalScrub(settings, response.messages, response.title);
 
   if (command === 'export-markdown') {
-    const md  = buildMarkdown(response.messages, response.title, response.site, settings, sourceUrl);
+    const md  = buildMarkdown(msgs, title, response.site, settings, sourceUrl);
     const url = 'data:text/markdown;charset=utf-8,' + encodeURIComponent(md);
     safeDownload(tab.id, url, withSubfolder(settings, filename + '.md'));
   }
 
   if (command === 'export-pdf') {
     // SW has no localStorage — store in storage.local, print.js reads both
-    const bodyContent = buildPrintBodyHTML(response.messages, response.title, response.site);
+    const bodyContent = buildPrintBodyHTML(msgs, title, response.site, settings);
     await api.storage.local.set({ inkpour_print_pending: bodyContent });
     api.tabs.create({ url: api.runtime.getURL('print.html') });
   }
 
   if (command === 'copy-markdown') {
     // Service workers don't have clipboard access — send to content script to copy
-    const md = buildMarkdown(response.messages, response.title, response.site, settings, sourceUrl);
+    const md = buildMarkdown(msgs, title, response.site, settings, sourceUrl);
     await api.tabs.sendMessage(tab.id, { action: 'copyToClipboard', text: md });
   }
 
   if (command === 'copy-html') {
     // Copy full standalone HTML to clipboard via content script (no clipboard in SW)
-    const html = buildStandaloneHTML(response.messages, response.title, response.site, settings);
+    const html = buildStandaloneHTML(msgs, title, response.site, settings);
     await api.tabs.sendMessage(tab.id, { action: 'copyToClipboard', text: html });
   }
 
   if (command === 'export-json') {
-    const json = buildJSON(response.messages, response.title, response.site, response.platform);
+    const json = buildJSON(msgs, title, response.site, response.platform);
     const url  = 'data:application/json;charset=utf-8,' + encodeURIComponent(json);
     safeDownload(tab.id, url, withSubfolder(settings, filename + '.json'));
   }
 
   if (command === 'export-zip') {
-    const { files } = buildZipExport(response.messages, response.title, response.site, settings, sourceUrl);
+    const { files } = buildZipExport(msgs, title, response.site, settings, sourceUrl);
     const zipBytes  = buildZip(files);
     // base64-encode for data: URL (no createObjectURL in SW)
     const b64  = uint8ToBase64(zipBytes);
@@ -558,7 +583,7 @@ async function runCommand(command) {
   }
 
   if (command === 'export-docx') {
-    const docxBytes = buildDocx(response.messages, response.title, response.site, settings, sourceUrl);
+    const docxBytes = buildDocx(msgs, title, response.site, settings, sourceUrl);
     const b64  = uint8ToBase64(docxBytes);
     const url  = 'data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,' + b64;
     safeDownload(tab.id, url, withSubfolder(settings, filename + '.docx'));

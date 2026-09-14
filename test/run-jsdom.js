@@ -25,6 +25,11 @@ const FIXTURES_DIR = path.resolve(__dirname, 'fixtures');
 const UTILS_JS = fs.readFileSync(path.resolve(__dirname, '../src/utils.js'), 'utf8');
 vm.runInThisContext(UTILS_JS);
 
+// ─── src/settingsSync.js — storage.sync mirror for non-sensitive settings ──
+// Same global-scope-declaration pattern as src/utils.js above.
+const SETTINGS_SYNC_JS = fs.readFileSync(path.resolve(__dirname, '../src/settingsSync.js'), 'utf8');
+vm.runInThisContext(SETTINGS_SYNC_JS);
+
 // ─── IndexedDB polyfill + src/vaultHandle.js (Batch 6: direct-to-vault) ─────
 // JSDOM itself has no IndexedDB implementation at all — fake-indexeddb (a
 // pure-JS, spec-faithful in-memory implementation, dev dependency) installs
@@ -37,6 +42,12 @@ vm.runInThisContext(UTILS_JS);
 require('fake-indexeddb/auto');
 const VAULT_HANDLE_JS = fs.readFileSync(path.resolve(__dirname, '../src/vaultHandle.js'), 'utf8');
 vm.runInThisContext(VAULT_HANDLE_JS);
+
+// ─── src/redact.js (secret scrubbing) ───────────────────────────────────────
+// Same global-scope pattern as src/utils.js — loading it here makes
+// scanForSecrets()/redactSecrets()/redactMessages() directly callable below.
+const REDACT_JS = fs.readFileSync(path.resolve(__dirname, '../src/redact.js'), 'utf8');
+vm.runInThisContext(REDACT_JS);
 
 // ─── i18n mock ──────────────────────────────────────────────────────────────
 // content.js calls api.i18n.getMessage(key, substitutions) for the floating
@@ -496,20 +507,52 @@ async function main() {
       const aiContent = result.messages[1].content;
       assert(aiContent.includes('**Sources:**'), `no Sources section in AI response: ${aiContent.slice(0, 200)}`);
     });
-    await test('AI response lists citation numbers', () => {
+    // NotebookLM citation markers (<button class="citation-marker">N</button>)
+    // now go through the same registerCitation()/formatSourcesBlock() path as
+    // every other platform's <a>-based citations (Gemini/Perplexity/Google AI
+    // Mode all funnel through htmlToMarkdown's shared 'a' branch already) —
+    // so the exported Markdown has one consistent citation shape everywhere:
+    // an inline `[^N]` marker plus a `[^N]: <target>` line in the trailing
+    // Sources block, instead of NotebookLM's previous bare "[N]" list with no
+    // per-citation definition at all. NotebookLM's DOM never exposes a source
+    // URL, so its footnote target degrades to a synthetic "NotebookLM source
+    // N" label rather than a link — the citation information (which source
+    // number was cited, and that there were two distinct ones) is preserved,
+    // just not a clickable URL.
+    await test('AI response uses the shared [^N] footnote marker, not a bare [N]', () => {
       const aiContent = result.messages[1].content;
-      assert(aiContent.includes('[1]'), `no [1] citation in AI response: ${aiContent.slice(0, 200)}`);
-      assert(aiContent.includes('[2]'), `no [2] citation in AI response: ${aiContent.slice(0, 200)}`);
+      assert(aiContent.includes('[^1]'), `no [^1] in AI response: ${aiContent.slice(0, 200)}`);
+      assert(aiContent.includes('[^2]'), `no [^2] in AI response: ${aiContent.slice(0, 200)}`);
+      assert(!/(?<!\^)\[\d+\]/.test(aiContent), `bare [N] citation leaked through: ${aiContent}`);
+    });
+    await test('Sources block defines each footnote with a synthetic label (no URL available)', () => {
+      const aiContent = result.messages[1].content;
+      assert(aiContent.includes('[^1]: NotebookLM source 1'), `missing [^1] definition: ${aiContent}`);
+      assert(aiContent.includes('[^2]: NotebookLM source 2'), `missing [^2] definition: ${aiContent}`);
+    });
+    await test('same citation number repeated in one message dedups to one footnote def', () => {
+      // The fixture cites marker "1" twice in the first AI response.
+      const aiContent = result.messages[1].content;
+      const defs = (aiContent.match(/\[\^1\]:/g) || []);
+      assert(defs.length === 1, `expected 1 def for [^1], got ${defs.length}: ${aiContent}`);
     });
     await test('user messages do not get Sources section', () => {
       const userContent = result.messages[0].content;
       assert(!userContent.includes('**Sources:**'), 'user message should not have Sources section');
     });
-    await test('second AI response has no citations (no sups in fixture)', () => {
-      // Second AI response has no sup elements — Sources section should be absent
+    await test('second AI response has no citations (no markers in fixture)', () => {
+      // Second AI response has no citation-marker buttons — Sources section should be absent
       const aiContent = result.messages[3].content;
-      // This is acceptable either way; just verify content was extracted
       assert(aiContent.length > 0, 'second AI response has no content');
+      assert(!aiContent.includes('**Sources:**'), 'unexpected Sources section with no citations present');
+    });
+    await test('footnote numbering continues across NotebookLM messages (shared offset)', () => {
+      // First AI response (messages[1]) defines [^1] and [^2]. If a later
+      // message in the same extraction pass cited a source, it would have to
+      // continue at [^3], not restart at [^1] — same cross-message numbering
+      // contract Perplexity/Gemini already rely on via _footnoteOffset.
+      assert(result.messages[1].content.includes('[^1]: NotebookLM source 1'), 'message 1 missing [^1] def');
+      assert(result.messages[1].content.includes('[^2]: NotebookLM source 2'), 'message 1 missing [^2] def');
     });
   });
 
@@ -530,6 +573,24 @@ async function main() {
       // Wikipedia URL is cited twice (markers 1 and 1 in fixture) — should map to [^1] both times
       const defs = (aiContent.match(/\[\^1\]:/g) || []);
       assert(defs.length === 1, `expected 1 def for [^1], got ${defs.length}`);
+    });
+    // Regression: footnote numbers must stay unique AND monotonic across
+    // multiple messages within a single real extraction pass (not just the
+    // manual htmlToMarkdown()-call unit test below) — the second AI answer's
+    // citation re-uses marker text "1" in the source HTML, but since
+    // _footnoteOffset is a running total across the whole extraction pass
+    // (reset once per extraction, not per message), it must render as [^3],
+    // continuing after the first answer's [^1]/[^2] rather than colliding
+    // with them.
+    await test('footnote numbering continues monotonically into the second AI answer', () => {
+      const perplexityMsgs = result.messages.filter(m => m.role === 'Perplexity');
+      assert(perplexityMsgs.length >= 2, `expected 2 Perplexity messages, got ${perplexityMsgs.length}`);
+      const secondAnswer = perplexityMsgs[1].content;
+      assert(secondAnswer.includes('[^3]'), `second answer should cite [^3], got: ${secondAnswer.slice(0, 300)}`);
+      assert(secondAnswer.includes('[^3]: https://en.wikipedia.org/wiki/Quantum_teleportation'),
+        `second answer missing [^3] definition: ${secondAnswer}`);
+      assert(!secondAnswer.includes('[^1]') && !secondAnswer.includes('[^2]'),
+        `second answer must not reuse [^1]/[^2] from the first answer: ${secondAnswer}`);
     });
   });
 
@@ -1988,6 +2049,75 @@ async function main() {
     assert(!html.includes('class="toc"'), 'TOC should not appear when opts is omitted');
   });
 
+  // ─── buildPrintBodyHTML — PDF/print TOC wiring (issue #6 follow-up) ──────
+  // The "Generate table of contents" setting must govern PDF/print output the
+  // same way it already governs Markdown and standalone HTML, since
+  // buildPrintBodyHTML is the shared body builder both buildStandaloneHTML
+  // and the PDF/print call sites (popup.js, background.js) use.
+  console.log('\nbuildPrintBodyHTML — TOC (PDF/print export)');
+
+  await test('buildPrintBodyHTML adds a TOC nav with matching anchors when generateTOC is on and there are 3+ user turns', () => {
+    const msgs = [
+      { role: 'You',    content: 'What is the capital of France?' },
+      { role: 'Claude', content: 'Paris.' },
+      { role: 'You',    content: 'And of Germany?' },
+      { role: 'Claude', content: 'Berlin.' },
+      { role: 'You',    content: 'Thanks, one more: Italy?' },
+      { role: 'Claude', content: 'Rome.' },
+    ];
+    const html = buildPrintBodyHTML(msgs, 'Capitals', 'claude', { generateTOC: true });
+    assert(html.includes('class="toc"'), 'missing TOC nav block');
+    assert(html.includes('<a href="#msg-1">What is the capital of France?</a>'), 'missing/wrong first TOC link');
+    assert(html.includes('<a href="#msg-2">And of Germany?</a>'), 'missing/wrong second TOC link');
+    assert(html.includes('<a href="#msg-3">Thanks, one more: Italy?</a>'), 'missing/wrong third TOC link');
+    assert(html.includes('id="msg-1"'), 'missing anchor id for first user turn');
+    assert(html.includes('id="msg-2"'), 'missing anchor id for second user turn');
+    assert(html.includes('id="msg-3"'), 'missing anchor id for third user turn');
+    assert(!/id="msg-\d+"[^>]*class="message assistant"/.test(html)
+      && !/class="message assistant"[^>]*id="msg-\d+"/.test(html),
+      'no anchor id should be emitted on assistant turns');
+  });
+
+  await test('buildPrintBodyHTML omits TOC for short conversations even when generateTOC is on', () => {
+    const msgs = [
+      { role: 'You',    content: 'Hi' },
+      { role: 'Claude', content: 'Hello!' },
+      { role: 'You',    content: 'How are you?' },
+      { role: 'Claude', content: 'Doing well.' },
+    ];
+    const html = buildPrintBodyHTML(msgs, 'Short Chat', 'claude', { generateTOC: true });
+    assert(!html.includes('class="toc"'), 'TOC should be skipped for short chats');
+    assert(!html.includes('id="msg-'), 'no message anchors should be emitted when TOC is skipped');
+  });
+
+  await test('buildPrintBodyHTML omits TOC when generateTOC is false', () => {
+    const msgs = Array.from({ length: 8 }, (_, i) => ({
+      role: i % 2 === 0 ? 'You' : 'Claude',
+      content: `Message ${i}`,
+    }));
+    const html = buildPrintBodyHTML(msgs, 'Long Chat', 'claude', { generateTOC: false });
+    assert(!html.includes('class="toc"'), 'TOC should not appear when generateTOC is false');
+    assert(!html.includes('id="msg-'), 'no message anchors should be emitted when generateTOC is false');
+  });
+
+  await test('buildPrintBodyHTML omits TOC by default (no opts passed) — safe default preserved', () => {
+    const msgs = Array.from({ length: 8 }, (_, i) => ({
+      role: i % 2 === 0 ? 'You' : 'Claude',
+      content: `Message ${i}`,
+    }));
+    const html = buildPrintBodyHTML(msgs, 'Long Chat', 'claude');
+    assert(!html.includes('class="toc"'), 'TOC should not appear when opts is omitted');
+    assert(!html.includes('id="msg-'), 'no message anchors should be emitted when opts is omitted');
+  });
+
+  await test('print.html stylesheet defines .toc rules (regression guard)', () => {
+    const PRINT_HTML_PATH = path.resolve(__dirname, '../print.html');
+    const PRINT_HTML = fs.readFileSync(PRINT_HTML_PATH, 'utf8');
+    assert(/\.toc\s*\{/.test(PRINT_HTML), 'print.html is missing a .toc style rule');
+    assert(/\.toc-title\s*\{/.test(PRINT_HTML), 'print.html is missing a .toc-title style rule');
+    assert(/\.toc\s+a\s*\{/.test(PRINT_HTML), 'print.html is missing a .toc a style rule');
+  });
+
   // ─── mdToHTML — additional coverage ──────────────────────────────────────
   console.log('\nmdToHTML — tables / blockquotes / ordered lists');
 
@@ -3166,6 +3296,238 @@ async function main() {
       };
       const ok = await ensureReadWritePermission(dirHandle);
       assert(ok === false, 'expected false when permission denied');
+    });
+  });
+
+  await suite('redact.js — secret scrubbing for local exports', async () => {
+    // NOTE: fake credentials, constructed for the test — none of these are real.
+    const FAKE_SK    = 'sk-' + 'abc123def456ghi789jkl0';
+    const FAKE_AKIA  = 'AKIA' + 'IOSFODNN7EXAMPLE';
+    const FAKE_GHP   = 'ghp_' + 'abcdefghijklmnopqrstuvwxyz0123456789';
+    const FAKE_JWT   = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV';
+    const FAKE_EMAIL = 'jane.doe@example.com';
+
+    await test('redactSecrets() catches an sk- style API key', () => {
+      const { cleaned, findings } = redactSecrets(`my key is ${FAKE_SK} ok`);
+      assert(!cleaned.includes(FAKE_SK), 'key should be removed');
+      assert(cleaned.includes('[REDACTED:API_KEY]'), `expected marker, got: ${cleaned}`);
+      assert(findings.length === 1 && findings[0].type === 'api_key', JSON.stringify(findings));
+    });
+
+    await test('redactSecrets() catches an AWS access key ID', () => {
+      const { cleaned } = redactSecrets(`aws: ${FAKE_AKIA}`);
+      assert(!cleaned.includes(FAKE_AKIA), 'AKIA key should be removed');
+      assert(cleaned.includes('[REDACTED:AWS_KEY]'), cleaned);
+    });
+
+    await test('redactSecrets() catches a GitHub token', () => {
+      const { cleaned } = redactSecrets(`use ${FAKE_GHP} here`);
+      assert(!cleaned.includes(FAKE_GHP), 'ghp_ token should be removed');
+      assert(cleaned.includes('[REDACTED:GITHUB_TOKEN]'), cleaned);
+    });
+
+    await test('redactSecrets() catches a JWT', () => {
+      const { cleaned } = redactSecrets(`bearer ${FAKE_JWT}`);
+      assert(!cleaned.includes(FAKE_JWT), 'JWT should be removed');
+      assert(cleaned.includes('[REDACTED:JWT]'), cleaned);
+    });
+
+    await test('redactSecrets() catches an email address', () => {
+      const { cleaned } = redactSecrets(`contact ${FAKE_EMAIL} please`);
+      assert(!cleaned.includes(FAKE_EMAIL), 'email should be removed');
+      assert(cleaned.includes('[REDACTED:EMAIL]'), cleaned);
+    });
+
+    await test('redactSecrets() catches an api_key = <value> assignment', () => {
+      const input = 'api_key = qw9x7z2p4m8v6b1n3c5k';
+      const { cleaned, findings } = redactSecrets(input);
+      assert(!cleaned.includes('qw9x7z2p4m8v6b1n3c5k'), 'value should be removed');
+      assert(findings.some(f => f.type === 'generic_secret'), JSON.stringify(findings));
+    });
+
+    await test('redactSecrets() leaves ordinary prose and code byte-identical', () => {
+      const samples = [
+        'const token = getToken();',
+        'function secret() {}',
+        'password',
+        'This is a well-known sentence with a hyphenated word in it.',
+        'The skeleton key opened the sk-eleton closet.', // sk- but too short
+        'let x = a.b.c;',
+      ];
+      for (const s of samples) {
+        const { cleaned, findings } = redactSecrets(s);
+        assert(cleaned === s, `expected untouched output for: ${s}\n  got: ${cleaned}`);
+        assert(findings.length === 0, `expected no findings for: ${s}`);
+      }
+    });
+
+    await test('redactMessages() is pure — input array and objects unchanged, roles preserved', () => {
+      const original = [
+        { role: 'user',      content: `here is my key ${FAKE_SK}` },
+        { role: 'assistant', content: 'plain answer, nothing secret' },
+      ];
+      const originalJson = JSON.stringify(original);
+      const out = redactMessages(original);
+      assert(JSON.stringify(original) === originalJson, 'input must not be mutated');
+      assert(out !== original, 'must return a new array');
+      assert(out[0] !== original[0], 'must return new message objects');
+      assert(out[0].role === 'user' && out[1].role === 'assistant', 'roles preserved');
+      assert(!out[0].content.includes(FAKE_SK), 'secret removed from copy');
+      assert(out[0].content.includes('[REDACTED:API_KEY]'), out[0].content);
+      assert(out[1].content === original[1].content, 'clean message untouched');
+    });
+
+    await test('redactMessages() tolerates null/undefined/empty input', () => {
+      assert(Array.isArray(redactMessages(null)) && redactMessages(null).length === 0, 'null → []');
+      assert(redactMessages(undefined).length === 0, 'undefined → []');
+      assert(redactMessages([]).length === 0, '[] → []');
+    });
+
+    await test('end-to-end: builders produce redacted output after redactMessages()', () => {
+      const dirty = [
+        { role: 'user',      content: `my key is ${FAKE_SK}, please help` },
+        { role: 'assistant', content: 'never paste keys into chats' },
+      ];
+      const scrubbed = redactMessages(dirty);
+      const outputs = {
+        markdown: buildMarkdown(scrubbed, 'Key Trouble', 'ChatGPT', {}, 'https://example.com'),
+        json:     buildJSON(scrubbed, 'Key Trouble', 'ChatGPT', 'chatgpt'),
+        html:     buildStandaloneHTML(scrubbed, 'Key Trouble', 'ChatGPT', {}),
+        print:    buildPrintBodyHTML(scrubbed, 'Key Trouble', 'ChatGPT'),
+      };
+      for (const [fmt, out] of Object.entries(outputs)) {
+        assert(!out.includes(FAKE_SK), `${fmt} output must not contain the key`);
+        assert(out.includes('[REDACTED:'), `${fmt} output should contain the redaction marker`);
+      }
+    });
+
+    await test('control: clean messages build byte-identical output with and without redactMessages()', () => {
+      const clean = [
+        { role: 'user',      content: 'How do I center a div?' },
+        { role: 'assistant', content: 'Use flexbox: display: flex; justify-content: center;' },
+      ];
+      const scrubbed = redactMessages(clean);
+      // Builders embed the export timestamp (new Date()), so two calls made a
+      // second apart would differ there even with identical content — mask
+      // date/time stamps before comparing, everything else must match exactly.
+      const norm = (s) => s
+        .replace(/\d{4}-\d{2}-\d{2}([T ]\d{2}:\d{2}(:\d{2})?(\.\d+)?Z?)?/g, '<DATE>')
+        .replace(/\b\d{1,2}:\d{2}(:\d{2})?\s?(AM|PM)?\b/gi, '<TIME>');
+      const pairs = [
+        [buildMarkdown(clean, 'CSS Q', 'ChatGPT', {}, ''), buildMarkdown(scrubbed, 'CSS Q', 'ChatGPT', {}, '')],
+        [buildJSON(clean, 'CSS Q', 'ChatGPT', 'chatgpt'), buildJSON(scrubbed, 'CSS Q', 'ChatGPT', 'chatgpt')],
+        [buildStandaloneHTML(clean, 'CSS Q', 'ChatGPT', {}), buildStandaloneHTML(scrubbed, 'CSS Q', 'ChatGPT', {})],
+        [buildPrintBodyHTML(clean, 'CSS Q', 'ChatGPT'), buildPrintBodyHTML(scrubbed, 'CSS Q', 'ChatGPT')],
+      ];
+      pairs.forEach(([a, b], i) => {
+        assert(norm(a) === norm(b), `builder #${i} output changed for a clean conversation`);
+      });
+    });
+  });
+
+  // ── src/settingsSync.js — storage.sync mirror for small settings ─────────
+  function makeFakeSyncApi(initial) {
+    let store = initial ?? {};
+    return {
+      storage: {
+        sync: {
+          get: async (key) => ({ [key]: store[key] }),
+          set: async (obj) => { store = Object.assign({}, store, obj); },
+        },
+      },
+      _peek: () => store,
+    };
+  }
+
+  await suite('settingsSync.js — cross-device sync for non-sensitive settings', async () => {
+    await test('pickSyncableSettings() keeps only the allow-listed keys', () => {
+      const picked = pickSyncableSettings({
+        defaultFormat: 'pdf', generateTOC: true,
+        githubToken: 'secret-token', notionToken: 'secret-2',
+        downloadSubfolder: '/Users/me/Desktop', writeToVault: true,
+      });
+      assert(picked.defaultFormat === 'pdf', 'defaultFormat should survive');
+      assert(picked.generateTOC === true, 'generateTOC should survive');
+      assert(!('githubToken' in picked), 'githubToken must never be synced');
+      assert(!('notionToken' in picked), 'notionToken must never be synced');
+      assert(!('downloadSubfolder' in picked), 'downloadSubfolder (a local path) must never be synced');
+      assert(!('writeToVault' in picked), 'writeToVault (tied to a local file handle) must never be synced');
+    });
+
+    await test('pickSyncableSettings() tolerates null/undefined/empty input', () => {
+      assert(Object.keys(pickSyncableSettings(null)).length === 0, 'null → {}');
+      assert(Object.keys(pickSyncableSettings(undefined)).length === 0, 'undefined → {}');
+      assert(Object.keys(pickSyncableSettings({})).length === 0, '{} → {}');
+    });
+
+    await test('mergeSyncedSettings() lets synced values override local ones, for syncable keys only', () => {
+      const local  = { defaultFormat: 'md', githubToken: 'local-secret', generateTOC: false };
+      const synced = { defaultFormat: 'pdf', githubToken: 'should-be-ignored', generateTOC: true };
+      const merged = mergeSyncedSettings(local, synced);
+      assert(merged.defaultFormat === 'pdf', 'synced defaultFormat should win');
+      assert(merged.generateTOC === true, 'synced generateTOC should win');
+      assert(merged.githubToken === 'local-secret', 'githubToken must stay local — never overridden by sync');
+    });
+
+    await test('mergeSyncedSettings() never mutates its inputs', () => {
+      const local  = { defaultFormat: 'md' };
+      const synced = { defaultFormat: 'pdf' };
+      const localCopy  = { ...local };
+      const syncedCopy = { ...synced };
+      mergeSyncedSettings(local, synced);
+      assert(JSON.stringify(local) === JSON.stringify(localCopy), 'local input must not be mutated');
+      assert(JSON.stringify(synced) === JSON.stringify(syncedCopy), 'synced input must not be mutated');
+    });
+
+    await test('loadWithSyncOverrides() merges an existing sync mirror over local prefs', async () => {
+      const api = makeFakeSyncApi({ inkpour_settings_sync: { defaultFormat: 'html' } });
+      const result = await loadWithSyncOverrides(api, { defaultFormat: 'md', githubToken: 'tok' });
+      assert(result.defaultFormat === 'html', `expected sync override, got ${result.defaultFormat}`);
+      assert(result.githubToken === 'tok', 'non-syncable key should be untouched');
+    });
+
+    await test('loadWithSyncOverrides() returns localPrefs unchanged when nothing is synced yet', async () => {
+      const api = makeFakeSyncApi({});
+      const local = { defaultFormat: 'md' };
+      const result = await loadWithSyncOverrides(api, local);
+      assert(result.defaultFormat === 'md', 'should fall back to local value');
+    });
+
+    await test('loadWithSyncOverrides() fails safe when storage.sync is unavailable (e.g. Safari)', async () => {
+      const api = { storage: {} }; // no .sync at all
+      const local = { defaultFormat: 'md' };
+      const result = await loadWithSyncOverrides(api, local);
+      assert(result === local, 'should return the exact same local object, unchanged');
+    });
+
+    await test('loadWithSyncOverrides() fails safe when storage.sync.get() throws', async () => {
+      const api = { storage: { sync: { get: async () => { throw new Error('boom'); } } } };
+      const local = { defaultFormat: 'md' };
+      const result = await loadWithSyncOverrides(api, local);
+      assert(result === local, 'should return the exact same local object on error, unchanged');
+    });
+
+    await test('saveSyncableSettings() writes only the syncable subset to storage.sync', async () => {
+      const api = makeFakeSyncApi({});
+      await saveSyncableSettings(api, {
+        defaultFormat: 'pdf', generateTOC: true, githubToken: 'secret', notionToken: 'secret-2',
+      });
+      const stored = api._peek().inkpour_settings_sync;
+      assert(stored.defaultFormat === 'pdf', 'defaultFormat should be written');
+      assert(!('githubToken' in stored), 'githubToken must never reach storage.sync');
+      assert(!('notionToken' in stored), 'notionToken must never reach storage.sync');
+    });
+
+    await test('saveSyncableSettings() silently no-ops when storage.sync is unavailable', async () => {
+      const api = { storage: {} };
+      await saveSyncableSettings(api, { defaultFormat: 'pdf' }); // must not throw
+      assert(true, 'reaching here means it did not throw');
+    });
+
+    await test('saveSyncableSettings() silently swallows a storage.sync.set() failure', async () => {
+      const api = { storage: { sync: { set: async () => { throw new Error('quota exceeded'); } } } };
+      await saveSyncableSettings(api, { defaultFormat: 'pdf' }); // must not throw
+      assert(true, 'reaching here means it did not throw');
     });
   });
 
