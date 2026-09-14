@@ -5,6 +5,10 @@ node_modules/
 playwright-report/
 test-results/
 
+# Scratch space for in-progress work (drafts, one-off notes) — never meant
+# to land in the repo, kept local instead of outside the project directory.
+tmp/
+
 # Personal test input for the PDF-importer debug toy — real chat exports,
 # never meant to land in the repo.
 debug/input/
