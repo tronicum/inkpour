@@ -14,6 +14,14 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+### Changed
+- NotebookLM citations now export in the same `[^N]` footnote format used by
+  Gemini, Perplexity, and Google AI Mode, with a `**Sources:**` block listing
+  each one — instead of NotebookLM's own bare `[N]` list with no per-citation
+  entry. NotebookLM's UI doesn't expose a source URL, so each footnote
+  degrades to a plain "NotebookLM source N" label rather than a link, but no
+  citation is dropped.
+
 ## [0.4.31.2] - 2026-09-14
 
 ### Added

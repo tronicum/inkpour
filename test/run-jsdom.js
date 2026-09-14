@@ -496,20 +496,52 @@ async function main() {
       const aiContent = result.messages[1].content;
       assert(aiContent.includes('**Sources:**'), `no Sources section in AI response: ${aiContent.slice(0, 200)}`);
     });
-    await test('AI response lists citation numbers', () => {
+    // NotebookLM citation markers (<button class="citation-marker">N</button>)
+    // now go through the same registerCitation()/formatSourcesBlock() path as
+    // every other platform's <a>-based citations (Gemini/Perplexity/Google AI
+    // Mode all funnel through htmlToMarkdown's shared 'a' branch already) —
+    // so the exported Markdown has one consistent citation shape everywhere:
+    // an inline `[^N]` marker plus a `[^N]: <target>` line in the trailing
+    // Sources block, instead of NotebookLM's previous bare "[N]" list with no
+    // per-citation definition at all. NotebookLM's DOM never exposes a source
+    // URL, so its footnote target degrades to a synthetic "NotebookLM source
+    // N" label rather than a link — the citation information (which source
+    // number was cited, and that there were two distinct ones) is preserved,
+    // just not a clickable URL.
+    await test('AI response uses the shared [^N] footnote marker, not a bare [N]', () => {
       const aiContent = result.messages[1].content;
-      assert(aiContent.includes('[1]'), `no [1] citation in AI response: ${aiContent.slice(0, 200)}`);
-      assert(aiContent.includes('[2]'), `no [2] citation in AI response: ${aiContent.slice(0, 200)}`);
+      assert(aiContent.includes('[^1]'), `no [^1] in AI response: ${aiContent.slice(0, 200)}`);
+      assert(aiContent.includes('[^2]'), `no [^2] in AI response: ${aiContent.slice(0, 200)}`);
+      assert(!/(?<!\^)\[\d+\]/.test(aiContent), `bare [N] citation leaked through: ${aiContent}`);
+    });
+    await test('Sources block defines each footnote with a synthetic label (no URL available)', () => {
+      const aiContent = result.messages[1].content;
+      assert(aiContent.includes('[^1]: NotebookLM source 1'), `missing [^1] definition: ${aiContent}`);
+      assert(aiContent.includes('[^2]: NotebookLM source 2'), `missing [^2] definition: ${aiContent}`);
+    });
+    await test('same citation number repeated in one message dedups to one footnote def', () => {
+      // The fixture cites marker "1" twice in the first AI response.
+      const aiContent = result.messages[1].content;
+      const defs = (aiContent.match(/\[\^1\]:/g) || []);
+      assert(defs.length === 1, `expected 1 def for [^1], got ${defs.length}: ${aiContent}`);
     });
     await test('user messages do not get Sources section', () => {
       const userContent = result.messages[0].content;
       assert(!userContent.includes('**Sources:**'), 'user message should not have Sources section');
     });
-    await test('second AI response has no citations (no sups in fixture)', () => {
-      // Second AI response has no sup elements — Sources section should be absent
+    await test('second AI response has no citations (no markers in fixture)', () => {
+      // Second AI response has no citation-marker buttons — Sources section should be absent
       const aiContent = result.messages[3].content;
-      // This is acceptable either way; just verify content was extracted
       assert(aiContent.length > 0, 'second AI response has no content');
+      assert(!aiContent.includes('**Sources:**'), 'unexpected Sources section with no citations present');
+    });
+    await test('footnote numbering continues across NotebookLM messages (shared offset)', () => {
+      // First AI response (messages[1]) defines [^1] and [^2]. If a later
+      // message in the same extraction pass cited a source, it would have to
+      // continue at [^3], not restart at [^1] — same cross-message numbering
+      // contract Perplexity/Gemini already rely on via _footnoteOffset.
+      assert(result.messages[1].content.includes('[^1]: NotebookLM source 1'), 'message 1 missing [^1] def');
+      assert(result.messages[1].content.includes('[^2]: NotebookLM source 2'), 'message 1 missing [^2] def');
     });
   });
 
@@ -530,6 +562,24 @@ async function main() {
       // Wikipedia URL is cited twice (markers 1 and 1 in fixture) — should map to [^1] both times
       const defs = (aiContent.match(/\[\^1\]:/g) || []);
       assert(defs.length === 1, `expected 1 def for [^1], got ${defs.length}`);
+    });
+    // Regression: footnote numbers must stay unique AND monotonic across
+    // multiple messages within a single real extraction pass (not just the
+    // manual htmlToMarkdown()-call unit test below) — the second AI answer's
+    // citation re-uses marker text "1" in the source HTML, but since
+    // _footnoteOffset is a running total across the whole extraction pass
+    // (reset once per extraction, not per message), it must render as [^3],
+    // continuing after the first answer's [^1]/[^2] rather than colliding
+    // with them.
+    await test('footnote numbering continues monotonically into the second AI answer', () => {
+      const perplexityMsgs = result.messages.filter(m => m.role === 'Perplexity');
+      assert(perplexityMsgs.length >= 2, `expected 2 Perplexity messages, got ${perplexityMsgs.length}`);
+      const secondAnswer = perplexityMsgs[1].content;
+      assert(secondAnswer.includes('[^3]'), `second answer should cite [^3], got: ${secondAnswer.slice(0, 300)}`);
+      assert(secondAnswer.includes('[^3]: https://en.wikipedia.org/wiki/Quantum_teleportation'),
+        `second answer missing [^3] definition: ${secondAnswer}`);
+      assert(!secondAnswer.includes('[^1]') && !secondAnswer.includes('[^2]'),
+        `second answer must not reuse [^1]/[^2] from the first answer: ${secondAnswer}`);
     });
   });
 
