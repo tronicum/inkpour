@@ -14,6 +14,12 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+### Added
+- The "Generate table of contents" setting now also applies to PDF exports
+  and the print/preview page, matching Markdown and HTML exports. Previously
+  PDF output was unaffected by this setting despite the feature having
+  shipped in 0.4.31.0 (#6).
+
 ## [0.4.31.2] - 2026-09-14
 
 ### Added
