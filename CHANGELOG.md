@@ -14,6 +14,13 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+## [0.4.31.2] - 2026-09-14
+
+### Added
+- Chrome Web Store auto-submit wired into `release.yml`'s `publish-chrome`
+  job — no extension code changed from 0.4.31.1. This release exists to
+  exercise that pipeline end-to-end for the first time.
+
 ## [0.4.31.1] - 2026-09-14
 
 ### Fixed
