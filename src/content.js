@@ -728,22 +728,62 @@
 
   // DeepSeek (chat.deepseek.com) — experimental
   function extractDeepSeek() {
-    // DeepSeek uses data-role attributes or message class patterns
-    const turns = document.querySelectorAll(
+    // Verified live DOM (2026-09): each turn (user or assistant) is wrapped in a
+    // `.ds-message` container — that class name is semantic/stable, unlike the
+    // auto-generated hashed classes DeepSeek's React bundler assigns everywhere
+    // else. Assistant turns contain a `.ds-markdown` node with the rendered
+    // answer; when the model reasons first, a `.ds-think-content` sub-block
+    // (which also nests its own `.ds-markdown`) holds the chain-of-thought and
+    // must be excluded so it isn't mistaken for the answer. User turns have no
+    // `.ds-markdown` at all — their question text sits in a hashed, per-deploy
+    // class (e.g. `.fbb737a4`, `._9663006` — seen to differ across builds), so
+    // we identify a user turn by *absence* of `.ds-markdown` rather than by
+    // matching that class name directly.
+    const turns = document.querySelectorAll('.ds-message');
+    if (turns.length) {
+      const messages = Array.from(turns).map(el => {
+        const answer = Array.from(el.querySelectorAll('.ds-markdown'))
+          .find(md => !md.closest('.ds-think-content'));
+        if (answer) return { role: 'DeepSeek', content: htmlToMarkdown(answer) };
+        return { role: 'You', content: htmlToMarkdown(el) };
+      }).filter(m => m.content);
+      if (messages.length) return messages;
+    }
+
+    // Fallback: older guessed selectors (data-role attributes / message class
+    // patterns), kept in case DeepSeek reverts to a simpler DOM or serves a
+    // cached older build.
+    const legacy = document.querySelectorAll(
       '[class*="user_message"], [class*="assistant_message"], ' +
       '[data-role="user"], [data-role="assistant"], ' +
       'div[class*="r-message-bubble"]'
     );
-    if (!turns.length) return null;
+    if (legacy.length) {
+      const messages = Array.from(legacy).map(el => {
+        const cls = el.className || '';
+        const dataRole = el.getAttribute('data-role') || '';
+        const isUser = dataRole === 'user' ||
+                       cls.includes('user_message') ||
+                       cls.includes('user-message');
+        return { role: isUser ? 'You' : 'DeepSeek', content: htmlToMarkdown(el) };
+      }).filter(m => m.content);
+      if (messages.length) return messages;
+    }
 
-    return Array.from(turns).map(el => {
-      const cls = el.className || '';
-      const dataRole = el.getAttribute('data-role') || '';
-      const isUser = dataRole === 'user' ||
-                     cls.includes('user_message') ||
-                     cls.includes('user-message');
-      return { role: isUser ? 'You' : 'DeepSeek', content: htmlToMarkdown(el) };
-    }).filter(m => m.content);
+    // Last resort: DeepSeek renders the whole conversation as a flat list of
+    // sibling blocks under a scroll container. If none of the class-based
+    // selectors above matched at all, fall back to alternating direct
+    // children of that container, alternating starting with the user.
+    const root = document.querySelector(
+      '.ds-virtual-list-visible-items, [class*="chat"][class*="container"], [class*="conversation"], main'
+    );
+    if (!root) return null;
+    const blocks = Array.from(root.children).filter(el => el.textContent.trim());
+    if (!blocks.length) return null;
+    return blocks.map((el, i) => ({
+      role: i % 2 === 0 ? 'You' : 'DeepSeek',
+      content: htmlToMarkdown(el)
+    })).filter(m => m.content);
   }
 
   // Meta AI (meta.ai) — experimental

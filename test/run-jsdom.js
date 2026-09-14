@@ -349,10 +349,15 @@ async function main() {
   });
 
   // ── DeepSeek ──────────────────────────────────────────────────────────────
+  // Fixture mirrors the live DOM (verified 2026-09): `.ds-message` turn
+  // containers, `.ds-markdown` answer nodes, and a `.ds-think-content`
+  // chain-of-thought block ahead of the first answer. The old fixture used
+  // `data-role` attributes that don't exist on the real site anymore, so it
+  // passed without ever exercising the actual extraction path — this one does.
   await suite('DeepSeek extraction (experimental)', async () => {
     const result = await extractFromFixture('deepseek.html', 'chat.deepseek.com');
 
-    await test('extracts 4 messages via data-role', () => {
+    await test('extracts 4 messages via .ds-message/.ds-markdown', () => {
       assert(result.messages.length === 4, `got ${result.messages.length}`);
     });
     await test('user vs assistant roles', () => {
@@ -364,6 +369,13 @@ async function main() {
     });
     await test('converts code block with language tag', () => {
       assert(result.messages[1].content.includes('```python'), 'missing ```python');
+    });
+    await test('excludes chain-of-thought (.ds-think-content) from the answer', () => {
+      assert(!result.messages[1].content.includes('The user wants a comparison'),
+        'chain-of-thought text leaked into the answer');
+    });
+    await test('preserves 🌐 emoji in user question', () => {
+      assert(result.messages[0].content.includes('🌐'), 'missing 🌐');
     });
   });
 
