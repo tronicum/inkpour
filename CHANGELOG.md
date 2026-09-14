@@ -14,6 +14,8 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+## [0.4.31.0] - 2026-09-14
+
 ### Added
 - Table of contents for Markdown and HTML exports (closes #6): when
   "Generate table of contents" is enabled and a chat has 3+ user turns,
@@ -24,6 +26,16 @@ new section here in the same commit as the version bump.
 - Debug mode: a "Probe AI Mode" button that fills a test prompt into
   Google AI Mode and reports which page elements end up wrapping it —
   for diagnosing why extraction sometimes finds nothing there.
+- Experimental export support for duck.ai (closes #10).
+
+### Fixed
+- DeepSeek export was broken after a site DOM redesign; extractor
+  rewritten against the current markup (closes #9).
+- Gemini's lazy-loaded long chats only captured part of the
+  conversation on export; scroll-to-load now recognizes Gemini's
+  scroll container (closes #8).
+- The floating export button overlapped Google AI Mode's own Send
+  button; given extra clearance on that surface only (closes #11).
 
 ## [0.4.30.1] - 2026-07-27
 
