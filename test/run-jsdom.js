@@ -1755,6 +1755,38 @@ async function main() {
     });
   });
 
+  // ─── Duck.ai extraction ───────────────────────────────────────────────────
+  await suite('Duck.ai extraction', async () => {
+    let result;
+    before: { result = await extractFromFixture('duckai.html', 'duck.ai'); }
+
+    await test('extracts 4 messages', () => {
+      assert(result.messages.length === 4, `got ${result.messages?.length}`);
+    });
+    await test('alternates You / Duck.ai roles', () => {
+      assert(result.messages[0].role === 'You',     `role[0]=${result.messages[0].role}`);
+      assert(result.messages[1].role === 'Duck.ai', `role[1]=${result.messages[1].role}`);
+      assert(result.messages[2].role === 'You',     `role[2]=${result.messages[2].role}`);
+      assert(result.messages[3].role === 'Duck.ai', `role[3]=${result.messages[3].role}`);
+    });
+    await test('captures user message text', () => {
+      assert(result.messages[0].content.includes('photosynthesis'), 'missing user message text');
+    });
+    await test('converts AI bold to markdown', () => {
+      assert(result.messages[1].content.includes('**Photosynthesis**'), 'missing bold');
+    });
+    await test('converts AI list items', () => {
+      assert(result.messages[1].content.includes('chlorophyll'), 'missing list item');
+    });
+    await test('converts AI code block', () => {
+      assert(result.messages[1].content.includes('```'), 'missing code fence');
+      assert(result.messages[1].content.includes('C6H12O6'), 'missing code content');
+    });
+    await test('returns platform=duckai', () => {
+      assert(result.platform === 'duckai', `platform=${result.platform}`);
+    });
+  });
+
   // ─── Venice.ai extraction ─────────────────────────────────────────────────
   await suite('Venice.ai extraction', async () => {
     let result;

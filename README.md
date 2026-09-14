@@ -38,6 +38,7 @@ Inkpour is a lightweight WebExtension (Manifest V3) that works in Firefox, Chrom
 | Character.AI | character.ai | 🧪 Experimental |
 | Cohere Coral | coral.cohere.com | 🧪 Experimental |
 | Pi.AI | pi.ai | 🧪 Experimental |
+| Duck.ai | duck.ai | 🧪 Experimental |
 
 Experimental = selectors verified against fixture HTML; real-page accuracy needs ongoing maintenance as sites update their DOM.
 

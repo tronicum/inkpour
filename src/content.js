@@ -352,6 +352,7 @@
     if (host.includes('character.ai'))                                       return 'characterai';
     if (host.includes('coral.cohere.com'))                                   return 'cohere';
     if (host.includes('pi.ai'))                                              return 'piai';
+    if (host.includes('duck.ai'))                                            return 'duckai';
     return 'generic';
   }
 
@@ -1314,6 +1315,60 @@
       .filter(m => m.content);
   }
 
+  // Duck.ai (duck.ai) — DuckDuckGo's account-free AI chat aggregator — experimental
+  // No live authenticated DOM access at write time, so this is best-effort:
+  // layered selector guesses based on DuckDuckGo's general engineering
+  // conventions (data-testid attributes) plus generic class-name fallbacks,
+  // in the same defensive style as extractMetaAI/extractMistral above.
+  function extractDuckAI() {
+    // Guess 1: data-testid hooks (DuckDuckGo's usual pattern elsewhere on
+    // duckduckgo.com, e.g. search result testids).
+    const byTestId = Array.from(document.querySelectorAll(
+      '[data-testid="user-message"], [data-testid="chat-message-user"], ' +
+      '[data-testid="ai-message"], [data-testid="chat-message-assistant"], ' +
+      '[data-testid="assistant-message"]'
+    ));
+    if (byTestId.length) {
+      return byTestId.map(el => {
+        const testId = el.getAttribute('data-testid') || '';
+        const isUser = /user/i.test(testId);
+        return { role: isUser ? 'You' : 'Duck.ai', content: htmlToMarkdown(el) };
+      }).filter(m => m.content);
+    }
+
+    // Guess 2: data-role / role-ish attributes some chat UIs expose.
+    const byRole = Array.from(document.querySelectorAll(
+      '[data-message-author-role], [data-role="user"], [data-role="assistant"]'
+    ));
+    if (byRole.length) {
+      return byRole.map(el => {
+        const roleAttr = (el.getAttribute('data-message-author-role') ||
+                           el.getAttribute('data-role') || '').toLowerCase();
+        const isUser = roleAttr === 'user' || roleAttr === 'human';
+        return { role: isUser ? 'You' : 'Duck.ai', content: htmlToMarkdown(el) };
+      }).filter(m => m.content);
+    }
+
+    // Guess 3: class-name patterns seen in other React chat UIs (UserMessage /
+    // AssistantMessage style naming), as a last resort before the generic
+    // fallback in extractGeneric().
+    const userEls = Array.from(document.querySelectorAll(
+      '[class*="UserMessage"], [class*="user-message"], [class*="userMessage"], ' +
+      '[aria-label*="You said"]'
+    )).map(el => ({ el, role: 'You' }));
+
+    const aiEls = Array.from(document.querySelectorAll(
+      '[class*="AssistantMessage"], [class*="assistant-message"], ' +
+      '[class*="assistantMessage"], [class*="BotMessage"], [aria-label*="Duck"]'
+    )).map(el => ({ el, role: 'Duck.ai' }));
+
+    if (!userEls.length && !aiEls.length) return null;
+    return [...userEls, ...aiEls]
+      .sort(sortByDOMOrder)
+      .map(({ el, role }) => ({ role, content: htmlToMarkdown(el) }))
+      .filter(m => m.content);
+  }
+
   // Z.ai (chat.z.ai) — Zhipu AI / GLM-5, Svelte-based chat UI
   // Selectors confirmed by live DOM inspection:
   //   .chat-user    — user turn wrapper (plain text in whitespace-pre-wrap div)
@@ -1792,6 +1847,7 @@
       case 'characterai': messages = extractCharacterAI();       break;
       case 'cohere':      messages = extractCohere();            break;
       case 'piai':        messages = extractPiAI();              break;
+      case 'duckai':      messages = extractDuckAI();            break;
       case 'googlesearch': messages = extractGoogleAISearch();   break;
       default:            break;
     }
@@ -1805,7 +1861,7 @@
   function getCleanTitle() {
     const rawTitle = document.title.replace(/[<>:"/\\|?*\n]/g, ' ').trim() || 'Chat Export';
     return rawTitle
-      .replace(/\s[-–]\s*(ChatGPT|Claude|Gemini|Copilot|Grok|Perplexity|DeepSeek|Meta AI|Mistral|HuggingChat|NotebookLM|Kagi|Google Search|Google AI|Google)$/i, '')
+      .replace(/\s[-–]\s*(ChatGPT|Claude|Gemini|Copilot|Grok|Perplexity|DeepSeek|Meta AI|Mistral|HuggingChat|NotebookLM|Kagi|Duck\.?ai|Google Search|Google AI|Google)$/i, '')
       .trim();
   }
 
@@ -1814,7 +1870,7 @@
    * better title from the first user message (first 8 significant words).
    * Returns the improved title, or the original if it already looks specific.
    */
-  const GENERIC_TITLE_RE = /^(new\s+chat|new\s+conversation|untitled|chat|conversation|claude|gemini|chatgpt|gpt|copilot|grok|perplexity|deepseek|meta\s*ai|mistral|poe|assistant|chat\s+export|start\s+a\s+new\s+chat)$/i;
+  const GENERIC_TITLE_RE = /^(new\s+chat|new\s+conversation|untitled|chat|conversation|claude|gemini|chatgpt|gpt|copilot|grok|perplexity|deepseek|meta\s*ai|mistral|poe|duck\s*\.?\s*ai|assistant|chat\s+export|start\s+a\s+new\s+chat)$/i;
 
   function smartenTitle(title, messages) {
     const clean = (title || '').trim();
