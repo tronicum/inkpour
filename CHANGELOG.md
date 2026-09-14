@@ -15,6 +15,12 @@ new section here in the same commit as the version bump.
 ## [Unreleased]
 
 ### Added
+- Table of contents for Markdown and HTML exports (closes #6): when
+  "Generate table of contents" is enabled and a chat has 3+ user turns,
+  a clickable "Contents" block is prepended listing each user question
+  (short, plain-text label) linking down to that turn — mirroring
+  ChatGPT's own in-chat conversation navigator. Skipped for short chats
+  where a TOC would just be noise. PDF output is unaffected.
 - Debug mode: a "Probe AI Mode" button that fills a test prompt into
   Google AI Mode and reports which page elements end up wrapping it —
   for diagnosing why extraction sometimes finds nothing there.
