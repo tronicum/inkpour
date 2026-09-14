@@ -148,6 +148,13 @@
       "hosts": ["pi.ai"],
       "status": "experimental",
       "notes": "SPA with human/pi role division. Primary extraction via data-role attributes; fallback to div[class*='human'] and div[class*='pi'] class patterns."
+    },
+    {
+      "name": "Duck.ai",
+      "id": "duckai",
+      "hosts": ["duck.ai", "www.duck.ai"],
+      "status": "experimental",
+      "notes": "DuckDuckGo's account-free AI chat aggregator (proxies GPT/Claude/Llama/Mistral models). Selectors are best-effort (data-testid patterns guessed from DuckDuckGo's engineering conventions) — not verified against the live authenticated DOM."
     }
   ]
 }

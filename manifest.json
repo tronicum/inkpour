@@ -51,6 +51,8 @@
     "*://www.character.ai/*",
     "*://coral.cohere.com/*",
     "*://pi.ai/*",
+    "*://duck.ai/*",
+    "*://www.duck.ai/*",
     "*://api.github.com/*",
     "*://api.notion.com/*"
   ],
@@ -139,7 +141,9 @@
         "*://character.ai/*",
         "*://www.character.ai/*",
         "*://coral.cohere.com/*",
-        "*://pi.ai/*"
+        "*://pi.ai/*",
+        "*://duck.ai/*",
+        "*://www.duck.ai/*"
       ],
       "js": ["src/content.js"],
       "run_at": "document_idle"
