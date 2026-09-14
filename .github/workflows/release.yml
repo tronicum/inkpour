@@ -104,11 +104,37 @@ jobs:
           path: web-ext-artifacts/
           retention-days: 14
 
-  # publish-chrome:
-  #   Deferred — see TODOs.md "Batch 10". Needs a Google Cloud project, the
-  #   Chrome Web Store API enabled, an OAuth 2.0 client, and a one-time
-  #   authorization flow to mint a refresh token before this can be wired
-  #   up the same way publish-firefox is above (chrome-webstore-upload-cli,
-  #   EXTENSION_ID/CLIENT_ID/CLIENT_SECRET/REFRESH_TOKEN as secrets, an
-  #   Environment named "Chrome"). Left as a placeholder so the shape of
-  #   the full pipeline is visible in one file.
+  publish-chrome:
+    name: Publish to Chrome Web Store
+    needs: release
+    runs-on: ubuntu-latest
+    # Mirrors publish-firefox's Environment pattern — see TODOs.md "Batch 10"
+    # for the one-time Google Cloud / OAuth setup needed to populate these
+    # four secrets (EXTENSION_ID, CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN).
+    environment: Chrome
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build extension zip (same script as the release job, so the
+          submitted package is byte-identical to what's on the GitHub Release)
+        run: bash scripts/release.sh
+
+      - name: Upload and publish to Chrome Web Store
+        env:
+          EXTENSION_ID: ${{ secrets.EXTENSION_ID }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
+        run: |
+          VERSION=$(node -e "process.stdout.write(require('./manifest.json').version)")
+          npx chrome-webstore-upload-cli@3 upload \
+            --source "../inkpour-${VERSION}.zip" \
+            --extension-id "$EXTENSION_ID" \
+            --client-id "$CLIENT_ID" \
+            --client-secret "$CLIENT_SECRET" \
+            --refresh-token "$REFRESH_TOKEN"
+          npx chrome-webstore-upload-cli@3 publish \
+            --extension-id "$EXTENSION_ID" \
+            --client-id "$CLIENT_ID" \
+            --client-secret "$CLIENT_SECRET" \
+            --refresh-token "$REFRESH_TOKEN"

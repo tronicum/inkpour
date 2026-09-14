@@ -1128,6 +1128,37 @@ path is one self-contained click handler (settings.js:138–162) building one
   untested — this sandbox is Linux-only, no way to actually launch Orion
   and verify; needs Stefan (or a future session) on a real Mac.
 
+## Batch 16 — Linux Orion smoke harness via Docker (planned, not started, 2026-09)
+- [ ] **M** Goal: automated smoke coverage for Orion on Linux (Flatpak,
+  beta, x86_64 + ARM64 per orionbrowser.com/platforms/linux), asserting
+  only "does the extension actually load and show up" — not extraction
+  logic, which stays in the JSDOM suite.
+- [ ] **M** Why not Playwright: same root cause as the macOS/iOS Orion gap
+  already documented in `playwright.config.js` and
+  `planning/adr-orion-ios-automation.md` — Orion doesn't expose CDP or
+  Playwright's own WebKit/Firefox automation protocol. It being WebKit-
+  based doesn't help; Playwright can only drive its own patched WebKit
+  build, not Kagi's. This holds regardless of OS or container use —
+  Docker solves "no physical display," not "no automation protocol."
+- [ ] **M** Proposed approach: Dockerfile installing Orion via Flatpak,
+  running under Xvfb (virtual display for the GUI app), driven by an
+  OS-level UI automation layer instead of Playwright — AT-SPI/dogtail
+  (Linux accessibility-tree automation, name/role-based, more robust
+  than raw coordinate clicks) rather than xdotool/wmctrl. Roughly the
+  same shape as Appium/XCUITest driving Orion iOS by accessibility
+  hooks, not a debugging protocol.
+- [ ] **S** Scope for a first pass: container boots Orion, loads Inkpour
+  as an unpacked extension, confirms the toolbar icon renders and the
+  popup opens on a supported site. Stop there — a thin smoke layer, not
+  a rebuild of the e2e suite.
+- [ ] **XS** Open question before starting: confirm Flatpak's sandboxing
+  doesn't block the unpacked-extension load path (file picker access to
+  an arbitrary host folder) — untested, flag early if it's a blocker.
+- Not started; picked up only when Linux Orion coverage becomes a real
+  priority (parallel gap to the Orion-iOS Simulator blocker in
+  `planning/adr-orion-ios-automation.md` — both stuck on "no automation
+  protocol," different platforms).
+
 ## Batch 9 — Distribution (XL; blocked on Stefan — accounts, fees, listing assets)
 - [x] **XL** Submit to Firefox Add-ons (AMO) + Chrome Web Store — in progress,
   Stefan is doing this directly (developer accounts, listing copy/screenshots,
@@ -1204,15 +1235,25 @@ landing, not just started:
   source of truth for what ships, guarded by a new test ("release.yml builds
   the zip via scripts/release.sh, not a second hand-maintained exclude
   list", `test/run-jsdom.js`, 304 passed 0 failed).
-- [ ] **L** Chrome Web Store auto-submit: `npx chrome-webstore-upload-cli
-  upload --auto-publish`, needs `EXTENSION_ID` + `CLIENT_ID` + `CLIENT_SECRET`
-  + `REFRESH_TOKEN`. Bigger lift than Firefox: requires a Google Cloud project,
-  enabling the Chrome Web Store API, creating an OAuth 2.0 client, and running
-  a one-time authorization flow to mint the refresh token (Google's
-  chrome-webstore-upload docs walk through this) — more setup surface, more
-  places for Stefan to get stuck gathering credentials, and an OAuth refresh
-  token can expire/get revoked, so this needs a documented re-mint procedure
-  too, not just a one-time setup note.
+- [x] **L — implemented 2026-09, needs Stefan's secrets + a live run** Chrome
+  Web Store auto-submit. Added a `publish-chrome` job to `.github/workflows/
+  release.yml`, `needs: release`, gated behind a GitHub Environment named
+  `Chrome` (same pattern as `Firefox`). Rebuilds the zip via
+  `scripts/release.sh` (byte-identical to the GitHub Release asset), then
+  runs `npx chrome-webstore-upload-cli@3 upload` followed by `... publish`
+  against `EXTENSION_ID` / `CLIENT_ID` / `CLIENT_SECRET` / `REFRESH_TOKEN`.
+  **Stefan still needs to, before the first tag+push relying on this**: (1)
+  create a Google Cloud project, enable the Chrome Web Store API, link a
+  billing account (required by Google Cloud to enable most APIs — this one
+  has no per-call cost), (2) create an OAuth 2.0 client (type "Desktop app"),
+  (3) run the one-time authorization-code → refresh-token exchange (browser
+  consent URL + a `curl` token exchange — see chrome-webstore-upload's docs),
+  (4) add all four secrets scoped to the `Chrome` environment (Settings →
+  Environments → Chrome → Environment secrets), (5) note the refresh token
+  can expire/get revoked — re-minting means repeating step 3, no code change
+  needed. Bigger setup surface than Firefox's single API-key pair, and
+  unlike AMO, the Chrome Web Store has no "what's new" release-notes API
+  field — `CHANGELOG.md` extraction (see above) only feeds AMO for now.
 - [ ] **S** Wire both into a new job in `.github/workflows/release.yml` (or a
   separate `publish.yml` triggered by the same tag push), gated behind GitHub
   [Environments](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment)
