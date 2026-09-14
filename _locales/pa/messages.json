@@ -355,6 +355,17 @@
       }
     }
   },
+  "popupWhatsNewTitle": {
+    "message": "What's new in v$VERSION$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupWhatsNewDismiss": {
+    "message": "Dismiss"
+  },
   "popupIncrementalHintOne": {
     "message": "ਤੁਹਾਡੀ ਪਿਛਲੀ ਐਕਸਪੋਰਟ ($WHEN$) ਤੋਂ ਬਾਅਦ $COUNT$ ਨਵਾਂ ਸੁਨੇਹਾ — ",
     "placeholders": {

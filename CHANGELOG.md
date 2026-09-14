@@ -14,6 +14,11 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+### Added
+- Popup now shows a short "What's new in vX.Y.Z.W" panel, sourced from this
+  file, the first time it opens after an update — once per version, then
+  never again for that version.
+
 ## [0.4.31.2] - 2026-09-14
 
 ### Added

@@ -1766,6 +1766,86 @@ async function main() {
     assert(md.includes('# You'), 'markdown content should follow notes');
   });
 
+  // ─── parseChangelogSection ("What's new" popup panel) ─────────────────────
+  const SAMPLE_CHANGELOG = `# Changelog
+
+## [Unreleased]
+
+### Added
+- Some unreleased thing that should never leak into a real version's result.
+
+## [1.2.0.0] - 2026-01-15
+
+### Added
+- First added bullet for 1.2.0.0.
+- Second added bullet for 1.2.0.0
+  that wraps onto a continuation line.
+
+### Fixed
+- A fixed bullet for 1.2.0.0.
+
+## [1.1.0.0] - 2025-12-01
+
+### Fixed
+- A neighboring older version's bullet that must not appear in 1.2.0.0's result.
+
+## [1.0.5.0] - 2025-11-01
+
+### Added
+No bullets here at all, just prose under the heading.
+`;
+
+  await test('parseChangelogSection parses a realistic multi-version changelog, returning only the requested version\'s bullets', () => {
+    const result = parseChangelogSection(SAMPLE_CHANGELOG, '1.2.0.0');
+    assert(result !== null, 'expected a non-null result');
+    assert(result.version === '1.2.0.0', `unexpected version: ${result.version}`);
+    assert(result.entries.some(e => e.includes('First added bullet for 1.2.0.0')), 'missing first bullet');
+    assert(result.entries.some(e => e.includes('A fixed bullet for 1.2.0.0')), 'missing fixed bullet');
+    assert(!result.entries.some(e => e.includes('neighboring older version')), 'leaked bullet from 1.1.0.0');
+    assert(!result.entries.some(e => e.includes('unreleased thing')), 'leaked bullet from [Unreleased]');
+  });
+
+  await test('parseChangelogSection returns the date from the version heading', () => {
+    const result = parseChangelogSection(SAMPLE_CHANGELOG, '1.2.0.0');
+    assert(result.date === '2026-01-15', `unexpected date: ${result.date}`);
+  });
+
+  await test('parseChangelogSection handles multi-line/wrapped bullets without breaking parsing', () => {
+    const result = parseChangelogSection(SAMPLE_CHANGELOG, '1.2.0.0');
+    const wrapped = result.entries.find(e => e.includes('Second added bullet'));
+    assert(wrapped, 'expected to find the wrapped bullet');
+    assert(wrapped.includes('continuation line'), `continuation text lost: ${JSON.stringify(wrapped)}`);
+  });
+
+  await test('parseChangelogSection returns null for empty string input', () => {
+    assert(parseChangelogSection('', '1.2.0.0') === null, 'expected null for empty string');
+  });
+
+  await test('parseChangelogSection returns null when the version is not present', () => {
+    assert(parseChangelogSection(SAMPLE_CHANGELOG, '9.9.9.9') === null, 'expected null for missing version');
+  });
+
+  await test('parseChangelogSection returns null for a heading with no bullets beneath it', () => {
+    assert(parseChangelogSection(SAMPLE_CHANGELOG, '1.0.5.0') === null, 'expected null when heading has no bullets');
+  });
+
+  await test('parseChangelogSection returns null (not throws) for garbage, non-Markdown input', () => {
+    let result;
+    let threw = false;
+    try {
+      result = parseChangelogSection('{"not": "markdown at all", "just": ["json", 1, 2, 3]}', '1.2.0.0');
+    } catch {
+      threw = true;
+    }
+    assert(!threw, 'parseChangelogSection must never throw');
+    assert(result === null, 'expected null for garbage input');
+  });
+
+  await test('parseChangelogSection returns null (not throws) for null/undefined input', () => {
+    assert(parseChangelogSection(null, '1.2.0.0') === null, 'expected null for null input');
+    assert(parseChangelogSection(undefined, '1.2.0.0') === null, 'expected null for undefined input');
+  });
+
   // ─── Z.ai extraction ──────────────────────────────────────────────────────
   await suite('Z.ai extraction', async () => {
     let result;
@@ -2684,6 +2764,12 @@ async function main() {
     const headings = [...CHANGELOG.matchAll(/^## \[([^\]]+)\]/gm)].map(m => m[1]);
     const unknown = headings.filter(h => h !== 'Unreleased' && h !== MANIFEST_FOR_CHANGELOG.version && !tags.has(h));
     assert(unknown.length === 0, `CHANGELOG has headings with no matching git tag: ${unknown.join(', ')}`);
+  });
+
+  await test('parseChangelogSection works against the real CHANGELOG.md for the real manifest.json version', () => {
+    const result = parseChangelogSection(CHANGELOG, MANIFEST_FOR_CHANGELOG.version);
+    assert(result !== null, `expected a non-null result for version ${MANIFEST_FOR_CHANGELOG.version}`);
+    assert(result.entries.length >= 1, 'expected at least one entry from the real CHANGELOG.md section');
   });
 
   // ─── Firefox AMO manifest validation ─────────────────────────────────────
