@@ -43,6 +43,12 @@ require('fake-indexeddb/auto');
 const VAULT_HANDLE_JS = fs.readFileSync(path.resolve(__dirname, '../src/vaultHandle.js'), 'utf8');
 vm.runInThisContext(VAULT_HANDLE_JS);
 
+// ─── src/redact.js (secret scrubbing) ───────────────────────────────────────
+// Same global-scope pattern as src/utils.js — loading it here makes
+// scanForSecrets()/redactSecrets()/redactMessages() directly callable below.
+const REDACT_JS = fs.readFileSync(path.resolve(__dirname, '../src/redact.js'), 'utf8');
+vm.runInThisContext(REDACT_JS);
+
 // ─── i18n mock ──────────────────────────────────────────────────────────────
 // content.js calls api.i18n.getMessage(key, substitutions) for the floating
 // button's localized labels/status text. Real browsers always provide
@@ -3190,6 +3196,132 @@ async function main() {
       };
       const ok = await ensureReadWritePermission(dirHandle);
       assert(ok === false, 'expected false when permission denied');
+    });
+  });
+
+  await suite('redact.js — secret scrubbing for local exports', async () => {
+    // NOTE: fake credentials, constructed for the test — none of these are real.
+    const FAKE_SK    = 'sk-' + 'abc123def456ghi789jkl0';
+    const FAKE_AKIA  = 'AKIA' + 'IOSFODNN7EXAMPLE';
+    const FAKE_GHP   = 'ghp_' + 'abcdefghijklmnopqrstuvwxyz0123456789';
+    const FAKE_JWT   = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV';
+    const FAKE_EMAIL = 'jane.doe@example.com';
+
+    await test('redactSecrets() catches an sk- style API key', () => {
+      const { cleaned, findings } = redactSecrets(`my key is ${FAKE_SK} ok`);
+      assert(!cleaned.includes(FAKE_SK), 'key should be removed');
+      assert(cleaned.includes('[REDACTED:API_KEY]'), `expected marker, got: ${cleaned}`);
+      assert(findings.length === 1 && findings[0].type === 'api_key', JSON.stringify(findings));
+    });
+
+    await test('redactSecrets() catches an AWS access key ID', () => {
+      const { cleaned } = redactSecrets(`aws: ${FAKE_AKIA}`);
+      assert(!cleaned.includes(FAKE_AKIA), 'AKIA key should be removed');
+      assert(cleaned.includes('[REDACTED:AWS_KEY]'), cleaned);
+    });
+
+    await test('redactSecrets() catches a GitHub token', () => {
+      const { cleaned } = redactSecrets(`use ${FAKE_GHP} here`);
+      assert(!cleaned.includes(FAKE_GHP), 'ghp_ token should be removed');
+      assert(cleaned.includes('[REDACTED:GITHUB_TOKEN]'), cleaned);
+    });
+
+    await test('redactSecrets() catches a JWT', () => {
+      const { cleaned } = redactSecrets(`bearer ${FAKE_JWT}`);
+      assert(!cleaned.includes(FAKE_JWT), 'JWT should be removed');
+      assert(cleaned.includes('[REDACTED:JWT]'), cleaned);
+    });
+
+    await test('redactSecrets() catches an email address', () => {
+      const { cleaned } = redactSecrets(`contact ${FAKE_EMAIL} please`);
+      assert(!cleaned.includes(FAKE_EMAIL), 'email should be removed');
+      assert(cleaned.includes('[REDACTED:EMAIL]'), cleaned);
+    });
+
+    await test('redactSecrets() catches an api_key = <value> assignment', () => {
+      const input = 'api_key = qw9x7z2p4m8v6b1n3c5k';
+      const { cleaned, findings } = redactSecrets(input);
+      assert(!cleaned.includes('qw9x7z2p4m8v6b1n3c5k'), 'value should be removed');
+      assert(findings.some(f => f.type === 'generic_secret'), JSON.stringify(findings));
+    });
+
+    await test('redactSecrets() leaves ordinary prose and code byte-identical', () => {
+      const samples = [
+        'const token = getToken();',
+        'function secret() {}',
+        'password',
+        'This is a well-known sentence with a hyphenated word in it.',
+        'The skeleton key opened the sk-eleton closet.', // sk- but too short
+        'let x = a.b.c;',
+      ];
+      for (const s of samples) {
+        const { cleaned, findings } = redactSecrets(s);
+        assert(cleaned === s, `expected untouched output for: ${s}\n  got: ${cleaned}`);
+        assert(findings.length === 0, `expected no findings for: ${s}`);
+      }
+    });
+
+    await test('redactMessages() is pure — input array and objects unchanged, roles preserved', () => {
+      const original = [
+        { role: 'user',      content: `here is my key ${FAKE_SK}` },
+        { role: 'assistant', content: 'plain answer, nothing secret' },
+      ];
+      const originalJson = JSON.stringify(original);
+      const out = redactMessages(original);
+      assert(JSON.stringify(original) === originalJson, 'input must not be mutated');
+      assert(out !== original, 'must return a new array');
+      assert(out[0] !== original[0], 'must return new message objects');
+      assert(out[0].role === 'user' && out[1].role === 'assistant', 'roles preserved');
+      assert(!out[0].content.includes(FAKE_SK), 'secret removed from copy');
+      assert(out[0].content.includes('[REDACTED:API_KEY]'), out[0].content);
+      assert(out[1].content === original[1].content, 'clean message untouched');
+    });
+
+    await test('redactMessages() tolerates null/undefined/empty input', () => {
+      assert(Array.isArray(redactMessages(null)) && redactMessages(null).length === 0, 'null → []');
+      assert(redactMessages(undefined).length === 0, 'undefined → []');
+      assert(redactMessages([]).length === 0, '[] → []');
+    });
+
+    await test('end-to-end: builders produce redacted output after redactMessages()', () => {
+      const dirty = [
+        { role: 'user',      content: `my key is ${FAKE_SK}, please help` },
+        { role: 'assistant', content: 'never paste keys into chats' },
+      ];
+      const scrubbed = redactMessages(dirty);
+      const outputs = {
+        markdown: buildMarkdown(scrubbed, 'Key Trouble', 'ChatGPT', {}, 'https://example.com'),
+        json:     buildJSON(scrubbed, 'Key Trouble', 'ChatGPT', 'chatgpt'),
+        html:     buildStandaloneHTML(scrubbed, 'Key Trouble', 'ChatGPT', {}),
+        print:    buildPrintBodyHTML(scrubbed, 'Key Trouble', 'ChatGPT'),
+      };
+      for (const [fmt, out] of Object.entries(outputs)) {
+        assert(!out.includes(FAKE_SK), `${fmt} output must not contain the key`);
+        assert(out.includes('[REDACTED:'), `${fmt} output should contain the redaction marker`);
+      }
+    });
+
+    await test('control: clean messages build byte-identical output with and without redactMessages()', () => {
+      const clean = [
+        { role: 'user',      content: 'How do I center a div?' },
+        { role: 'assistant', content: 'Use flexbox: display: flex; justify-content: center;' },
+      ];
+      const scrubbed = redactMessages(clean);
+      // Builders embed the export timestamp (new Date()), so two calls made a
+      // second apart would differ there even with identical content — mask
+      // date/time stamps before comparing, everything else must match exactly.
+      const norm = (s) => s
+        .replace(/\d{4}-\d{2}-\d{2}([T ]\d{2}:\d{2}(:\d{2})?(\.\d+)?Z?)?/g, '<DATE>')
+        .replace(/\b\d{1,2}:\d{2}(:\d{2})?\s?(AM|PM)?\b/gi, '<TIME>');
+      const pairs = [
+        [buildMarkdown(clean, 'CSS Q', 'ChatGPT', {}, ''), buildMarkdown(scrubbed, 'CSS Q', 'ChatGPT', {}, '')],
+        [buildJSON(clean, 'CSS Q', 'ChatGPT', 'chatgpt'), buildJSON(scrubbed, 'CSS Q', 'ChatGPT', 'chatgpt')],
+        [buildStandaloneHTML(clean, 'CSS Q', 'ChatGPT', {}), buildStandaloneHTML(scrubbed, 'CSS Q', 'ChatGPT', {})],
+        [buildPrintBodyHTML(clean, 'CSS Q', 'ChatGPT'), buildPrintBodyHTML(scrubbed, 'CSS Q', 'ChatGPT')],
+      ];
+      pairs.forEach(([a, b], i) => {
+        assert(norm(a) === norm(b), `builder #${i} output changed for a clean conversation`);
+      });
     });
   });
 
