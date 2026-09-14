@@ -14,6 +14,12 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+### Added
+- Settings now follow you across signed-in devices for a small set of
+  non-sensitive preferences (default export format, table of contents,
+  YAML front matter, etc.) via browser sync. Tokens, local file paths,
+  and vault handles always stay local-only on each machine.
+
 ## [0.4.31.2] - 2026-09-14
 
 ### Added
