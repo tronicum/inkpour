@@ -36,15 +36,36 @@
   let _footnotes = [];
   let _footnoteOffset = 0;
 
+  /**
+   * Register a citation target (a URL, or — for platforms that expose only a
+   * citation number with no href, e.g. NotebookLM — a synthetic label string)
+   * and return the `[^N]` footnote marker text for it. Shared by every
+   * platform's citation detection so the resulting Markdown has one shape
+   * everywhere: an inline `[^N]` plus a `[^N]: <target>` entry in the
+   * trailing Sources block. Same target string cited twice within one
+   * message dedups to the same number (dedup is per-message, matching
+   * `_footnotes` being reset per htmlToMarkdown() call below).
+   */
+  function registerCitation(target) {
+    let idx = _footnotes.indexOf(target);
+    if (idx < 0) { _footnotes.push(target); idx = _footnotes.length - 1; }
+    return `[^${_footnoteOffset + idx + 1}]`;
+  }
+
+  /** Render the trailing "**Sources:**" block for whatever got registered this call. */
+  function formatSourcesBlock() {
+    if (!_footnotes.length) return '';
+    const block = '\n\n**Sources:**\n\n' +
+      _footnotes.map((target, i) => `[^${_footnoteOffset + i + 1}]: ${target}`).join('\n');
+    _footnoteOffset += _footnotes.length;
+    return block;
+  }
+
   function htmlToMarkdown(element) {
     if (!element) return '';
     _footnotes = [];
     let md = convertNode(element).replace(/\n{3,}/g, '\n\n').trim();
-    if (_footnotes.length) {
-      md += '\n\n**Sources:**\n\n' +
-        _footnotes.map((url, i) => `[^${_footnoteOffset + i + 1}]: ${url}`).join('\n');
-      _footnoteOffset += _footnotes.length;
-    }
+    md += formatSourcesBlock();
     return md;
   }
 
@@ -56,7 +77,14 @@
 
     const tag = node.tagName.toLowerCase();
 
-    if (['script', 'style', 'svg', 'button', 'nav', 'header', 'footer'].includes(tag)) {
+    if (['script', 'style', 'svg', 'nav', 'header', 'footer'].includes(tag)) {
+      return '';
+    }
+    // <button> is dropped like the tags above, EXCEPT for NotebookLM's
+    // citation-marker buttons (`<button class="citation-marker">N</button>`,
+    // no href/URL available) — those are citations, not UI chrome, so they
+    // go through the shared citation path below instead of being discarded.
+    if (tag === 'button' && !/citation-marker/.test(node.className || '')) {
       return '';
     }
 
@@ -112,8 +140,28 @@
       }
 
       case 'sup': {
+        // NotebookLM (older build): <sup data-source-index="N"> with no
+        // wrapping <a> and no href — a citation number only. 0-based index,
+        // displayed 1-based. Route through the shared citation registry like
+        // every other platform's markers, degrading to a synthetic label
+        // instead of a URL since NotebookLM's DOM exposes no source link.
+        const srcIdx = node.getAttribute('data-source-index');
+        if (srcIdx !== null && /^\d+$/.test(srcIdx)) {
+          const displayNum = Number(srcIdx) + 1;
+          return registerCitation(`NotebookLM source ${displayNum}`);
+        }
         const inner = children().trim();
         return inner ? `^${inner}^` : '';
+      }
+
+      case 'button': {
+        // NotebookLM citation-marker button — see the tag-filter note above.
+        // The button's own text is already the 1-based source number.
+        const numText = node.textContent.trim();
+        if (/^\d+$/.test(numText)) {
+          return registerCitation(`NotebookLM source ${numText}`);
+        }
+        return '';
       }
 
       case 'sub': {
@@ -182,17 +230,13 @@
         if (onlyChild?.tagName.toLowerCase() === 'sup') {
           const numText = onlyChild.textContent.trim();
           if (/^\d+$/.test(numText)) {
-            let idx = _footnotes.indexOf(href);
-            if (idx < 0) { _footnotes.push(href); idx = _footnotes.length - 1; }
-            return `[^${_footnoteOffset + idx + 1}]`;
+            return registerCitation(href);
           }
         }
         // Pattern 2: <a href="...">[1]</a>  (bracket-style inline citation)
         const trimmed = innerText.trim();
         if (/^\[\d+\]$/.test(trimmed)) {
-          let idx = _footnotes.indexOf(href);
-          if (idx < 0) { _footnotes.push(href); idx = _footnotes.length - 1; }
-          return `[^${_footnoteOffset + idx + 1}]`;
+          return registerCitation(href);
         }
 
         return `[${innerText}](${href})`;
@@ -945,49 +989,23 @@
   // not a full-page chat.
   function extractNotebookLM() {
     /**
-     * Extract citation numbers from a NotebookLM AI response element.
-     * Current live DOM (2026-07): citations are
-     * `<button class="citation-marker">N</button>`, where the button's own
-     * text IS the 1-based source number already — no offset needed. Older
-     * `<sup data-source-index="N">` markup (0-based) kept as a fallback in
-     * case of a UI rollback.
+     * Citation markers in NotebookLM's AI responses — either
+     * `<button class="citation-marker">N</button>` (current live DOM,
+     * 2026-07; the button's own text IS the 1-based source number, no
+     * offset needed) or the older `<sup data-source-index="N">` (0-based,
+     * kept as a fallback in case of a UI rollback) — are now handled inline
+     * by the shared `button`/`sup` cases in convertNode(), which route them
+     * through the same registerCitation()/formatSourcesBlock() machinery
+     * every other platform's `<a>`-based citations use. That keeps the
+     * exported "**Sources:**" block one consistent shape across platforms
+     * instead of NotebookLM emitting its own bare "[N]" list with no URL —
+     * htmlToMarkdown(el) alone is now sufficient; no separate pass needed.
+     * NotebookLM's DOM never exposes a source URL, so its footnote
+     * definitions degrade to a synthetic "NotebookLM source N" label rather
+     * than a link — no citation information is lost, it's just not a URL.
      */
-    function extractCitations(el) {
-      const markers = el.querySelectorAll('button.citation-marker, [class*="citation-marker"]');
-      if (markers.length) {
-        const nums = new Set();
-        markers.forEach(btn => {
-          const n = parseInt(btn.textContent.trim(), 10);
-          if (!isNaN(n) && n > 0) nums.add(n);
-        });
-        return [...nums].sort((a, b) => a - b);
-      }
-      const sups = el.querySelectorAll('sup[data-source-index], sup > a, [class*="citation"]');
-      if (!sups.length) return [];
-      const nums = new Set();
-      sups.forEach(sup => {
-        // data-source-index is 0-based; display as 1-based
-        const idx = sup.getAttribute('data-source-index');
-        if (idx !== null) {
-          nums.add(Number(idx) + 1);
-        } else {
-          // Try to extract a number from the text content
-          const n = parseInt(sup.textContent.trim(), 10);
-          if (!isNaN(n) && n > 0) nums.add(n);
-        }
-      });
-      return [...nums].sort((a, b) => a - b);
-    }
-
-    function buildContentWithCitations(el, isUser) {
-      let content = htmlToMarkdown(el);
-      if (!isUser) {
-        const citations = extractCitations(el);
-        if (citations.length) {
-          content += '\n\n**Sources:** ' + citations.map(n => `[${n}]`).join(' ');
-        }
-      }
-      return content;
+    function buildContentWithCitations(el, _isUser) {
+      return htmlToMarkdown(el);
     }
 
     // Primary (verified live, 2026-07): each turn is a <chat-message> custom
