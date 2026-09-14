@@ -108,6 +108,7 @@
     notionToken:           '',
     notionPageId:          '',
     scrubSecrets:          true,
+    scrubLocalExports:     false,
     webhookUrl:            '',
     webhookIncludeContent: false,
     writeToVault:          false,
@@ -116,8 +117,15 @@
   };
   let userSettings = { ...SETTING_DEFAULTS };
 
-  api.storage.local.get('inkpour_settings', (result) => {
+  api.storage.local.get('inkpour_settings', async (result) => {
     userSettings = Object.assign({}, SETTING_DEFAULTS, result?.inkpour_settings ?? {});
+    // Merge in any preferences synced from another device (small UI/behavior
+    // toggles only — see src/settingsSync.js), then write the merged result
+    // back to storage.local so background.js (which only ever reads
+    // storage.local, never storage.sync) sees them too from this point on,
+    // without needing the user to open Settings again on this device.
+    userSettings = await loadWithSyncOverrides(api, userSettings);
+    api.storage.local.set({ inkpour_settings: userSettings });
     // Highlight default format on the always-visible ZIP quick button; the
     // rest of the formats live behind the picker now, where the "selected"
     // state (see setSelectedFormat()) already communicates this.
@@ -375,6 +383,25 @@
       if (box.checked && allMessages[i]) selected.push(allMessages[i]);
     });
     return selected.length ? selected : allMessages;
+  }
+
+  /**
+   * Apply the opt-in local-export scrub (Settings → "Scrub secrets in local
+   * exports", `scrubLocalExports`, default OFF). Returns redacted copies of
+   * the messages and the conversation title when the setting is on, or the
+   * originals untouched when it is off.
+   *
+   * Deliberately NOT applied to:
+   * - the user's own export notes (they typed those intentionally this session),
+   * - the Gist/Notion upload paths, which are governed by the separate
+   *   `scrubSecrets` setting (network upload = opt-out, local file = opt-in).
+   */
+  function applyLocalScrub(msgs, title) {
+    if (!userSettings.scrubLocalExports) return { msgs, title };
+    return {
+      msgs:  redactMessages(msgs),
+      title: redactSecrets(title || '').cleaned,
+    };
   }
 
   // Quick-select helpers
@@ -818,9 +845,9 @@
 
     try {
       const data = await extractFromPage();
-      const msgs  = getSelectedMessages(data.messages);
+      const { msgs, title } = applyLocalScrub(getSelectedMessages(data.messages), data.title);
       const notes = getExportNotes();
-      const md   = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, userSettings, data.sourceUrl);
+      const md   = notesBlockMD(notes) + buildMarkdown(msgs, title, data.site, userSettings, data.sourceUrl);
       const filename = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length) + '.md';
 
       if (vaultHandle) {
@@ -851,8 +878,8 @@
     setLoading(pdfBtn, true);
     try {
       const data        = await extractFromPage();
-      const msgs        = getSelectedMessages(data.messages);
-      const bodyContent = buildPrintBodyHTML(msgs, data.title, data.site);
+      const { msgs, title } = applyLocalScrub(getSelectedMessages(data.messages), data.title);
+      const bodyContent = buildPrintBodyHTML(msgs, title, data.site, userSettings);
       localStorage.setItem('inkpour_print', bodyContent);
       await api.tabs.create({ url: api.runtime.getURL('print.html') });
       saveLastExport('pdf', { ...data, messages: msgs }, bodyContent);
@@ -876,8 +903,8 @@
     setLoading(htmlBtn, true);
     try {
       const data     = await extractFromPage();
-      const msgs     = getSelectedMessages(data.messages);
-      const fullHTML = buildStandaloneHTML(msgs, data.title, data.site, userSettings);
+      const { msgs, title } = applyLocalScrub(getSelectedMessages(data.messages), data.title);
+      const fullHTML = buildStandaloneHTML(msgs, title, data.site, userSettings);
       downloadFile(fullHTML, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length) + '.html', 'text/html;charset=utf-8');
       setStatus(t('popupStatusSavedCheckDownloads'), 'success');
       saveLastExport('html', { ...data, messages: msgs }, fullHTML);
@@ -895,9 +922,9 @@
     setLoading(copyBtn, true);
     try {
       const data  = await extractFromPage();
-      const msgs  = getSelectedMessages(data.messages);
+      const { msgs, title } = applyLocalScrub(getSelectedMessages(data.messages), data.title);
       const notes = getExportNotes();
-      const md    = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, userSettings, data.sourceUrl);
+      const md    = notesBlockMD(notes) + buildMarkdown(msgs, title, data.site, userSettings, data.sourceUrl);
       await navigator.clipboard.writeText(md);
       setStatus(t('popupStatusMarkdownCopied'), 'success');
       saveLastExport('copy-md', data, md);
@@ -915,8 +942,8 @@
     setLoading(copyHtmlBtn, true);
     try {
       const data     = await extractFromPage();
-      const msgs     = getSelectedMessages(data.messages);
-      const fullHTML = buildStandaloneHTML(msgs, data.title, data.site, userSettings);
+      const { msgs, title } = applyLocalScrub(getSelectedMessages(data.messages), data.title);
+      const fullHTML = buildStandaloneHTML(msgs, title, data.site, userSettings);
       await navigator.clipboard.writeText(fullHTML);
       setStatus(t('popupStatusHtmlCopied'), 'success');
       saveLastExport('copy-html', data, fullHTML);
@@ -934,9 +961,9 @@
     setLoading(jsonBtn, true);
     try {
       const data  = await extractFromPage();
-      const msgs  = getSelectedMessages(data.messages);
+      const { msgs, title } = applyLocalScrub(getSelectedMessages(data.messages), data.title);
       const notes = getExportNotes();
-      let json = buildJSON(msgs, data.title, data.site, data.platform);
+      let json = buildJSON(msgs, title, data.site, data.platform);
       // Inject notes field after the top-level exportedAt key if present
       if (notes) {
         try {
@@ -972,8 +999,8 @@
 
     try {
       const data  = await extractFromPage();
-      const msgs  = getSelectedMessages(data.messages);
-      const bytes = buildDocx(msgs, data.title, data.site, userSettings, data.sourceUrl);
+      const { msgs, title } = applyLocalScrub(getSelectedMessages(data.messages), data.title);
+      const bytes = buildDocx(msgs, title, data.site, userSettings, data.sourceUrl);
       const filename = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length) + '.docx';
 
       if (vaultHandle) {
@@ -1023,9 +1050,9 @@
 
     try {
       const data = await extractFromPage();
-      const msgs = getSelectedMessages(data.messages);
+      const { msgs, title } = applyLocalScrub(getSelectedMessages(data.messages), data.title);
       const { files, codeCount } = buildZipExport(
-        msgs, data.title, data.site, userSettings, data.sourceUrl
+        msgs, title, data.site, userSettings, data.sourceUrl
       );
       const zipBytes = buildZip(files);
       const filename = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length) + '.zip';
@@ -1070,16 +1097,16 @@
     setLoading(allBtn, true);
     try {
       const data  = await extractFromPage();
-      const msgs  = getSelectedMessages(data.messages);
+      const { msgs, title } = applyLocalScrub(getSelectedMessages(data.messages), data.title);
       const notes = getExportNotes();
       const slug  = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length);
 
       // Build MD
-      const md = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, userSettings, data.sourceUrl);
+      const md = notesBlockMD(notes) + buildMarkdown(msgs, title, data.site, userSettings, data.sourceUrl);
       downloadFile(md, slug + '.md', 'text/markdown;charset=utf-8');
 
       // Build DOCX
-      const docxBytes = buildDocx(msgs, data.title, data.site, userSettings, data.sourceUrl);
+      const docxBytes = buildDocx(msgs, title, data.site, userSettings, data.sourceUrl);
       const docxBlob  = new Blob([docxBytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
       const docxUrl   = URL.createObjectURL(docxBlob);
       const docxA     = Object.assign(document.createElement('a'), {
@@ -1092,7 +1119,7 @@
       setTimeout(() => URL.revokeObjectURL(docxUrl), 1000);
 
       // Build ZIP
-      const { files } = buildZipExport(msgs, data.title, data.site, userSettings, data.sourceUrl);
+      const { files } = buildZipExport(msgs, title, data.site, userSettings, data.sourceUrl);
       const zipBytes  = buildZip(files);
       const zipBlob   = new Blob([zipBytes], { type: 'application/zip' });
       const zipUrl    = URL.createObjectURL(zipBlob);
@@ -1587,8 +1614,20 @@
     selectedFormat = format;
     if (exportSelectedLabel) exportSelectedLabel.textContent = labelFor(format);
     exportMenu?.querySelectorAll('.export-menu-item').forEach((el) => {
-      el.classList.toggle('selected', el.dataset.format === format);
+      const on = el.dataset.format === format;
+      el.classList.toggle('selected', on);
+      // Rows are role="menuitemradio" — mirror the visual .selected state
+      // into aria-checked so screen readers hear which format is current.
+      el.setAttribute('aria-checked', String(on));
     });
+  }
+
+  /** The menu rows a keyboard user can currently reach (Gist/Notion rows
+   *  stay hidden until their tokens are configured). */
+  function visibleExportMenuItems() {
+    return exportMenu
+      ? [...exportMenu.querySelectorAll('.export-menu-item')].filter((el) => !el.hidden)
+      : [];
   }
 
   function closeExportMenu() {
@@ -1604,10 +1643,46 @@
     exportMenu.style.display = 'flex';
     exportMenu.style.flexDirection = 'column';
     exportSelectBtn?.setAttribute('aria-expanded', 'true');
+    // Standard menu behavior: move focus into the menu, onto the currently
+    // selected row (fall back to the first), so arrow keys work immediately.
+    const items = visibleExportMenuItems();
+    const current = menuItemFor(selectedFormat);
+    (current && !current.hidden ? current : items[0])?.focus();
   }
 
   exportSelectBtn?.addEventListener('click', () => {
     if (exportMenu?.hidden) openExportMenu(); else closeExportMenu();
+  });
+
+  // ArrowDown/ArrowUp on the (closed) selector also opens the menu, like a
+  // native <select>.
+  exportSelectBtn?.addEventListener('keydown', (e) => {
+    if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && exportMenu?.hidden) {
+      e.preventDefault();
+      openExportMenu();
+    }
+  });
+
+  // Roving arrow-key navigation between the visible menu rows. Enter/Space
+  // already activate rows natively (they're real <button>s); Escape is
+  // handled at the document level below.
+  exportMenu?.addEventListener('keydown', (e) => {
+    const items = visibleExportMenuItems();
+    if (!items.length) return;
+    const idx = items.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      items[(idx + 1) % items.length].focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      items[(idx - 1 + items.length) % items.length].focus();
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      items[0].focus();
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      items[items.length - 1].focus();
+    }
   });
 
   // Picking a row only updates the selection and closes the menu — it never
@@ -1616,6 +1691,9 @@
     el.addEventListener('click', () => {
       setSelectedFormat(el.dataset.format);
       closeExportMenu();
+      // Focus would otherwise be dropped on <body> (the focused row just got
+      // hidden with the menu) — hand it back to the selector button.
+      exportSelectBtn?.focus();
     });
   });
 
@@ -1631,7 +1709,12 @@
     if (!withinPicker) closeExportMenu();
   });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeExportMenu();
+    if (e.key !== 'Escape') return;
+    const wasOpen = exportMenu && !exportMenu.hidden;
+    closeExportMenu();
+    // Escape while the menu (and thus possibly a focused row) was open:
+    // return focus to the selector button instead of dropping it on <body>.
+    if (wasOpen) exportSelectBtn?.focus();
   });
 
   // ─── Export persistence (last hint + rolling history) ─────────────────────
@@ -1772,7 +1855,8 @@
         return;
       }
       const notes = getExportNotes();
-      const md = notesBlockMD(notes) + buildMarkdown(newOnly, data.title, data.site, userSettings, data.sourceUrl);
+      const scrubbed = applyLocalScrub(newOnly, data.title);
+      const md = notesBlockMD(notes) + buildMarkdown(scrubbed.msgs, scrubbed.title, data.site, userSettings, data.sourceUrl);
       const slug = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(newOnly), newOnly.length);
       downloadFile(md, slug + '-continued.md', 'text/markdown;charset=utf-8');
       setStatus(t(newOnly.length === 1 ? 'popupSavedNewMessagesOne' : 'popupSavedNewMessagesOther', [String(newOnly.length)]), 'success');
