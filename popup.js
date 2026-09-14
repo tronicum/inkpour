@@ -1570,8 +1570,20 @@
     selectedFormat = format;
     if (exportSelectedLabel) exportSelectedLabel.textContent = labelFor(format);
     exportMenu?.querySelectorAll('.export-menu-item').forEach((el) => {
-      el.classList.toggle('selected', el.dataset.format === format);
+      const on = el.dataset.format === format;
+      el.classList.toggle('selected', on);
+      // Rows are role="menuitemradio" — mirror the visual .selected state
+      // into aria-checked so screen readers hear which format is current.
+      el.setAttribute('aria-checked', String(on));
     });
+  }
+
+  /** The menu rows a keyboard user can currently reach (Gist/Notion rows
+   *  stay hidden until their tokens are configured). */
+  function visibleExportMenuItems() {
+    return exportMenu
+      ? [...exportMenu.querySelectorAll('.export-menu-item')].filter((el) => !el.hidden)
+      : [];
   }
 
   function closeExportMenu() {
@@ -1587,10 +1599,46 @@
     exportMenu.style.display = 'flex';
     exportMenu.style.flexDirection = 'column';
     exportSelectBtn?.setAttribute('aria-expanded', 'true');
+    // Standard menu behavior: move focus into the menu, onto the currently
+    // selected row (fall back to the first), so arrow keys work immediately.
+    const items = visibleExportMenuItems();
+    const current = menuItemFor(selectedFormat);
+    (current && !current.hidden ? current : items[0])?.focus();
   }
 
   exportSelectBtn?.addEventListener('click', () => {
     if (exportMenu?.hidden) openExportMenu(); else closeExportMenu();
+  });
+
+  // ArrowDown/ArrowUp on the (closed) selector also opens the menu, like a
+  // native <select>.
+  exportSelectBtn?.addEventListener('keydown', (e) => {
+    if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && exportMenu?.hidden) {
+      e.preventDefault();
+      openExportMenu();
+    }
+  });
+
+  // Roving arrow-key navigation between the visible menu rows. Enter/Space
+  // already activate rows natively (they're real <button>s); Escape is
+  // handled at the document level below.
+  exportMenu?.addEventListener('keydown', (e) => {
+    const items = visibleExportMenuItems();
+    if (!items.length) return;
+    const idx = items.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      items[(idx + 1) % items.length].focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      items[(idx - 1 + items.length) % items.length].focus();
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      items[0].focus();
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      items[items.length - 1].focus();
+    }
   });
 
   // Picking a row only updates the selection and closes the menu — it never
@@ -1599,6 +1647,9 @@
     el.addEventListener('click', () => {
       setSelectedFormat(el.dataset.format);
       closeExportMenu();
+      // Focus would otherwise be dropped on <body> (the focused row just got
+      // hidden with the menu) — hand it back to the selector button.
+      exportSelectBtn?.focus();
     });
   });
 
@@ -1614,7 +1665,12 @@
     if (!withinPicker) closeExportMenu();
   });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeExportMenu();
+    if (e.key !== 'Escape') return;
+    const wasOpen = exportMenu && !exportMenu.hidden;
+    closeExportMenu();
+    // Escape while the menu (and thus possibly a focused row) was open:
+    // return focus to the selector button instead of dropping it on <body>.
+    if (wasOpen) exportSelectBtn?.focus();
   });
 
   // ─── Export persistence (last hint + rolling history) ─────────────────────
