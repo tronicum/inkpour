@@ -1235,25 +1235,43 @@ landing, not just started:
   source of truth for what ships, guarded by a new test ("release.yml builds
   the zip via scripts/release.sh, not a second hand-maintained exclude
   list", `test/run-jsdom.js`, 304 passed 0 failed).
-- [x] **L — implemented 2026-09, needs Stefan's secrets + a live run** Chrome
-  Web Store auto-submit. Added a `publish-chrome` job to `.github/workflows/
+- [x] **L — implemented and verified live 2026-09-14** Chrome Web Store
+  auto-submit. Added a `publish-chrome` job to `.github/workflows/
   release.yml`, `needs: release`, gated behind a GitHub Environment named
   `Chrome` (same pattern as `Firefox`). Rebuilds the zip via
   `scripts/release.sh` (byte-identical to the GitHub Release asset), then
   runs `npx chrome-webstore-upload-cli@3 upload` followed by `... publish`
   against `EXTENSION_ID` / `CLIENT_ID` / `CLIENT_SECRET` / `REFRESH_TOKEN`.
-  **Stefan still needs to, before the first tag+push relying on this**: (1)
-  create a Google Cloud project, enable the Chrome Web Store API, link a
-  billing account (required by Google Cloud to enable most APIs — this one
-  has no per-call cost), (2) create an OAuth 2.0 client (type "Desktop app"),
-  (3) run the one-time authorization-code → refresh-token exchange (browser
-  consent URL + a `curl` token exchange — see chrome-webstore-upload's docs),
+  Confirmed working end-to-end on the v0.4.31.2 test release (all three
+  jobs — GitHub Release, Firefox AMO, Chrome Web Store — succeeded).
+  **Stefan needed to, and did**: (1) create a Google Cloud project, enable
+  the Chrome Web Store API, link a billing account (required by Google
+  Cloud to enable most APIs — this one has no per-call cost), (2) create an
+  OAuth 2.0 client (type "Desktop app" — not "Chrome Extension", a different
+  mechanism tied to `chrome.identity`), (3) run the one-time
+  authorization-code → refresh-token exchange via a loopback redirect
+  (`http://localhost:PORT` — the old copy-paste "OOB" flow was fully killed
+  by Google in 2023, see
+  [migration guide](https://developers.google.com/identity/protocols/oauth2/resources/oob-migration)),
   (4) add all four secrets scoped to the `Chrome` environment (Settings →
   Environments → Chrome → Environment secrets), (5) note the refresh token
   can expire/get revoked — re-minting means repeating step 3, no code change
   needed. Bigger setup surface than Firefox's single API-key pair, and
   unlike AMO, the Chrome Web Store has no "what's new" release-notes API
   field — `CHANGELOG.md` extraction (see above) only feeds AMO for now.
+- [ ] **XS — deadline 2026-09-21** The OAuth consent screen backing the
+  Chrome publishing client is still in "Testing" status, so the current
+  `REFRESH_TOKEN` expires in 7 days (`refresh_token_expires_in: 604799`) —
+  a hard Google-imposed cap for apps not yet published to production,
+  unrelated to normal token inactivity/revocation. Before it expires:
+  (1) OAuth consent screen → Publish App → production (shouldn't need
+  Google's verification review; the `chromewebstore` scope isn't in the
+  sensitive/restricted list, but confirm when actually doing this), (2)
+  redo the one-time authorization-code → refresh-token exchange (same
+  loopback-redirect steps as above) to mint a new, non-capped token, (3)
+  `gh secret set REFRESH_TOKEN --env Chrome --repo tronicum/inkpour` to
+  replace the short-lived one. Miss this window and Chrome auto-publish
+  silently starts failing on the next release after 2026-09-21.
 - [ ] **S** Wire both into a new job in `.github/workflows/release.yml` (or a
   separate `publish.yml` triggered by the same tag push), gated behind GitHub
   [Environments](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment)
