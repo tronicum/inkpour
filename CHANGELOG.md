@@ -20,6 +20,22 @@ new section here in the same commit as the version bump.
   (Markdown, PDF, HTML, JSON, DOCX, ZIP, clipboard) — handy before sharing
   an export or dropping it into a synced folder. Off by default; the
   existing upload scrubbing for Gist/Notion/webhooks is unchanged.
+- The "Generate table of contents" setting now also applies to PDF exports
+  and the print/preview page, matching Markdown and HTML exports. Previously
+  PDF output was unaffected by this setting despite the feature having
+  shipped in 0.4.31.0 (#6).
+- Settings now follow you across signed-in devices for a small set of
+  non-sensitive preferences (default export format, table of contents,
+  YAML front matter, etc.) via browser sync. Tokens, local file paths,
+  and vault handles always stay local-only on each machine.
+
+### Changed
+- NotebookLM citations now export in the same `[^N]` footnote format used by
+  Gemini, Perplexity, and Google AI Mode, with a `**Sources:**` block listing
+  each one — instead of NotebookLM's own bare `[N]` list with no per-citation
+  entry. NotebookLM's UI doesn't expose a source URL, so each footnote
+  degrades to a plain "NotebookLM source N" label rather than a link, but no
+  citation is dropped.
 
 ## [0.4.31.2] - 2026-09-14
 

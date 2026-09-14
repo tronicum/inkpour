@@ -82,7 +82,7 @@ api.runtime.onMessage.addListener((message, sender) => {
     const { messages: msgs, title } = applyLocalScrub(settings, response.messages, response.title);
 
     if (message.format === 'pdf') {
-      const bodyContent = buildPrintBodyHTML(msgs, title, response.site);
+      const bodyContent = buildPrintBodyHTML(msgs, title, response.site, settings);
       await api.storage.local.set({ inkpour_print_pending: bodyContent });
       api.tabs.create({ url: api.runtime.getURL('print.html') });
     }
@@ -550,7 +550,7 @@ async function runCommand(command) {
 
   if (command === 'export-pdf') {
     // SW has no localStorage — store in storage.local, print.js reads both
-    const bodyContent = buildPrintBodyHTML(msgs, title, response.site);
+    const bodyContent = buildPrintBodyHTML(msgs, title, response.site, settings);
     await api.storage.local.set({ inkpour_print_pending: bodyContent });
     api.tabs.create({ url: api.runtime.getURL('print.html') });
   }

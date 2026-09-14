@@ -176,9 +176,10 @@ function buildPrintBodyHTML(messages, title, site, opts = {}) {
 
   // Table of contents: same rule as the Markdown exporter — only user turns
   // (questions), only when there are enough of them to make a TOC useful.
-  // `opts.generateTOC` is only ever passed by buildStandaloneHTML (the
-  // "export .html" path) — the PDF body builder call sites never pass it, so
-  // the printed/PDF output is unaffected by this.
+  // `opts.generateTOC` is passed by buildStandaloneHTML (the "export .html"
+  // path) as well as by the PDF/print call sites in popup.js and
+  // background.js, so the single "Generate table of contents" setting governs
+  // Markdown, HTML, and PDF/print output alike.
   const userTurnCount = messages.filter(m => _isUserTurn(m.role)).length;
   const wantTOC        = !!opts.generateTOC && userTurnCount >= 3;
 
