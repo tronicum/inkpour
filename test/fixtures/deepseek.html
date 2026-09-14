@@ -3,21 +3,31 @@
 <head><meta charset="UTF-8"><title>DeepSeek Chat</title></head>
 <body>
   <!--
-    Simulates DeepSeek's DOM structure (chat.deepseek.com, as of 2026).
-    Messages use data-role attributes on container divs.
-    Experimental — selectors may need updating if DeepSeek changes its DOM.
+    Simulates DeepSeek's current live DOM (chat.deepseek.com, verified 2026-09).
+    Each turn is a `.ds-message` container (a stable, semantic class name).
+    Assistant turns hold their answer in a `.ds-markdown` node; a preceding
+    `.ds-think-content` block (itself containing its own nested `.ds-markdown`)
+    simulates the model's chain-of-thought, which must be excluded from the
+    extracted answer. User turns carry no `.ds-markdown` at all — DeepSeek
+    gives their question text a hashed, per-deploy class name instead (here
+    represented by the class "fbb737a4", matching what's been observed live).
   -->
 
   <!-- User message -->
-  <div class="message" data-role="user">
-    <div class="message-content">
+  <div class="ds-message">
+    <div class="fbb737a4">
       <p>Explain the difference between TCP and UDP 🌐</p>
     </div>
   </div>
 
-  <!-- AI message -->
-  <div class="message" data-role="assistant">
-    <div class="message-content">
+  <!-- AI message, with a reasoning/chain-of-thought block ahead of the answer -->
+  <div class="ds-message">
+    <div class="ds-think-content">
+      <div class="ds-markdown">
+        <p>The user wants a comparison of TCP and UDP; I should cover connection model, reliability, speed, and typical use cases, then show a quick code example.</p>
+      </div>
+    </div>
+    <div class="ds-markdown">
       <p><strong>TCP (Transmission Control Protocol)</strong> and <strong>UDP (User Datagram Protocol)</strong> are the two main transport layer protocols.</p>
       <table>
         <thead>
@@ -43,15 +53,15 @@ udp.sendto(b'hello', ('8.8.8.8', 53))</code></pre>
   </div>
 
   <!-- Second user message -->
-  <div class="message" data-role="user">
-    <div class="message-content">
+  <div class="ds-message">
+    <div class="fbb737a4">
       <p>When should I use UDP over TCP?</p>
     </div>
   </div>
 
-  <!-- Second AI message -->
-  <div class="message" data-role="assistant">
-    <div class="message-content">
+  <!-- Second AI message (no chain-of-thought this time) -->
+  <div class="ds-message">
+    <div class="ds-markdown">
       <p>Choose UDP when:</p>
       <ul>
         <li><em>Low latency matters more than reliability</em> — live video, gaming, VoIP</li>
