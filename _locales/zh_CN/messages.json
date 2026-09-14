@@ -380,6 +380,17 @@
       }
     }
   },
+  "popupWhatsNewTitle": {
+    "message": "What's new in v$VERSION$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupWhatsNewDismiss": {
+    "message": "Dismiss"
+  },
   "popupIncrementalHintOne": {
     "message": "自上次导出（$WHEN$）以来有 $COUNT$ 条新消息 — ",
     "placeholders": {
@@ -632,6 +643,12 @@
   },
   "settingsScrubDesc": {
     "message": "在上传到 Gist/webhook 前，涂黑疑似的 API 密钥、令牌和电子邮件地址"
+  },
+  "settingsScrubLocalLabel": {
+    "message": "Scrub secrets in local exports"
+  },
+  "settingsScrubLocalDesc": {
+    "message": "Apply the same redaction to exports that stay on this computer — Markdown, PDF, HTML, JSON, DOCX, and ZIP files, plus both clipboard copies. Off by default, because local exports never leave your machine. Turn it on when you plan to pass a file along — sending it to a coworker, or saving into a shared or synced folder such as a shared Obsidian vault — so API keys, tokens, and email addresses you pasted into the chat don't travel with it."
   },
   "settingsWebhookUrlLabel": {
     "message": "Webhook 网址"

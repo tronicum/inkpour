@@ -142,3 +142,14 @@ not just "checked it manually in the browser."
 - `api = (typeof browser !== 'undefined') ? browser : chrome` — the
   cross-browser shim used everywhere. Use `api.*`, never `chrome.*` or
   `browser.*` directly.
+
+## Scratch work / tooling rules for agents
+
+- **Scratch files stay inside the repo, in the gitignored `tmp/` directory**
+  — never write drafts, notes, or intermediate output to `/tmp`,
+  `/private/tmp`, or any path outside this project directory.
+- **No `perl` for text/regex processing.** Node is the only scripting
+  runtime this project tolerates for build/dev tooling (see
+  `bookmarklet/build.js` for the pattern: plain Node, no new dependency,
+  no shelling out to another language for something a few lines of JS
+  already does).

@@ -22,6 +22,39 @@ new section here in the same commit as the version bump.
   manual copy-from-overlay when the browser blocks the automatic clipboard
   write). No PDF/HTML/JSON/DOCX/ZIP export, no settings, no scroll-to-load —
   see `bookmarklet/README.md` for install steps and full limitations.
+- Popup now shows a short "What's new in vX.Y.Z.W" panel, sourced from this
+  file, the first time it opens after an update — once per version, then
+  never again for that version.
+- New opt-in setting "Scrub secrets in local exports": redacts likely API
+  keys, tokens, and email addresses from files you save or copy locally
+  (Markdown, PDF, HTML, JSON, DOCX, ZIP, clipboard) — handy before sharing
+  an export or dropping it into a synced folder. Off by default; the
+  existing upload scrubbing for Gist/Notion/webhooks is unchanged.
+- The "Generate table of contents" setting now also applies to PDF exports
+  and the print/preview page, matching Markdown and HTML exports. Previously
+  PDF output was unaffected by this setting despite the feature having
+  shipped in 0.4.31.0 (#6).
+- Settings now follow you across signed-in devices for a small set of
+  non-sensitive preferences (default export format, table of contents,
+  YAML front matter, etc.) via browser sync. Tokens, local file paths,
+  and vault handles always stay local-only on each machine.
+
+### Changed
+- NotebookLM citations now export in the same `[^N]` footnote format used by
+  Gemini, Perplexity, and Google AI Mode, with a `**Sources:**` block listing
+  each one — instead of NotebookLM's own bare `[N]` list with no per-citation
+  entry. NotebookLM's UI doesn't expose a source URL, so each footnote
+  degrades to a plain "NotebookLM source N" label rather than a link, but no
+  citation is dropped.
+
+### Fixed
+- Accessibility pass on the popup and Settings pages: the export-format menu
+  is now fully keyboard-navigable (arrow keys, Home/End, Escape returns focus)
+  and announces the selected format to screen readers; every Settings control
+  and toggle switch now has a proper accessible name; toggles show a visible
+  focus ring when tabbed to; export status messages are announced as they
+  appear; and several low-contrast text colors (muted grey and amber warning
+  text in light mode) were darkened to meet WCAG AA.
 
 ## [0.4.31.2] - 2026-09-14
 
