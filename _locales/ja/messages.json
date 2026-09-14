@@ -79,6 +79,9 @@
     "message": "単体HTMLをクリップボードにコピー（Alt+Shift+H）",
     "description": "Copy HTML button tooltip"
   },
+  "popupCopyTxtBtnTitle": {
+    "message": "プレーンテキストとしてコピー — Markdown記法を除去"
+  },
   "popupZipBtnTitle": {
     "message": "chat.md + 抽出したコードファイルをZIPでエクスポート（Alt+Shift+Z）",
     "description": "ZIP button tooltip"
@@ -115,6 +118,9 @@
   },
   "popupBtnCopyHtml": {
     "message": "コピー"
+  },
+  "popupBtnCopyTxt": {
+    "message": "テキストをコピー"
   },
   "popupBtnZip": {
     "message": "ZIP"
@@ -205,6 +211,9 @@
   },
   "popupStatusHtmlCopied": {
     "message": "✓ HTMLをコピーしました — 任意のエディタに貼り付け可能"
+  },
+  "popupStatusTextCopied": {
+    "message": "✓ プレーンテキストをクリップボードにコピーしました"
   },
   "popupStatusZipSaved": {
     "message": "✓ ZIPを保存しました — chat.md",

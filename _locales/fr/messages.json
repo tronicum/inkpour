@@ -79,6 +79,9 @@
     "message": "Copier le HTML autonome dans le presse-papiers (Alt+Maj+H)",
     "description": "Copy HTML button tooltip"
   },
+  "popupCopyTxtBtnTitle": {
+    "message": "Copier en texte brut — syntaxe Markdown supprimée"
+  },
   "popupZipBtnTitle": {
     "message": "Exporter un ZIP avec chat.md + fichiers de code extraits (Alt+Maj+Z)",
     "description": "ZIP button tooltip"
@@ -115,6 +118,9 @@
   },
   "popupBtnCopyHtml": {
     "message": "Copier"
+  },
+  "popupBtnCopyTxt": {
+    "message": "Copier le texte"
   },
   "popupBtnZip": {
     "message": "ZIP"
@@ -205,6 +211,9 @@
   },
   "popupStatusHtmlCopied": {
     "message": "✓ HTML copié — collez-le dans n'importe quel éditeur"
+  },
+  "popupStatusTextCopied": {
+    "message": "✓ Texte brut copié dans le presse-papiers"
   },
   "popupStatusZipSaved": {
     "message": "✓ ZIP enregistré — chat.md",

@@ -71,6 +71,7 @@
     'notion':    'Notion',
     'copy-md':   'Copy MD',
     'copy-html': 'Copy HTML',
+    'copy-txt':  'Copy Text',
   };
 
   // ─── Download / re-export ──────────────────────────────────────────────────

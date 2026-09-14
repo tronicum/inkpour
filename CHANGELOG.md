@@ -14,6 +14,12 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+### Added
+- "Copy Text" export in the format picker: copies the conversation as plain
+  text with all Markdown syntax stripped — no `**bold**`, `#` headings, code
+  fences, or `[link](url)` markup — for pasting into plain email, SMS, or any
+  field that doesn't render Markdown.
+
 ## [0.4.31.2] - 2026-09-14
 
 ### Added

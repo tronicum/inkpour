@@ -79,6 +79,9 @@
     "message": "Copiar HTML autônomo para a área de transferência (Alt+Shift+H)",
     "description": "Copy HTML button tooltip"
   },
+  "popupCopyTxtBtnTitle": {
+    "message": "Copiar como texto simples — sintaxe Markdown removida"
+  },
   "popupZipBtnTitle": {
     "message": "Exportar ZIP com chat.md + arquivos de código extraídos (Alt+Shift+Z)",
     "description": "ZIP button tooltip"
@@ -115,6 +118,9 @@
   },
   "popupBtnCopyHtml": {
     "message": "Copiar"
+  },
+  "popupBtnCopyTxt": {
+    "message": "Copiar texto"
   },
   "popupBtnZip": {
     "message": "ZIP"
@@ -205,6 +211,9 @@
   },
   "popupStatusHtmlCopied": {
     "message": "✓ HTML copiado — cole em qualquer editor"
+  },
+  "popupStatusTextCopied": {
+    "message": "✓ Texto simples copiado para a área de transferência"
   },
   "popupStatusZipSaved": {
     "message": "✓ ZIP salvo — chat.md",

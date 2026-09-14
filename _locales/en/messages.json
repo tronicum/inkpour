@@ -125,6 +125,10 @@
     "message": "Copy standalone HTML to clipboard (Alt+Shift+H)",
     "description": "Copy HTML button tooltip"
   },
+  "popupCopyTxtBtnTitle": {
+    "message": "Copy as plain text — Markdown syntax stripped",
+    "description": "Copy plain text button tooltip"
+  },
   "popupZipBtnTitle": {
     "message": "Export ZIP with chat.md + extracted code files (Alt+Shift+Z)",
     "description": "ZIP button tooltip"
@@ -161,6 +165,9 @@
   },
   "popupBtnCopyHtml": {
     "message": "Copy"
+  },
+  "popupBtnCopyTxt": {
+    "message": "Copy Text"
   },
   "popupBtnZip": {
     "message": "ZIP"
@@ -251,6 +258,9 @@
   },
   "popupStatusHtmlCopied": {
     "message": "✓ HTML copied — paste into any editor"
+  },
+  "popupStatusTextCopied": {
+    "message": "✓ Plain text copied to clipboard"
   },
   "popupStatusZipSaved": {
     "message": "✓ ZIP saved — chat.md",

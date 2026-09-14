@@ -79,6 +79,9 @@
     "message": "Salin HTML mandiri ke clipboard (Alt+Shift+H)",
     "description": "Copy HTML button tooltip"
   },
+  "popupCopyTxtBtnTitle": {
+    "message": "Salin sebagai teks biasa — sintaks Markdown dihapus"
+  },
   "popupZipBtnTitle": {
     "message": "Ekspor ZIP berisi chat.md + file kode yang diekstrak (Alt+Shift+Z)",
     "description": "ZIP button tooltip"
@@ -115,6 +118,9 @@
   },
   "popupBtnCopyHtml": {
     "message": "Salin"
+  },
+  "popupBtnCopyTxt": {
+    "message": "Salin teks"
   },
   "popupBtnZip": {
     "message": "ZIP"
@@ -205,6 +211,9 @@
   },
   "popupStatusHtmlCopied": {
     "message": "✓ HTML disalin — tempelkan ke editor mana pun"
+  },
+  "popupStatusTextCopied": {
+    "message": "✓ Teks biasa disalin ke papan klip"
   },
   "popupStatusZipSaved": {
     "message": "✓ ZIP tersimpan — chat.md",

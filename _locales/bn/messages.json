@@ -79,6 +79,9 @@
     "message": "স্বতন্ত্র HTML ক্লিপবোর্ডে কপি করুন (Alt+Shift+H)",
     "description": "Copy HTML button tooltip"
   },
+  "popupCopyTxtBtnTitle": {
+    "message": "সাধারণ টেক্সট হিসেবে কপি করুন — Markdown সিনট্যাক্স বাদ"
+  },
   "popupZipBtnTitle": {
     "message": "chat.md + এক্সট্র্যাক্ট করা কোড ফাইল সহ ZIP এক্সপোর্ট করুন (Alt+Shift+Z)",
     "description": "ZIP button tooltip"
@@ -115,6 +118,9 @@
   },
   "popupBtnCopyHtml": {
     "message": "কপি করুন"
+  },
+  "popupBtnCopyTxt": {
+    "message": "টেক্সট কপি করুন"
   },
   "popupBtnZip": {
     "message": "ZIP"
@@ -205,6 +211,9 @@
   },
   "popupStatusHtmlCopied": {
     "message": "✓ HTML কপি হয়েছে — যেকোনো এডিটরে পেস্ট করুন"
+  },
+  "popupStatusTextCopied": {
+    "message": "✓ সাধারণ টেক্সট ক্লিপবোর্ডে কপি হয়েছে"
   },
   "popupStatusZipSaved": {
     "message": "✓ ZIP সংরক্ষিত হয়েছে — chat.md",

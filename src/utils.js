@@ -416,6 +416,109 @@ function buildMarkdown(messages, title, site, opts = {}, sourceUrl = '') {
   return md;
 }
 
+// ─── Plain-text builder ───────────────────────────────────────────────────────
+// "Copy as plain text": same conversation, zero Markdown syntax — for pasting
+// into places that don't render Markdown (plain email, SMS, basic text fields).
+//
+// Like the Notion converter below, this is NOT a general CommonMark parser:
+// message content is Inkpour's OWN htmlToMarkdown() output (src/content.js),
+// so the vocabulary is fully controlled — ATX headings, ``` fences, inline
+// code, **bold**/*italic*/~~strike~~, [label](url) links/images, "> " quotes,
+// "* "/"N. " lists, "---" rules, and simple pipe tables.
+
+/**
+ * Strips Markdown syntax from a string, leaving readable plain text:
+ * emphasis/heading/quote markers removed, code fences dropped (content kept,
+ * indented 4 spaces), links rendered as "label (url)", bullets as "• ".
+ * @param {string} md
+ * @returns {string}
+ */
+function stripMarkdownSyntax(md) {
+  let text = md == null ? '' : String(md);
+
+  // Fenced code blocks first: pull them out so nothing below mangles code
+  // content, drop the fences + language tag, keep the code indented 4 spaces.
+  const codeBlocks = [];
+  text = text.replace(/```[^\n]*\n?([\s\S]*?)```/g, (_, code) => {
+    const indented = code.replace(/\n+$/, '').split('\n').map(l => `    ${l}`).join('\n');
+    codeBlocks.push(indented);
+    return `\u0000CODE${codeBlocks.length - 1}\u0000`;
+  });
+  text = text.replace(/^```[^\n]*$/gm, ''); // stray unclosed fence line
+
+  // Inline code: keep the content, drop the backticks.
+  text = text.replace(/`([^`\n]*)`/g, '$1');
+  // Images, then links: "label (url)". Image before link so "![" isn't
+  // half-consumed by the link rule.
+  text = text.replace(/!\[([^\]]*)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g, (m, alt, url) => (alt ? `${alt} (${url})` : url));
+  text = text.replace(/\[([^\]]+)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g, '$1 ($2)');
+  // Emphasis: bold/underline first (** / __), then single * / _, then ~~.
+  text = text.replace(/(\*\*|__)(?=\S)([\s\S]*?\S)\1/g, '$2');
+  text = text.replace(/([*_])(?=\S)([^*_\n]*\S)\1/g, '$2');
+  text = text.replace(/~~(?=\S)([\s\S]*?\S)~~/g, '$1');
+
+  const lines = [];
+  for (let line of text.split('\n')) {
+    // Headings: "## Title" → "Title" (own plain line, indentation preserved).
+    const h = line.match(/^(\s*)#{1,6}\s+(.*)$/);
+    if (h) { lines.push(h[1] + h[2]); continue; }
+    // Horizontal rules become blank lines.
+    if (/^\s*([-*_])\s*(?:\1\s*){2,}$/.test(line)) { lines.push(''); continue; }
+    // Blockquote markers.
+    line = line.replace(/^(\s*)(?:>\s?)+/, '$1');
+    // Unordered bullets → "• " (ordered "N. " is already readable plain text).
+    line = line.replace(/^(\s*)[-*+]\s+/, '$1• ');
+    // Pipe tables: drop |---|---| separator rows, turn cell pipes into spacing.
+    if (/^\s*\|?[\s:|-]+\|[\s:|-]*$/.test(line) && /-{3,}/.test(line)) continue;
+    if (/^\s*\|.*\|\s*$/.test(line)) {
+      line = line.replace(/^\s*\|/, '').replace(/\|\s*$/, '')
+        .split('|').map(c => c.trim()).join('  ');
+    }
+    lines.push(line);
+  }
+
+  return lines.join('\n')
+    .replace(/\u0000CODE(\d+)\u0000/g, (_, i) => codeBlocks[+i])
+    .replace(/\n{3,}/g, '\n\n');
+}
+
+/**
+ * Plain-text sibling of buildMarkdown(): same title / per-turn role labels /
+ * source-URL conventions, but the body is stripped of all Markdown syntax.
+ * opts is accepted for signature symmetry; front matter and TOC don't apply
+ * to plain text and are ignored.
+ * @param {Array<{role:string,content:string}>} messages
+ * @param {string} title
+ * @param {string} site
+ * @param {object} opts
+ * @param {string} sourceUrl
+ * @returns {string}
+ */
+function buildPlainText(messages, title, site, opts = {}, sourceUrl = '') {
+  const msgs = Array.isArray(messages) ? messages : [];
+  const date = new Date().toISOString().replace('T', ' ').slice(0, 19);
+
+  const wordCount = msgs
+    .map(m => String(m.content == null ? '' : m.content).trim().split(/\s+/).filter(Boolean).length)
+    .reduce((a, b) => a + b, 0);
+  const readingMin = Math.max(1, Math.round(wordCount / 200));
+
+  const RULE = '─'.repeat(40); // box-drawing char: reads as a rule, never Markdown
+
+  let out = `${title}\n\n`;
+  out += `Exported from ${site} on ${date} · ${msgs.length} messages · ~${wordCount.toLocaleString()} words · ~${readingMin} min read\n`;
+  if (sourceUrl) out += `Source: ${cleanUrl(sourceUrl)}\n`;
+  out += `\n${RULE}\n\n`;
+
+  for (const { role, content } of msgs) {
+    const body = stripMarkdownSyntax(String(content == null ? '' : content)).trim();
+    out += `${String(role == null ? '' : role).toUpperCase()}\n\n${body}\n\n${RULE}\n\n`;
+  }
+
+  out += `Exported with Inkpour (https://github.com/tronicum/inkpour)\n`;
+  return out;
+}
+
 // ─── Notion export: markdown → blocks ────────────────────────────────────────
 // Converts Inkpour's OWN buildMarkdown() output into Notion block objects for
 // `PATCH /v1/blocks/{block_id}/children` (used by popup.js's Notion upload
@@ -1528,7 +1631,7 @@ function looksLikeGeminiPaste(text) {
 /**
  * Strips Gemini/Google AI boilerplate and reconstructs fenced code blocks
  * from the bare "language name + code lines + caution label" pattern plain-
- * text copy leaves behind. Each removed disclaimer is replaced with a ' '
+ * text copy leaves behind. Each removed disclaimer is replaced with a '\u0000'
  * marker so callers can split turns around where an AI answer ended.
  */
 function cleanGeminiPaste(raw) {
@@ -1570,10 +1673,10 @@ function cleanGeminiPaste(raw) {
     // because GEMINI_DISCLAIMER_RE anchors to the full line.
     if (GEMINI_TOPIC_CAUTION_RE.test(trimmed)) {
       const remainder = trimmed.replace(GEMINI_TOPIC_CAUTION_RE, '').trim();
-      if (!remainder || GEMINI_DISCLAIMER_RE.test(remainder)) { out.push(' '); continue; }
+      if (!remainder || GEMINI_DISCLAIMER_RE.test(remainder)) { out.push('\u0000'); continue; }
     }
 
-    if (GEMINI_DISCLAIMER_RE.test(trimmed))     { out.push(' '); continue; }
+    if (GEMINI_DISCLAIMER_RE.test(trimmed))     { out.push('\u0000'); continue; }
     if (GEMINI_CODE_CAUTION_RE.test(trimmed))   continue;
     if (GEMINI_SOURCES_HEADER_RE.test(trimmed)) continue;
     if (GEMINI_TIMESTAMP_RE.test(trimmed))      continue;
@@ -1597,7 +1700,7 @@ function cleanGeminiPaste(raw) {
  */
 function parseGeminiPaste(raw) {
   const cleaned  = cleanGeminiPaste(raw);
-  const segments = cleaned.split(' ').map(s => s.trim()).filter(Boolean);
+  const segments = cleaned.split('\u0000').map(s => s.trim()).filter(Boolean);
   if (!segments.length) return [];
 
   const messages = [];

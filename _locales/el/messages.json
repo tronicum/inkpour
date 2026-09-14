@@ -79,6 +79,9 @@
     "message": "Αντιγραφή αυτόνομου HTML στο πρόχειρο (Alt+Shift+H)",
     "description": "Copy HTML button tooltip"
   },
+  "popupCopyTxtBtnTitle": {
+    "message": "Αντιγραφή ως απλό κείμενο — χωρίς σύνταξη Markdown"
+  },
   "popupZipBtnTitle": {
     "message": "Εξαγωγή ZIP με chat.md + εξαγόμενα αρχεία κώδικα (Alt+Shift+Z)",
     "description": "ZIP button tooltip"
@@ -115,6 +118,9 @@
   },
   "popupBtnCopyHtml": {
     "message": "Αντιγραφή"
+  },
+  "popupBtnCopyTxt": {
+    "message": "Αντιγραφή κειμένου"
   },
   "popupBtnZip": {
     "message": "ZIP"
@@ -205,6 +211,9 @@
   },
   "popupStatusHtmlCopied": {
     "message": "✓ Το HTML αντιγράφηκε — επικολλήστε το σε οποιονδήποτε επεξεργαστή"
+  },
+  "popupStatusTextCopied": {
+    "message": "✓ Το απλό κείμενο αντιγράφηκε στο πρόχειρο"
   },
   "popupStatusZipSaved": {
     "message": "✓ Το ZIP αποθηκεύτηκε — chat.md",

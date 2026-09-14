@@ -79,6 +79,9 @@
     "message": "स्टैंडअलोन HTML क्लिपबोर्ड पर कॉपी करें (Alt+Shift+H)",
     "description": "Copy HTML button tooltip"
   },
+  "popupCopyTxtBtnTitle": {
+    "message": "सादे टेक्स्ट के रूप में कॉपी करें — Markdown सिंटैक्स हटाया गया"
+  },
   "popupZipBtnTitle": {
     "message": "chat.md + निकाली गई कोड फ़ाइलों के साथ ZIP एक्सपोर्ट करें (Alt+Shift+Z)",
     "description": "ZIP button tooltip"
@@ -115,6 +118,9 @@
   },
   "popupBtnCopyHtml": {
     "message": "कॉपी करें"
+  },
+  "popupBtnCopyTxt": {
+    "message": "टेक्स्ट कॉपी करें"
   },
   "popupBtnZip": {
     "message": "ZIP"
@@ -205,6 +211,9 @@
   },
   "popupStatusHtmlCopied": {
     "message": "✓ HTML कॉपी हो गया — किसी भी एडिटर में पेस्ट करें"
+  },
+  "popupStatusTextCopied": {
+    "message": "✓ सादा टेक्स्ट क्लिपबोर्ड पर कॉपी हो गया"
   },
   "popupStatusZipSaved": {
     "message": "✓ ZIP सेव हो गया — chat.md",

@@ -79,6 +79,9 @@
     "message": "複製獨立 HTML 到剪貼簿 (Alt+Shift+H)",
     "description": "Copy HTML button tooltip"
   },
+  "popupCopyTxtBtnTitle": {
+    "message": "複製為純文字 — 移除 Markdown 語法"
+  },
   "popupZipBtnTitle": {
     "message": "匯出 ZIP，內含 chat.md 及擷取的程式碼檔案 (Alt+Shift+Z)",
     "description": "ZIP button tooltip"
@@ -115,6 +118,9 @@
   },
   "popupBtnCopyHtml": {
     "message": "複製"
+  },
+  "popupBtnCopyTxt": {
+    "message": "複製文字"
   },
   "popupBtnZip": {
     "message": "ZIP"
@@ -205,6 +211,9 @@
   },
   "popupStatusHtmlCopied": {
     "message": "✓ HTML 已複製 — 可貼上到任何編輯器"
+  },
+  "popupStatusTextCopied": {
+    "message": "✓ 純文字已複製到剪貼簿"
   },
   "popupStatusZipSaved": {
     "message": "✓ ZIP 已儲存 — chat.md",
