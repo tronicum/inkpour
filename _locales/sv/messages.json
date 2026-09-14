@@ -380,6 +380,17 @@
       }
     }
   },
+  "popupWhatsNewTitle": {
+    "message": "What's new in v$VERSION$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupWhatsNewDismiss": {
+    "message": "Dismiss"
+  },
   "popupIncrementalHintOne": {
     "message": "$COUNT$ nytt meddelande sedan din senaste export ($WHEN$) — ",
     "placeholders": {

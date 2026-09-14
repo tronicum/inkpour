@@ -380,6 +380,17 @@
       }
     }
   },
+  "popupWhatsNewTitle": {
+    "message": "What's new in v$VERSION$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupWhatsNewDismiss": {
+    "message": "Dismiss"
+  },
   "popupIncrementalHintOne": {
     "message": "$COUNT$ pesan baru sejak ekspor terakhir Anda ($WHEN$) — ",
     "placeholders": {
