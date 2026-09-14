@@ -9,10 +9,11 @@
       --bg:       #ffffff;
       --surface:  #f4f4f5;
       --text:     #18181b;
-      --subtext:  #71717a;
+      --subtext:  #63636b; /* was #71717a — too low-contrast (≈4.4:1) on --surface for 11px text */
       --accent:   #5b5bd6;
       --border:   #e4e4e7;
       --success:  #16a34a;
+      --warning:  #b45309; /* amber-700 — amber-600 (#d97706) is only ≈3.2:1 on white */
       --radius:   10px;
     }
     @media (prefers-color-scheme: dark) {
@@ -23,6 +24,7 @@
         --subtext: #a1a1aa;
         --accent:  #818cf8;
         --border:  #3f3f46;
+        --warning: #d97706; /* fine on dark (≈5.6:1) */
       }
     }
 
@@ -121,7 +123,7 @@
     .field-label { flex: 1; }
     .field-label strong { display: block; font-size: 13px; font-weight: 600; }
     .field-label span   { font-size: 11px; color: var(--subtext); }
-    .field-label .fineprint { display: block; margin-top: 4px; color: #d97706; }
+    .field-label .fineprint { display: block; margin-top: 4px; color: var(--warning); }
     .field-label .value-line { display: block; margin-top: 4px; color: var(--text); font-weight: 600; }
 
     .btn-secondary {
@@ -175,6 +177,12 @@
       border-radius: 50%;
       transition: transform 0.2s;
     }
+    /* The real checkbox is visually hidden (opacity:0, zero-size), so when it
+       receives keyboard focus the track has to show the indicator for it. */
+    .toggle input:focus-visible + .toggle-track {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
     .toggle input:checked + .toggle-track { background: var(--accent); }
     .toggle input:checked + .toggle-track::after { transform: translateX(18px); }
     [dir="rtl"] .toggle input:checked + .toggle-track::after { transform: translateX(-18px); }
@@ -211,7 +219,7 @@
 </head>
 <body>
   <div class="header">
-    <div class="logo">ip</div>
+    <div class="logo" aria-hidden="true">ip</div>
     <div>
       <h1 data-i18n="settingsHeaderTitle">Inkpour Settings</h1>
       <p data-i18n="settingsHeaderSubtitle">Preferences are saved locally in your browser</p>
@@ -220,7 +228,7 @@
 
   <!-- Detected browser -->
   <div class="browser-row">
-    <div class="browser-icon" id="browserIcon">🌐</div>
+    <div class="browser-icon" id="browserIcon" aria-hidden="true">🌐</div>
     <div class="browser-info">
       <strong id="browserName" data-i18n="settingsBrowserDetecting">Detecting…</strong>
       <span id="browserNote"></span>
@@ -234,10 +242,10 @@
 
     <div class="field">
       <div class="field-label">
-        <strong data-i18n="settingsLanguageLabel">Display language</strong>
-        <span data-i18n="settingsLanguageDesc">Overrides your browser's language for Inkpour's own screens only</span>
+        <strong id="lbl-languageOverride" data-i18n="settingsLanguageLabel">Display language</strong>
+        <span id="desc-languageOverride" data-i18n="settingsLanguageDesc">Overrides your browser's language for Inkpour's own screens only</span>
       </div>
-      <select id="languageOverride"></select>
+      <select id="languageOverride" aria-labelledby="lbl-languageOverride" aria-describedby="desc-languageOverride"></select>
     </div>
   </details>
 
@@ -247,10 +255,10 @@
 
     <div class="field">
       <div class="field-label">
-        <strong data-i18n="settingsDefaultFormatLabel">Default format</strong>
-        <span data-i18n="settingsDefaultFormatDesc">Which button gets keyboard focus first</span>
+        <strong id="lbl-defaultFormat" data-i18n="settingsDefaultFormatLabel">Default format</strong>
+        <span id="desc-defaultFormat" data-i18n="settingsDefaultFormatDesc">Which button gets keyboard focus first</span>
       </div>
-      <select id="defaultFormat">
+      <select id="defaultFormat" aria-labelledby="lbl-defaultFormat" aria-describedby="desc-defaultFormat">
         <option value="md" data-i18n="settingsFormatOptionMd">Markdown (.md)</option>
         <option value="pdf" data-i18n="settingsFormatOptionPdf">PDF</option>
         <option value="html" data-i18n="settingsFormatOptionHtml">HTML</option>
@@ -261,68 +269,68 @@
 
     <div class="field">
       <div class="field-label">
-        <strong data-i18n="settingsFilenameTemplateLabel">Filename template</strong>
-        <span data-i18n="settingsFilenameTemplateDesc">Tokens: {platform} {title} {date} {time} {url} {words} {msgcount}</span>
+        <strong id="lbl-filenameTemplate" data-i18n="settingsFilenameTemplateLabel">Filename template</strong>
+        <span id="desc-filenameTemplate" data-i18n="settingsFilenameTemplateDesc">Tokens: {platform} {title} {date} {time} {url} {words} {msgcount}</span>
       </div>
-      <input type="text" id="filenameTemplate" value="{platform}-{title}" style="min-width:160px" />
+      <input type="text" id="filenameTemplate" aria-labelledby="lbl-filenameTemplate" aria-describedby="desc-filenameTemplate" value="{platform}-{title}" style="min-width:160px" />
     </div>
 
     <div class="field">
       <div class="field-label">
-        <strong data-i18n="settingsPdfAutoPrintLabel">PDF auto-print</strong>
-        <span data-i18n="settingsPdfAutoPrintDesc">Open print dialog automatically after PDF tab loads</span>
+        <strong id="lbl-pdfAutoPrint" data-i18n="settingsPdfAutoPrintLabel">PDF auto-print</strong>
+        <span id="desc-pdfAutoPrint" data-i18n="settingsPdfAutoPrintDesc">Open print dialog automatically after PDF tab loads</span>
       </div>
       <label class="toggle">
-        <input type="checkbox" id="pdfAutoPrint" checked />
+        <input type="checkbox" id="pdfAutoPrint" role="switch" aria-labelledby="lbl-pdfAutoPrint" aria-describedby="desc-pdfAutoPrint" checked />
         <div class="toggle-track"></div>
       </label>
     </div>
 
     <div class="field">
       <div class="field-label">
-        <strong data-i18n="settingsYamlLabel">Include YAML front matter</strong>
-        <span data-i18n="settingsYamlDesc">Adds title, date, platform, URL to top of .md files</span>
+        <strong id="lbl-yamlFrontMatter" data-i18n="settingsYamlLabel">Include YAML front matter</strong>
+        <span id="desc-yamlFrontMatter" data-i18n="settingsYamlDesc">Adds title, date, platform, URL to top of .md files</span>
       </div>
       <label class="toggle">
-        <input type="checkbox" id="yamlFrontMatter" />
+        <input type="checkbox" id="yamlFrontMatter" role="switch" aria-labelledby="lbl-yamlFrontMatter" aria-describedby="desc-yamlFrontMatter" />
         <div class="toggle-track"></div>
       </label>
     </div>
 
     <div class="field">
       <div class="field-label">
-        <strong data-i18n="settingsTocLabel">Generate table of contents</strong>
-        <span data-i18n="settingsTocDesc">Prepend a clickable TOC for chats with more than 4 messages</span>
+        <strong id="lbl-generateTOC" data-i18n="settingsTocLabel">Generate table of contents</strong>
+        <span id="desc-generateTOC" data-i18n="settingsTocDesc">Prepend a clickable TOC for chats with more than 4 messages</span>
       </div>
       <label class="toggle">
-        <input type="checkbox" id="generateTOC" />
+        <input type="checkbox" id="generateTOC" role="switch" aria-labelledby="lbl-generateTOC" aria-describedby="desc-generateTOC" />
         <div class="toggle-track"></div>
       </label>
     </div>
 
     <div class="field">
       <div class="field-label">
-        <strong data-i18n="settingsSubfolderLabel">Downloads subfolder</strong>
-        <span data-i18n="settingsSubfolderDesc">Optional sub-path within your default downloads folder (e.g. <code>AI Chats</code>)</span>
+        <strong id="lbl-downloadSubfolder" data-i18n="settingsSubfolderLabel">Downloads subfolder</strong>
+        <span id="desc-downloadSubfolder" data-i18n="settingsSubfolderDesc">Optional sub-path within your default downloads folder (e.g. <code>AI Chats</code>)</span>
       </div>
-      <input type="text" id="downloadSubfolder" data-i18n-placeholder="settingsSubfolderPlaceholder" placeholder="e.g. AI Chats" style="min-width:160px" />
+      <input type="text" id="downloadSubfolder" aria-labelledby="lbl-downloadSubfolder" aria-describedby="desc-downloadSubfolder" data-i18n-placeholder="settingsSubfolderPlaceholder" placeholder="e.g. AI Chats" style="min-width:160px" />
     </div>
 
     <div class="field">
       <div class="field-label">
-        <strong data-i18n="settingsObsidianVaultLabel">Obsidian vault subfolder</strong>
-        <span data-i18n="settingsObsidianVaultDesc">When set, exports go to this subfolder in Downloads — useful for Obsidian vaults. Overrides the subfolder field above.</span>
+        <strong id="lbl-obsidianVault" data-i18n="settingsObsidianVaultLabel">Obsidian vault subfolder</strong>
+        <span id="desc-obsidianVault" data-i18n="settingsObsidianVaultDesc">When set, exports go to this subfolder in Downloads — useful for Obsidian vaults. Overrides the subfolder field above.</span>
       </div>
-      <input type="text" id="obsidianVault" data-i18n-placeholder="settingsSubfolderPlaceholder" placeholder="e.g. AI Chats" style="min-width:160px" />
+      <input type="text" id="obsidianVault" aria-labelledby="lbl-obsidianVault" aria-describedby="desc-obsidianVault" data-i18n-placeholder="settingsSubfolderPlaceholder" placeholder="e.g. AI Chats" style="min-width:160px" />
     </div>
 
     <div class="field">
       <div class="field-label">
-        <strong data-i18n="settingsObsidianTagsLabel">Obsidian tags in YAML</strong>
-        <span data-i18n="settingsObsidianTagsDesc">Adds <code>tags: [ai-chat, {platform}]</code> to front matter (requires YAML enabled)</span>
+        <strong id="lbl-obsidianTags" data-i18n="settingsObsidianTagsLabel">Obsidian tags in YAML</strong>
+        <span id="desc-obsidianTags" data-i18n="settingsObsidianTagsDesc">Adds <code>tags: [ai-chat, {platform}]</code> to front matter (requires YAML enabled)</span>
       </div>
       <label class="toggle">
-        <input type="checkbox" id="obsidianTags" />
+        <input type="checkbox" id="obsidianTags" role="switch" aria-labelledby="lbl-obsidianTags" aria-describedby="desc-obsidianTags" />
         <div class="toggle-track"></div>
       </label>
     </div>
@@ -350,11 +358,11 @@
 
     <div class="field" id="writeToVaultField" hidden style="display:none;">
       <div class="field-label">
-        <strong data-i18n="settingsWriteToVaultLabel">Write exports directly to this folder</strong>
-        <span data-i18n="settingsWriteToVaultDesc">When on, the Markdown export button in the popup saves straight into the chosen folder instead of Downloads. You may be asked to re-grant permission after restarting your browser.</span>
+        <strong id="lbl-writeToVault" data-i18n="settingsWriteToVaultLabel">Write exports directly to this folder</strong>
+        <span id="desc-writeToVault" data-i18n="settingsWriteToVaultDesc">When on, the Markdown export button in the popup saves straight into the chosen folder instead of Downloads. You may be asked to re-grant permission after restarting your browser.</span>
       </div>
       <label class="toggle">
-        <input type="checkbox" id="writeToVault" />
+        <input type="checkbox" id="writeToVault" role="switch" aria-labelledby="lbl-writeToVault" aria-describedby="desc-writeToVault" />
         <div class="toggle-track"></div>
       </label>
     </div>
@@ -366,20 +374,20 @@
 
     <div class="field">
       <div class="field-label">
-        <strong data-i18n="settingsGithubTokenLabel">GitHub token</strong>
-        <span data-i18n="settingsGithubTokenDesc">Personal access token with <code>gist</code> scope — enables "Upload to Gist" button in popup.</span>
+        <strong id="lbl-githubToken" data-i18n="settingsGithubTokenLabel">GitHub token</strong>
+        <span id="desc-githubToken" data-i18n="settingsGithubTokenDesc">Personal access token with <code>gist</code> scope — enables "Upload to Gist" button in popup.</span>
         <a href="https://github.com/settings/tokens/new?scopes=gist" target="_blank" rel="noopener" data-i18n="settingsGithubTokenLink">Create one →</a>
         <span class="fineprint" data-i18n="settingsGithubTokenFineprint">⚠ Stored as plain text in this browser's local extension storage — treat it like a password. Use a token scoped to <code>gist</code> only, never one with broader repo/account access.</span>
       </div>
-      <input type="password" id="githubToken" placeholder="ghp_…" style="min-width:180px; font-family: monospace;" />
+      <input type="password" id="githubToken" aria-labelledby="lbl-githubToken" aria-describedby="desc-githubToken" placeholder="ghp_…" style="min-width:180px; font-family: monospace;" />
     </div>
 
     <div class="field">
       <div class="field-label">
-        <strong data-i18n="settingsGistVisibilityLabel">Gist visibility</strong>
-        <span data-i18n="settingsGistVisibilityDesc">Secret Gists are unlisted (anyone with the link can view)</span>
+        <strong id="lbl-gistPublic" data-i18n="settingsGistVisibilityLabel">Gist visibility</strong>
+        <span id="desc-gistPublic" data-i18n="settingsGistVisibilityDesc">Secret Gists are unlisted (anyone with the link can view)</span>
       </div>
-      <select id="gistPublic">
+      <select id="gistPublic" aria-labelledby="lbl-gistPublic" aria-describedby="desc-gistPublic">
         <option value="false" data-i18n="settingsGistSecretOption">Secret (unlisted)</option>
         <option value="true" data-i18n="settingsGistPublicOption">Public</option>
       </select>
@@ -387,28 +395,28 @@
 
     <div class="field">
       <div class="field-label">
-        <strong data-i18n="settingsGistTagsLabel">Gist tags</strong>
-        <span data-i18n="settingsGistTagsDesc">Extra tags added to the YAML header of every Gist export, comma-separated. Search your Gists later on GitHub with <code>user:you "tag"</code>. The tags <code>ai-chat</code> and the platform name are always included automatically.</span>
+        <strong id="lbl-gistTags" data-i18n="settingsGistTagsLabel">Gist tags</strong>
+        <span id="desc-gistTags" data-i18n="settingsGistTagsDesc">Extra tags added to the YAML header of every Gist export, comma-separated. Search your Gists later on GitHub with <code>user:you "tag"</code>. The tags <code>ai-chat</code> and the platform name are always included automatically.</span>
       </div>
-      <input type="text" id="gistTags" data-i18n-placeholder="settingsGistTagsPlaceholder" placeholder="work, project-x, research" style="min-width:220px;" />
+      <input type="text" id="gistTags" aria-labelledby="lbl-gistTags" aria-describedby="desc-gistTags" data-i18n-placeholder="settingsGistTagsPlaceholder" placeholder="work, project-x, research" style="min-width:220px;" />
     </div>
 
     <div class="field">
       <div class="field-label">
-        <strong data-i18n="settingsNotionTokenLabel">Notion integration token</strong>
-        <span data-i18n="settingsNotionTokenDesc">Internal integration token — enables the "Notion ↑" button in popup, appending exports to the page below.</span>
+        <strong id="lbl-notionToken" data-i18n="settingsNotionTokenLabel">Notion integration token</strong>
+        <span id="desc-notionToken" data-i18n="settingsNotionTokenDesc">Internal integration token — enables the "Notion ↑" button in popup, appending exports to the page below.</span>
         <a href="https://www.notion.so/developers/tokens" target="_blank" rel="noopener" data-i18n="settingsNotionTokenLink">Create one →</a>
         <span class="fineprint" data-i18n="settingsNotionTokenFineprint">⚠ Stored as plain text in this browser's local extension storage — treat it like a password. The token also needs to be connected to the target page in Notion (open the page → ••• menu → Connections → your integration), or uploads will fail with a 404.</span>
       </div>
-      <input type="password" id="notionToken" placeholder="ntn_…" style="min-width:180px; font-family: monospace;" />
+      <input type="password" id="notionToken" aria-labelledby="lbl-notionToken" aria-describedby="desc-notionToken" placeholder="ntn_…" style="min-width:180px; font-family: monospace;" />
     </div>
 
     <div class="field">
       <div class="field-label">
-        <strong data-i18n="settingsNotionPageIdLabel">Notion page ID</strong>
-        <span data-i18n="settingsNotionPageIdDesc">The page (or block) exports are appended to — copy the 32-character ID from the end of the page's Notion URL, with or without dashes.</span>
+        <strong id="lbl-notionPageId" data-i18n="settingsNotionPageIdLabel">Notion page ID</strong>
+        <span id="desc-notionPageId" data-i18n="settingsNotionPageIdDesc">The page (or block) exports are appended to — copy the 32-character ID from the end of the page's Notion URL, with or without dashes.</span>
       </div>
-      <input type="text" id="notionPageId" data-i18n-placeholder="settingsNotionPageIdPlaceholder" placeholder="a1b2c3d4e5f67890abcdef1234567890" style="min-width:220px; font-family: monospace;" />
+      <input type="text" id="notionPageId" aria-labelledby="lbl-notionPageId" aria-describedby="desc-notionPageId" data-i18n-placeholder="settingsNotionPageIdPlaceholder" placeholder="a1b2c3d4e5f67890abcdef1234567890" style="min-width:220px; font-family: monospace;" />
     </div>
 
     <!-- Secret scrubbing: the two toggles below share the same detection
@@ -416,41 +424,41 @@
          keep them adjacent so the upload/local distinction stays obvious. -->
     <div class="field">
       <div class="field-label">
-        <strong data-i18n="settingsScrubLabel">Scrub secrets before uploads</strong>
-        <span data-i18n="settingsScrubDesc">Before a conversation is sent to an online service (GitHub Gist, Notion, or your webhook), replace anything that looks like an API key, access token, or email address with a [REDACTED:…] marker. On by default, because that content leaves your computer for a third-party service. This only affects uploads — files you save or copy locally are covered by the separate toggle below.</span>
+        <strong id="lbl-scrubSecrets" data-i18n="settingsScrubLabel">Scrub secrets before uploads</strong>
+        <span id="desc-scrubSecrets" data-i18n="settingsScrubDesc">Before a conversation is sent to an online service (GitHub Gist, Notion, or your webhook), replace anything that looks like an API key, access token, or email address with a [REDACTED:…] marker. On by default, because that content leaves your computer for a third-party service. This only affects uploads — files you save or copy locally are covered by the separate toggle below.</span>
       </div>
       <label class="toggle">
-        <input type="checkbox" id="scrubSecrets" checked />
+        <input type="checkbox" id="scrubSecrets" role="switch" aria-labelledby="lbl-scrubSecrets" aria-describedby="desc-scrubSecrets" checked />
         <div class="toggle-track"></div>
       </label>
     </div>
 
     <div class="field">
       <div class="field-label">
-        <strong data-i18n="settingsScrubLocalLabel">Scrub secrets in local exports</strong>
-        <span data-i18n="settingsScrubLocalDesc">Apply the same redaction to exports that stay on this computer — Markdown, PDF, HTML, JSON, DOCX, and ZIP files, plus both clipboard copies. Off by default, because local exports never leave your machine. Turn it on when you plan to pass a file along — sending it to a coworker, or saving into a shared or synced folder such as a shared Obsidian vault — so API keys, tokens, and email addresses you pasted into the chat don't travel with it.</span>
+        <strong id="lbl-scrubLocalExports" data-i18n="settingsScrubLocalLabel">Scrub secrets in local exports</strong>
+        <span id="desc-scrubLocalExports" data-i18n="settingsScrubLocalDesc">Apply the same redaction to exports that stay on this computer — Markdown, PDF, HTML, JSON, DOCX, and ZIP files, plus both clipboard copies. Off by default, because local exports never leave your machine. Turn it on when you plan to pass a file along — sending it to a coworker, or saving into a shared or synced folder such as a shared Obsidian vault — so API keys, tokens, and email addresses you pasted into the chat don't travel with it.</span>
       </div>
       <label class="toggle">
-        <input type="checkbox" id="scrubLocalExports" />
+        <input type="checkbox" id="scrubLocalExports" role="switch" aria-labelledby="lbl-scrubLocalExports" aria-describedby="desc-scrubLocalExports" />
         <div class="toggle-track"></div>
       </label>
     </div>
 
     <div class="field">
       <div class="field-label">
-        <strong data-i18n="settingsWebhookUrlLabel">Webhook URL</strong>
-        <span data-i18n="settingsWebhookUrlDesc">After each export, Inkpour sends a POST request here with export metadata (title, platform, format, word count). Works with n8n, Zapier, Make.com, or any HTTP endpoint.</span>
+        <strong id="lbl-webhookUrl" data-i18n="settingsWebhookUrlLabel">Webhook URL</strong>
+        <span id="desc-webhookUrl" data-i18n="settingsWebhookUrlDesc">After each export, Inkpour sends a POST request here with export metadata (title, platform, format, word count). Works with n8n, Zapier, Make.com, or any HTTP endpoint.</span>
       </div>
-      <input type="url" id="webhookUrl" placeholder="https://hooks.example.com/…" style="min-width:260px; font-family: monospace; font-size: 12px;" />
+      <input type="url" id="webhookUrl" aria-labelledby="lbl-webhookUrl" aria-describedby="desc-webhookUrl" placeholder="https://hooks.example.com/…" style="min-width:260px; font-family: monospace; font-size: 12px;" />
     </div>
 
     <div class="field">
       <div class="field-label">
-        <strong data-i18n="settingsWebhookContentLabel">Include content in webhook</strong>
-        <span data-i18n="settingsWebhookContentDesc">Send the full exported text in the webhook payload (increases payload size significantly for long chats)</span>
+        <strong id="lbl-webhookIncludeContent" data-i18n="settingsWebhookContentLabel">Include content in webhook</strong>
+        <span id="desc-webhookIncludeContent" data-i18n="settingsWebhookContentDesc">Send the full exported text in the webhook payload (increases payload size significantly for long chats)</span>
       </div>
       <label class="toggle" for="webhookIncludeContent">
-        <input type="checkbox" id="webhookIncludeContent" role="switch" />
+        <input type="checkbox" id="webhookIncludeContent" role="switch" aria-labelledby="lbl-webhookIncludeContent" aria-describedby="desc-webhookIncludeContent" />
         <div class="toggle-track"></div>
       </label>
     </div>
@@ -462,22 +470,22 @@
 
     <div class="field">
       <div class="field-label">
-        <strong data-i18n="settingsDebugModeLabel">Debug mode</strong>
-        <span data-i18n="settingsDebugModeDesc">Adds "Copy debug info" and "Report bug" buttons to the popup — never includes chat content, only page structure (tag/class names, no text), selector diagnostics, and a generalized URL.</span>
+        <strong id="lbl-debugMode" data-i18n="settingsDebugModeLabel">Debug mode</strong>
+        <span id="desc-debugMode" data-i18n="settingsDebugModeDesc">Adds "Copy debug info" and "Report bug" buttons to the popup — never includes chat content, only page structure (tag/class names, no text), selector diagnostics, and a generalized URL.</span>
       </div>
       <label class="toggle" for="debugMode">
-        <input type="checkbox" id="debugMode" role="switch" />
+        <input type="checkbox" id="debugMode" role="switch" aria-labelledby="lbl-debugMode" aria-describedby="desc-debugMode" />
         <div class="toggle-track"></div>
       </label>
     </div>
 
     <div class="field">
       <div class="field-label">
-        <strong data-i18n="settingsDebugAttachGistLabel">Attach full debug info as a secret Gist (for developers)</strong>
-        <span data-i18n="settingsDebugAttachGistDesc">Requires the GitHub token above. "Report bug" also uploads the same content-free diagnostic as a secret Gist and links it in the pre-filled report, so it's complete without manually pasting anything.</span>
+        <strong id="lbl-debugAttachGist" data-i18n="settingsDebugAttachGistLabel">Attach full debug info as a secret Gist (for developers)</strong>
+        <span id="desc-debugAttachGist" data-i18n="settingsDebugAttachGistDesc">Requires the GitHub token above. "Report bug" also uploads the same content-free diagnostic as a secret Gist and links it in the pre-filled report, so it's complete without manually pasting anything.</span>
       </div>
       <label class="toggle" for="debugAttachGist">
-        <input type="checkbox" id="debugAttachGist" role="switch" />
+        <input type="checkbox" id="debugAttachGist" role="switch" aria-labelledby="lbl-debugAttachGist" aria-describedby="desc-debugAttachGist" />
         <div class="toggle-track"></div>
       </label>
     </div>
@@ -496,7 +504,7 @@
 
   <div class="save-row">
     <button class="btn-save" id="saveBtn" data-i18n="settingsSaveBtn">Save</button>
-    <span id="saveStatus"></span>
+    <span id="saveStatus" role="status" aria-live="polite"></span>
   </div>
 
   <script src="src/i18n.js"></script>
