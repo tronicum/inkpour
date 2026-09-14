@@ -15,6 +15,9 @@ new section here in the same commit as the version bump.
 ## [Unreleased]
 
 ### Added
+- Popup now shows a short "What's new in vX.Y.Z.W" panel, sourced from this
+  file, the first time it opens after an update — once per version, then
+  never again for that version.
 - New opt-in setting "Scrub secrets in local exports": redacts likely API
   keys, tokens, and email addresses from files you save or copy locally
   (Markdown, PDF, HTML, JSON, DOCX, ZIP, clipboard) — handy before sharing

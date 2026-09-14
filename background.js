@@ -729,3 +729,31 @@ async function syncAllTabIcons() {
 }
 api.runtime.onInstalled.addListener(() => { syncAllTabIcons(); });
 api.runtime.onStartup?.addListener(() => { syncAllTabIcons(); });
+
+// ─── "What's new" popup panel (post-update only) ──────────────────────────
+// On an actual update (never a fresh install — a new user has no "what's
+// new"), stash the just-installed version so the next popup open can show a
+// short "What's new in vX.Y.Z.W" panel sourced from the bundled CHANGELOG.md
+// (parseChangelogSection(), src/utils.js — the same file imported above).
+// Popup.js compares inkpour_whats_new_pending against inkpour_last_seen_version
+// and renders/dismisses accordingly; this listener only ever writes the
+// pending key. Wrapped in try/catch throughout: a parse or fetch hiccup here
+// should never surface as a visible error, it should just silently skip the
+// panel for that version.
+api.runtime.onInstalled.addListener((details) => {
+  if (details?.reason !== 'update') return;
+  (async () => {
+    try {
+      const version = api.runtime.getManifest()?.version;
+      if (!version) return;
+      const changelogText = await fetch(api.runtime.getURL('CHANGELOG.md')).then(r => r.text());
+      const section = parseChangelogSection(changelogText, version);
+      if (!section) return; // no matching/parseable section — nothing to show
+      await api.storage.local.set({
+        inkpour_whats_new_pending: { version: section.version, entries: section.entries },
+      });
+    } catch {
+      // best-effort only — never block or surface an error from an update event
+    }
+  })();
+});

@@ -380,6 +380,17 @@
       }
     }
   },
+  "popupWhatsNewTitle": {
+    "message": "What's new in v$VERSION$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupWhatsNewDismiss": {
+    "message": "Dismiss"
+  },
   "popupIncrementalHintOne": {
     "message": "前回のエクスポート（$WHEN$）以降、新着メッセージ$COUNT$件 — ",
     "placeholders": {

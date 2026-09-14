@@ -380,6 +380,17 @@
       }
     }
   },
+  "popupWhatsNewTitle": {
+    "message": "What's new in v$VERSION$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupWhatsNewDismiss": {
+    "message": "Dismiss"
+  },
   "popupIncrementalHintOne": {
     "message": "$COUNT$ ข้อความใหม่นับตั้งแต่การส่งออกครั้งล่าสุด ($WHEN$) — ",
     "placeholders": {

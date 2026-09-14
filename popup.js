@@ -43,6 +43,10 @@
   const gistLinkEl    = document.getElementById('gist-link');
   const lastExportEl  = document.getElementById('last-export');
   const newMsgsHint   = document.getElementById('new-msgs-hint');
+  const whatsNewPanel      = document.getElementById('whats-new-panel');
+  const whatsNewTitle      = document.getElementById('whatsNewTitle');
+  const whatsNewList       = document.getElementById('whatsNewList');
+  const whatsNewDismissBtn = document.getElementById('whatsNewDismissBtn');
   const incrementalHint    = document.getElementById('incrementalHint');
   const incrementalExportBtn = document.getElementById('incrementalExportBtn');
   const selectToggle  = document.getElementById('selectToggle');
@@ -229,6 +233,46 @@
       lastExportEl.textContent = t('popupLastExport', [last.platform, String(last.messageCount), fmt, when]);
     } catch {
       // storage unavailable — ignore
+    }
+  })();
+
+  // ─── "What's new" panel (post-update, shown once per version) ─────────────
+  // background.js's onInstalled listener stashes inkpour_whats_new_pending
+  // (version + parsed CHANGELOG.md entries) the moment an update installs.
+  // Here we just compare that against inkpour_last_seen_version: if they
+  // differ, render the panel; dismissing it (or, per the once-shown choice
+  // below, simply having rendered it) writes inkpour_last_seen_version so it
+  // never reappears for that version.
+  (async () => {
+    try {
+      if (!whatsNewPanel || !whatsNewTitle || !whatsNewList) return;
+      const result = await api.storage.local.get(['inkpour_whats_new_pending', 'inkpour_last_seen_version']);
+      const pending = result?.inkpour_whats_new_pending;
+      if (!pending?.version || !Array.isArray(pending.entries) || pending.entries.length === 0) return;
+      if (pending.version === result?.inkpour_last_seen_version) return;
+
+      whatsNewTitle.textContent = t('popupWhatsNewTitle', [pending.version]);
+      whatsNewList.textContent = '';
+      pending.entries.forEach((entry) => {
+        const li = document.createElement('li');
+        li.textContent = entry;
+        whatsNewList.appendChild(li);
+      });
+      whatsNewPanel.hidden = false;
+      whatsNewPanel.style.display = 'block';
+
+      // Shown-once semantics: mark it seen as soon as it's rendered, rather
+      // than only on an explicit dismiss click — a popup that's opened and
+      // then closed without clicking anything should still count as "seen",
+      // otherwise the same panel would keep reappearing on every open.
+      api.storage.local.set({ inkpour_last_seen_version: pending.version });
+
+      whatsNewDismissBtn?.addEventListener('click', () => {
+        whatsNewPanel.hidden = true;
+        whatsNewPanel.style.display = 'none';
+      });
+    } catch {
+      // storage/parse failure — silently skip, never block the rest of the popup
     }
   })();
 
