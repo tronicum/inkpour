@@ -104,6 +104,7 @@
     notionToken:           '',
     notionPageId:          '',
     scrubSecrets:          true,
+    scrubLocalExports:     false,
     webhookUrl:            '',
     webhookIncludeContent: false,
     writeToVault:          false,
@@ -338,6 +339,25 @@
       if (box.checked && allMessages[i]) selected.push(allMessages[i]);
     });
     return selected.length ? selected : allMessages;
+  }
+
+  /**
+   * Apply the opt-in local-export scrub (Settings → "Scrub secrets in local
+   * exports", `scrubLocalExports`, default OFF). Returns redacted copies of
+   * the messages and the conversation title when the setting is on, or the
+   * originals untouched when it is off.
+   *
+   * Deliberately NOT applied to:
+   * - the user's own export notes (they typed those intentionally this session),
+   * - the Gist/Notion upload paths, which are governed by the separate
+   *   `scrubSecrets` setting (network upload = opt-out, local file = opt-in).
+   */
+  function applyLocalScrub(msgs, title) {
+    if (!userSettings.scrubLocalExports) return { msgs, title };
+    return {
+      msgs:  redactMessages(msgs),
+      title: redactSecrets(title || '').cleaned,
+    };
   }
 
   // Quick-select helpers
@@ -781,9 +801,9 @@
 
     try {
       const data = await extractFromPage();
-      const msgs  = getSelectedMessages(data.messages);
+      const { msgs, title } = applyLocalScrub(getSelectedMessages(data.messages), data.title);
       const notes = getExportNotes();
-      const md   = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, userSettings, data.sourceUrl);
+      const md   = notesBlockMD(notes) + buildMarkdown(msgs, title, data.site, userSettings, data.sourceUrl);
       const filename = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length) + '.md';
 
       if (vaultHandle) {
@@ -814,8 +834,8 @@
     setLoading(pdfBtn, true);
     try {
       const data        = await extractFromPage();
-      const msgs        = getSelectedMessages(data.messages);
-      const bodyContent = buildPrintBodyHTML(msgs, data.title, data.site, userSettings);
+      const { msgs, title } = applyLocalScrub(getSelectedMessages(data.messages), data.title);
+      const bodyContent = buildPrintBodyHTML(msgs, title, data.site, userSettings);
       localStorage.setItem('inkpour_print', bodyContent);
       await api.tabs.create({ url: api.runtime.getURL('print.html') });
       saveLastExport('pdf', { ...data, messages: msgs }, bodyContent);
@@ -839,8 +859,8 @@
     setLoading(htmlBtn, true);
     try {
       const data     = await extractFromPage();
-      const msgs     = getSelectedMessages(data.messages);
-      const fullHTML = buildStandaloneHTML(msgs, data.title, data.site, userSettings);
+      const { msgs, title } = applyLocalScrub(getSelectedMessages(data.messages), data.title);
+      const fullHTML = buildStandaloneHTML(msgs, title, data.site, userSettings);
       downloadFile(fullHTML, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length) + '.html', 'text/html;charset=utf-8');
       setStatus(t('popupStatusSavedCheckDownloads'), 'success');
       saveLastExport('html', { ...data, messages: msgs }, fullHTML);
@@ -858,9 +878,9 @@
     setLoading(copyBtn, true);
     try {
       const data  = await extractFromPage();
-      const msgs  = getSelectedMessages(data.messages);
+      const { msgs, title } = applyLocalScrub(getSelectedMessages(data.messages), data.title);
       const notes = getExportNotes();
-      const md    = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, userSettings, data.sourceUrl);
+      const md    = notesBlockMD(notes) + buildMarkdown(msgs, title, data.site, userSettings, data.sourceUrl);
       await navigator.clipboard.writeText(md);
       setStatus(t('popupStatusMarkdownCopied'), 'success');
       saveLastExport('copy-md', data, md);
@@ -878,8 +898,8 @@
     setLoading(copyHtmlBtn, true);
     try {
       const data     = await extractFromPage();
-      const msgs     = getSelectedMessages(data.messages);
-      const fullHTML = buildStandaloneHTML(msgs, data.title, data.site, userSettings);
+      const { msgs, title } = applyLocalScrub(getSelectedMessages(data.messages), data.title);
+      const fullHTML = buildStandaloneHTML(msgs, title, data.site, userSettings);
       await navigator.clipboard.writeText(fullHTML);
       setStatus(t('popupStatusHtmlCopied'), 'success');
       saveLastExport('copy-html', data, fullHTML);
@@ -897,9 +917,9 @@
     setLoading(jsonBtn, true);
     try {
       const data  = await extractFromPage();
-      const msgs  = getSelectedMessages(data.messages);
+      const { msgs, title } = applyLocalScrub(getSelectedMessages(data.messages), data.title);
       const notes = getExportNotes();
-      let json = buildJSON(msgs, data.title, data.site, data.platform);
+      let json = buildJSON(msgs, title, data.site, data.platform);
       // Inject notes field after the top-level exportedAt key if present
       if (notes) {
         try {
@@ -935,8 +955,8 @@
 
     try {
       const data  = await extractFromPage();
-      const msgs  = getSelectedMessages(data.messages);
-      const bytes = buildDocx(msgs, data.title, data.site, userSettings, data.sourceUrl);
+      const { msgs, title } = applyLocalScrub(getSelectedMessages(data.messages), data.title);
+      const bytes = buildDocx(msgs, title, data.site, userSettings, data.sourceUrl);
       const filename = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length) + '.docx';
 
       if (vaultHandle) {
@@ -986,9 +1006,9 @@
 
     try {
       const data = await extractFromPage();
-      const msgs = getSelectedMessages(data.messages);
+      const { msgs, title } = applyLocalScrub(getSelectedMessages(data.messages), data.title);
       const { files, codeCount } = buildZipExport(
-        msgs, data.title, data.site, userSettings, data.sourceUrl
+        msgs, title, data.site, userSettings, data.sourceUrl
       );
       const zipBytes = buildZip(files);
       const filename = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length) + '.zip';
@@ -1033,16 +1053,16 @@
     setLoading(allBtn, true);
     try {
       const data  = await extractFromPage();
-      const msgs  = getSelectedMessages(data.messages);
+      const { msgs, title } = applyLocalScrub(getSelectedMessages(data.messages), data.title);
       const notes = getExportNotes();
       const slug  = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length);
 
       // Build MD
-      const md = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, userSettings, data.sourceUrl);
+      const md = notesBlockMD(notes) + buildMarkdown(msgs, title, data.site, userSettings, data.sourceUrl);
       downloadFile(md, slug + '.md', 'text/markdown;charset=utf-8');
 
       // Build DOCX
-      const docxBytes = buildDocx(msgs, data.title, data.site, userSettings, data.sourceUrl);
+      const docxBytes = buildDocx(msgs, title, data.site, userSettings, data.sourceUrl);
       const docxBlob  = new Blob([docxBytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
       const docxUrl   = URL.createObjectURL(docxBlob);
       const docxA     = Object.assign(document.createElement('a'), {
@@ -1055,7 +1075,7 @@
       setTimeout(() => URL.revokeObjectURL(docxUrl), 1000);
 
       // Build ZIP
-      const { files } = buildZipExport(msgs, data.title, data.site, userSettings, data.sourceUrl);
+      const { files } = buildZipExport(msgs, title, data.site, userSettings, data.sourceUrl);
       const zipBytes  = buildZip(files);
       const zipBlob   = new Blob([zipBytes], { type: 'application/zip' });
       const zipUrl    = URL.createObjectURL(zipBlob);
@@ -1735,7 +1755,8 @@
         return;
       }
       const notes = getExportNotes();
-      const md = notesBlockMD(notes) + buildMarkdown(newOnly, data.title, data.site, userSettings, data.sourceUrl);
+      const scrubbed = applyLocalScrub(newOnly, data.title);
+      const md = notesBlockMD(notes) + buildMarkdown(scrubbed.msgs, scrubbed.title, data.site, userSettings, data.sourceUrl);
       const slug = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(newOnly), newOnly.length);
       downloadFile(md, slug + '-continued.md', 'text/markdown;charset=utf-8');
       setStatus(t(newOnly.length === 1 ? 'popupSavedNewMessagesOne' : 'popupSavedNewMessagesOther', [String(newOnly.length)]), 'success');
