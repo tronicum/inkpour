@@ -815,7 +815,7 @@
     try {
       const data        = await extractFromPage();
       const msgs        = getSelectedMessages(data.messages);
-      const bodyContent = buildPrintBodyHTML(msgs, data.title, data.site);
+      const bodyContent = buildPrintBodyHTML(msgs, data.title, data.site, userSettings);
       localStorage.setItem('inkpour_print', bodyContent);
       await api.tabs.create({ url: api.runtime.getURL('print.html') });
       saveLastExport('pdf', { ...data, messages: msgs }, bodyContent);

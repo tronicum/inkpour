@@ -15,6 +15,10 @@ new section here in the same commit as the version bump.
 ## [Unreleased]
 
 ### Added
+- The "Generate table of contents" setting now also applies to PDF exports
+  and the print/preview page, matching Markdown and HTML exports. Previously
+  PDF output was unaffected by this setting despite the feature having
+  shipped in 0.4.31.0 (#6).
 - Settings now follow you across signed-in devices for a small set of
   non-sensitive preferences (default export format, table of contents,
   YAML front matter, etc.) via browser sync. Tokens, local file paths,
