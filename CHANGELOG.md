@@ -14,6 +14,15 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+## [0.4.31.1] - 2026-09-14
+
+### Fixed
+- `release.yml`'s Firefox (AMO) submission step passed `--use-submission-api`
+  to `web-ext sign`, a flag removed in web-ext v8+ (folded into default
+  behavior) — v0.4.31.0's AMO auto-submit failed as a result. Dropped the
+  flag and pinned `web-ext@10` to avoid the same drift again. No extension
+  code changed from 0.4.31.0.
+
 ## [0.4.31.0] - 2026-09-14
 
 ### Added
