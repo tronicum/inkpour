@@ -14,6 +14,15 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+### Added
+- Mobile bookmarklet (`bookmarklet/`): a standalone `javascript:` bookmarklet
+  for mobile Safari (iOS) and Android Chrome, which can't install the
+  WebExtension at all. Works on ChatGPT and Claude only, and copies the
+  visible conversation to the clipboard as Markdown (falling back to a
+  manual copy-from-overlay when the browser blocks the automatic clipboard
+  write). No PDF/HTML/JSON/DOCX/ZIP export, no settings, no scroll-to-load —
+  see `bookmarklet/README.md` for install steps and full limitations.
+
 ## [0.4.31.2] - 2026-09-14
 
 ### Added

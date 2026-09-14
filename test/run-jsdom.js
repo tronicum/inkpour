@@ -3069,6 +3069,151 @@ async function main() {
     });
   });
 
+  // ─── Mobile bookmarklet (bookmarklet/src/inkpour-bookmarklet.js) ──────────
+  // The bookmarklet is a deliberately duplicated, standalone subset of
+  // src/content.js's extraction/markdown logic (see bookmarklet/README.md
+  // for why it isn't shared). It declares plain top-level functions with no
+  // wrapping IIFE and never calls its own entry point at load time, so it's
+  // safe to load with vm.runInThisContext() here exactly like src/utils.js.
+  await suite('Mobile bookmarklet — extraction + markdown', async () => {
+    const BOOKMARKLET_JS = fs.readFileSync(
+      path.resolve(__dirname, '../bookmarklet/src/inkpour-bookmarklet.js'), 'utf8'
+    );
+    const buildBookmarklet = require(path.resolve(__dirname, '../bookmarklet/build.js'));
+
+    /**
+     * Loads a fixture into a fresh JSDOM, injects the bookmarklet source,
+     * and returns { window, extractConversation, buildMarkdownDoc } bound
+     * to that window's global scope (mirrors extractFromFixture() above,
+     * but calls the bookmarklet's plain functions directly instead of
+     * going through a message-listener response).
+     */
+    function loadBookmarkletFixture(fixtureName, hostname) {
+      const fixturePath = path.join(FIXTURES_DIR, fixtureName);
+      const html = fs.readFileSync(fixturePath, 'utf8');
+      const dom = new JSDOM(html, { url: 'https://example.com/', runScripts: 'dangerously' });
+      const { window } = dom;
+      if (hostname) window.__inkpourTestHostname = hostname;
+
+      const scriptEl = window.document.createElement('script');
+      scriptEl.textContent = BOOKMARKLET_JS +
+        ';window.__inkpourExtract = extractConversation;' +
+        'window.__inkpourBuildMd = buildMarkdownDoc;';
+      window.document.body.appendChild(scriptEl);
+
+      return {
+        window,
+        extractConversation: window.__inkpourExtract,
+        buildMarkdownDoc: window.__inkpourBuildMd,
+      };
+    }
+
+    await test('extracts ChatGPT fixture: correct roles, order, non-empty content', () => {
+      const { extractConversation } = loadBookmarkletFixture('chatgpt.html', 'chatgpt.com');
+      const result = extractConversation();
+      assert(result !== null, 'expected a non-null result on the ChatGPT fixture');
+      assert(result.site === 'chatgpt', `expected site 'chatgpt', got ${result.site}`);
+      assert(result.messages.length === 4, `expected 4 turns, got ${result.messages.length}`);
+      const roles = result.messages.map(m => m.role);
+      assert(
+        JSON.stringify(roles) === JSON.stringify(['You', 'ChatGPT', 'You', 'ChatGPT']),
+        `unexpected role order: ${JSON.stringify(roles)}`
+      );
+      for (const m of result.messages) {
+        assert(m.content && m.content.trim().length > 0, 'expected non-empty content for every turn');
+      }
+    });
+
+    await test('extracts Claude fixture: correct roles, order, non-empty content', () => {
+      const { extractConversation } = loadBookmarkletFixture('claude.html', 'claude.ai');
+      const result = extractConversation();
+      assert(result !== null, 'expected a non-null result on the Claude fixture');
+      assert(result.site === 'claude', `expected site 'claude', got ${result.site}`);
+      assert(result.messages.length === 4, `expected 4 turns, got ${result.messages.length}`);
+      const roles = result.messages.map(m => m.role);
+      assert(
+        JSON.stringify(roles) === JSON.stringify(['You', 'Claude', 'You', 'Claude']),
+        `unexpected role order: ${JSON.stringify(roles)}`
+      );
+      for (const m of result.messages) {
+        assert(m.content && m.content.trim().length > 0, 'expected non-empty content for every turn');
+      }
+    });
+
+    await test('returns null (not a thrown exception) on an unsupported page', () => {
+      const dom = new JSDOM('<html><body><p>Just a regular web page.</p></body></html>', {
+        url: 'https://example.com/', runScripts: 'dangerously',
+      });
+      dom.window.__inkpourTestHostname = 'example.com';
+      const scriptEl = dom.window.document.createElement('script');
+      scriptEl.textContent = BOOKMARKLET_JS + ';window.__inkpourExtract = extractConversation;';
+      dom.window.document.body.appendChild(scriptEl);
+
+      let result;
+      let threw = false;
+      try {
+        result = dom.window.__inkpourExtract();
+      } catch {
+        threw = true;
+      }
+      assert(!threw, 'extractConversation() must not throw on an unsupported page');
+      assert(result === null, `expected null on an unsupported page, got ${JSON.stringify(result)}`);
+    });
+
+    await test('produced Markdown contains the title heading, each turn, and fenced code blocks', () => {
+      const { extractConversation, buildMarkdownDoc } = loadBookmarkletFixture('chatgpt.html', 'chatgpt.com');
+      const result = extractConversation();
+      const md = buildMarkdownDoc(result.messages, result.title, result.site);
+
+      assert(md.startsWith(`# ${result.title}`), 'expected the Markdown to open with the title heading');
+      for (const m of result.messages) {
+        const firstLine = m.content.trim().split('\n')[0];
+        assert(md.includes(firstLine), `expected Markdown to contain turn text: ${JSON.stringify(firstLine)}`);
+      }
+      assert(/```python\n[\s\S]*?```/.test(md), 'expected the Python code block to survive as a fenced block');
+    });
+
+    await test('build.js: bookmarklet URI starts with javascript:, has no literal newlines, and decodes to valid JS', () => {
+      const source = fs.readFileSync(
+        path.resolve(__dirname, '../bookmarklet/src/inkpour-bookmarklet.js'), 'utf8'
+      );
+      const uri = buildBookmarklet.buildBookmarkletUri(source);
+
+      assert(uri.startsWith('javascript:'), 'expected the URI to start with "javascript:"');
+      assert(!uri.includes('\n'), 'expected no literal newlines in the built URI');
+
+      const decoded = decodeURIComponent(uri.slice('javascript:'.length));
+      // Must not throw — this is the guard against a naive minifier breaking
+      // the bookmarklet (e.g. eating a "//" inside a URL, or merging two
+      // statements that relied on ASI).
+      new vm.Script(decoded);
+
+      assert(decoded.includes('runInkpourBookmarklet();'), 'expected the built URI to invoke the entry point');
+      assert(decoded.trim().length > 0, 'expected non-empty output');
+    });
+
+    await test('build.js output actually runs end-to-end against the ChatGPT fixture', () => {
+      const source = fs.readFileSync(
+        path.resolve(__dirname, '../bookmarklet/src/inkpour-bookmarklet.js'), 'utf8'
+      );
+      const uri = buildBookmarklet.buildBookmarkletUri(source);
+      const decoded = decodeURIComponent(uri.slice('javascript:'.length));
+
+      const html = fs.readFileSync(path.join(FIXTURES_DIR, 'chatgpt.html'), 'utf8');
+      const dom = new JSDOM(html, { url: 'https://example.com/', runScripts: 'dangerously' });
+      dom.window.__inkpourTestHostname = 'chatgpt.com';
+      // No clipboard API in JSDOM → exercises the overlay fallback path.
+      const scriptEl = dom.window.document.createElement('script');
+      scriptEl.textContent = decoded;
+      dom.window.document.body.appendChild(scriptEl);
+
+      const overlay = dom.window.document.querySelector('[data-inkpour-bookmarklet-overlay]');
+      assert(overlay !== null, 'expected the manual-copy overlay to appear when the Clipboard API is unavailable');
+      const textarea = overlay.querySelector('textarea');
+      assert(textarea && textarea.value.includes('## You'), 'expected the overlay textarea to contain the exported Markdown');
+    });
+  });
+
   // ─── Results ───────────────────────────────────────────────────────────────
   console.log('\n' + '─'.repeat(50));
   console.log(`Results: ${passed} passed, ${failed} failed`);
