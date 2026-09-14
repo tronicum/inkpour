@@ -1129,6 +1129,49 @@ async function main() {
       assert(md.includes('## Contents'), `missing TOC. Got: ${md.slice(0, 300)}`);
     });
 
+    await test('TOC lists user questions (not role/counter labels) with matching anchors', () => {
+      const longMsgs = [
+        { role: 'You',    content: 'What is the capital of France?' },
+        { role: 'Claude', content: 'Paris.' },
+        { role: 'You',    content: 'And of Germany?' },
+        { role: 'Claude', content: 'Berlin.' },
+        { role: 'You',    content: 'Thanks, one more: Italy?' },
+        { role: 'Claude', content: 'Rome.' },
+      ];
+      const md = buildMarkdown(longMsgs, 'Capitals', 'claude', { generateTOC: true });
+      assert(md.includes('- [What is the capital of France?](#toc-1)'), `first TOC entry missing/wrong. Got: ${md.slice(0, 500)}`);
+      assert(md.includes('- [And of Germany?](#toc-2)'), `second TOC entry missing/wrong. Got: ${md.slice(0, 500)}`);
+      assert(md.includes('- [Thanks, one more: Italy?](#toc-3)'), `third TOC entry missing/wrong. Got: ${md.slice(0, 500)}`);
+      assert(!md.includes('- [You (1)'), 'TOC should not fall back to role/counter labels');
+      // Each TOC anchor must have a matching heading anchor in the body.
+      assert(md.includes('<a id="toc-1"></a>'), 'missing anchor for first user turn');
+      assert(md.includes('<a id="toc-2"></a>'), 'missing anchor for second user turn');
+      assert(md.includes('<a id="toc-3"></a>'), 'missing anchor for third user turn');
+      // No anchor should be emitted for assistant turns.
+      assert(!md.includes('<a id="toc-4"></a>'), 'unexpected 4th anchor (only 3 user turns exist)');
+    });
+
+    await test('no TOC for short conversations (below the 3-user-turn threshold)', () => {
+      const shortMsgs = [
+        { role: 'You',    content: 'Hi' },
+        { role: 'Claude', content: 'Hello!' },
+        { role: 'You',    content: 'How are you?' },
+        { role: 'Claude', content: 'Doing well.' },
+      ];
+      const md = buildMarkdown(shortMsgs, 'Short Chat', 'claude', { generateTOC: true });
+      assert(!md.includes('## Contents'), `TOC should be skipped for short chats. Got: ${md.slice(0, 300)}`);
+      assert(!md.includes('<a id="toc-'), 'no anchors should be emitted when TOC is skipped');
+    });
+
+    await test('no TOC at all when generateTOC option is off, even for long chats', () => {
+      const longMsgs = Array.from({ length: 6 }, (_, i) => ({
+        role: i % 2 === 0 ? 'You' : 'Claude',
+        content: `Message ${i}`,
+      }));
+      const md = buildMarkdown(longMsgs, 'Long Chat', 'claude', { generateTOC: false });
+      assert(!md.includes('## Contents'), 'TOC should not appear when the setting is off');
+    });
+
     await test('source URL appears in preamble blockquote', () => {
       const md = buildMarkdown(msgs, 'Chat', 'claude', {}, 'https://claude.ai/chat/xyz');
       assert(md.includes('[source](https://claude.ai/chat/xyz)'), 'missing source link in preamble');
@@ -1903,6 +1946,46 @@ async function main() {
     const html = buildStandaloneHTML(msgs, 'Chat', 'claude');
     assert(html.includes('<pre>') || html.includes('<pre '), 'missing <pre> for code block');
     assert(html.includes('console.log'), 'code content missing');
+  });
+
+  await test('buildStandaloneHTML adds a TOC nav with matching anchors when generateTOC is on and there are 3+ user turns', () => {
+    const msgs = [
+      { role: 'You',    content: 'What is the capital of France?' },
+      { role: 'Claude', content: 'Paris.' },
+      { role: 'You',    content: 'And of Germany?' },
+      { role: 'Claude', content: 'Berlin.' },
+      { role: 'You',    content: 'Thanks, one more: Italy?' },
+      { role: 'Claude', content: 'Rome.' },
+    ];
+    const html = buildStandaloneHTML(msgs, 'Capitals', 'claude', { generateTOC: true });
+    assert(html.includes('class="toc"'), 'missing TOC nav block');
+    assert(html.includes('<a href="#msg-1">What is the capital of France?</a>'), 'missing/wrong first TOC link');
+    assert(html.includes('<a href="#msg-2">And of Germany?</a>'), 'missing/wrong second TOC link');
+    assert(html.includes('<a href="#msg-3">Thanks, one more: Italy?</a>'), 'missing/wrong third TOC link');
+    assert(html.includes('id="msg-1"'), 'missing anchor id for first user turn');
+    assert(html.includes('id="msg-2"'), 'missing anchor id for second user turn');
+    assert(html.includes('id="msg-3"'), 'missing anchor id for third user turn');
+  });
+
+  await test('buildStandaloneHTML omits TOC for short conversations even when generateTOC is on', () => {
+    const msgs = [
+      { role: 'You',    content: 'Hi' },
+      { role: 'Claude', content: 'Hello!' },
+      { role: 'You',    content: 'How are you?' },
+      { role: 'Claude', content: 'Doing well.' },
+    ];
+    const html = buildStandaloneHTML(msgs, 'Short Chat', 'claude', { generateTOC: true });
+    assert(!html.includes('class="toc"'), 'TOC should be skipped for short chats');
+    assert(!html.includes('id="msg-'), 'no message anchors should be emitted when TOC is skipped');
+  });
+
+  await test('buildStandaloneHTML omits TOC by default (no opts passed)', () => {
+    const msgs = Array.from({ length: 6 }, (_, i) => ({
+      role: i % 2 === 0 ? 'You' : 'Claude',
+      content: `Message ${i}`,
+    }));
+    const html = buildStandaloneHTML(msgs, 'Long Chat', 'claude');
+    assert(!html.includes('class="toc"'), 'TOC should not appear when opts is omitted');
   });
 
   // ─── mdToHTML — additional coverage ──────────────────────────────────────

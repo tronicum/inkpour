@@ -161,7 +161,7 @@ function mdToHTML(md) {
 
 // ─── PDF body builder ─────────────────────────────────────────────────────────
 
-function buildPrintBodyHTML(messages, title, site) {
+function buildPrintBodyHTML(messages, title, site, opts = {}) {
   const date = new Date().toLocaleString(undefined, {
     year: 'numeric', month: 'long', day: 'numeric',
     hour: '2-digit', minute: '2-digit',
@@ -174,10 +174,40 @@ function buildPrintBodyHTML(messages, title, site) {
 </header>`,
   ];
 
+  // Table of contents: same rule as the Markdown exporter — only user turns
+  // (questions), only when there are enough of them to make a TOC useful.
+  // `opts.generateTOC` is only ever passed by buildStandaloneHTML (the
+  // "export .html" path) — the PDF body builder call sites never pass it, so
+  // the printed/PDF output is unaffected by this.
+  const userTurnCount = messages.filter(m => _isUserTurn(m.role)).length;
+  const wantTOC        = !!opts.generateTOC && userTurnCount >= 3;
+
+  if (wantTOC) {
+    const items = [];
+    let n = 0;
+    for (const { role, content } of messages) {
+      if (!_isUserTurn(role)) continue;
+      n++;
+      items.push(`    <li><a href="#msg-${n}">${esc(_tocLabel(content))}</a></li>`);
+    }
+    parts.push(`<nav class="toc">
+  <div class="toc-title">Contents</div>
+  <ul>
+${items.join('\n')}
+  </ul>
+</nav>`);
+  }
+
+  let userIdx = 0;
   for (const { role, content } of messages) {
     const roleClass = (role.toLowerCase() === 'you') ? 'user' : 'assistant';
+    let idAttr = '';
+    if (wantTOC && _isUserTurn(role)) {
+      userIdx++;
+      idAttr = ` id="msg-${userIdx}"`;
+    }
     parts.push(
-      `<article class="message ${roleClass}">
+      `<article class="message ${roleClass}"${idAttr}>
   <div class="role-label">${esc(role)}</div>
   <div class="content">${mdToHTML(content)}</div>
 </article>`
@@ -198,10 +228,11 @@ function buildPrintBodyHTML(messages, title, site) {
  * @param {Array<{role:string,content:string}>} messages
  * @param {string} title
  * @param {string} site
+ * @param {{ generateTOC?:boolean }} opts
  * @returns {string} complete HTML document
  */
-function buildStandaloneHTML(messages, title, site) {
-  const bodyContent = buildPrintBodyHTML(messages, title, site);
+function buildStandaloneHTML(messages, title, site, opts = {}) {
+  const bodyContent = buildPrintBodyHTML(messages, title, site, opts);
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -215,6 +246,12 @@ function buildStandaloneHTML(messages, title, site) {
     .doc-header { margin-bottom: 2.5rem; padding-bottom: 1.25rem; border-bottom: 2px solid #e5e7eb; }
     .doc-header h1 { font-size: 1.75rem; font-weight: 700; color: #111; margin-bottom: 0.4rem; }
     .meta { font-size: 0.85rem; color: #6b7280; font-style: italic; }
+    .toc { font-family: system-ui, sans-serif; margin-bottom: 2.5rem; padding: 1rem 1.25rem; background: #f4f4f5; border-radius: 8px; border-left: 3px solid #5b5bd6; }
+    .toc-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #5b5bd6; margin-bottom: 0.5rem; }
+    .toc ul { list-style: none; padding: 0; margin: 0; }
+    .toc li { margin: 0.3rem 0; font-size: 0.88rem; }
+    .toc a { color: #3730a3; text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
     .message { margin-bottom: 1.5rem; padding: 1.1rem 1.25rem; border-radius: 8px; border-left: 3px solid transparent; }
     .message.user { background: #f0f4ff; border-left-color: #5b5bd6; }
     .message.assistant { background: #f0fdf4; border-left-color: #16a34a; }
@@ -254,6 +291,9 @@ function buildStandaloneHTML(messages, title, site) {
       .doc-header { border-bottom-color: #3f3f46; }
       .doc-header h1 { color: #fafafa; }
       .meta { color: #a1a1aa; }
+      .toc { background: #1e1e3a; border-left-color: #818cf8; }
+      .toc-title { color: #a5b4fc; }
+      .toc a { color: #a5b4fc; }
       .message.user { background: #1e1e3a; }
       .message.assistant { background: #14291f; }
       .content code { background: rgba(255,255,255,0.1); }
@@ -273,6 +313,31 @@ ${bodyContent}
   </div>
 </body>
 </html>`;
+}
+
+// ─── Table of contents helpers (shared shape: role/content message list) ─────
+// Works generically for any supported platform — by the time messages reach
+// here they're already normalized into { role, content } turns, regardless
+// of which site they were extracted from.
+
+const USER_ROLE_RE = /^(you|user|human)$/i;
+
+function _isUserTurn(role) {
+  return USER_ROLE_RE.test(String(role || '').trim());
+}
+
+// Turns a user turn's raw content into a short single-line TOC label —
+// strips code fences/markdown syntax so the link text reads like a plain
+// question, mirroring ChatGPT's own in-chat conversation navigator.
+function _tocLabel(content, max = 70) {
+  const clean = String(content || '')
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`([^`]*)`/g, '$1')
+    .replace(/[#*_~>|[\]]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!clean) return '(empty message)';
+  return clean.length > max ? `${clean.slice(0, max).trim()}…` : clean;
 }
 
 // ─── Markdown builder ─────────────────────────────────────────────────────────
@@ -316,25 +381,34 @@ function buildMarkdown(messages, title, site, opts = {}, sourceUrl = '') {
   const srcNote = sourceUrl ? ` · [source](${cleanUrl(sourceUrl)})` : '';
   md += `> Exported from **${site}** on ${date} · ${messages.length} messages · ~${wordCount.toLocaleString()} words · ~${readingMin} min read${srcNote}\n\n---\n\n`;
 
-  if (opts.generateTOC && messages.length > 4) {
-    const counters = {};
+  // Table of contents: one entry per USER turn (question), not per message —
+  // mirrors ChatGPT's own in-chat navigator, which only ever lists the
+  // user's prompts. Skipped for short chats where a TOC would just be noise.
+  const userTurnCount = messages.filter(m => _isUserTurn(m.role)).length;
+  const wantTOC        = !!opts.generateTOC && userTurnCount >= 3;
+
+  if (wantTOC) {
+    let n = 0;
     md += `## Contents\n\n`;
-    for (const { role } of messages) {
-      counters[role] = (counters[role] || 0) + 1;
-      const n      = counters[role];
-      const anchor = `${role.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${n}`;
-      md += `- [${role} (${n})](#${anchor})\n`;
+    for (const { role, content } of messages) {
+      if (!_isUserTurn(role)) continue;
+      n++;
+      md += `- [${_tocLabel(content)}](#toc-${n})\n`;
     }
     md += '\n---\n\n';
   }
 
-  const counters = {};
+  let userIdx = 0;
   for (const { role, content } of messages) {
-    counters[role] = (counters[role] || 0) + 1;
-    const heading = opts.generateTOC
-      ? `## ${role} (${counters[role]})`
-      : `## ${role}`;
-    md += `${heading}\n\n${content.trim()}\n\n---\n\n`;
+    // Explicit HTML anchors (rather than relying on each Markdown renderer's
+    // own heading-slug algorithm to agree with ours) so the TOC links jump
+    // correctly regardless of which viewer opens the file.
+    let anchor = '';
+    if (wantTOC && _isUserTurn(role)) {
+      userIdx++;
+      anchor = `<a id="toc-${userIdx}"></a>\n`;
+    }
+    md += `${anchor}## ${role}\n\n${content.trim()}\n\n---\n\n`;
   }
 
   // Attribution footer — subtle, links back to the tool

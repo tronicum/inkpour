@@ -86,7 +86,7 @@ api.runtime.onMessage.addListener((message, sender) => {
     }
 
     if (message.format === 'html') {
-      const html = buildStandaloneHTML(response.messages, response.title, response.site);
+      const html = buildStandaloneHTML(response.messages, response.title, response.site, settings);
       const url  = 'data:text/html;charset=utf-8,' + encodeURIComponent(html);
       safeDownload(tabId, url, withSubfolder(settings, filename + '.html'));
     }
@@ -538,7 +538,7 @@ async function runCommand(command) {
 
   if (command === 'copy-html') {
     // Copy full standalone HTML to clipboard via content script (no clipboard in SW)
-    const html = buildStandaloneHTML(response.messages, response.title, response.site);
+    const html = buildStandaloneHTML(response.messages, response.title, response.site, settings);
     await api.tabs.sendMessage(tab.id, { action: 'copyToClipboard', text: html });
   }
 

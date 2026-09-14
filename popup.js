@@ -833,7 +833,7 @@
     try {
       const data     = await extractFromPage();
       const msgs     = getSelectedMessages(data.messages);
-      const fullHTML = buildStandaloneHTML(msgs, data.title, data.site);
+      const fullHTML = buildStandaloneHTML(msgs, data.title, data.site, userSettings);
       downloadFile(fullHTML, buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length) + '.html', 'text/html;charset=utf-8');
       setStatus(t('popupStatusSavedCheckDownloads'), 'success');
       saveLastExport('html', { ...data, messages: msgs }, fullHTML);
@@ -872,7 +872,7 @@
     try {
       const data     = await extractFromPage();
       const msgs     = getSelectedMessages(data.messages);
-      const fullHTML = buildStandaloneHTML(msgs, data.title, data.site);
+      const fullHTML = buildStandaloneHTML(msgs, data.title, data.site, userSettings);
       await navigator.clipboard.writeText(fullHTML);
       setStatus(t('popupStatusHtmlCopied'), 'success');
       saveLastExport('copy-html', data, fullHTML);
