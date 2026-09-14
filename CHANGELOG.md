@@ -14,6 +14,13 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+### Added
+- New opt-in setting "Scrub secrets in local exports": redacts likely API
+  keys, tokens, and email addresses from files you save or copy locally
+  (Markdown, PDF, HTML, JSON, DOCX, ZIP, clipboard) — handy before sharing
+  an export or dropping it into a synced folder. Off by default; the
+  existing upload scrubbing for Gist/Notion/webhooks is unchanged.
+
 ## [0.4.31.2] - 2026-09-14
 
 ### Added
