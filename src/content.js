@@ -1561,18 +1561,30 @@
    *
    * Only runs on platforms known to lazy-load (chatgpt, gemini, aistudio).
    */
+  // Picks the actual scrollable chat container for the current site. Pulled out
+  // of scrollToLoadAll() as a pure, synchronous helper so it can be unit tested
+  // without dealing with timers/async — see window.__inkpourFindScrollContainer
+  // below and test/run-jsdom.js.
+  function findScrollContainer() {
+    return (
+      document.querySelector('main [class*="overflow-y-auto"]') ??   // ChatGPT
+      document.querySelector('infinite-scroller') ??                 // Gemini — the real scrollable chat-history
+      // element wrapping <user-query>/<model-response> turns; NOT
+      // "conversation-container" below, which only matches a single
+      // turn's wrapper and never grows/scrolls the whole history.
+      document.querySelector('[class*="conversation-container"]') ??
+      document.querySelector('main') ??
+      document.documentElement
+    );
+  }
+
   async function scrollToLoadAll() {
     const site = detectSite();
     if (!['chatgpt', 'gemini', 'aistudio'].includes(site)) return;
 
     try {
       // Prefer a specific scroll container; fall back to document.documentElement
-      const container = (
-        document.querySelector('main [class*="overflow-y-auto"]') ??   // ChatGPT
-        document.querySelector('[class*="conversation-container"]') ??
-        document.querySelector('main') ??
-        document.documentElement
-      );
+      const container = findScrollContainer();
 
       // Bail if the container doesn't support scrolling (e.g. test environment)
       if (typeof container.scrollTo !== 'function') return;
@@ -2076,6 +2088,7 @@
     window.__inkpourDescribeAncestorChain = describeAncestorChain;
     window.__inkpourBuildProbeReport = buildProbeReport;
     window.__inkpourFindAiModeInputBox = findAiModeInputBox;
+    window.__inkpourFindScrollContainer = findScrollContainer;
   }
 
   // ─── In-page toast notification ───────────────────────────────────────────

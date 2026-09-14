@@ -845,6 +845,77 @@ async function main() {
     });
   });
 
+  await suite('findScrollContainer — Gemini lazy-load container selection (issue #8)', async () => {
+    // Regression test for #8: Gemini's real scrollable chat-history region is
+    // the <infinite-scroller> custom element, NOT a "conversation-container"
+    // (that class only wraps a single turn) and NOT <main>/documentElement.
+    // Without a Gemini-aware selector, scrollToLoadAll() scrolled the wrong
+    // element, so old messages never loaded and only part of the chat exported.
+    const dom = new JSDOM(`<!DOCTYPE html><body>
+      <main>
+        <infinite-scroller>
+          <div class="conversation-container">
+            <user-query><div class="query-content"><p>Hi</p></div></user-query>
+            <model-response><message-content><p>Hello!</p></message-content></model-response>
+          </div>
+        </infinite-scroller>
+      </main>
+    </body>`, { url: 'https://gemini.google.com/', runScripts: 'dangerously' });
+    dom.window.__inkpourTestHostname = 'gemini.google.com';
+    dom.window.HTMLElement.prototype.scrollTo = function () {};
+    dom.window.document.documentElement.scrollTo = function () {};
+    const ls = [];
+    dom.window.browser = { runtime: { onMessage: { addListener: fn => ls.push(fn) }, id: 't' }, i18n: mockI18n() };
+    dom.window.chrome  = dom.window.browser;
+    const s = dom.window.document.createElement('script');
+    s.textContent = CONTENT_JS;
+    dom.window.document.body.appendChild(s);
+    await new Promise(r => setTimeout(r, 50));
+    const findScrollContainer = dom.window.__inkpourFindScrollContainer;
+    assert(typeof findScrollContainer === 'function', '__inkpourFindScrollContainer not exposed');
+
+    await test('selects <infinite-scroller>, not the single-turn conversation-container', () => {
+      const container = findScrollContainer();
+      assert(container.tagName.toLowerCase() === 'infinite-scroller',
+        `expected <infinite-scroller>, got <${container.tagName.toLowerCase()}>`);
+    });
+
+    await test('does not fall through to <main> or documentElement', () => {
+      const container = findScrollContainer();
+      assert(container !== dom.window.document.querySelector('main'), 'fell through to <main>');
+      assert(container !== dom.window.document.documentElement, 'fell through to documentElement');
+    });
+  });
+
+  await suite('findScrollContainer — ChatGPT still prefers the overflow-y-auto container', async () => {
+    // Guard against regressing the pre-existing ChatGPT selector while adding
+    // the Gemini one above (infinite-scroller must not shadow ChatGPT's match).
+    const dom = new JSDOM(`<!DOCTYPE html><body>
+      <main>
+        <div class="overflow-y-auto some-other-class">
+          <div id="thread"></div>
+        </div>
+      </main>
+    </body>`, { url: 'https://chatgpt.com/', runScripts: 'dangerously' });
+    dom.window.__inkpourTestHostname = 'chatgpt.com';
+    dom.window.HTMLElement.prototype.scrollTo = function () {};
+    dom.window.document.documentElement.scrollTo = function () {};
+    const ls = [];
+    dom.window.browser = { runtime: { onMessage: { addListener: fn => ls.push(fn) }, id: 't' }, i18n: mockI18n() };
+    dom.window.chrome  = dom.window.browser;
+    const s = dom.window.document.createElement('script');
+    s.textContent = CONTENT_JS;
+    dom.window.document.body.appendChild(s);
+    await new Promise(r => setTimeout(r, 50));
+    const findScrollContainer = dom.window.__inkpourFindScrollContainer;
+
+    await test('selects the [class*="overflow-y-auto"] container', () => {
+      const container = findScrollContainer();
+      assert(container.classList.contains('overflow-y-auto'),
+        `expected overflow-y-auto container, got ${container.outerHTML.slice(0, 80)}`);
+    });
+  });
+
   await suite('getConversationList — unsupported/logged-out platform', async () => {
     const dom = new JSDOM(`<!DOCTYPE html><body>
       <nav><a href="/some/other/link">Not a conversation link</a></nav>
