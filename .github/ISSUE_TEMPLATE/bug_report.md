@@ -15,8 +15,8 @@ labels: bug
 
 **What you expected**
 
-**Firefox version**
-<!-- Help → About Firefox -->
+**Browser and version**
+<!-- e.g. Firefox 130, Chrome 128, Orion (macOS or iOS) build number -->
 
 **Steps to reproduce**
 1.
