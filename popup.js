@@ -173,6 +173,7 @@
     'Character.AI':   ['character.ai', 'www.character.ai'],
     'Cohere Coral':   ['coral.cohere.com'],
     'Pi':             ['pi.ai'],
+    'Duck.ai':        ['duck.ai', 'www.duck.ai'],
   };
 
   // Flat set of all supported hostnames — used to distinguish "wrong site" from

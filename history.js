@@ -41,6 +41,7 @@
     phind:      '🔎',
     notebooklm: '📓',
     kagi:       '🦅',
+    duckai:     '🦆',
     generic:    '💬',
   };
 
