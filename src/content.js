@@ -1840,9 +1840,15 @@
       const uiLang = (api.i18n.getUILanguage() || 'en').toLowerCase();
       if (uiLang.startsWith('ar') || uiLang.startsWith('fa')) root.dir = 'rtl';
     } catch { /* default ltr */ }
+    // Google's "AI Mode" search surface (detectSite() === 'googlesearch') has
+    // its own native Send button anchored in the same lower-right corner —
+    // the default 20px offset sits the two controls right on top of each
+    // other (issue #11). Give this site extra bottom clearance so they don't
+    // visually collide; every other supported site keeps the default offset.
+    const bottomOffset = site === 'googlesearch' ? '90px' : '20px';
     root.style.cssText = [
       'position:fixed',
-      'bottom:20px',
+      `bottom:${bottomOffset}`,
       'right:20px',
       'z-index:2147483647',
       'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif',

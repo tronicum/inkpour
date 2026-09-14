@@ -1020,6 +1020,43 @@ async function main() {
     });
   });
 
+  // ── Floating action button positioning (issue #11) ─────────────────────
+  // On Google AI Mode (detectSite() === 'googlesearch'), the floating export
+  // button's default bottom:20px offset sits it right on top of Google's own
+  // native Send button. The fix gives that site extra bottom clearance while
+  // every other supported site keeps the default offset — verify both sides
+  // by reading the injected #inkpour-root element's inline style directly.
+  async function injectFabAndGetRootStyle(url, hostname) {
+    const dom = new JSDOM(`<!DOCTYPE html><body></body>`, { url, runScripts: 'dangerously' });
+    dom.window.__inkpourTestHostname = hostname;
+    dom.window.HTMLElement.prototype.scrollTo = function () {};
+    dom.window.document.documentElement.scrollTo = function () {};
+    dom.window.browser = { runtime: { onMessage: { addListener: () => {} }, id: 't' }, i18n: mockI18n() };
+    dom.window.chrome  = dom.window.browser;
+    const s = dom.window.document.createElement('script');
+    s.textContent = CONTENT_JS;
+    dom.window.document.body.appendChild(s);
+    await new Promise(r => setTimeout(r, 50));
+    const root = dom.window.document.getElementById('inkpour-root');
+    return root && root.style;
+  }
+
+  await suite('Floating button positioning — Google AI Mode clearance (issue #11)', async () => {
+    await test('Google AI Mode gets extra bottom clearance so it clears the native Send button', async () => {
+      const style = await injectFabAndGetRootStyle('https://www.google.com/search?q=test&udm=50', 'www.google.com');
+      assert(style, 'expected #inkpour-root to be injected on Google AI Mode');
+      assert(style.bottom === '90px', `expected bottom:90px clearance offset, got ${style.bottom}`);
+      assert(style.right === '20px', `expected right offset unchanged at 20px, got ${style.right}`);
+    });
+
+    await test('ChatGPT (control site) keeps the default offset, unaffected by the Google-specific fix', async () => {
+      const style = await injectFabAndGetRootStyle('https://chatgpt.com/', 'chatgpt.com');
+      assert(style, 'expected #inkpour-root to be injected on ChatGPT');
+      assert(style.bottom === '20px', `expected default bottom:20px offset, got ${style.bottom}`);
+      assert(style.right === '20px', `expected default right:20px offset, got ${style.right}`);
+    });
+  });
+
   // ── buildMarkdown (from src/utils.js) ────────────────────────────────────
   await suite('buildMarkdown', async () => {
     const msgs = [
