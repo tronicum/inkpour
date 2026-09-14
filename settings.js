@@ -90,8 +90,12 @@
     debugAttachGist:       false,
   };
 
-  api.storage.local.get('inkpour_settings', (result) => {
-    const prefs = Object.assign({}, DEFAULTS, result.inkpour_settings ?? {});
+  api.storage.local.get('inkpour_settings', async (result) => {
+    // Merge in any preferences synced from another device (small UI/behavior
+    // toggles only — see src/settingsSync.js) before populating the form, so
+    // this page always shows the most current values regardless of which
+    // device last changed them.
+    const prefs = await loadWithSyncOverrides(api, Object.assign({}, DEFAULTS, result.inkpour_settings ?? {}));
     document.getElementById('defaultFormat').value      = prefs.defaultFormat;
     document.getElementById('filenameTemplate').value   = prefs.filenameTemplate;
     document.getElementById('pdfAutoPrint').checked     = prefs.pdfAutoPrint;
@@ -260,6 +264,11 @@
       clearTimeout(statusTimer);
       statusTimer = setTimeout(() => { el.textContent = ''; }, 2000);
     });
+    // Mirror the small, non-sensitive subset to storage.sync so it follows
+    // the user to their other signed-in devices — never blocks or delays
+    // the local save/status above; see src/settingsSync.js for exactly
+    // which keys qualify and why (never tokens, paths, or vault handles).
+    saveSyncableSettings(api, prefs);
   }
 
   const AUTOSAVE_DEBOUNCE_MS = 450;

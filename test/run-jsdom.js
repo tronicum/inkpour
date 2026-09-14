@@ -25,6 +25,11 @@ const FIXTURES_DIR = path.resolve(__dirname, 'fixtures');
 const UTILS_JS = fs.readFileSync(path.resolve(__dirname, '../src/utils.js'), 'utf8');
 vm.runInThisContext(UTILS_JS);
 
+// ─── src/settingsSync.js — storage.sync mirror for non-sensitive settings ──
+// Same global-scope-declaration pattern as src/utils.js above.
+const SETTINGS_SYNC_JS = fs.readFileSync(path.resolve(__dirname, '../src/settingsSync.js'), 'utf8');
+vm.runInThisContext(SETTINGS_SYNC_JS);
+
 // ─── IndexedDB polyfill + src/vaultHandle.js (Batch 6: direct-to-vault) ─────
 // JSDOM itself has no IndexedDB implementation at all — fake-indexeddb (a
 // pure-JS, spec-faithful in-memory implementation, dev dependency) installs
@@ -3066,6 +3071,112 @@ async function main() {
       };
       const ok = await ensureReadWritePermission(dirHandle);
       assert(ok === false, 'expected false when permission denied');
+    });
+  });
+
+  // ── src/settingsSync.js — storage.sync mirror for small settings ─────────
+  function makeFakeSyncApi(initial) {
+    let store = initial ?? {};
+    return {
+      storage: {
+        sync: {
+          get: async (key) => ({ [key]: store[key] }),
+          set: async (obj) => { store = Object.assign({}, store, obj); },
+        },
+      },
+      _peek: () => store,
+    };
+  }
+
+  await suite('settingsSync.js — cross-device sync for non-sensitive settings', async () => {
+    await test('pickSyncableSettings() keeps only the allow-listed keys', () => {
+      const picked = pickSyncableSettings({
+        defaultFormat: 'pdf', generateTOC: true,
+        githubToken: 'secret-token', notionToken: 'secret-2',
+        downloadSubfolder: '/Users/me/Desktop', writeToVault: true,
+      });
+      assert(picked.defaultFormat === 'pdf', 'defaultFormat should survive');
+      assert(picked.generateTOC === true, 'generateTOC should survive');
+      assert(!('githubToken' in picked), 'githubToken must never be synced');
+      assert(!('notionToken' in picked), 'notionToken must never be synced');
+      assert(!('downloadSubfolder' in picked), 'downloadSubfolder (a local path) must never be synced');
+      assert(!('writeToVault' in picked), 'writeToVault (tied to a local file handle) must never be synced');
+    });
+
+    await test('pickSyncableSettings() tolerates null/undefined/empty input', () => {
+      assert(Object.keys(pickSyncableSettings(null)).length === 0, 'null → {}');
+      assert(Object.keys(pickSyncableSettings(undefined)).length === 0, 'undefined → {}');
+      assert(Object.keys(pickSyncableSettings({})).length === 0, '{} → {}');
+    });
+
+    await test('mergeSyncedSettings() lets synced values override local ones, for syncable keys only', () => {
+      const local  = { defaultFormat: 'md', githubToken: 'local-secret', generateTOC: false };
+      const synced = { defaultFormat: 'pdf', githubToken: 'should-be-ignored', generateTOC: true };
+      const merged = mergeSyncedSettings(local, synced);
+      assert(merged.defaultFormat === 'pdf', 'synced defaultFormat should win');
+      assert(merged.generateTOC === true, 'synced generateTOC should win');
+      assert(merged.githubToken === 'local-secret', 'githubToken must stay local — never overridden by sync');
+    });
+
+    await test('mergeSyncedSettings() never mutates its inputs', () => {
+      const local  = { defaultFormat: 'md' };
+      const synced = { defaultFormat: 'pdf' };
+      const localCopy  = { ...local };
+      const syncedCopy = { ...synced };
+      mergeSyncedSettings(local, synced);
+      assert(JSON.stringify(local) === JSON.stringify(localCopy), 'local input must not be mutated');
+      assert(JSON.stringify(synced) === JSON.stringify(syncedCopy), 'synced input must not be mutated');
+    });
+
+    await test('loadWithSyncOverrides() merges an existing sync mirror over local prefs', async () => {
+      const api = makeFakeSyncApi({ inkpour_settings_sync: { defaultFormat: 'html' } });
+      const result = await loadWithSyncOverrides(api, { defaultFormat: 'md', githubToken: 'tok' });
+      assert(result.defaultFormat === 'html', `expected sync override, got ${result.defaultFormat}`);
+      assert(result.githubToken === 'tok', 'non-syncable key should be untouched');
+    });
+
+    await test('loadWithSyncOverrides() returns localPrefs unchanged when nothing is synced yet', async () => {
+      const api = makeFakeSyncApi({});
+      const local = { defaultFormat: 'md' };
+      const result = await loadWithSyncOverrides(api, local);
+      assert(result.defaultFormat === 'md', 'should fall back to local value');
+    });
+
+    await test('loadWithSyncOverrides() fails safe when storage.sync is unavailable (e.g. Safari)', async () => {
+      const api = { storage: {} }; // no .sync at all
+      const local = { defaultFormat: 'md' };
+      const result = await loadWithSyncOverrides(api, local);
+      assert(result === local, 'should return the exact same local object, unchanged');
+    });
+
+    await test('loadWithSyncOverrides() fails safe when storage.sync.get() throws', async () => {
+      const api = { storage: { sync: { get: async () => { throw new Error('boom'); } } } };
+      const local = { defaultFormat: 'md' };
+      const result = await loadWithSyncOverrides(api, local);
+      assert(result === local, 'should return the exact same local object on error, unchanged');
+    });
+
+    await test('saveSyncableSettings() writes only the syncable subset to storage.sync', async () => {
+      const api = makeFakeSyncApi({});
+      await saveSyncableSettings(api, {
+        defaultFormat: 'pdf', generateTOC: true, githubToken: 'secret', notionToken: 'secret-2',
+      });
+      const stored = api._peek().inkpour_settings_sync;
+      assert(stored.defaultFormat === 'pdf', 'defaultFormat should be written');
+      assert(!('githubToken' in stored), 'githubToken must never reach storage.sync');
+      assert(!('notionToken' in stored), 'notionToken must never reach storage.sync');
+    });
+
+    await test('saveSyncableSettings() silently no-ops when storage.sync is unavailable', async () => {
+      const api = { storage: {} };
+      await saveSyncableSettings(api, { defaultFormat: 'pdf' }); // must not throw
+      assert(true, 'reaching here means it did not throw');
+    });
+
+    await test('saveSyncableSettings() silently swallows a storage.sync.set() failure', async () => {
+      const api = { storage: { sync: { set: async () => { throw new Error('quota exceeded'); } } } };
+      await saveSyncableSettings(api, { defaultFormat: 'pdf' }); // must not throw
+      assert(true, 'reaching here means it did not throw');
     });
   });
 
