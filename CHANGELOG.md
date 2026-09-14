@@ -14,6 +14,15 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+### Fixed
+- Accessibility pass on the popup and Settings pages: the export-format menu
+  is now fully keyboard-navigable (arrow keys, Home/End, Escape returns focus)
+  and announces the selected format to screen readers; every Settings control
+  and toggle switch now has a proper accessible name; toggles show a visible
+  focus ring when tabbed to; export status messages are announced as they
+  appear; and several low-contrast text colors (muted grey and amber warning
+  text in light mode) were darkened to meet WCAG AA.
+
 ## [0.4.31.2] - 2026-09-14
 
 ### Added

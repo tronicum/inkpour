@@ -2547,6 +2547,106 @@ async function main() {
       'expected the notionToken gate to show/hide #notionMenuOption');
   });
 
+  // ─── Popup & Settings accessibility (structure) ──────────────────────────
+  // Same structural approach as the picker suite above (popup.js/settings.js
+  // aren't executed by this harness): parse the two UI pages and assert the
+  // accessibility contract added in the a11y pass — accessible names on
+  // icon-only controls, ARIA menu semantics + keyboard wiring on the export
+  // picker, and label associations / switch semantics on the settings toggles.
+  console.log('\nPopup & Settings accessibility (structure)');
+
+  const SETTINGS_HTML = fs.readFileSync(path.resolve(__dirname, '../settings.html'), 'utf8');
+  const SETTINGS_DOM  = new JSDOM(SETTINGS_HTML).window.document;
+
+  await test('icon-only popup buttons (import, settings gear) have a non-empty aria-label', () => {
+    ['importBtn', 'settingsBtn'].forEach(id => {
+      const btn = POPUP_DOM.getElementById(id);
+      assert(btn, `#${id} missing from popup.html`);
+      assert((btn.getAttribute('aria-label') || '').trim(), `#${id} needs a non-empty aria-label — it has no visible text`);
+    });
+  });
+
+  await test('export selector button: sr-only name prefix, decorative caret hidden from AT', () => {
+    const btn = POPUP_DOM.getElementById('exportSelectBtn');
+    const srOnly = btn.querySelector('.sr-only');
+    assert(srOnly && srOnly.textContent.trim(), 'expected a non-empty .sr-only name span inside #exportSelectBtn');
+    assert(btn.querySelector('.export-select-caret')?.getAttribute('aria-hidden') === 'true',
+      'the ▾ caret is decorative and must be aria-hidden');
+    assert(btn.getAttribute('aria-haspopup'), '#exportSelectBtn should declare aria-haspopup');
+    assert(btn.getAttribute('aria-expanded') === 'false', '#exportSelectBtn should start aria-expanded="false"');
+  });
+
+  await test('every export menu row is a real <button> with role="menuitemradio" and an aria-checked state', () => {
+    const rows = [...POPUP_DOM.querySelectorAll('#exportMenu .export-menu-item')];
+    assert(rows.length > 0, 'no .export-menu-item rows found');
+    rows.forEach(row => {
+      assert(row.tagName === 'BUTTON', `menu row ${row.dataset.format} should be a <button>`);
+      assert(row.getAttribute('role') === 'menuitemradio', `menu row ${row.dataset.format} missing role="menuitemradio"`);
+      assert(['true', 'false'].includes(row.getAttribute('aria-checked')), `menu row ${row.dataset.format} missing aria-checked`);
+      assert(row.querySelector('.export-menu-check')?.getAttribute('aria-hidden') === 'true',
+        `menu row ${row.dataset.format}'s ✓ span must be aria-hidden (aria-checked carries that state)`);
+    });
+  });
+
+  await test('popup.js keeps aria-checked in sync and implements arrow-key menu navigation + focus return', () => {
+    assert(/setAttribute\('aria-checked'/.test(POPUP_JS), 'setSelectedFormat() should mirror .selected into aria-checked');
+    assert(/ArrowDown/.test(POPUP_JS) && /ArrowUp/.test(POPUP_JS), 'expected ArrowDown/ArrowUp handling for the export menu');
+    assert(/'Home'/.test(POPUP_JS) && /'End'/.test(POPUP_JS), 'expected Home/End handling for the export menu');
+    assert(/exportSelectBtn\?\.focus\(\)/.test(POPUP_JS), 'closing the menu (Escape / row pick) should return focus to #exportSelectBtn');
+  });
+
+  await test('popup status/error regions are live regions', () => {
+    assert(POPUP_DOM.getElementById('status')?.getAttribute('role') === 'status', '#status needs role="status"');
+    assert(POPUP_DOM.getElementById('importError')?.getAttribute('role') === 'alert', '#importError needs role="alert"');
+  });
+
+  await test('decorative popup elements are hidden from AT; warning text no longer hardcodes low-contrast #d97706', () => {
+    assert(POPUP_DOM.querySelector('.logo')?.getAttribute('aria-hidden') === 'true', 'the "ip" logo tile is decorative');
+    assert(/--warning:/.test(POPUP_HTML), 'popup.html should define a --warning token (light + dark)');
+    assert(!/#status\.warning\s*\{\s*color:\s*#d97706/.test(POPUP_HTML), '#status.warning must use var(--warning), not raw amber-600');
+  });
+
+  await test('settings toggles are real checkboxes inside <label class="toggle">, with switch role and a label association', () => {
+    const toggles = [...SETTINGS_DOM.querySelectorAll('label.toggle input')];
+    assert(toggles.length >= 9, `expected the settings toggles, found ${toggles.length}`);
+    toggles.forEach(input => {
+      assert(input.type === 'checkbox', `#${input.id} should be <input type="checkbox">, not a div-based fake`);
+      assert(input.getAttribute('role') === 'switch', `#${input.id} missing role="switch"`);
+      const lbl = input.getAttribute('aria-labelledby');
+      assert(lbl, `#${input.id} missing aria-labelledby`);
+      const lblEl = SETTINGS_DOM.getElementById(lbl);
+      assert(lblEl && lblEl.textContent.trim(), `#${input.id}'s aria-labelledby="${lbl}" must resolve to an element with text`);
+    });
+  });
+
+  await test('every settings <select>/<input> control has an aria-labelledby resolving to real label text', () => {
+    const controls = [...SETTINGS_DOM.querySelectorAll('.field select, .field input')];
+    assert(controls.length > 0, 'no field controls found');
+    controls.forEach(ctrl => {
+      const lbl = ctrl.getAttribute('aria-labelledby');
+      assert(lbl, `#${ctrl.id} missing aria-labelledby`);
+      const lblEl = SETTINGS_DOM.getElementById(lbl);
+      assert(lblEl && lblEl.textContent.trim(), `#${ctrl.id}'s aria-labelledby="${lbl}" must resolve to an element with text`);
+      const desc = ctrl.getAttribute('aria-describedby');
+      assert(desc && SETTINGS_DOM.getElementById(desc), `#${ctrl.id} should point aria-describedby at its description span`);
+    });
+  });
+
+  await test('settings toggle track shows a focus indicator for the visually-hidden checkbox', () => {
+    assert(/\.toggle input:focus-visible \+ \.toggle-track\s*\{[^}]*outline/.test(SETTINGS_HTML),
+      'expected a .toggle input:focus-visible + .toggle-track { outline: … } rule');
+  });
+
+  await test('collapsible settings sections stay native <details>/<summary> (semantics preserved)', () => {
+    const sections = [...SETTINGS_DOM.querySelectorAll('details.settings-section')];
+    assert(sections.length >= 4, `expected the collapsible sections, found ${sections.length}`);
+    sections.forEach(d => {
+      const summary = d.querySelector('summary');
+      assert(summary, 'each settings section needs a <summary>');
+      assert(summary.textContent.trim(), 'each <summary> needs visible text');
+    });
+  });
+
   // ─── Google AI Mode probe button (popup wiring) ────────────────────────────
   // popup.js/popup.html structural checks only (see the note at the top of
   // this file on why those two aren't executed directly). The core probe
