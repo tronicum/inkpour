@@ -400,6 +400,22 @@
   "popupWhatsNewDismiss": {
     "message": "Dismiss"
   },
+  "popupVersionFooter": {
+    "message": "Inkpour v$VERSION$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupUpdateAvailable": {
+    "message": "Update available: v$VERSION$ →",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
   "popupIncrementalHintOne": {
     "message": "Son dışa aktarımınızdan ($WHEN$) bu yana $COUNT$ yeni mesaj — ",
     "placeholders": {

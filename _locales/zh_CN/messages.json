@@ -400,6 +400,22 @@
   "popupWhatsNewDismiss": {
     "message": "Dismiss"
   },
+  "popupVersionFooter": {
+    "message": "Inkpour v$VERSION$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupUpdateAvailable": {
+    "message": "Update available: v$VERSION$ →",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
   "popupIncrementalHintOne": {
     "message": "自上次导出（$WHEN$）以来有 $COUNT$ 条新消息 — ",
     "placeholders": {

@@ -2132,6 +2132,38 @@ No bullets here at all, just prose under the heading.
     assert(parseChangelogSection(undefined, '1.2.0.0') === null, 'expected null for undefined input');
   });
 
+  // ─── isNewerVersion (popup update-check) ───────────────────────────────────
+  await test('isNewerVersion detects a newer patch/build segment', () => {
+    assert(isNewerVersion('0.4.31.10', '0.4.31.9') === true, 'expected 0.4.31.10 > 0.4.31.9 (numeric, not string, compare)');
+  });
+
+  await test('isNewerVersion detects a newer minor/major segment', () => {
+    assert(isNewerVersion('0.5.0.0', '0.4.31.9') === true, 'expected 0.5.0.0 > 0.4.31.9');
+    assert(isNewerVersion('1.0.0.0', '0.9.9.9') === true, 'expected 1.0.0.0 > 0.9.9.9');
+  });
+
+  await test('isNewerVersion is false for an equal or older version', () => {
+    assert(isNewerVersion('0.4.31.9', '0.4.31.9') === false, 'equal versions are not "newer"');
+    assert(isNewerVersion('0.4.30.9', '0.4.31.0') === false, 'older version is not "newer"');
+  });
+
+  await test('isNewerVersion tolerates a leading "v" (git tag style) on either side', () => {
+    assert(isNewerVersion('v0.5.0.0', '0.4.31.9') === true, 'leading v on latest should still compare correctly');
+    assert(isNewerVersion('0.5.0.0', 'v0.4.31.9') === true, 'leading v on current should still compare correctly');
+  });
+
+  await test('isNewerVersion handles unequal segment counts (missing segments as 0)', () => {
+    assert(isNewerVersion('0.5', '0.4.31.9') === true, 'shorter-but-newer version should still win');
+    assert(isNewerVersion('0.4', '0.4.0.0') === false, '0.4 and 0.4.0.0 are equal once padded');
+  });
+
+  await test('isNewerVersion never throws on malformed input', () => {
+    assert(isNewerVersion(null, '0.4.31.9') === false, 'null latest → false, not a throw');
+    assert(isNewerVersion('0.4.31.9', null) === false, 'null current → false, not a throw');
+    assert(isNewerVersion('not-a-version', '0.4.31.9') === false, 'garbage latest → false, not a throw');
+    assert(isNewerVersion(undefined, undefined) === false, 'undefined/undefined → false, not a throw');
+  });
+
   // ─── Z.ai extraction ──────────────────────────────────────────────────────
   await suite('Z.ai extraction', async () => {
     let result;
@@ -3984,6 +4016,32 @@ No bullets here at all, just prose under the heading.
       const api = { storage: { sync: { set: async () => { throw new Error('quota exceeded'); } } } };
       await saveSyncableSettings(api, { defaultFormat: 'pdf' }); // must not throw
       assert(true, 'reaching here means it did not throw');
+    });
+  });
+
+  // ─── Version footer + update check (structure) ─────────────────────────────
+  // Like the rest of popup.js/settings.js, this isn't executed by JSDOM (no
+  // chrome.runtime/storage/fetch here) — structural checks only: the markup
+  // exists, and popup.js's source actually wires it up.
+  await suite('Version footer + update check (structure)', async () => {
+    await test('popup.html has a version footer and an update-notice element', () => {
+      assert(POPUP_DOM.getElementById('versionFooter'), '#versionFooter missing from popup.html');
+      const notice = POPUP_DOM.getElementById('updateAvailable');
+      assert(notice, '#updateAvailable missing from popup.html');
+      assert(notice.hasAttribute('hidden'), '#updateAvailable should start hidden until a newer version is found');
+    });
+
+    await test('settings.html has a version footer', () => {
+      assert(SETTINGS_DOM.getElementById('versionFooter'), '#versionFooter missing from settings.html');
+    });
+
+    await test('popup.js reads the live manifest version, never a hardcoded string', () => {
+      assert(/api\.runtime\.getManifest\(\)\.version/.test(POPUP_JS), 'expected popup.js to read the version from getManifest(), not hardcode it');
+    });
+
+    await test('popup.js throttles the update check via a cached timestamp', () => {
+      assert(/inkpour_update_check_cache/.test(POPUP_JS), 'expected a cache key gating the update-check fetch');
+      assert(/isNewerVersion\(/.test(POPUP_JS), 'expected popup.js to use the shared isNewerVersion() helper, not its own comparison');
     });
   });
 
