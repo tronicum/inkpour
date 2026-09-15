@@ -158,6 +158,35 @@ jobs:
           submitted package is byte-identical to what's on the GitHub Release)
         run: bash scripts/release.sh
 
+      - name: Strip background.scripts for Edge's stricter MV3 validator
+        # manifest.json intentionally ships BOTH background.service_worker
+        # (Chrome/Edge/modern Firefox) and background.scripts (older Firefox,
+        # pre-service_worker MV3 support, as an event-page fallback) — see
+        # commit 01526b8. Chrome's own validator tolerates both keys being
+        # present and just uses service_worker, but Edge's Partner Center
+        # validator rejects the manifest outright if scripts is present at
+        # all under manifest_version 3, regardless of which key it would
+        # actually use. Rather than touching the shared manifest.json (which
+        # would risk breaking Firefox's fallback), patch only this Edge zip.
+        run: |
+          set -euo pipefail
+          VERSION=$(node -e "process.stdout.write(require('./manifest.json').version)")
+          ZIP_PATH=$(cd .. && pwd)/inkpour-${VERSION}.zip
+          WORKDIR=$(mktemp -d)
+          unzip -q "$ZIP_PATH" -d "$WORKDIR"
+          node -e "
+            const fs = require('fs');
+            const path = 'manifest.json';
+            const dir = process.argv[1];
+            const full = dir + '/' + path;
+            const manifest = JSON.parse(fs.readFileSync(full, 'utf8'));
+            delete manifest.background.scripts;
+            fs.writeFileSync(full, JSON.stringify(manifest, null, 2) + '\n');
+          " "$WORKDIR"
+          rm "$ZIP_PATH"
+          (cd "$WORKDIR" && zip -qr "$ZIP_PATH" .)
+          echo "✓ Patched background.scripts out of the Edge submission zip: $ZIP_PATH"
+
       - name: Upload and publish to Microsoft Edge Add-ons
         env:
           EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
