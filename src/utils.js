@@ -727,11 +727,65 @@ function batchNotionBlocks(blocks, size = 100) {
 
 // ─── Filename builder ─────────────────────────────────────────────────────────
 
+// Windows device names are invalid as a filename, with or without any
+// extension appended (CON.md is just as unusable as CON), case-insensitively.
+const _WINDOWS_RESERVED_NAMES = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/i;
+
+/**
+ * Truncate a filename to at most `maxBytes` of UTF-8 (and `maxUnits` UTF-16
+ * code units) without ever cutting mid-code-point or mid-grapheme.
+ *
+ * Most filesystems cap a single filename at 255 *bytes*; the extension
+ * (".docx", ".json", …) is appended after this function, so the budget
+ * leaves generous headroom. A raw String.prototype.slice() (the previous
+ * implementation) counts UTF-16 code units, which can (a) split a surrogate
+ * pair in half — producing a lone surrogate that renders as mojibake and is
+ * rejected by some filesystems — and (b) blow past 255 bytes for CJK/emoji
+ * titles where one visible character is 3-4+ bytes.
+ *
+ * Prefers grapheme-cluster boundaries (Intl.Segmenter) so multi-code-point
+ * clusters — emoji ZWJ sequences, base letter + combining accents, flags —
+ * are kept or dropped whole; falls back to code-point iteration (Array.from)
+ * which still never splits a surrogate pair.
+ */
+function _truncateFilename(name, maxBytes = 180, maxUnits = 120) {
+  if (name.length <= maxUnits) {
+    // Fast path: short enough by units — still verify the byte budget.
+    const enc = new TextEncoder();
+    if (enc.encode(name).length <= maxBytes) return name;
+  }
+  let units;
+  if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+    const seg = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+    units = Array.from(seg.segment(name), s => s.segment);
+  } else {
+    units = Array.from(name); // code points — never splits surrogate pairs
+  }
+  const enc = new TextEncoder();
+  let out = '', bytes = 0, len = 0;
+  for (const u of units) {
+    const b = enc.encode(u).length;
+    if (bytes + b > maxBytes || len + u.length > maxUnits) break;
+    out += u;
+    bytes += b;
+    len += u.length;
+  }
+  return out;
+}
+
 /**
  * Tokens: {platform} {title} {date} {time} {url} {words} {msgcount}
  * {url}      → page hostname
  * {words}    → approximate word count (0 if not provided)
  * {msgcount} → number of messages (0 if not provided)
+ *
+ * Sanitisation runs on the fully expanded string — AFTER template token
+ * substitution — so illegal characters typed directly into a custom
+ * filenameTemplate are neutralised exactly like illegal characters in a
+ * title. The result is always a non-empty, Windows-safe filename with no
+ * path separators, no reserved device name, no leading/trailing dots,
+ * spaces, or dashes, and a length safely under the 255-byte filesystem cap
+ * (headroom left for the extension appended by callers).
  */
 function buildFilename(template, platform, titleSlug, sourceUrl = '', wordCount = 0, msgCount = 0) {
   const now  = new Date();
@@ -739,7 +793,7 @@ function buildFilename(template, platform, titleSlug, sourceUrl = '', wordCount 
   const time = now.toISOString().slice(11, 16).replace(':', '-'); // HH-MM
   let hostname = '';
   try { hostname = sourceUrl ? new URL(sourceUrl).hostname : ''; } catch { /* ignore */ }
-  return (template || '{platform}-{title}')
+  let name = String(template || '{platform}-{title}')
     .replace(/\{platform\}/g,  platform || 'chat')
     .replace(/\{title\}/g,     titleSlug || 'export')
     .replace(/\{date\}/g,      date)
@@ -747,17 +801,37 @@ function buildFilename(template, platform, titleSlug, sourceUrl = '', wordCount 
     .replace(/\{url\}/g,       hostname || platform || 'chat')
     .replace(/\{words\}/g,     String(wordCount  || 0))
     .replace(/\{msgcount\}/g,  String(msgCount   || 0))
-    // Collapse anything that isn't a Unicode letter/number/underscore/hyphen
-    // into a single dash. Uses \p{L}/\p{N} (Unicode property escapes, not
-    // a-z/0-9) specifically so titles in any of the 26 locales this
-    // extension ships keep their own letters — an ASCII-only class here
-    // would strip every accented character (ä, é, ñ, ç, …) and non-Latin
-    // script down to bare dashes, which is exactly what happened before:
-    // a German title with umlauts came out of the real (non-fuzzer) import
-    // with those letters silently replaced.
-    .replace(/[^\p{L}\p{N}_\-]+/gu, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 100) || 'inkpour-export';
+    // Collapse anything that isn't filesystem-safe into a single dash.
+    // Kept (via Unicode property escapes, not a-z/0-9 — an ASCII-only class
+    // here used to strip every accented character and non-Latin script):
+    //   \p{L}\p{N} — letters/digits in any script (umlauts, CJK, Arabic,
+    //                Hebrew, …) so titles in all 26 shipped locales survive;
+    //   \p{M}      — combining marks, so decomposed (NFD) text like
+    //                e + U+0301 keeps its accent instead of being mangled;
+    //   \p{Extended_Pictographic} + \p{Regional_Indicator} + ZWJ (U+200D)
+    //   + VS16 (U+FE0F) + keycap (U+20E3) — emoji, including ZWJ sequences
+    //                and flags: modern filesystems handle UTF-8 emoji fine,
+    //                so don't over-strip them.
+    // Everything else — including all Windows-illegal characters
+    // (< > : " / \ | ? *), control characters, dots, and whitespace —
+    // collapses to a dash, so no dot or space can ever survive anywhere in
+    // the name (which also covers Windows silently stripping trailing
+    // dots/spaces). Lone surrogates (malformed input) are not in any of the
+    // kept categories, so they collapse to a dash too rather than producing
+    // mojibake.
+    .replace(/[^\p{L}\p{N}\p{M}\p{Extended_Pictographic}\p{Regional_Indicator}_\-\u200D\uFE0F\u20E3]+/gu, '-')
+    .replace(/^-+|-+$/g, '');
+  name = _truncateFilename(name).replace(/-+$/g, '');
+  // Reject names with no substantive character (empty, or only invisible
+  // joiners/variation selectors/combining marks left over after stripping).
+  if (!/[\p{L}\p{N}\p{Extended_Pictographic}\p{Regional_Indicator}_]/u.test(name)) {
+    return `inkpour-export-${date}`;
+  }
+  // A bare Windows device name is invalid even with an extension appended;
+  // prefix it instead of dropping the user's title. (Dots never survive
+  // sanitisation, so checking the whole name suffices — no "CON.tar" case.)
+  if (_WINDOWS_RESERVED_NAMES.test(name)) name = '_' + name;
+  return name;
 }
 
 // ─── JSON builder ─────────────────────────────────────────────────────────────
