@@ -138,3 +138,96 @@ jobs:
             --client-id "$CLIENT_ID" \
             --client-secret "$CLIENT_SECRET" \
             --refresh-token "$REFRESH_TOKEN"
+
+  publish-edge:
+    name: Publish to Microsoft Edge Add-ons
+    needs: release
+    runs-on: ubuntu-latest
+    # Same Environment pattern as Chrome/Firefox — see TODOs.md "Batch 10" for
+    # the one-time Partner Center setup needed to populate these secrets
+    # (EDGE_PRODUCT_ID, EDGE_CLIENT_ID, EDGE_API_KEY). Uses the v1.1 (API key)
+    # auth flow, not the older v1 OAuth-token flow. Unlike Firefox/Chrome,
+    # Edge's API has no create-product endpoint — the very first submission
+    # must be done manually in Partner Center before this job can run at all,
+    # and EDGE_API_KEY expires roughly every 72 days and needs re-minting.
+    environment: Edge
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build extension zip (same script as the release job, so the
+          submitted package is byte-identical to what's on the GitHub Release)
+        run: bash scripts/release.sh
+
+      - name: Upload and publish to Microsoft Edge Add-ons
+        env:
+          EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
+          EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
+        run: |
+          set -euo pipefail
+          API="https://api.addons.microsoftedge.microsoft.com"
+          AUTH_HEADER="Authorization: ApiKey ${EDGE_API_KEY}"
+          CLIENTID_HEADER="X-ClientID: ${EDGE_CLIENT_ID}"
+
+          VERSION=$(node -e "process.stdout.write(require('./manifest.json').version)")
+          ZIP_PATH="../inkpour-${VERSION}.zip"
+
+          echo "Uploading ${ZIP_PATH} to product ${EDGE_PRODUCT_ID}..."
+          upload_headers=$(mktemp)
+          upload_status=$(curl -sS -o /dev/null -w '%{http_code}' -D "$upload_headers" \
+            -H "$AUTH_HEADER" -H "$CLIENTID_HEADER" -H "Content-Type: application/zip" \
+            -X POST -T "$ZIP_PATH" \
+            "${API}/v1/products/${EDGE_PRODUCT_ID}/submissions/draft/package")
+
+          if [ "$upload_status" != "202" ]; then
+            echo "::error::Upload failed with HTTP $upload_status"
+            cat "$upload_headers"
+            exit 1
+          fi
+
+          upload_op_id=$(grep -i '^Location:' "$upload_headers" | sed -E 's#.*/operations/([^/[:space:]]+).*#\1#i' | tr -d '\r')
+          echo "Upload accepted — operation ID: ${upload_op_id}"
+
+          poll_operation() {
+            local kind="$1" op_id="$2" url="$3"
+            for attempt in $(seq 1 20); do
+              sleep 10
+              response=$(curl -sS -H "$AUTH_HEADER" -H "$CLIENTID_HEADER" "$url")
+              status=$(echo "$response" | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{console.log(JSON.parse(d).status||'')}catch{console.log('')}})")
+              echo "  [$kind] attempt $attempt: status=${status:-unknown}"
+              if [ "$status" = "Succeeded" ]; then
+                return 0
+              fi
+              if [ "$status" = "Failed" ]; then
+                echo "::error::$kind operation failed"
+                echo "$response"
+                return 1
+              fi
+            done
+            echo "::error::$kind operation timed out after 20 attempts"
+            return 1
+          }
+
+          poll_operation "Upload" "$upload_op_id" \
+            "${API}/v1/products/${EDGE_PRODUCT_ID}/submissions/draft/package/operations/${upload_op_id}"
+
+          echo "Publishing submission..."
+          publish_headers=$(mktemp)
+          publish_status=$(curl -sS -o /dev/null -w '%{http_code}' -D "$publish_headers" \
+            -H "$AUTH_HEADER" -H "$CLIENTID_HEADER" -H "Content-Type: application/json" \
+            -X POST -d '{"notes":"Automated release from CI"}' \
+            "${API}/v1/products/${EDGE_PRODUCT_ID}/submissions")
+
+          if [ "$publish_status" != "202" ]; then
+            echo "::error::Publish failed with HTTP $publish_status"
+            cat "$publish_headers"
+            exit 1
+          fi
+
+          publish_op_id=$(grep -i '^Location:' "$publish_headers" | sed -E 's#.*/operations/([^/[:space:]]+).*#\1#i' | tr -d '\r')
+          echo "Publish accepted — operation ID: ${publish_op_id}"
+
+          poll_operation "Publish" "$publish_op_id" \
+            "${API}/v1/products/${EDGE_PRODUCT_ID}/submissions/operations/${publish_op_id}"
+
+          echo "✓ Published to Microsoft Edge Add-ons."
