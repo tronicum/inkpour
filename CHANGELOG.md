@@ -14,6 +14,16 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+## [0.4.32.1] - 2026-09-15
+
+### Fixed
+- `scripts/release.sh` (a plain exclude-list zip build) could pick up
+  developer-machine scratch directories (`tmp/`, `.firecrawl/`, `.claude/`,
+  `.DS_Store`) if run locally outside a clean checkout — CI's fresh
+  `actions/checkout` was never affected, so no past published release was
+  contaminated, but the script itself was permanently patched so a local
+  build can't leak clutter into a release zip again.
+
 ## [0.4.32.0] - 2026-09-15
 
 ### Added
