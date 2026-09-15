@@ -14,6 +14,8 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+## [0.4.32.0] - 2026-09-15
+
 ### Added
 - The popup and Settings pages now show the installed version, and the
   popup checks GitHub Releases (throttled to roughly once a day) for a
@@ -86,6 +88,12 @@ new section here in the same commit as the version bump.
   to create; emoji and decomposed accents (combining marks) in titles were
   stripped to dashes instead of being preserved; and a truncated name could
   end in a stray dash.
+- Microsoft Edge Add-ons auto-submit wired into `release.yml`'s new
+  `publish-edge` job — no extension code changed. Edge's package validator
+  is stricter than Chrome's about the manifest's dual `background`
+  keys (`service_worker` + `scripts`, the latter a fallback for older
+  Firefox versions) — the Edge submission zip has `scripts` stripped
+  before upload; Firefox and Chrome are unaffected.
 
 ## [0.4.31.2] - 2026-09-14
 
