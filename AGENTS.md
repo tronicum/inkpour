@@ -146,8 +146,11 @@ not just "checked it manually in the browser."
 ## Scratch work / tooling rules for agents
 
 - **Scratch files stay inside the repo, in the gitignored `tmp/` directory**
-  — never write drafts, notes, or intermediate output to `/tmp`,
-  `/private/tmp`, or any path outside this project directory.
+  — never write drafts, notes, build artifacts, or intermediate output to
+  `/tmp`, `/private/tmp`, or any path outside this project directory. This
+  includes `mktemp`/`mktemp -d` — both default to a system temp dir outside
+  the repo; if you need a scratch subdirectory, make one under `tmp/`
+  directly (`mkdir -p tmp/whatever`) instead.
 - **No `perl` for text/regex processing.** Node is the only scripting
   runtime this project tolerates for build/dev tooling (see
   `bookmarklet/build.js` for the pattern: plain Node, no new dependency,
