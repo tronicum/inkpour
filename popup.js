@@ -277,6 +277,58 @@
     }
   })();
 
+  // ─── Version footer + update check ─────────────────────────────────────────
+  // Always show the installed version (read live from the manifest, never
+  // hardcoded, so it can't go stale). Separately — throttled to once per
+  // ~20h via inkpour_update_check_cache, so normal popup-opening frequency
+  // doesn't hammer GitHub's API or its unauthenticated rate limit — check
+  // GitHub Releases for a newer published version and show a persistent
+  // (not one-time-dismiss, since it stays actionable) link to update.
+  (async () => {
+    const installedVersion = api.runtime.getManifest().version;
+    const versionFooter = document.getElementById('versionFooter');
+    if (versionFooter) versionFooter.textContent = t('popupVersionFooter', [installedVersion]);
+
+    const updateEl = document.getElementById('updateAvailable');
+    if (!updateEl) return;
+
+    try {
+      const CHECK_INTERVAL_MS = 20 * 60 * 60 * 1000; // ~20h
+      const { inkpour_update_check_cache: cache } = await api.storage.local.get('inkpour_update_check_cache');
+
+      let latestVersion = cache?.latestVersion;
+      const isStale = !cache?.checkedAt || (Date.now() - cache.checkedAt) > CHECK_INTERVAL_MS;
+
+      if (isStale) {
+        try {
+          const res = await fetch('https://api.github.com/repos/tronicum/inkpour/releases/latest');
+          if (res.ok) {
+            const data = await res.json();
+            if (typeof data?.tag_name === 'string') latestVersion = data.tag_name;
+          }
+        } catch {
+          // Offline, rate-limited, GitHub down, etc. — keep whatever the
+          // last successful check found (if anything) and try again later.
+        }
+        // Record the attempt regardless of success so a persistent failure
+        // (e.g. no network) can't force a retry on every single popup open.
+        await api.storage.local.set({
+          inkpour_update_check_cache: { checkedAt: Date.now(), latestVersion },
+        });
+      }
+
+      if (latestVersion && isNewerVersion(latestVersion, installedVersion)) {
+        const cleanVersion = String(latestVersion).replace(/^v/i, '');
+        updateEl.textContent = t('popupUpdateAvailable', [cleanVersion]);
+        updateEl.href = 'https://github.com/tronicum/inkpour/releases/latest';
+        updateEl.hidden = false;
+        updateEl.style.display = 'block';
+      }
+    } catch {
+      // Never let an update-check failure affect the rest of the popup.
+    }
+  })();
+
   // ─── Message count peek ───────────────────────────────────────────────────
   // Eagerly extract on popup open, cache the result, show chat stats.
   // All export buttons reuse cachedData — no duplicate DOM crawl per popup session.

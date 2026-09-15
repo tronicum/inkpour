@@ -6,6 +6,10 @@
   (typeof InkpourI18n !== 'undefined' ? InkpourI18n : window.InkpourI18n).applyI18n(document);
   (typeof InkpourI18n !== 'undefined' ? InkpourI18n : window.InkpourI18n).applyDirection(document);
 
+  // ─── Version footer ───────────────────────────────────────────────────────
+  const versionFooterEl = document.getElementById('versionFooter');
+  if (versionFooterEl) versionFooterEl.textContent = t('popupVersionFooter', [api.runtime.getManifest().version]);
+
   // ─── Browser detection ────────────────────────────────────────────────────
 
   const BROWSER_META = {

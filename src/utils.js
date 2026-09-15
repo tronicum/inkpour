@@ -1947,3 +1947,31 @@ function parseChangelogSection(changelogText, version) {
     return null;
   }
 }
+
+/**
+ * Compares two dot-separated version strings numerically (e.g. "0.4.31.10"
+ * vs "0.4.31.9" — a plain string comparison would get that backwards).
+ * Handles unequal segment counts (missing segments treated as 0) and
+ * tolerates a leading "v" (git tag style). Never throws.
+ * @param {string} latest
+ * @param {string} current
+ * @returns {boolean} true if latest is strictly newer than current
+ */
+function isNewerVersion(latest, current) {
+  try {
+    if (!latest || !current) return false;
+    const strip = (v) => String(v).trim().replace(/^v/i, '');
+    const a = strip(latest).split('.').map(Number);
+    const b = strip(current).split('.').map(Number);
+    const len = Math.max(a.length, b.length);
+    for (let i = 0; i < len; i++) {
+      const av = Number.isFinite(a[i]) ? a[i] : 0;
+      const bv = Number.isFinite(b[i]) ? b[i] : 0;
+      if (av > bv) return true;
+      if (av < bv) return false;
+    }
+    return false; // equal
+  } catch {
+    return false;
+  }
+}

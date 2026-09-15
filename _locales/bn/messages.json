@@ -400,6 +400,22 @@
   "popupWhatsNewDismiss": {
     "message": "Dismiss"
   },
+  "popupVersionFooter": {
+    "message": "Inkpour v$VERSION$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupUpdateAvailable": {
+    "message": "Update available: v$VERSION$ →",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
   "popupIncrementalHintOne": {
     "message": "আপনার শেষ এক্সপোর্টের পর থেকে ($WHEN$) $COUNT$টি নতুন বার্তা — ",
     "placeholders": {
