@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Explain photosynthesis - Qwen Chat</title>
+</head>
+<body>
+  <!-- Qwen (chat.qwen.ai) — Alibaba's Qwen chat.
+       User turns: .chat-user-message (plain text, no paragraph wrapping).
+       AI turns:   .qwen-chat-message-assistant, with paragraphs rendered as
+                   div.qwen-markdown-paragraph (not <p>), and search-citation
+                   badges as span.qwen-markdown-citation with no href of
+                   their own — just a hostname. The real URL, when available,
+                   appears in a separate "Search sources" list elsewhere on
+                   the page (.host-name-text elements) rather than on the
+                   badge itself. -->
+
+  <div id="chat-message-container">
+
+    <!-- Turn 1: user -->
+    <div class="chat-user-message">What is photosynthesis? 🌱</div>
+
+    <!-- Turn 2: assistant -->
+    <div class="qwen-chat-message-assistant">
+      <div class="qwen-markdown-paragraph">
+        <strong>Photosynthesis</strong> is the process plants use to convert light energy into chemical energy
+        <span class="qwen-markdown-citation"><span class="qwen-chat-markdown-tokens-hostname">wikipedia.org</span></span>.
+      </div>
+      <div class="qwen-markdown-paragraph">
+        It happens mainly in the chloroplasts of plant cells.
+      </div>
+      <pre><code class="language-python">def energy_from_light(photons):
+    return photons * 1.6e-19  # rough conversion
+</code></pre>
+    </div>
+
+    <!-- Turn 3: user -->
+    <div class="chat-user-message">Does it work at night? 🌙</div>
+
+    <!-- Turn 4: assistant -->
+    <div class="qwen-chat-message-assistant">
+      <div class="qwen-markdown-paragraph">
+        No — photosynthesis requires light, so it stops at night. Plants instead rely on stored energy via
+        cellular respiration
+        <span class="qwen-markdown-citation"><span class="qwen-chat-markdown-tokens-hostname">unresolved-source.example</span></span>.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- "Search sources" panel elsewhere on the page — provides the full URL
+       for the first citation badge above (wikipedia.org), but has no entry
+       matching the second badge's hostname (unresolved-source.example),
+       which should fall back to a synthetic label instead of a real link. -->
+  <div class="search-sources-panel" hidden>
+    <span class="host-name-text">https://en.wikipedia.org/wiki/Photosynthesis</span>
+  </div>
+
+</body>
+</html>

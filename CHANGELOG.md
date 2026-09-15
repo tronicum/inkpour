@@ -42,6 +42,20 @@ new section here in the same commit as the version bump.
   non-sensitive preferences (default export format, table of contents,
   YAML front matter, etc.) via browser sync. Tokens, local file paths,
   and vault handles always stay local-only on each machine.
+- Experimental support for Qwen (chat.qwen.ai): message extraction, Qwen's
+  div-based paragraph rendering, and citation-badge resolution against a
+  page's "Search sources" list. Adapted from lpslp/inkpour's Qwen commits
+  — the fork's Monaco-editor code-block reconstruction and collapsible
+  "thinking" side-panel extraction were left out as out-of-scope follow-ups.
+- Gemini's inline citation "chips" (`<source-inline-chip>`, no real link
+  until hovered) now resolve to a real URL: Inkpour briefly hovers each chip
+  during export and reads the link Gemini reveals, emitting it as a `[^N]`
+  footnote with a `**Sources:**` entry — the same format every other
+  platform's citations use. Adapted from lpslp/inkpour's chip-resolution
+  commit (routed through Inkpour's existing citation-footnote machinery
+  instead of the fork's own inline-link format). New Settings toggle
+  "Resolve Gemini source links" (on by default) lets you skip this on chats
+  with many citations, where hovering each one can add noticeable time.
 
 ### Changed
 - NotebookLM citations now export in the same `[^N]` footnote format used by

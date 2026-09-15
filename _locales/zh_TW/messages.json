@@ -567,6 +567,12 @@
   "settingsObsidianTagsDesc": {
     "message": "在前置資料中加入 tags: [ai-chat, {platform}]（需啟用 YAML）"
   },
+  "settingsResolveGeminiLinksLabel": {
+    "message": "Resolve Gemini source links"
+  },
+  "settingsResolveGeminiLinksDesc": {
+    "message": "Hover each Gemini citation chip during export to capture its real link (may slow down export on chats with many citations)"
+  },
   "settingsVaultFolderLabel": {
     "message": "保管庫資料夾"
   },

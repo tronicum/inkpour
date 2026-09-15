@@ -542,6 +542,12 @@
   "settingsObsidianTagsDesc": {
     "message": "ਫਰੰਟ ਮੈਟਰ ਵਿੱਚ tags: [ai-chat, {platform}] ਜੋੜਦਾ ਹੈ (YAML ਚਾਲੂ ਹੋਣਾ ਜ਼ਰੂਰੀ ਹੈ)"
   },
+  "settingsResolveGeminiLinksLabel": {
+    "message": "Resolve Gemini source links"
+  },
+  "settingsResolveGeminiLinksDesc": {
+    "message": "Hover each Gemini citation chip during export to capture its real link (may slow down export on chats with many citations)"
+  },
   "settingsVaultFolderLabel": {
     "message": "ਵਾਲਟ ਫੋਲਡਰ"
   },

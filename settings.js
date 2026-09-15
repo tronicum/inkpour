@@ -77,6 +77,7 @@
     downloadSubfolder: '',
     obsidianVault:     '',
     obsidianTags:      false,
+    resolveGeminiLinks: true,
     githubToken:          '',
     gistPublic:           false,
     gistTags:             '',
@@ -105,6 +106,7 @@
     document.getElementById('downloadSubfolder').value  = prefs.downloadSubfolder;
     document.getElementById('obsidianVault').value      = prefs.obsidianVault || '';
     document.getElementById('obsidianTags').checked     = prefs.obsidianTags;
+    document.getElementById('resolveGeminiLinks').checked = prefs.resolveGeminiLinks !== false;
     document.getElementById('githubToken').value             = prefs.githubToken;
     document.getElementById('gistPublic').value              = String(prefs.gistPublic);
     document.getElementById('gistTags').value                = prefs.gistTags || '';
@@ -248,6 +250,7 @@
       downloadSubfolder: document.getElementById('downloadSubfolder').value.trim(),
       obsidianVault:     document.getElementById('obsidianVault').value.trim(),
       obsidianTags:      document.getElementById('obsidianTags').checked,
+      resolveGeminiLinks: document.getElementById('resolveGeminiLinks').checked,
       githubToken:           document.getElementById('githubToken').value.trim(),
       gistPublic:            document.getElementById('gistPublic').value === 'true',
       gistTags:              document.getElementById('gistTags').value.trim(),
@@ -284,7 +287,7 @@
   // Discrete controls (checkboxes/selects): save immediately, no debounce.
   [
     'defaultFormat', 'pdfAutoPrint', 'yamlFrontMatter', 'generateTOC',
-    'obsidianTags', 'gistPublic', 'scrubSecrets', 'scrubLocalExports', 'webhookIncludeContent',
+    'obsidianTags', 'resolveGeminiLinks', 'gistPublic', 'scrubSecrets', 'scrubLocalExports', 'webhookIncludeContent',
     'writeToVault', 'debugMode', 'debugAttachGist',
   ].forEach((id) => {
     document.getElementById(id)?.addEventListener('change', save);
