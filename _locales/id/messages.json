@@ -583,6 +583,12 @@
   "settingsObsidianTagsDesc": {
     "message": "Menambahkan tag: [ai-chat, {platform}] ke front matter (memerlukan YAML diaktifkan)"
   },
+  "settingsResolveGeminiLinksLabel": {
+    "message": "Resolve Gemini source links"
+  },
+  "settingsResolveGeminiLinksDesc": {
+    "message": "Hover each Gemini citation chip during export to capture its real link (may slow down export on chats with many citations)"
+  },
   "settingsVaultFolderLabel": {
     "message": "Folder vault"
   },

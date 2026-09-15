@@ -583,6 +583,12 @@
   "settingsObsidianTagsDesc": {
     "message": "フロントマターにタグ: [ai-chat, {platform}] を追加（YAMLを有効にする必要あり）"
   },
+  "settingsResolveGeminiLinksLabel": {
+    "message": "Resolve Gemini source links"
+  },
+  "settingsResolveGeminiLinksDesc": {
+    "message": "Hover each Gemini citation chip during export to capture its real link (may slow down export on chats with many citations)"
+  },
   "settingsVaultFolderLabel": {
     "message": "Vaultフォルダ"
   },

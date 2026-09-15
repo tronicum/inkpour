@@ -583,6 +583,12 @@
   "settingsObsidianTagsDesc": {
     "message": "ফ্রন্ট ম্যাটারে tags: [ai-chat, {platform}] যোগ করে (YAML সক্রিয় থাকা আবশ্যক)"
   },
+  "settingsResolveGeminiLinksLabel": {
+    "message": "Resolve Gemini source links"
+  },
+  "settingsResolveGeminiLinksDesc": {
+    "message": "Hover each Gemini citation chip during export to capture its real link (may slow down export on chats with many citations)"
+  },
   "settingsVaultFolderLabel": {
     "message": "ভল্ট ফোল্ডার"
   },

@@ -19,7 +19,12 @@
   <model-response>
     <div class="role-label">Gemini said</div>
     <message-content>
-      <p>A good unit test is <strong>fast</strong>, <strong>isolated</strong>, and <strong>deterministic</strong>.</p>
+      <p>A good unit test is <strong>fast</strong>, <strong>isolated</strong>, and <strong>deterministic</strong>
+      <source-inline-chip>
+        <button type="button" class="chip-button">
+          <span class="source-title">Wikipedia</span>
+        </button>
+      </source-inline-chip>.</p>
       <p>Key properties:</p>
       <ul>
         <li><em>Fast</em> — runs in milliseconds, no I/O or network</li>
@@ -49,5 +54,33 @@ test('user', async () => {
 });</code></pre>
     </message-content>
   </model-response>
+
+  <!--
+    Simulates Gemini's real hover-to-reveal behavior for <source-inline-chip>:
+    the chip's button has no href anywhere in the DOM until hovered, at which
+    point Angular CDK renders a floating overlay (.cdk-overlay-container)
+    containing the actual source link. resolveGeminiSourceChips() in
+    src/content.js dispatches synthetic mouseenter/mouseover on the chip's
+    button and polls for this overlay to appear.
+  -->
+  <script>
+    document.addEventListener('mouseenter', function (e) {
+      var btn = e.target.closest && e.target.closest('source-inline-chip button');
+      if (!btn) return;
+      var overlay = document.querySelector('.cdk-overlay-container');
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'cdk-overlay-container';
+        document.body.appendChild(overlay);
+      }
+      overlay.innerHTML = '<inline-source-card><a href="https://en.wikipedia.org/wiki/Unit_testing">Unit testing — Wikipedia</a></inline-source-card>';
+    }, true);
+    document.addEventListener('mouseleave', function (e) {
+      var btn = e.target.closest && e.target.closest('source-inline-chip button');
+      if (!btn) return;
+      var overlay = document.querySelector('.cdk-overlay-container');
+      if (overlay) overlay.innerHTML = '';
+    }, true);
+  </script>
 </body>
 </html>
