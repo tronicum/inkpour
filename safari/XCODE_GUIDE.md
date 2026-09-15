@@ -43,7 +43,7 @@ Safari extensions must be wrapped in a native macOS app. The `xcrun safari-web-e
 In Terminal, run (replace `YOUR_USERNAME` with your macOS username — run `whoami` if unsure):
 
 ```bash
-xcrun safari-web-extension-converter /Users/YOUR_USERNAME/workspace/babelfish/inkpour \
+xcrun safari-web-extension-converter /Users/YOUR_USERNAME/workspace/inkpour \
   --app-name "Inkpour Safari" \
   --bundle-identifier com.inkpour.safari \
   --swift
@@ -59,7 +59,7 @@ You only need to run this once. Editing extension files later does **not** requi
 
 ```bash
 xcodebuild \
-  -project "/Users/YOUR_USERNAME/workspace/babelfish/inkpour/safari/Inkpour Safari/Inkpour Safari.xcodeproj" \
+  -project "/Users/YOUR_USERNAME/workspace/inkpour/safari/Inkpour Safari/Inkpour Safari.xcodeproj" \
   -scheme "Inkpour Safari (macOS)" \
   -configuration Debug \
   -derivedDataPath /private/tmp/inkpour-safari-build \
@@ -71,7 +71,7 @@ The last line should say `** BUILD SUCCEEDED **`.
 If you see `scheme not found`, list the available schemes first:
 
 ```bash
-xcodebuild -project "/Users/YOUR_USERNAME/workspace/babelfish/inkpour/safari/Inkpour Safari/Inkpour Safari.xcodeproj" -list
+xcodebuild -project "/Users/YOUR_USERNAME/workspace/inkpour/safari/Inkpour Safari/Inkpour Safari.xcodeproj" -list
 ```
 
 Use whichever scheme contains `macOS` in the `-scheme` flag above.
@@ -130,7 +130,7 @@ No need to re-run the converter. Just rebuild and recopy:
 
 ```bash
 xcodebuild \
-  -project "/Users/YOUR_USERNAME/workspace/babelfish/inkpour/safari/Inkpour Safari/Inkpour Safari.xcodeproj" \
+  -project "/Users/YOUR_USERNAME/workspace/inkpour/safari/Inkpour Safari/Inkpour Safari.xcodeproj" \
   -scheme "Inkpour Safari (macOS)" \
   -configuration Debug \
   -derivedDataPath /private/tmp/inkpour-safari-build \

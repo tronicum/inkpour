@@ -78,7 +78,7 @@ The converter populates most keys automatically. Verify these are present and co
 |-----|-------|
 | `CFBundleDisplayName` | Inkpour |
 | `CFBundleIdentifier` | com.inkpour.safari |
-| `CFBundleShortVersionString` | 0.2.3 |
+| `CFBundleShortVersionString` | match `manifest.json`'s `version` field (currently 0.4.31.2) |
 | `CFBundleVersion` | 1 |
 | `NSHumanReadableCopyright` | Copyright © 2026 tronicum. All rights reserved. |
 
