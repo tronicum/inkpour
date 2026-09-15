@@ -38,6 +38,11 @@ zip -r "${ZIP}" . \
   --exclude "DEVELOPING.md" \
   --exclude "package*.json" \
   --exclude "playwright.config.js" \
+  --exclude ".DS_Store" \
+  --exclude "*/.DS_Store" \
+  --exclude "tmp/*" \
+  --exclude ".firecrawl/*" \
+  --exclude ".claude/*" \
   > /dev/null
 
 echo "→ Computing SHA3-256 hash"
