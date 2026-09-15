@@ -59,6 +59,15 @@ new section here in the same commit as the version bump.
   focus ring when tabbed to; export status messages are announced as they
   appear; and several low-contrast text colors (muted grey and amber warning
   text in light mode) were darkened to meet WCAG AA.
+- Export filenames now handle edge cases that previously produced broken or
+  invalid names: very long titles could exceed the 255-byte filesystem
+  filename limit (the old 100-character cut counted UTF-16 units, so CJK or
+  emoji-heavy titles blew past it) and could split an emoji or accented
+  character in half at the cut point; titles matching Windows-reserved device
+  names (CON, PRN, AUX, NUL, COM1–9, LPT1–9) produced files Windows refuses
+  to create; emoji and decomposed accents (combining marks) in titles were
+  stripped to dashes instead of being preserved; and a truncated name could
+  end in a stray dash.
 
 ## [0.4.31.2] - 2026-09-14
 
