@@ -150,6 +150,10 @@ This is for developing Inkpour itself from a git checkout, or trying changes tha
 
 **Orion**: Kagi's WebKit-based macOS/iOS browser. Unlike Safari, it runs Chrome/Firefox extensions directly — no Xcode conversion needed — but it implements its own WebExtensions layer covering [~70% of the API surface](https://help.kagi.com/orion/browser-extensions/macos-extensions.html) as of this writing, so some things may not behave identically to Chrome/Firefox. Not yet verified against a real Inkpour install; treat as untested until someone (or a future session, on an actual Mac) confirms it.
 
+### Mobile Safari / Android Chrome (no extension install possible)
+
+Mobile browsers other than Orion on iOS can't install WebExtensions at all. For those, there's a small standalone [mobile bookmarklet](./bookmarklet/README.md) — tap it on a ChatGPT or Claude page and it copies the visible conversation to your clipboard as Markdown. It's a deliberately minimal fallback (copy-to-clipboard only, ChatGPT + Claude only, no scroll-to-load) — see `bookmarklet/README.md` for install steps and limitations.
+
 ## Quick start
 
 Just want to use Inkpour? Install it from the store links above — done.
@@ -190,6 +194,7 @@ inkpour/
 ├── print.html / print.js   PDF print-preview tab
 ├── history.html / .js      Export history with fuzzy search, re-download, star/pin
 ├── safari/                 Safari Web Extension build guide + scaffold
+├── bookmarklet/            Standalone javascript: bookmarklet for mobile Safari/Chrome (ChatGPT + Claude, copy-Markdown-only)
 ├── icons/                  16 / 32 / 48 / 128 px PNGs
 ├── src/
 │   ├── content.js          Extraction, htmlToMarkdown, in-page button, toasts

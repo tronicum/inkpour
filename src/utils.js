@@ -176,9 +176,10 @@ function buildPrintBodyHTML(messages, title, site, opts = {}) {
 
   // Table of contents: same rule as the Markdown exporter — only user turns
   // (questions), only when there are enough of them to make a TOC useful.
-  // `opts.generateTOC` is only ever passed by buildStandaloneHTML (the
-  // "export .html" path) — the PDF body builder call sites never pass it, so
-  // the printed/PDF output is unaffected by this.
+  // `opts.generateTOC` is passed by buildStandaloneHTML (the "export .html"
+  // path) as well as by the PDF/print call sites in popup.js and
+  // background.js, so the single "Generate table of contents" setting governs
+  // Markdown, HTML, and PDF/print output alike.
   const userTurnCount = messages.filter(m => _isUserTurn(m.role)).length;
   const wantTOC        = !!opts.generateTOC && userTurnCount >= 3;
 
@@ -1808,4 +1809,67 @@ function notesBlockMD(notes) {
   if (!notes || !notes.trim()) return '';
   const lines = notes.trim().split('\n').map(l => `> ${l}`).join('\n');
   return `${lines}\n\n`;
+}
+
+// ─── CHANGELOG.md parser ("What's new" popup panel) ───────────────────────────
+// Pulls one released version's bullet points out of the repo's own
+// CHANGELOG.md (see the file's own header comment for the guaranteed
+// structure: "## [Unreleased]", then one "## [x.y.z.w] - YYYY-MM-DD" heading
+// per released version, each containing "### Added"/"### Fixed"/"### Changed"
+// sub-headings with "- " bullets). Used by background.js (after an update) and
+// popup.js (to render the "What's new" block) — both load this file directly
+// (popup.html via <script>, background.js via importScripts), so this stays a
+// plain global function like everything else here, not an ES module export.
+//
+// Deliberately defensive: never throws. Any of "file missing/empty", "no
+// heading for this version", "heading present but no bullets under it", or
+// outright non-Markdown garbage all just return null — callers treat that as
+// "nothing to show" rather than a real error.
+function parseChangelogSection(changelogText, version) {
+  try {
+    if (!changelogText || typeof changelogText !== 'string' || !version) return null;
+
+    // Split into per-heading chunks so grabbing "our" section can't run past
+    // a sibling heading it shouldn't (e.g. the next-older version, or
+    // [Unreleased] when we're looking for the newest released version).
+    const headingRe = /^## \[([^\]]+)\](?:\s*-\s*(\d{4}-\d{2}-\d{2}))?\s*$/gm;
+    const headings = [...changelogText.matchAll(headingRe)];
+    if (headings.length === 0) return null;
+
+    const match = headings.find(m => m[1] === version);
+    if (!match) return null;
+
+    const start = match.index + match[0].length;
+    const nextIdx = headings.indexOf(match) + 1;
+    const end = nextIdx < headings.length ? headings[nextIdx].index : changelogText.length;
+    const body = changelogText.slice(start, end);
+
+    const entries = [];
+    let currentCategory = null;
+    for (const rawLine of body.split('\n')) {
+      const line = rawLine.trim();
+      if (!line) continue;
+      const categoryMatch = /^###\s+(.+)$/.exec(line);
+      if (categoryMatch) {
+        currentCategory = categoryMatch[1].trim();
+        continue;
+      }
+      const bulletMatch = /^-\s+(.+)$/.exec(line);
+      if (bulletMatch) {
+        entries.push(currentCategory ? `${currentCategory}: ${bulletMatch[1].trim()}` : bulletMatch[1].trim());
+        continue;
+      }
+      // Continuation line of a multi-line bullet (indented wrap) — append to
+      // the last bullet rather than dropping it or misreading it as a new one.
+      if (entries.length > 0) {
+        entries[entries.length - 1] = `${entries[entries.length - 1]} ${line}`;
+      }
+    }
+
+    if (entries.length === 0) return null;
+
+    return { version, date: match[2] || null, entries };
+  } catch {
+    return null;
+  }
 }

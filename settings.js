@@ -83,6 +83,7 @@
     notionToken:          '',
     notionPageId:         '',
     scrubSecrets:          true,
+    scrubLocalExports:     false,
     webhookUrl:           '',
     webhookIncludeContent: false,
     writeToVault:          false,
@@ -90,8 +91,12 @@
     debugAttachGist:       false,
   };
 
-  api.storage.local.get('inkpour_settings', (result) => {
-    const prefs = Object.assign({}, DEFAULTS, result.inkpour_settings ?? {});
+  api.storage.local.get('inkpour_settings', async (result) => {
+    // Merge in any preferences synced from another device (small UI/behavior
+    // toggles only — see src/settingsSync.js) before populating the form, so
+    // this page always shows the most current values regardless of which
+    // device last changed them.
+    const prefs = await loadWithSyncOverrides(api, Object.assign({}, DEFAULTS, result.inkpour_settings ?? {}));
     document.getElementById('defaultFormat').value      = prefs.defaultFormat;
     document.getElementById('filenameTemplate').value   = prefs.filenameTemplate;
     document.getElementById('pdfAutoPrint').checked     = prefs.pdfAutoPrint;
@@ -106,6 +111,7 @@
     document.getElementById('notionToken').value              = prefs.notionToken || '';
     document.getElementById('notionPageId').value             = prefs.notionPageId || '';
     document.getElementById('scrubSecrets').checked           = prefs.scrubSecrets;
+    document.getElementById('scrubLocalExports').checked      = prefs.scrubLocalExports;
     document.getElementById('webhookUrl').value              = prefs.webhookUrl;
     document.getElementById('webhookIncludeContent').checked = prefs.webhookIncludeContent;
     document.getElementById('writeToVault').checked           = prefs.writeToVault;
@@ -248,6 +254,7 @@
       notionToken:           document.getElementById('notionToken').value.trim(),
       notionPageId:          document.getElementById('notionPageId').value.trim(),
       scrubSecrets:          document.getElementById('scrubSecrets').checked,
+      scrubLocalExports:     document.getElementById('scrubLocalExports').checked,
       webhookUrl:            document.getElementById('webhookUrl').value.trim(),
       webhookIncludeContent: document.getElementById('webhookIncludeContent').checked,
       writeToVault:          document.getElementById('writeToVault').checked,
@@ -260,6 +267,11 @@
       clearTimeout(statusTimer);
       statusTimer = setTimeout(() => { el.textContent = ''; }, 2000);
     });
+    // Mirror the small, non-sensitive subset to storage.sync so it follows
+    // the user to their other signed-in devices — never blocks or delays
+    // the local save/status above; see src/settingsSync.js for exactly
+    // which keys qualify and why (never tokens, paths, or vault handles).
+    saveSyncableSettings(api, prefs);
   }
 
   const AUTOSAVE_DEBOUNCE_MS = 450;
@@ -272,7 +284,7 @@
   // Discrete controls (checkboxes/selects): save immediately, no debounce.
   [
     'defaultFormat', 'pdfAutoPrint', 'yamlFrontMatter', 'generateTOC',
-    'obsidianTags', 'gistPublic', 'scrubSecrets', 'webhookIncludeContent',
+    'obsidianTags', 'gistPublic', 'scrubSecrets', 'scrubLocalExports', 'webhookIncludeContent',
     'writeToVault', 'debugMode', 'debugAttachGist',
   ].forEach((id) => {
     document.getElementById(id)?.addEventListener('change', save);
