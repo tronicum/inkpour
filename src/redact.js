@@ -6,8 +6,9 @@
  * are directly callable from background.js without any import/export syntax.
  * Do NOT add anything that depends on DOM, localStorage, or extension APIs here.
  *
- * scanForSecrets(text)   → Array<{ type, match }>
- * redactSecrets(text)    → { cleaned, findings }
+ * scanForSecrets(text)    → Array<{ type, match }>
+ * redactSecrets(text)     → { cleaned, findings }
+ * redactMessages(messages) → new array with each message's content redacted
  */
 
 // ─── Secret patterns ───────────────────────────────────────────────────────
@@ -96,4 +97,29 @@ function redactSecrets(text) {
   }
 
   return { cleaned, findings };
+}
+
+/**
+ * Redact all likely secrets from a normalized messages array
+ * (Array<{ role, content, ... }>) — the shape every export builder consumes.
+ *
+ * Pure: returns a NEW array of NEW message objects; the input array and its
+ * objects are never mutated. Every property other than `content` is carried
+ * over untouched (role, any extractor extras). Tolerates null/undefined/empty
+ * input by returning an empty array.
+ *
+ * Used by the opt-in "scrub local exports" setting so redaction happens once,
+ * at the message level, before ANY builder (Markdown/HTML/PDF/JSON/DOCX/ZIP)
+ * runs — scrubbing each format's final output post-hoc would be fragile
+ * (DOCX is binary, JSON/HTML would risk mangled markup).
+ *
+ * @param {Array<{role:string, content:string}>|null|undefined} messages
+ * @returns {Array<{role:string, content:string}>}
+ */
+function redactMessages(messages) {
+  if (!Array.isArray(messages)) return [];
+  return messages.map((msg) => {
+    if (!msg || typeof msg !== 'object') return msg;
+    return { ...msg, content: redactSecrets(msg.content).cleaned };
+  });
 }

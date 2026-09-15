@@ -9,13 +9,14 @@
       --bg:           #ffffff;
       --surface:      #f4f4f5;
       --text:         #18181b;
-      --subtext:      #71717a;
+      --subtext:      #63636b; /* was #71717a — too low-contrast (≈4.4:1) on --surface for 11px text */
       --accent:       #5b5bd6;
       --accent-hover: #4747c2;
       --accent-text:  #ffffff;
       --border:       #e4e4e7;
       --success:      #16a34a;
       --error:        #dc2626;
+      --warning:      #b45309; /* amber-700 — amber-600 (#d97706) is only ≈3.2:1 on white */
       --radius:       10px;
     }
 
@@ -29,6 +30,7 @@
         --accent-hover: #a5b4fc;
         --accent-text:  #18181b;
         --border:       #3f3f46;
+        --warning:      #d97706; /* fine on dark (≈5.6:1) */
       }
     }
 
@@ -105,6 +107,45 @@
       inset-inline-end: 30px;
     }
 
+    /* ── What's new panel ── */
+    #whats-new-panel {
+      margin-bottom: 12px;
+      padding: 9px 10px;
+      border: 1.5px solid var(--accent);
+      border-radius: var(--radius);
+      background: var(--surface);
+      font-size: 11.5px;
+      line-height: 1.5;
+    }
+    #whats-new-panel .whats-new-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 5px;
+    }
+    #whats-new-panel .whats-new-title {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 12px;
+    }
+    #whats-new-panel .whats-new-dismiss {
+      background: none;
+      border: none;
+      color: var(--subtext);
+      font-size: 11px;
+      cursor: pointer;
+      padding: 2px 4px;
+      flex-shrink: 0;
+    }
+    #whats-new-panel .whats-new-dismiss:hover { color: var(--text); }
+    #whats-new-panel ul {
+      list-style: disc;
+      padding-inline-start: 16px;
+      color: var(--subtext);
+    }
+    #whats-new-panel li { margin-bottom: 2px; }
+
     /* ── Import panel ── */
     #import-section {
       margin-bottom: 12px;
@@ -132,6 +173,23 @@
     }
     #import-section input {
       margin-top: 6px;
+    }
+    /* The base rule above removes the native outline, so focus needs its own
+       visible indicator — same border-color pattern settings.html uses. */
+    #import-section textarea:focus,
+    #import-section input:focus,
+    #notesInput:focus {
+      border-color: var(--accent);
+    }
+    /* Visually-hidden text for screen readers (accessible-name prefixes). */
+    .sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border: 0;
     }
     #importError {
       margin-top: 5px;
@@ -393,7 +451,7 @@
     #status:not(:empty):hover { opacity: 0.75; }
     #status.success  { color: var(--success); }
     #status.error    { color: var(--error); }
-    #status.warning  { color: #d97706; }
+    #status.warning  { color: var(--warning); }
 
     /* ── Gist link ── */
     #gist-link {
@@ -430,7 +488,7 @@
       font-size: 10.5px;
       text-align: center;
       color: var(--subtext);
-      opacity: 0.65;
+      /* no extra opacity — 10.5px text at 0.65 opacity was ≈2.6:1 on white */
       letter-spacing: 0.01em;
     }
 
@@ -493,7 +551,7 @@
 </head>
 <body>
   <div class="header">
-    <div class="logo">ip</div>
+    <div class="logo" aria-hidden="true">ip</div>
     <div class="header-text">
       <h1>Inkpour</h1>
       <p data-i18n="popupTagline">Export AI chats · MD, PDF, HTML, JSON, ZIP</p>
@@ -515,10 +573,18 @@
 
   <hr />
 
+  <div id="whats-new-panel" hidden style="display:none;">
+    <div class="whats-new-header">
+      <span class="whats-new-title" id="whatsNewTitle"></span>
+      <button class="whats-new-dismiss" id="whatsNewDismissBtn" data-i18n="popupWhatsNewDismiss">Dismiss</button>
+    </div>
+    <ul id="whatsNewList"></ul>
+  </div>
+
   <div id="import-section" hidden style="display:none;">
     <textarea id="importText" rows="5" data-i18n-placeholder="popupImportTextPlaceholder" placeholder="Paste a copied conversation here…"></textarea>
     <input id="importTitleInput" type="text" data-i18n-placeholder="popupImportTitlePlaceholder" placeholder="Title (optional)…" />
-    <div id="importError"></div>
+    <div id="importError" role="alert"></div>
     <div class="import-actions">
       <button class="btn" id="importCancelBtn" style="border-color:var(--border);color:var(--subtext);" data-i18n="popupImportCancelBtn">Cancel</button>
       <button class="btn" id="importSubmitBtn" style="background:var(--accent);color:var(--accent-text);" data-i18n="popupImportSubmitBtn">Import</button>
@@ -556,8 +622,9 @@
     <button class="export-select-btn" id="exportSelectBtn" type="button"
       aria-haspopup="true" aria-expanded="false"
       data-i18n-title="popupExportMoreOptions" title="Choose a format">
+      <span class="sr-only" data-i18n="popupExportMoreOptions">Choose a format</span>
       <span id="exportSelectedLabel">MD</span>
-      <span class="export-select-caret">▾</span>
+      <span class="export-select-caret" aria-hidden="true">▾</span>
     </button>
     <button class="export-go-btn" id="exportGoBtn" type="button">
       <div class="spinner"></div>
@@ -572,18 +639,18 @@
       - upload arrow (arrow out of a tray)  = sent to an external service
   -->
   <div class="export-menu" id="exportMenu" hidden style="display:none;" role="menu">
-    <button class="export-menu-item" type="button" data-format="md" role="menuitemradio">
-      <span class="export-menu-check">✓</span>
+    <button class="export-menu-item" type="button" data-format="md" role="menuitemradio" aria-checked="false">
+      <span class="export-menu-check" aria-hidden="true">✓</span>
       <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
       <span data-i18n="popupBtnMd">MD</span>
     </button>
-    <button class="export-menu-item" type="button" data-format="pdf" role="menuitemradio">
-      <span class="export-menu-check">✓</span>
+    <button class="export-menu-item" type="button" data-format="pdf" role="menuitemradio" aria-checked="false">
+      <span class="export-menu-check" aria-hidden="true">✓</span>
       <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
       <span data-i18n="popupBtnPdf">PDF</span>
     </button>
-    <button class="export-menu-item" type="button" data-format="html" role="menuitemradio">
-      <span class="export-menu-check">✓</span>
+    <button class="export-menu-item" type="button" data-format="html" role="menuitemradio" aria-checked="false">
+      <span class="export-menu-check" aria-hidden="true">✓</span>
       <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
       <span data-i18n="popupBtnHtml">HTML</span>
     </button>
@@ -594,35 +661,43 @@
          styled as a sub-option of the row right above it. Its own copy
          icon (rather than repeating the download arrow) now carries the
          "goes to clipboard, not a file" meaning instead of the label text. -->
-    <button class="export-menu-item sub-item" type="button" data-format="copy-html" role="menuitemradio">
-      <span class="export-menu-check">✓</span>
+    <button class="export-menu-item sub-item" type="button" data-format="copy-html" role="menuitemradio" aria-checked="false">
+      <span class="export-menu-check" aria-hidden="true">✓</span>
       <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
       <span data-i18n="popupBtnCopyHtml">Copy</span>
     </button>
-    <button class="export-menu-item" type="button" data-format="json" role="menuitemradio">
-      <span class="export-menu-check">✓</span>
+    <!-- Copy as plain text: Markdown syntax stripped entirely — for pasting
+         into places that don't render Markdown (plain email, SMS, basic text
+         fields). Copy icon = clipboard, same icon language as copy-html. -->
+    <button class="export-menu-item" type="button" data-format="copy-txt" role="menuitemradio" aria-checked="false">
+      <span class="export-menu-check" aria-hidden="true">✓</span>
+      <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      <span data-i18n="popupBtnCopyTxt">Copy Text</span>
+    </button>
+    <button class="export-menu-item" type="button" data-format="json" role="menuitemradio" aria-checked="false">
+      <span class="export-menu-check" aria-hidden="true">✓</span>
       <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
       <span data-i18n="popupBtnJson">JSON</span>
     </button>
-    <button class="export-menu-item" type="button" data-format="docx" role="menuitemradio">
-      <span class="export-menu-check">✓</span>
+    <button class="export-menu-item" type="button" data-format="docx" role="menuitemradio" aria-checked="false">
+      <span class="export-menu-check" aria-hidden="true">✓</span>
       <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
       <span data-i18n="popupBtnDocx">DOCX</span>
     </button>
     <div class="export-menu-sep"></div>
-    <button class="export-menu-item" type="button" data-format="all" role="menuitemradio">
-      <span class="export-menu-check">✓</span>
+    <button class="export-menu-item" type="button" data-format="all" role="menuitemradio" aria-checked="false">
+      <span class="export-menu-check" aria-hidden="true">✓</span>
       <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
       <span data-i18n="popupBtnExportAll">Export All (MD + DOCX + ZIP)</span>
     </button>
     <div class="export-menu-sep"></div>
-    <button class="export-menu-item" type="button" data-format="gist" id="gistMenuOption" role="menuitemradio" hidden>
-      <span class="export-menu-check">✓</span>
+    <button class="export-menu-item" type="button" data-format="gist" id="gistMenuOption" role="menuitemradio" aria-checked="false" hidden>
+      <span class="export-menu-check" aria-hidden="true">✓</span>
       <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V10"/><path d="M7 14l5-5 5 5"/><path d="M4 4h16"/></svg>
       <span data-i18n="popupBtnGist">Gist</span>
     </button>
-    <button class="export-menu-item" type="button" data-format="notion" id="notionMenuOption" role="menuitemradio" hidden>
-      <span class="export-menu-check">✓</span>
+    <button class="export-menu-item" type="button" data-format="notion" id="notionMenuOption" role="menuitemradio" aria-checked="false" hidden>
+      <span class="export-menu-check" aria-hidden="true">✓</span>
       <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V10"/><path d="M7 14l5-5 5 5"/><path d="M4 4h16"/></svg>
       <span data-i18n="popupBtnNotion">Notion</span>
     </button>
@@ -642,6 +717,7 @@
     <button id="jsonBtn" data-i18n-title="popupJsonBtnTitle" title="Export to JSON (Alt+Shift+J)"><div class="spinner"></div><span data-i18n="popupBtnJson">JSON</span></button>
     <button id="docxBtn" data-i18n-title="popupDocxBtnTitle" title="Export to Word document (.docx)"><div class="spinner"></div><span data-i18n="popupBtnDocx">DOCX</span></button>
     <button id="copyHtmlBtn" data-i18n-title="popupCopyHtmlBtnTitle" title="Copy standalone HTML to clipboard (Alt+Shift+H)"><div class="spinner"></div><span data-i18n="popupBtnCopyHtml">Copy</span></button>
+    <button id="copyTxtBtn" data-i18n-title="popupCopyTxtBtnTitle" title="Copy as plain text — Markdown syntax stripped"><div class="spinner"></div><span data-i18n="popupBtnCopyTxt">Copy Text</span></button>
     <button id="allBtn" data-i18n-title="popupAllBtnTitle" title="Export MD + DOCX + ZIP simultaneously"><div class="spinner"></div><span data-i18n="popupBtnExportAll">Export All (MD + DOCX + ZIP)</span></button>
     <button id="gistBtn" data-i18n-title="popupGistBtnTitle" title="Upload Markdown to GitHub Gist" hidden><div class="spinner"></div><span data-i18n="popupBtnGist">Gist</span></button>
     <button id="notionBtn" data-i18n-title="popupNotionBtnTitle" title="Append Markdown to a Notion page" hidden><div class="spinner"></div><span data-i18n="popupBtnNotion">Notion</span></button>
@@ -669,9 +745,9 @@
     </button>
   </div>
 
-  <div id="status"></div>
+  <div id="status" role="status" aria-live="polite"></div>
   <div id="new-msgs-hint" hidden style="display:none;margin-top:4px;font-size:10.5px;
-       text-align:center;color:#d97706;"></div>
+       text-align:center;color:var(--warning);"></div>
   <div id="incrementalHint" hidden style="display:none;margin-top:6px;padding:7px 9px;
        border:1px solid var(--accent);border-radius:7px;background:var(--surface);
        text-align:center;">
@@ -687,11 +763,11 @@
   <input id="titleInput" type="text" data-i18n-placeholder="popupTitleInputPlaceholder" placeholder="Chat title…" hidden
     style="display:none;width:100%;margin-top:7px;padding:5px 9px;font-size:12px;
            border:1.5px solid var(--accent);border-radius:7px;background:var(--bg);
-           color:var(--text);outline:none;box-sizing:border-box;" />
+           color:var(--text);box-sizing:border-box;" />
   <div id="notes-section" hidden style="display:none;margin-top:6px;">
     <textarea id="notesInput" rows="3" data-i18n-placeholder="popupNotesPlaceholder" placeholder="Add personal notes — prepended as a blockquote in the export…"
       style="width:100%;font-size:11px;padding:6px 9px;border:1px solid var(--border);
-             border-radius:7px;background:var(--bg);color:var(--text);outline:none;
+             border-radius:7px;background:var(--bg);color:var(--text);
              resize:vertical;box-sizing:border-box;font-family:inherit;line-height:1.45;"></textarea>
   </div>
   <button id="notesToggle" hidden
@@ -765,6 +841,7 @@
   <script src="src/diff.js"></script>
   <script src="src/redact.js"></script>
   <script src="src/vaultHandle.js"></script>
+  <script src="src/settingsSync.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

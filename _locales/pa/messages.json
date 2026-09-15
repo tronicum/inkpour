@@ -59,6 +59,9 @@
   "popupCopyHtmlBtnTitle": {
     "message": "ਸਟੈਂਡਅਲੋਨ HTML ਕਲਿੱਪਬੋਰਡ 'ਤੇ ਕਾਪੀ ਕਰੋ (Alt+Shift+H)"
   },
+  "popupCopyTxtBtnTitle": {
+    "message": "ਸਾਦੇ ਟੈਕਸਟ ਵਜੋਂ ਕਾਪੀ ਕਰੋ — Markdown ਸਿੰਟੈਕਸ ਹਟਾਇਆ ਗਿਆ"
+  },
   "popupZipBtnTitle": {
     "message": "chat.md + ਕੱਢੀਆਂ ਗਈਆਂ ਕੋਡ ਫਾਈਲਾਂ ਨਾਲ ZIP ਐਕਸਪੋਰਟ ਕਰੋ (Alt+Shift+Z)"
   },
@@ -92,6 +95,9 @@
   },
   "popupBtnCopyHtml": {
     "message": "ਕਾਪੀ ਕਰੋ"
+  },
+  "popupBtnCopyTxt": {
+    "message": "ਟੈਕਸਟ ਕਾਪੀ ਕਰੋ"
   },
   "popupBtnZip": {
     "message": "ZIP"
@@ -181,6 +187,9 @@
   },
   "popupStatusHtmlCopied": {
     "message": "✓ HTML ਕਾਪੀ ਹੋ ਗਿਆ — ਕਿਸੇ ਵੀ ਐਡੀਟਰ ਵਿੱਚ ਪੇਸਟ ਕਰੋ"
+  },
+  "popupStatusTextCopied": {
+    "message": "✓ ਸਾਦਾ ਟੈਕਸਟ ਕਲਿੱਪਬੋਰਡ 'ਤੇ ਕਾਪੀ ਹੋਇਆ"
   },
   "popupStatusZipSaved": {
     "message": "✓ ZIP ਸੇਵ ਹੋ ਗਿਆ — chat.md"
@@ -354,6 +363,17 @@
         "content": "$2"
       }
     }
+  },
+  "popupWhatsNewTitle": {
+    "message": "What's new in v$VERSION$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupWhatsNewDismiss": {
+    "message": "Dismiss"
   },
   "popupIncrementalHintOne": {
     "message": "ਤੁਹਾਡੀ ਪਿਛਲੀ ਐਕਸਪੋਰਟ ($WHEN$) ਤੋਂ ਬਾਅਦ $COUNT$ ਨਵਾਂ ਸੁਨੇਹਾ — ",
@@ -607,6 +627,12 @@
   },
   "settingsScrubDesc": {
     "message": "Gist/webhook ਅੱਪਲੋਡ ਤੋਂ ਪਹਿਲਾਂ ਸੰਭਾਵਿਤ API ਕੁੰਜੀਆਂ, ਟੋਕਨ ਅਤੇ ਈਮੇਲ ਲੁਕਾਓ"
+  },
+  "settingsScrubLocalLabel": {
+    "message": "Scrub secrets in local exports"
+  },
+  "settingsScrubLocalDesc": {
+    "message": "Apply the same redaction to exports that stay on this computer — Markdown, PDF, HTML, JSON, DOCX, and ZIP files, plus both clipboard copies. Off by default, because local exports never leave your machine. Turn it on when you plan to pass a file along — sending it to a coworker, or saving into a shared or synced folder such as a shared Obsidian vault — so API keys, tokens, and email addresses you pasted into the chat don't travel with it."
   },
   "settingsWebhookUrlLabel": {
     "message": "Webhook URL"

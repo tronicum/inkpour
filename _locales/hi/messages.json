@@ -79,6 +79,9 @@
     "message": "स्टैंडअलोन HTML क्लिपबोर्ड पर कॉपी करें (Alt+Shift+H)",
     "description": "Copy HTML button tooltip"
   },
+  "popupCopyTxtBtnTitle": {
+    "message": "सादे टेक्स्ट के रूप में कॉपी करें — Markdown सिंटैक्स हटाया गया"
+  },
   "popupZipBtnTitle": {
     "message": "chat.md + निकाली गई कोड फ़ाइलों के साथ ZIP एक्सपोर्ट करें (Alt+Shift+Z)",
     "description": "ZIP button tooltip"
@@ -115,6 +118,9 @@
   },
   "popupBtnCopyHtml": {
     "message": "कॉपी करें"
+  },
+  "popupBtnCopyTxt": {
+    "message": "टेक्स्ट कॉपी करें"
   },
   "popupBtnZip": {
     "message": "ZIP"
@@ -205,6 +211,9 @@
   },
   "popupStatusHtmlCopied": {
     "message": "✓ HTML कॉपी हो गया — किसी भी एडिटर में पेस्ट करें"
+  },
+  "popupStatusTextCopied": {
+    "message": "✓ सादा टेक्स्ट क्लिपबोर्ड पर कॉपी हो गया"
   },
   "popupStatusZipSaved": {
     "message": "✓ ZIP सेव हो गया — chat.md",
@@ -379,6 +388,17 @@
         "content": "$2"
       }
     }
+  },
+  "popupWhatsNewTitle": {
+    "message": "What's new in v$VERSION$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupWhatsNewDismiss": {
+    "message": "Dismiss"
   },
   "popupIncrementalHintOne": {
     "message": "आपके पिछले एक्सपोर्ट ($WHEN$) के बाद $COUNT$ नया संदेश — ",
@@ -632,6 +652,12 @@
   },
   "settingsScrubDesc": {
     "message": "Gist/webhook अपलोड से पहले संभावित API keys, टोकन और ईमेल छिपाएं"
+  },
+  "settingsScrubLocalLabel": {
+    "message": "Scrub secrets in local exports"
+  },
+  "settingsScrubLocalDesc": {
+    "message": "Apply the same redaction to exports that stay on this computer — Markdown, PDF, HTML, JSON, DOCX, and ZIP files, plus both clipboard copies. Off by default, because local exports never leave your machine. Turn it on when you plan to pass a file along — sending it to a coworker, or saving into a shared or synced folder such as a shared Obsidian vault — so API keys, tokens, and email addresses you pasted into the chat don't travel with it."
   },
   "settingsWebhookUrlLabel": {
     "message": "Webhook URL"

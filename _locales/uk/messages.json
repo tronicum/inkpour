@@ -79,6 +79,9 @@
     "message": "Скопіювати окремий HTML у буфер обміну (Alt+Shift+H)",
     "description": "Copy HTML button tooltip"
   },
+  "popupCopyTxtBtnTitle": {
+    "message": "Копіювати як простий текст — синтаксис Markdown видалено"
+  },
   "popupZipBtnTitle": {
     "message": "Експортувати ZIP з chat.md + видобутими файлами коду (Alt+Shift+Z)",
     "description": "ZIP button tooltip"
@@ -115,6 +118,9 @@
   },
   "popupBtnCopyHtml": {
     "message": "Скопіювати"
+  },
+  "popupBtnCopyTxt": {
+    "message": "Копіювати текст"
   },
   "popupBtnZip": {
     "message": "ZIP"
@@ -205,6 +211,9 @@
   },
   "popupStatusHtmlCopied": {
     "message": "✓ HTML скопійовано — вставте у будь-який редактор"
+  },
+  "popupStatusTextCopied": {
+    "message": "✓ Простий текст скопійовано в буфер обміну"
   },
   "popupStatusZipSaved": {
     "message": "✓ ZIP збережено — chat.md",
@@ -379,6 +388,17 @@
         "content": "$2"
       }
     }
+  },
+  "popupWhatsNewTitle": {
+    "message": "What's new in v$VERSION$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupWhatsNewDismiss": {
+    "message": "Dismiss"
   },
   "popupIncrementalHintOne": {
     "message": "$COUNT$ нове повідомлення з часу останнього експорту ($WHEN$) — ",
@@ -632,6 +652,12 @@
   },
   "settingsScrubDesc": {
     "message": "Приховувати ймовірні API-ключі, токени та електронні адреси перед завантаженням у Gist/webhook"
+  },
+  "settingsScrubLocalLabel": {
+    "message": "Scrub secrets in local exports"
+  },
+  "settingsScrubLocalDesc": {
+    "message": "Apply the same redaction to exports that stay on this computer — Markdown, PDF, HTML, JSON, DOCX, and ZIP files, plus both clipboard copies. Off by default, because local exports never leave your machine. Turn it on when you plan to pass a file along — sending it to a coworker, or saving into a shared or synced folder such as a shared Obsidian vault — so API keys, tokens, and email addresses you pasted into the chat don't travel with it."
   },
   "settingsWebhookUrlLabel": {
     "message": "URL вебхука"

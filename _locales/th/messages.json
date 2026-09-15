@@ -79,6 +79,9 @@
     "message": "คัดลอก HTML แบบสแตนด์อโลนไปยังคลิปบอร์ด (Alt+Shift+H)",
     "description": "Copy HTML button tooltip"
   },
+  "popupCopyTxtBtnTitle": {
+    "message": "คัดลอกเป็นข้อความธรรมดา — ตัดไวยากรณ์ Markdown ออก"
+  },
   "popupZipBtnTitle": {
     "message": "ส่งออก ZIP พร้อม chat.md + ไฟล์โค้ดที่แยกออกมา (Alt+Shift+Z)",
     "description": "ZIP button tooltip"
@@ -115,6 +118,9 @@
   },
   "popupBtnCopyHtml": {
     "message": "คัดลอก"
+  },
+  "popupBtnCopyTxt": {
+    "message": "คัดลอกข้อความ"
   },
   "popupBtnZip": {
     "message": "ZIP"
@@ -205,6 +211,9 @@
   },
   "popupStatusHtmlCopied": {
     "message": "✓ คัดลอก HTML แล้ว — วางลงในโปรแกรมแก้ไขใดก็ได้"
+  },
+  "popupStatusTextCopied": {
+    "message": "✓ คัดลอกข้อความธรรมดาไปยังคลิปบอร์ดแล้ว"
   },
   "popupStatusZipSaved": {
     "message": "✓ บันทึก ZIP แล้ว — chat.md",
@@ -379,6 +388,17 @@
         "content": "$2"
       }
     }
+  },
+  "popupWhatsNewTitle": {
+    "message": "What's new in v$VERSION$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupWhatsNewDismiss": {
+    "message": "Dismiss"
   },
   "popupIncrementalHintOne": {
     "message": "$COUNT$ ข้อความใหม่นับตั้งแต่การส่งออกครั้งล่าสุด ($WHEN$) — ",
@@ -632,6 +652,12 @@
   },
   "settingsScrubDesc": {
     "message": "ปิดบังคีย์ API โทเคน และอีเมลที่น่าจะเป็นข้อมูลลับก่อนอัปโหลดไปยัง Gist/webhook"
+  },
+  "settingsScrubLocalLabel": {
+    "message": "Scrub secrets in local exports"
+  },
+  "settingsScrubLocalDesc": {
+    "message": "Apply the same redaction to exports that stay on this computer — Markdown, PDF, HTML, JSON, DOCX, and ZIP files, plus both clipboard copies. Off by default, because local exports never leave your machine. Turn it on when you plan to pass a file along — sending it to a coworker, or saving into a shared or synced folder such as a shared Obsidian vault — so API keys, tokens, and email addresses you pasted into the chat don't travel with it."
   },
   "settingsWebhookUrlLabel": {
     "message": "URL ของ Webhook"

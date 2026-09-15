@@ -79,6 +79,9 @@
     "message": "Kopiera fristående HTML till urklipp (Alt+Shift+H)",
     "description": "Copy HTML button tooltip"
   },
+  "popupCopyTxtBtnTitle": {
+    "message": "Kopiera som ren text — Markdown-syntax borttagen"
+  },
   "popupZipBtnTitle": {
     "message": "Exportera ZIP med chat.md + extraherade kodfiler (Alt+Shift+Z)",
     "description": "ZIP button tooltip"
@@ -115,6 +118,9 @@
   },
   "popupBtnCopyHtml": {
     "message": "Kopiera"
+  },
+  "popupBtnCopyTxt": {
+    "message": "Kopiera text"
   },
   "popupBtnZip": {
     "message": "ZIP"
@@ -205,6 +211,9 @@
   },
   "popupStatusHtmlCopied": {
     "message": "✓ HTML kopierad — klistra in i valfri redigerare"
+  },
+  "popupStatusTextCopied": {
+    "message": "✓ Ren text kopierad till urklipp"
   },
   "popupStatusZipSaved": {
     "message": "✓ ZIP sparad — chat.md",
@@ -379,6 +388,17 @@
         "content": "$2"
       }
     }
+  },
+  "popupWhatsNewTitle": {
+    "message": "What's new in v$VERSION$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupWhatsNewDismiss": {
+    "message": "Dismiss"
   },
   "popupIncrementalHintOne": {
     "message": "$COUNT$ nytt meddelande sedan din senaste export ($WHEN$) — ",
@@ -632,6 +652,12 @@
   },
   "settingsScrubDesc": {
     "message": "Maskera troliga API-nycklar, tokens och e-postadresser före uppladdning till Gist/webhook"
+  },
+  "settingsScrubLocalLabel": {
+    "message": "Scrub secrets in local exports"
+  },
+  "settingsScrubLocalDesc": {
+    "message": "Apply the same redaction to exports that stay on this computer — Markdown, PDF, HTML, JSON, DOCX, and ZIP files, plus both clipboard copies. Off by default, because local exports never leave your machine. Turn it on when you plan to pass a file along — sending it to a coworker, or saving into a shared or synced folder such as a shared Obsidian vault — so API keys, tokens, and email addresses you pasted into the chat don't travel with it."
   },
   "settingsWebhookUrlLabel": {
     "message": "Webhook-URL"

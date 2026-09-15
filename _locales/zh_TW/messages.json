@@ -79,6 +79,9 @@
     "message": "複製獨立 HTML 到剪貼簿 (Alt+Shift+H)",
     "description": "Copy HTML button tooltip"
   },
+  "popupCopyTxtBtnTitle": {
+    "message": "複製為純文字 — 移除 Markdown 語法"
+  },
   "popupZipBtnTitle": {
     "message": "匯出 ZIP，內含 chat.md 及擷取的程式碼檔案 (Alt+Shift+Z)",
     "description": "ZIP button tooltip"
@@ -115,6 +118,9 @@
   },
   "popupBtnCopyHtml": {
     "message": "複製"
+  },
+  "popupBtnCopyTxt": {
+    "message": "複製文字"
   },
   "popupBtnZip": {
     "message": "ZIP"
@@ -205,6 +211,9 @@
   },
   "popupStatusHtmlCopied": {
     "message": "✓ HTML 已複製 — 可貼上到任何編輯器"
+  },
+  "popupStatusTextCopied": {
+    "message": "✓ 純文字已複製到剪貼簿"
   },
   "popupStatusZipSaved": {
     "message": "✓ ZIP 已儲存 — chat.md",
@@ -379,6 +388,17 @@
         "content": "$2"
       }
     }
+  },
+  "popupWhatsNewTitle": {
+    "message": "What's new in v$VERSION$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupWhatsNewDismiss": {
+    "message": "Dismiss"
   },
   "popupIncrementalHintOne": {
     "message": "自上次匯出（$WHEN$）後有 $COUNT$ 則新訊息 — ",
@@ -632,6 +652,12 @@
   },
   "settingsScrubDesc": {
     "message": "在上傳至 Gist 或 webhook 前，遮蔽疑似 API 金鑰、權杖與電子郵件"
+  },
+  "settingsScrubLocalLabel": {
+    "message": "Scrub secrets in local exports"
+  },
+  "settingsScrubLocalDesc": {
+    "message": "Apply the same redaction to exports that stay on this computer — Markdown, PDF, HTML, JSON, DOCX, and ZIP files, plus both clipboard copies. Off by default, because local exports never leave your machine. Turn it on when you plan to pass a file along — sending it to a coworker, or saving into a shared or synced folder such as a shared Obsidian vault — so API keys, tokens, and email addresses you pasted into the chat don't travel with it."
   },
   "settingsWebhookUrlLabel": {
     "message": "Webhook 網址"

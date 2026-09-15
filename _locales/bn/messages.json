@@ -79,6 +79,9 @@
     "message": "স্বতন্ত্র HTML ক্লিপবোর্ডে কপি করুন (Alt+Shift+H)",
     "description": "Copy HTML button tooltip"
   },
+  "popupCopyTxtBtnTitle": {
+    "message": "সাধারণ টেক্সট হিসেবে কপি করুন — Markdown সিনট্যাক্স বাদ"
+  },
   "popupZipBtnTitle": {
     "message": "chat.md + এক্সট্র্যাক্ট করা কোড ফাইল সহ ZIP এক্সপোর্ট করুন (Alt+Shift+Z)",
     "description": "ZIP button tooltip"
@@ -115,6 +118,9 @@
   },
   "popupBtnCopyHtml": {
     "message": "কপি করুন"
+  },
+  "popupBtnCopyTxt": {
+    "message": "টেক্সট কপি করুন"
   },
   "popupBtnZip": {
     "message": "ZIP"
@@ -205,6 +211,9 @@
   },
   "popupStatusHtmlCopied": {
     "message": "✓ HTML কপি হয়েছে — যেকোনো এডিটরে পেস্ট করুন"
+  },
+  "popupStatusTextCopied": {
+    "message": "✓ সাধারণ টেক্সট ক্লিপবোর্ডে কপি হয়েছে"
   },
   "popupStatusZipSaved": {
     "message": "✓ ZIP সংরক্ষিত হয়েছে — chat.md",
@@ -379,6 +388,17 @@
         "content": "$2"
       }
     }
+  },
+  "popupWhatsNewTitle": {
+    "message": "What's new in v$VERSION$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupWhatsNewDismiss": {
+    "message": "Dismiss"
   },
   "popupIncrementalHintOne": {
     "message": "আপনার শেষ এক্সপোর্টের পর থেকে ($WHEN$) $COUNT$টি নতুন বার্তা — ",
@@ -632,6 +652,12 @@
   },
   "settingsScrubDesc": {
     "message": "Gist/webhook আপলোডের আগে সম্ভাব্য API কী, টোকেন ও ইমেইল লুকান"
+  },
+  "settingsScrubLocalLabel": {
+    "message": "Scrub secrets in local exports"
+  },
+  "settingsScrubLocalDesc": {
+    "message": "Apply the same redaction to exports that stay on this computer — Markdown, PDF, HTML, JSON, DOCX, and ZIP files, plus both clipboard copies. Off by default, because local exports never leave your machine. Turn it on when you plan to pass a file along — sending it to a coworker, or saving into a shared or synced folder such as a shared Obsidian vault — so API keys, tokens, and email addresses you pasted into the chat don't travel with it."
   },
   "settingsWebhookUrlLabel": {
     "message": "Webhook URL"

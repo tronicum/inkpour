@@ -79,6 +79,9 @@
     "message": "Eigenständiges HTML in die Zwischenablage kopieren (Alt+Shift+H)",
     "description": "Copy HTML button tooltip"
   },
+  "popupCopyTxtBtnTitle": {
+    "message": "Als reinen Text kopieren — Markdown-Syntax entfernt"
+  },
   "popupZipBtnTitle": {
     "message": "ZIP mit chat.md + extrahierten Code-Dateien exportieren (Alt+Shift+Z)",
     "description": "ZIP button tooltip"
@@ -115,6 +118,9 @@
   },
   "popupBtnCopyHtml": {
     "message": "Kopieren"
+  },
+  "popupBtnCopyTxt": {
+    "message": "Text kopieren"
   },
   "popupBtnZip": {
     "message": "ZIP"
@@ -205,6 +211,9 @@
   },
   "popupStatusHtmlCopied": {
     "message": "✓ HTML kopiert — in beliebigen Editor einfügen"
+  },
+  "popupStatusTextCopied": {
+    "message": "✓ Reiner Text in die Zwischenablage kopiert"
   },
   "popupStatusZipSaved": {
     "message": "✓ ZIP gespeichert — chat.md",
@@ -379,6 +388,17 @@
         "content": "$2"
       }
     }
+  },
+  "popupWhatsNewTitle": {
+    "message": "What's new in v$VERSION$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupWhatsNewDismiss": {
+    "message": "Dismiss"
   },
   "popupIncrementalHintOne": {
     "message": "$COUNT$ neue Nachricht seit deinem letzten Export ($WHEN$) — ",
@@ -632,6 +652,12 @@
   },
   "settingsScrubDesc": {
     "message": "Wahrscheinliche API-Schlüssel, Tokens und E-Mail-Adressen vor Gist-/Webhook-Uploads schwärzen"
+  },
+  "settingsScrubLocalLabel": {
+    "message": "Scrub secrets in local exports"
+  },
+  "settingsScrubLocalDesc": {
+    "message": "Apply the same redaction to exports that stay on this computer — Markdown, PDF, HTML, JSON, DOCX, and ZIP files, plus both clipboard copies. Off by default, because local exports never leave your machine. Turn it on when you plan to pass a file along — sending it to a coworker, or saving into a shared or synced folder such as a shared Obsidian vault — so API keys, tokens, and email addresses you pasted into the chat don't travel with it."
   },
   "settingsWebhookUrlLabel": {
     "message": "Webhook-URL"

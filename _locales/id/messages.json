@@ -79,6 +79,9 @@
     "message": "Salin HTML mandiri ke clipboard (Alt+Shift+H)",
     "description": "Copy HTML button tooltip"
   },
+  "popupCopyTxtBtnTitle": {
+    "message": "Salin sebagai teks biasa — sintaks Markdown dihapus"
+  },
   "popupZipBtnTitle": {
     "message": "Ekspor ZIP berisi chat.md + file kode yang diekstrak (Alt+Shift+Z)",
     "description": "ZIP button tooltip"
@@ -115,6 +118,9 @@
   },
   "popupBtnCopyHtml": {
     "message": "Salin"
+  },
+  "popupBtnCopyTxt": {
+    "message": "Salin teks"
   },
   "popupBtnZip": {
     "message": "ZIP"
@@ -205,6 +211,9 @@
   },
   "popupStatusHtmlCopied": {
     "message": "✓ HTML disalin — tempelkan ke editor mana pun"
+  },
+  "popupStatusTextCopied": {
+    "message": "✓ Teks biasa disalin ke papan klip"
   },
   "popupStatusZipSaved": {
     "message": "✓ ZIP tersimpan — chat.md",
@@ -379,6 +388,17 @@
         "content": "$2"
       }
     }
+  },
+  "popupWhatsNewTitle": {
+    "message": "What's new in v$VERSION$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupWhatsNewDismiss": {
+    "message": "Dismiss"
   },
   "popupIncrementalHintOne": {
     "message": "$COUNT$ pesan baru sejak ekspor terakhir Anda ($WHEN$) — ",
@@ -632,6 +652,12 @@
   },
   "settingsScrubDesc": {
     "message": "Menyamarkan kemungkinan kunci API, token & email sebelum unggah ke Gist/webhook"
+  },
+  "settingsScrubLocalLabel": {
+    "message": "Scrub secrets in local exports"
+  },
+  "settingsScrubLocalDesc": {
+    "message": "Apply the same redaction to exports that stay on this computer — Markdown, PDF, HTML, JSON, DOCX, and ZIP files, plus both clipboard copies. Off by default, because local exports never leave your machine. Turn it on when you plan to pass a file along — sending it to a coworker, or saving into a shared or synced folder such as a shared Obsidian vault — so API keys, tokens, and email addresses you pasted into the chat don't travel with it."
   },
   "settingsWebhookUrlLabel": {
     "message": "URL Webhook"
