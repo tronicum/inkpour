@@ -155,6 +155,13 @@
       "hosts": ["duck.ai", "www.duck.ai"],
       "status": "experimental",
       "notes": "DuckDuckGo's account-free AI chat aggregator (proxies GPT/Claude/Llama/Mistral models). Selectors are best-effort (data-testid patterns guessed from DuckDuckGo's engineering conventions) — not verified against the live authenticated DOM."
+    },
+    {
+      "name": "Qwen",
+      "id": "qwen",
+      "hosts": ["chat.qwen.ai"],
+      "status": "experimental",
+      "notes": "Alibaba's Qwen chat. Paragraphs render as div.qwen-markdown-paragraph rather than <p>; search-citation badges (span.qwen-markdown-citation) are resolved against a page's 'Search sources' list where present. Monaco-editor code blocks and the collapsible 'thinking' side panel are not extracted."
     }
   ]
 }

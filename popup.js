@@ -115,6 +115,7 @@
     writeToVault:          false,
     debugMode:             false,
     debugAttachGist:       false,
+    resolveGeminiLinks:    true,
   };
   let userSettings = { ...SETTING_DEFAULTS };
 
@@ -631,7 +632,10 @@
       hideTitleInput();
       if (newMsgsHint) { newMsgsHint.hidden = true; newMsgsHint.style.display = 'none'; }
       hideIncrementalHint();
-      const response = await api.tabs.sendMessage(tab.id, { action: 'extract' });
+      const response = await api.tabs.sendMessage(tab.id, {
+        action: 'extract',
+        resolveGeminiLinks: userSettings.resolveGeminiLinks !== false,
+      });
       if (response?.error && !response.streaming) {
         setStatus(response.error, 'error');
         return;
@@ -1565,7 +1569,10 @@
       }, 600);
     }
     try {
-      response = await api.tabs.sendMessage(tab.id, { action: 'extract' });
+      response = await api.tabs.sendMessage(tab.id, {
+        action: 'extract',
+        resolveGeminiLinks: userSettings.resolveGeminiLinks !== false,
+      });
     } catch {
       if (scrollPollInterval) { clearInterval(scrollPollInterval); scrollPollInterval = null; }
       if (!isSupportedHost(tab?.url || '')) {

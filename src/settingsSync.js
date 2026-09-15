@@ -20,6 +20,7 @@ const SYNCABLE_SETTING_KEYS = [
   'yamlFrontMatter',
   'generateTOC',
   'obsidianTags',
+  'resolveGeminiLinks',
   'gistPublic',
   'scrubSecrets',
   'webhookIncludeContent',

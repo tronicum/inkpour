@@ -104,7 +104,7 @@ function suite(name, fn) {
  * Load a fixture HTML, inject content.js into a JSDOM environment with a
  * mocked browser API, trigger { action: 'extract' }, return the response.
  */
-async function extractFromFixture(fixtureName, hostname = '', action = 'extract') {
+async function extractFromFixture(fixtureName, hostname = '', action = 'extract', extraMsg = {}) {
   const fixturePath = path.join(FIXTURES_DIR, fixtureName);
   const html = fs.readFileSync(fixturePath, 'utf8');
 
@@ -151,7 +151,7 @@ async function extractFromFixture(fixtureName, hostname = '', action = 'extract'
       if (!settled) { settled = true; resolve(response); }
     };
     try {
-      const ret = listener({ action }, {}, sendResponse);
+      const ret = listener({ action, ...extraMsg }, {}, sendResponse);
       // If the listener returned false / undefined (sync path), resolve immediately
       // with whatever was passed to sendResponse (already resolved above), or
       // resolve with undefined after a tick to let synchronous sendResponse run.
@@ -320,6 +320,36 @@ async function main() {
     });
     await test('converts code block', () => {
       assert(result.messages.some(m => m.content.includes('```')), 'no code blocks found');
+    });
+
+    // ── source-inline-chip resolution ──────────────────────────────────────
+    // gemini.html's first model-response contains a <source-inline-chip> with
+    // no href anywhere in its markup — the fixture's own inline <script>
+    // simulates Gemini's real hover-to-reveal popover (a
+    // .cdk-overlay-container appearing on mouseenter with the actual link).
+    // resolveGeminiSourceChips() should dispatch that hover, read the
+    // resolved URL back out, and convertNode() should emit it through the
+    // shared registerCitation()/formatSourcesBlock() machinery — a `[^N]`
+    // marker plus a matching "**Sources:**" entry, not a bare label or the
+    // fork's bespoke `[\`label\`](url)` inline-link format.
+    await test('resolves source-inline-chip href via hover simulation into a [^N] citation', () => {
+      const withChip = result.messages[1].content;
+      assert(/\[\^\d+\]/.test(withChip), `no [^N] marker found in: ${withChip}`);
+    });
+    await test('emits a Sources block with the real resolved URL, not just the chip label', () => {
+      const withChip = result.messages[1].content;
+      assert(withChip.includes('**Sources:**'), 'missing **Sources:** block');
+      assert(
+        withChip.includes('https://en.wikipedia.org/wiki/Unit_testing'),
+        `resolved URL missing from Sources block: ${withChip}`
+      );
+      assert(!withChip.includes('`Wikipedia`'), 'fell back to fork-style bare `label` chip instead of resolving');
+    });
+    await test('resolveGeminiLinks:false skips hover resolution (falls back to synthetic label, no crash)', async () => {
+      const skipped = await extractFromFixture('gemini.html', 'gemini.google.com', 'extract', { resolveGeminiLinks: false });
+      const withChip = skipped.messages[1].content;
+      assert(/\[\^\d+\]/.test(withChip), `expected a citation marker even unresolved: ${withChip}`);
+      assert(!withChip.includes('https://en.wikipedia.org/wiki/Unit_testing'), 'should not have resolved with the toggle off');
     });
   });
 
@@ -2225,6 +2255,62 @@ No bullets here at all, just prose under the heading.
     });
     await test('returns platform=duckai', () => {
       assert(result.platform === 'duckai', `platform=${result.platform}`);
+    });
+  });
+
+  // ─── Qwen extraction ──────────────────────────────────────────────────────
+  // Ported (adapted) from lpslp/inkpour's basic + parity Qwen commits: message
+  // extraction via .chat-user-message / .qwen-chat-message-assistant, Qwen's
+  // div-based paragraph rendering (div.qwen-markdown-paragraph instead of
+  // <p>), and static citation-badge resolution against a page's "Search
+  // sources" list — routed through the shared registerCitation()/
+  // formatSourcesBlock() machinery so it matches every other platform's
+  // [^N] + Sources format, not the fork's own data-attribute/tooltip scheme.
+  await suite('Qwen extraction (experimental)', async () => {
+    let result;
+    before: { result = await extractFromFixture('qwen.html', 'chat.qwen.ai'); }
+
+    await test('extracts 4 messages', () => {
+      assert(result.messages.length === 4, `got ${result.messages?.length}`);
+    });
+    await test('alternates You / Qwen roles', () => {
+      assert(result.messages[0].role === 'You',  `role[0]=${result.messages[0].role}`);
+      assert(result.messages[1].role === 'Qwen', `role[1]=${result.messages[1].role}`);
+      assert(result.messages[2].role === 'You',  `role[2]=${result.messages[2].role}`);
+      assert(result.messages[3].role === 'Qwen', `role[3]=${result.messages[3].role}`);
+    });
+    await test('preserves emoji in user messages', () => {
+      assert(result.messages[0].content.includes('🌱'), 'missing 🌱');
+      assert(result.messages[2].content.includes('🌙'), 'missing 🌙');
+    });
+    await test('converts qwen-markdown-paragraph divs into real paragraphs', () => {
+      const md = result.messages[1].content;
+      assert(md.includes('**Photosynthesis**'), 'missing bold from first paragraph div');
+      assert(md.includes('chloroplasts'), 'missing text from second paragraph div');
+      // Each qwen-markdown-paragraph div should have become its own paragraph
+      // (blank line between), not run together into one block of text.
+      const energyIdx = md.indexOf('energy');
+      const itHappensIdx = md.indexOf('It happens');
+      assert(energyIdx >= 0 && itHappensIdx > energyIdx, `paragraphs not found in order: ${md}`);
+      assert(/\n\s*\n/.test(md.slice(energyIdx, itHappensIdx)), `paragraphs not separated by a blank line: ${md}`);
+    });
+    await test('converts code block', () => {
+      assert(result.messages[1].content.includes('```python'), 'missing ```python');
+      assert(result.messages[1].content.includes('energy_from_light'), 'missing code content');
+    });
+    await test('resolves a citation badge against the Search sources list into a [^N] link', () => {
+      const md = result.messages[1].content;
+      assert(/\[\^\d+\]/.test(md), `no [^N] marker found: ${md}`);
+      assert(md.includes('**Sources:**'), 'missing Sources block');
+      assert(md.includes('https://en.wikipedia.org/wiki/Photosynthesis'), 'resolved source URL missing');
+    });
+    await test('falls back to a synthetic label when no matching source-list entry exists', () => {
+      const md = result.messages[3].content;
+      assert(/\[\^\d+\]/.test(md), `expected a citation marker: ${md}`);
+      assert(md.includes('unresolved-source.example'), 'expected fallback hostname label in Sources block');
+    });
+    await test('returns platform=qwen', () => {
+      assert(result.platform === 'qwen', `platform=${result.platform}`);
     });
   });
 

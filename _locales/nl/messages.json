@@ -583,6 +583,12 @@
   "settingsObsidianTagsDesc": {
     "message": "Voegt tags: [ai-chat, {platform}] toe aan de metadata (vereist ingeschakelde YAML)"
   },
+  "settingsResolveGeminiLinksLabel": {
+    "message": "Resolve Gemini source links"
+  },
+  "settingsResolveGeminiLinksDesc": {
+    "message": "Hover each Gemini citation chip during export to capture its real link (may slow down export on chats with many citations)"
+  },
   "settingsVaultFolderLabel": {
     "message": "Vault-map"
   },

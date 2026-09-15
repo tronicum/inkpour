@@ -583,6 +583,12 @@
   "settingsObsidianTagsDesc": {
     "message": "프런트매터에 tags: [ai-chat, {platform}]을 추가합니다 (YAML 활성화 필요)"
   },
+  "settingsResolveGeminiLinksLabel": {
+    "message": "Resolve Gemini source links"
+  },
+  "settingsResolveGeminiLinksDesc": {
+    "message": "Hover each Gemini citation chip during export to capture its real link (may slow down export on chats with many citations)"
+  },
   "settingsVaultFolderLabel": {
     "message": "볼트 폴더"
   },

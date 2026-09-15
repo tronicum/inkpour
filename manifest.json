@@ -53,6 +53,7 @@
     "*://pi.ai/*",
     "*://duck.ai/*",
     "*://www.duck.ai/*",
+    "*://chat.qwen.ai/*",
     "*://api.github.com/*",
     "*://api.notion.com/*"
   ],
@@ -143,7 +144,8 @@
         "*://coral.cohere.com/*",
         "*://pi.ai/*",
         "*://duck.ai/*",
-        "*://www.duck.ai/*"
+        "*://www.duck.ai/*",
+        "*://chat.qwen.ai/*"
       ],
       "js": ["src/content.js"],
       "run_at": "document_idle"

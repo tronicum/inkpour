@@ -6,7 +6,7 @@
  * Supported: ChatGPT, Claude, Gemini, Google AI Studio, Copilot (microsoft + copilot.com),
  *            Grok, Perplexity (experimental), DeepSeek (experimental),
  *            Meta AI (experimental), Mistral Le Chat (experimental),
- *            HuggingChat (experimental), Poe (experimental)
+ *            HuggingChat (experimental), Poe (experimental), Qwen (experimental)
  *
  * Features:
  *   - Citation footnote extraction: <a href="..."><sup>N</sup></a> → [^N] + Sources section
@@ -273,12 +273,58 @@
         return `\n\n> **${label}**\n>\n${lines}\n\n`;
       }
 
+      // Qwen (chat.qwen.ai) renders paragraphs as
+      // <div class="qwen-markdown-paragraph"> instead of <p>.
+      case 'div': {
+        if (node.classList.contains('qwen-markdown-paragraph')) {
+          return `\n\n${children()}\n\n`;
+        }
+        return children();
+      }
+
       case 'summary': return ''; // handled inside <details>
+
+      // Gemini: <source-inline-chip> — a rendered "source pill" citation with
+      // no real href in the DOM until hovered (Gemini reveals it via a
+      // .cdk-overlay-container popover on hover). resolveGeminiSourceChips()
+      // (see below, invoked from extractGemini() before htmlToMarkdown() runs
+      // on each message) programmatically hovers each chip and stashes the
+      // resolved URL in a data attribute on the chip itself, so this
+      // synchronous converter can just read it back. Routed through the same
+      // registerCitation()/formatSourcesBlock() machinery every other
+      // platform's citations use, so it produces the same `[^N]` + trailing
+      // "**Sources:**" entry as ChatGPT/Perplexity/NotebookLM/etc — not a
+      // bespoke inline-link format.
+      case 'source-inline-chip': {
+        const resolvedUrl = node.getAttribute('data-inkpour-resolved-url');
+        if (resolvedUrl) return registerCitation(resolvedUrl);
+        // No resolved URL (hover resolution was skipped or timed out) —
+        // degrade to a synthetic label like NotebookLM's numberless markers
+        // above, using the chip's own visible text as the target.
+        const label = node.textContent.trim();
+        return label ? registerCitation(`Gemini source: ${label}`) : '';
+      }
 
       // ── Math ────────────────────────────────────────────────────────────
       // KaTeX renders <span class="katex">…</span> with an <annotation> holding
       // the LaTeX source. MathJax uses <mjx-container> with a similar pattern.
       case 'span': {
+        // Qwen (chat.qwen.ai): a search-citation badge with no href of its
+        // own — just a hostname (e.g. "example.com"). The full URL usually
+        // appears elsewhere on the page in a "Search sources" list
+        // (`.host-name-text` elements); look it up statically (no hover
+        // simulation needed here, unlike Gemini's chips) and route through
+        // the shared citation registry so it gets the same `[^N]` + Sources
+        // treatment as every other platform.
+        if (node.classList.contains('qwen-markdown-citation')) {
+          const hostnameEl = node.querySelector('.qwen-chat-markdown-tokens-hostname');
+          const hostname = hostnameEl ? hostnameEl.textContent.trim() : '';
+          if (!hostname) return '';
+          const sourceLink = Array.from(document.querySelectorAll('.host-name-text'))
+            .map(el => el.textContent.trim())
+            .find(url => url.includes(hostname));
+          return registerCitation(sourceLink || hostname);
+        }
         // KaTeX inline math: extract LaTeX from <annotation encoding="application/x-tex">
         if (node.classList?.contains('katex') || node.classList?.contains('katex-display')) {
           const annotation = node.querySelector('annotation[encoding="application/x-tex"]');
@@ -397,6 +443,7 @@
     if (host.includes('coral.cohere.com'))                                   return 'cohere';
     if (host.includes('pi.ai'))                                              return 'piai';
     if (host.includes('duck.ai'))                                            return 'duckai';
+    if (host.includes('chat.qwen.ai'))                                       return 'qwen';
     return 'generic';
   }
 
@@ -579,10 +626,61 @@
   }
 
   // Google Gemini (gemini.google.com)
-  function extractGemini() {
+  //
+  // Whether extractGemini() should spend the time resolving source-inline-chip
+  // hrefs (see resolveGeminiSourceChips() below) before converting each
+  // message to Markdown. Defaults on; can be disabled per-export via the
+  // { action: 'extract', resolveGeminiLinks: false } message (wired to a
+  // Settings toggle — resolveGeminiLinks — since hovering every chip on a
+  // long chat with many citations can noticeably slow an export down).
+  let _resolveGeminiLinks = true;
+
+  // Gemini renders inline citation "chips" (<source-inline-chip>) with no
+  // real href in the DOM — the actual URL only appears in a
+  // `.cdk-overlay-container` popover after the chip is hovered. This
+  // programmatically dispatches synthetic mouseenter/mouseover on each
+  // chip's inner button, polls briefly for the popover's resolved link to
+  // appear, stashes it in a data attribute on the chip (read back
+  // synchronously by convertNode()'s 'source-inline-chip' case above), then
+  // dispatches mouseleave/mouseout to close the popover again. Best-effort:
+  // a chip that never resolves (timeout) is left without the data attribute,
+  // and convertNode() degrades to a synthetic label for it.
+  async function resolveGeminiSourceChips(container) {
+    const chips = Array.from(container.querySelectorAll('source-inline-chip'));
+    for (const chip of chips) {
+      if (chip.hasAttribute('data-inkpour-resolved-url')) continue;
+      try {
+        const button = chip.querySelector('button') || chip;
+        button.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+        button.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+
+        let resolvedUrl = '';
+        for (let i = 0; i < 20; i++) {
+          await new Promise(resolve => setTimeout(resolve, 50));
+          const overlay = document.querySelector('.cdk-overlay-container');
+          const link = overlay ? overlay.querySelector('a[href]') : null;
+          if (link) { resolvedUrl = link.getAttribute('href'); break; }
+        }
+
+        button.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));
+        button.dispatchEvent(new MouseEvent('mouseout', { bubbles: true }));
+
+        if (resolvedUrl) chip.setAttribute('data-inkpour-resolved-url', resolvedUrl);
+      } catch (e) {
+        console.warn('[Inkpour] Error resolving Gemini source chip:', e);
+      }
+    }
+  }
+
+  async function extractGemini() {
     const userEls  = Array.from(document.querySelectorAll('user-query')).map(el => ({ el, role: 'You' }));
     const modelEls = Array.from(document.querySelectorAll('model-response')).map(el => ({ el, role: 'Gemini' }));
     if (!userEls.length && !modelEls.length) return null;
+
+    if (_resolveGeminiLinks) {
+      const container = document.querySelector('infinite-scroller.chat-history') || document;
+      await resolveGeminiSourceChips(container);
+    }
 
     return [...userEls, ...modelEls]
       .sort(sortByDOMOrder)
@@ -600,6 +698,42 @@
 
         return { role, content: htmlToMarkdown(contentEl) };
       })
+      .filter(m => m.content);
+  }
+
+  // Alibaba Qwen (chat.qwen.ai). Ported from a fork's basic + parity commits
+  // (see CHANGELOG); scope here is intentionally narrower than the fork's —
+  // just message extraction, Qwen's div-based paragraph rendering, and
+  // static (non-hover) citation-badge resolution. NOT ported: the fork's
+  // Monaco-editor code-block line reconstruction and "thinking" side-panel
+  // extraction — both deep, DOM-fragile, and unverified against the current
+  // live site; left as a follow-up if requested.
+  function extractQwen() {
+    const userEls = Array.from(document.querySelectorAll('.chat-user-message'))
+      .map(el => ({ el, role: 'You' }));
+    const assistantEls = Array.from(document.querySelectorAll('.qwen-chat-message-assistant'))
+      .map(el => ({ el, role: 'Qwen' }));
+
+    if (!userEls.length && !assistantEls.length) {
+      const container = document.getElementById('chat-message-container') ||
+                        document.querySelector('.chat-container');
+      if (!container) return null;
+
+      const messages = container.querySelectorAll('[class*="chat-message"]');
+      if (!messages.length) return null;
+
+      return Array.from(messages)
+        .map(el => {
+          const isUser = el.classList.contains('chat-user-message');
+          const role = isUser ? 'You' : 'Qwen';
+          return { role, content: htmlToMarkdown(el) };
+        })
+        .filter(m => m.content);
+    }
+
+    return [...userEls, ...assistantEls]
+      .sort(sortByDOMOrder)
+      .map(({ el, role }) => ({ role, content: htmlToMarkdown(el) }))
       .filter(m => m.content);
   }
 
@@ -1847,7 +1981,7 @@
       case 'chatgpt':     messages = extractChatGPT();          break;
       case 'claude':      messages = extractClaude();            break;
       case 'copilot':     messages = extractCopilot();           break;
-      case 'gemini':      messages = extractGemini();            break;
+      case 'gemini':      messages = await extractGemini();      break;
       case 'aistudio':    messages = await extractAIStudio();    break;
       case 'grok':        messages = extractGrok();              break;
       case 'groq':        messages = extractGroq();              break;
@@ -1866,6 +2000,7 @@
       case 'cohere':      messages = extractCohere();            break;
       case 'piai':        messages = extractPiAI();              break;
       case 'duckai':      messages = extractDuckAI();            break;
+      case 'qwen':        messages = extractQwen();              break;
       case 'googlesearch': messages = extractGoogleAISearch();   break;
       default:            break;
     }
@@ -2653,6 +2788,8 @@
     }
 
     if (msg.action !== 'extract') return;
+
+    _resolveGeminiLinks = msg.resolveGeminiLinks !== false;
 
     if (isStreaming()) {
       sendResponse({
