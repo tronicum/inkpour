@@ -513,6 +513,18 @@
     }
     .footer-link:hover { color: var(--accent); }
 
+    /* ── Update notice ── */
+    .update-notice {
+      display: block;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      margin-top: 8px;
+      text-decoration: none;
+    }
+    .update-notice:hover { text-decoration: underline; }
+
     /* ── Selective export rows ── */
     .msg-row {
       display: flex;
@@ -835,6 +847,14 @@
     <button class="footer-link" id="historyBtn" data-i18n="popupHistoryBtn">⏱ History</button>
     <button class="footer-link" id="settingsBtn2" data-i18n="popupSettingsBtn">⚙ Settings</button>
   </div>
+
+  <!-- Update notice: hidden unless a newer version than this install is
+       found on GitHub Releases (see checkForUpdate() in popup.js). Stays
+       visible (not a one-time dismiss like the "What's new" panel above)
+       until the user actually updates, since it's still actionable. -->
+  <a id="updateAvailable" class="update-notice" href="#" target="_blank" rel="noopener" hidden style="display:none;"></a>
+
+  <div id="versionFooter" style="text-align:center;font-size:10px;color:var(--subtext);margin-top:6px;opacity:0.7;"></div>
 
   <script src="src/i18n.js"></script>
   <script src="src/utils.js"></script>

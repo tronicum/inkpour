@@ -456,6 +456,22 @@
   "popupWhatsNewDismiss": {
     "message": "Dismiss"
   },
+  "popupVersionFooter": {
+    "message": "Inkpour v$VERSION$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupUpdateAvailable": {
+    "message": "Update available: v$VERSION$ →",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
   "popupIncrementalHintOne": {
     "message": "$COUNT$ new message since your last export ($WHEN$) — ",
     "placeholders": {

@@ -15,6 +15,10 @@ new section here in the same commit as the version bump.
 ## [Unreleased]
 
 ### Added
+- The popup and Settings pages now show the installed version, and the
+  popup checks GitHub Releases (throttled to roughly once a day) for a
+  newer published version, showing a persistent "Update available" link
+  when one exists.
 - "Copy Text" export in the format picker: copies the conversation as plain
   text with all Markdown syntax stripped — no `**bold**`, `#` headings, code
   fences, or `[link](url)` markup — for pasting into plain email, SMS, or any
