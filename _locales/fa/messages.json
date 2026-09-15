@@ -79,6 +79,9 @@
     "message": "کپی کردن HTML مستقل در کلیپ‌بورد (Alt+Shift+H)",
     "description": "Copy HTML button tooltip"
   },
+  "popupCopyTxtBtnTitle": {
+    "message": "کپی به‌صورت متن ساده — بدون نحو Markdown"
+  },
   "popupZipBtnTitle": {
     "message": "خروجی ZIP همراه با chat.md و فایل‌های کد استخراج‌شده (Alt+Shift+Z)",
     "description": "ZIP button tooltip"
@@ -115,6 +118,9 @@
   },
   "popupBtnCopyHtml": {
     "message": "کپی"
+  },
+  "popupBtnCopyTxt": {
+    "message": "کپی متن"
   },
   "popupBtnZip": {
     "message": "ZIP"
@@ -205,6 +211,9 @@
   },
   "popupStatusHtmlCopied": {
     "message": "✓ HTML کپی شد — آن را در هر ویرایشگری جای‌گذاری کنید"
+  },
+  "popupStatusTextCopied": {
+    "message": "✓ متن ساده در کلیپ‌بورد کپی شد"
   },
   "popupStatusZipSaved": {
     "message": "✓ ZIP ذخیره شد — chat.md",

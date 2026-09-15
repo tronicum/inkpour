@@ -79,6 +79,9 @@
     "message": "독립형 HTML을 클립보드에 복사 (Alt+Shift+H)",
     "description": "Copy HTML button tooltip"
   },
+  "popupCopyTxtBtnTitle": {
+    "message": "일반 텍스트로 복사 — Markdown 문법 제거"
+  },
   "popupZipBtnTitle": {
     "message": "chat.md + 추출된 코드 파일을 ZIP으로 내보내기 (Alt+Shift+Z)",
     "description": "ZIP button tooltip"
@@ -115,6 +118,9 @@
   },
   "popupBtnCopyHtml": {
     "message": "복사"
+  },
+  "popupBtnCopyTxt": {
+    "message": "텍스트 복사"
   },
   "popupBtnZip": {
     "message": "ZIP"
@@ -205,6 +211,9 @@
   },
   "popupStatusHtmlCopied": {
     "message": "✓ HTML이 복사되었습니다 — 아무 편집기에나 붙여넣으세요"
+  },
+  "popupStatusTextCopied": {
+    "message": "✓ 일반 텍스트가 클립보드에 복사되었습니다"
   },
   "popupStatusZipSaved": {
     "message": "✓ ZIP 저장됨 — chat.md",

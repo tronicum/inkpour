@@ -79,6 +79,9 @@
     "message": "Losstaande HTML naar klembord kopiëren (Alt+Shift+H)",
     "description": "Copy HTML button tooltip"
   },
+  "popupCopyTxtBtnTitle": {
+    "message": "Kopiëren als platte tekst — Markdown-syntaxis verwijderd"
+  },
   "popupZipBtnTitle": {
     "message": "ZIP exporteren met chat.md + geëxtraheerde codebestanden (Alt+Shift+Z)",
     "description": "ZIP button tooltip"
@@ -115,6 +118,9 @@
   },
   "popupBtnCopyHtml": {
     "message": "Kopiëren"
+  },
+  "popupBtnCopyTxt": {
+    "message": "Tekst kopiëren"
   },
   "popupBtnZip": {
     "message": "ZIP"
@@ -205,6 +211,9 @@
   },
   "popupStatusHtmlCopied": {
     "message": "✓ HTML gekopieerd — plak in een willekeurige editor"
+  },
+  "popupStatusTextCopied": {
+    "message": "✓ Platte tekst gekopieerd naar klembord"
   },
   "popupStatusZipSaved": {
     "message": "✓ ZIP opgeslagen — chat.md",

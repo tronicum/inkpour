@@ -16,6 +16,7 @@
   const htmlBtn     = document.getElementById('htmlBtn');
   const copyBtn     = document.getElementById('copyBtn');
   const copyHtmlBtn = document.getElementById('copyHtmlBtn');
+  const copyTxtBtn  = document.getElementById('copyTxtBtn');
   const jsonBtn     = document.getElementById('jsonBtn');
   const docxBtn     = document.getElementById('docxBtn');
   const zipBtn      = document.getElementById('zipBtn');
@@ -954,6 +955,29 @@
     }
   });
 
+  // ─── Copy as plain text ───────────────────────────────────────────────────
+  // Markdown syntax stripped entirely (buildPlainText in src/utils.js) — for
+  // pasting into places that don't render Markdown. Notes go through the same
+  // strip so the blockquote "> " markers don't leak into plain text.
+
+  copyTxtBtn.addEventListener('click', async () => {
+    clearStatus();
+    setLoading(copyTxtBtn, true);
+    try {
+      const data  = await extractFromPage();
+      const msgs  = getSelectedMessages(data.messages);
+      const notes = getExportNotes();
+      const txt   = stripMarkdownSyntax(notesBlockMD(notes)) + buildPlainText(msgs, data.title, data.site, userSettings, data.sourceUrl);
+      await navigator.clipboard.writeText(txt);
+      setStatus(t('popupStatusTextCopied'), 'success');
+      saveLastExport('copy-txt', data, txt);
+    } catch (err) {
+      setStatus(err.message, err.streaming ? 'warning' : 'error');
+    } finally {
+      setLoading(copyTxtBtn, false);
+    }
+  });
+
   // ─── JSON export ─────────────────────────────────────────────────────────
 
   jsonBtn.addEventListener('click', async () => {
@@ -1589,6 +1613,7 @@
     json:        jsonBtn,
     docx:        docxBtn,
     'copy-html': copyHtmlBtn,
+    'copy-txt':  copyTxtBtn,
     all:         allBtn,
     gist:        gistBtn,
     notion:      notionBtn,

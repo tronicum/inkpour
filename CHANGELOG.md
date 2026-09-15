@@ -15,6 +15,10 @@ new section here in the same commit as the version bump.
 ## [Unreleased]
 
 ### Added
+- "Copy Text" export in the format picker: copies the conversation as plain
+  text with all Markdown syntax stripped — no `**bold**`, `#` headings, code
+  fences, or `[link](url)` markup — for pasting into plain email, SMS, or any
+  field that doesn't render Markdown.
 - Mobile bookmarklet (`bookmarklet/`): a standalone `javascript:` bookmarklet
   for mobile Safari (iOS) and Android Chrome, which can't install the
   WebExtension at all. Works on ChatGPT and Claude only, and copies the

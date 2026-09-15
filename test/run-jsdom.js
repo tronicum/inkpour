@@ -1239,6 +1239,99 @@ async function main() {
     });
   });
 
+  // ── buildPlainText / stripMarkdownSyntax (from src/utils.js) ─────────────
+  // "Copy as plain text" export: same conversation shape as buildMarkdown,
+  // but the body must carry NO Markdown syntax — for pasting into plain
+  // email/SMS/basic text fields. Message content is Inkpour's own
+  // htmlToMarkdown() vocabulary, so that's the syntax exercised here.
+  await suite('buildPlainText', async () => {
+    const richMsgs = [
+      { role: 'You', content: 'Show me **bold**, *italic*, and `inline code` plus a [docs link](https://example.com/docs).' },
+      { role: 'Claude', content: '## Heading here\n\nSure thing:\n\n```js\nconst answer = 42;\n```\n\n* first bullet\n* second bullet\n\n1. numbered one\n2. numbered two\n\n> a quoted line\n\n---\n\nDone with ~~strikethrough~~ text.' },
+    ];
+
+    await test('strips every Markdown syntax marker but keeps the text content', () => {
+      const txt = buildPlainText(richMsgs, 'Rich Chat', 'claude');
+      // Content survives…
+      ['bold', 'italic', 'inline code', 'docs link', 'https://example.com/docs',
+       'Heading here', 'const answer = 42;', 'first bullet', 'numbered one',
+       'a quoted line', 'strikethrough'].forEach(s => {
+        assert(txt.includes(s), `expected text "${s}" to survive. Got: ${txt}`);
+      });
+      // …syntax does not.
+      assert(!txt.includes('**'), 'bold markers survived');
+      assert(!txt.includes('*'), 'asterisk emphasis/bullet markers survived');
+      assert(!txt.includes('`'), 'backticks survived');
+      assert(!txt.includes('#'), 'heading markers survived');
+      assert(!/\[[^\]]*\]\(/.test(txt), 'Markdown link syntax survived');
+      assert(!/^>/m.test(txt), 'blockquote markers survived');
+      assert(!txt.includes('~~'), 'strikethrough markers survived');
+      assert(!/^---+$/m.test(txt), 'horizontal-rule dashes survived');
+    });
+
+    await test('links render as "label (url)"', () => {
+      const txt = buildPlainText(richMsgs, 'Rich Chat', 'claude');
+      assert(txt.includes('docs link (https://example.com/docs)'), `link not rendered as label (url). Got: ${txt}`);
+    });
+
+    await test('code blocks lose their fences but keep the code, indented', () => {
+      const txt = buildPlainText(richMsgs, 'Rich Chat', 'claude');
+      assert(!txt.includes('```'), 'code fence survived');
+      assert(txt.includes('    const answer = 42;'), `code not kept indented. Got: ${txt}`);
+    });
+
+    await test('bullets become "• " while numbered items keep their numbers', () => {
+      const txt = buildPlainText(richMsgs, 'Rich Chat', 'claude');
+      assert(txt.includes('• first bullet'), `unordered bullet not converted. Got: ${txt}`);
+      assert(txt.includes('1. numbered one'), 'numbered list item lost its number');
+    });
+
+    await test('title, per-turn role labels, and source URL still appear', () => {
+      const txt = buildPlainText(richMsgs, 'Rich Chat', 'claude', {}, 'https://claude.ai/chat/xyz');
+      assert(txt.startsWith('Rich Chat\n'), `title missing from top. Got: ${txt.slice(0, 80)}`);
+      assert(txt.includes('Exported from claude'), 'platform preamble missing');
+      assert(txt.includes('Source: https://claude.ai/chat/xyz'), 'source URL missing');
+      assert(txt.includes('YOU\n'), 'user role label missing');
+      assert(txt.includes('CLAUDE\n'), 'assistant role label missing');
+      assert(txt.includes('Exported with Inkpour (https://github.com/tronicum/inkpour)'), 'attribution footer missing');
+    });
+
+    await test('opts front matter / TOC flags never leak YAML or TOC into plain text', () => {
+      const txt = buildPlainText(richMsgs, 'Rich Chat', 'claude', { yamlFrontMatter: true, generateTOC: true, obsidianTags: true });
+      assert(!txt.startsWith('---'), 'YAML front matter leaked into plain text');
+      assert(!txt.includes('Contents'), 'TOC leaked into plain text');
+    });
+
+    await test('handles empty message list without throwing', () => {
+      const txt = buildPlainText([], 'Empty Chat', 'chatgpt');
+      assert(txt.includes('Empty Chat'), 'title missing for empty chat');
+      assert(txt.includes('0 messages'), 'message count missing for empty chat');
+    });
+
+    await test('handles a single message without throwing', () => {
+      const txt = buildPlainText([{ role: 'You', content: 'Just one line' }], 'One', 'claude');
+      assert(txt.includes('Just one line'), 'single message content missing');
+      assert(txt.includes('YOU'), 'single message role label missing');
+    });
+
+    await test('handles null/undefined content and role gracefully', () => {
+      const txt = buildPlainText([{ role: null, content: null }], 'Nully', 'claude');
+      assert(typeof txt === 'string' && txt.includes('Nully'), 'null-content message broke the builder');
+    });
+
+    await test('stripMarkdownSyntax drops pipe-table separator rows and turns cells into spaced text', () => {
+      const txt = stripMarkdownSyntax('| Name | Age |\n| --- | --- |\n| Ada | 36 |');
+      assert(!txt.includes('|'), `pipes survived. Got: ${txt}`);
+      assert(!txt.includes('---'), 'table separator row survived');
+      assert(txt.includes('Ada') && txt.includes('36'), 'table cell content lost');
+    });
+
+    await test('stripMarkdownSyntax leaves code-block content untouched (no emphasis stripping inside code)', () => {
+      const txt = stripMarkdownSyntax('```py\nx = a * b  # **not bold**\n```');
+      assert(txt.includes('x = a * b  # **not bold**'), `code content was mangled. Got: ${txt}`);
+    });
+  });
+
   // ── markdownToNotionBlocks / batchNotionBlocks (Batch 5: Notion export) ───
   // Pure functions from src/utils.js converting buildMarkdown()'s own output
   // vocabulary into Notion block objects. Live-fetch-verified against
@@ -2663,7 +2756,7 @@ No bullets here at all, just prose under the heading.
   const POPUP_DOM  = new JSDOM(POPUP_HTML).window.document;
 
   // Formats reachable only through the picker + Export button.
-  const PICKER_MENU_IDS = ['mdBtn', 'pdfBtn', 'htmlBtn', 'jsonBtn', 'docxBtn', 'copyHtmlBtn', 'allBtn', 'gistBtn', 'notionBtn'];
+  const PICKER_MENU_IDS = ['mdBtn', 'pdfBtn', 'htmlBtn', 'jsonBtn', 'docxBtn', 'copyHtmlBtn', 'copyTxtBtn', 'allBtn', 'gistBtn', 'notionBtn'];
   // Formats that stayed real, always-visible, directly-clickable quick buttons.
   const QUICK_ACTION_IDS = ['copyBtn', 'zipBtn'];
 
@@ -2698,7 +2791,7 @@ No bullets here at all, just prose under the heading.
 
   await test('the menu contains one inert, data-format-only row per picker format (no shared ids with the real buttons)', () => {
     const menu = POPUP_DOM.getElementById('exportMenu');
-    const formats = ['md', 'pdf', 'html', 'json', 'docx', 'copy-html', 'all', 'gist', 'notion'];
+    const formats = ['md', 'pdf', 'html', 'json', 'docx', 'copy-html', 'copy-txt', 'all', 'gist', 'notion'];
     formats.forEach(format => {
       const row = menu.querySelector(`.export-menu-item[data-format="${format}"]`);
       assert(row, `no .export-menu-item[data-format="${format}"] in #exportMenu`);
@@ -2719,7 +2812,7 @@ No bullets here at all, just prose under the heading.
   });
 
   await test('popup.js maps every picker format to its hidden button element (FORMAT_TO_BTN)', () => {
-    const formats = ['md', 'pdf', 'html', 'json', 'docx', "'copy-html'", 'all', 'gist', 'notion'];
+    const formats = ['md', 'pdf', 'html', 'json', 'docx', "'copy-html'", "'copy-txt'", 'all', 'gist', 'notion'];
     formats.forEach(f => {
       assert(new RegExp(`${f}:\\s*\\w+Btn`).test(POPUP_JS), `FORMAT_TO_BTN appears to be missing an entry for ${f}`);
     });
