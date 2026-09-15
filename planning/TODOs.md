@@ -1282,20 +1282,33 @@ landing, not just started:
 - [ ] **XS** First real run needs to be watched live and treated as a dry run
   even though the CLIs don't offer one — can't fully verify secrets/permissions
   are right without actually attempting a submission.
-- [ ] **M — added 2026-07, not started** Microsoft Edge Add-ons auto-submit.
-  Edge accepts the same Manifest V3 package Chrome does — no separate build
-  needed, `scripts/release.sh`'s output should just work. Publishing is via
-  the [Microsoft Edge Add-ons submission API](https://learn.microsoft.com/en-us/microsoft-edge/extensions-chromium/publish/api/using-addons-api)
-  (REST, not a maintained CLI like `web-ext`/`chrome-webstore-upload-cli` —
-  likely a few `curl`/`gh-script` steps calling the API directly), needs a
-  Partner Center account + Azure AD app registration to get a `CLIENT_ID` /
-  `CLIENT_SECRET` / `ACCESS_TOKEN_URL`, plus the store's own `PRODUCT_ID`.
-  Same shape as `publish-firefox`/`publish-chrome`: a `needs: release` job,
-  gated behind a new `Edge` Environment, rebuild via `scripts/release.sh`,
-  upload the same zip. Worth doing once Chrome (above) is wired up, since the
-  two share the "any Chromium package works" assumption and Edge's install
-  base is meaningfully large in corporate/Windows environments. Not started —
-  keeping this as a TODO only, per Stefan.
+- [x] **M — implemented 2026-09-15, needs Stefan's Partner Center secrets +
+  a live run** Microsoft Edge Add-ons auto-submit. Added a `publish-edge`
+  job to `.github/workflows/release.yml`, `needs: release`, gated behind a
+  new `Edge` GitHub Environment (created). Edge accepts the same Manifest
+  V3 package Chrome does, so it rebuilds via `scripts/release.sh` like the
+  other two publish jobs — no separate build. Uses the
+  [Microsoft Edge Add-ons submission API](https://learn.microsoft.com/en-us/microsoft-edge/extensions-chromium/publish/api/using-addons-api)
+  directly via `curl` (no maintained CLI exists for this one, unlike
+  `web-ext`/`chrome-webstore-upload-cli`): upload the zip to
+  `/v1/products/$PRODUCT_ID/submissions/draft/package`, poll the returned
+  operation ID until `Succeeded`/`Failed`, then POST
+  `/v1/products/$PRODUCT_ID/submissions` to publish, and poll that
+  operation too. Uses the newer v1.1 (`ApiKey` + `X-ClientID` header) auth,
+  not the older v1 OAuth-token flow.
+  **Stefan still needs to, before the first tag+push relying on this**:
+  (1) sign in at the [Partner Center developer dashboard](https://partner.microsoft.com/dashboard/microsoftedge/public/login),
+  Microsoft Edge → Publish API → **Create API credentials** to get a
+  `Client ID` + `API key` (v1.1), (2) note the extension's **Product ID**
+  from its Extension Overview page, (3) **there is no create-product API
+  endpoint** — Edge requires the very first submission to happen manually
+  in Partner Center before this job can run at all; automation only takes
+  over from the second submission onward, (4) add `EDGE_PRODUCT_ID` /
+  `EDGE_CLIENT_ID` / `EDGE_API_KEY` as secrets scoped to the `Edge`
+  environment, (5) **the API key expires roughly every 72 days** — re-minting
+  means repeating step 1 and updating the `EDGE_API_KEY` secret, no code
+  change needed; worth a calendar reminder since a silent expiry means the
+  next release's Edge publish just starts failing.
 - GitHub issue drafted 2026-07 condensing the above into a tracked ticket
   (same no-GitHub-auth-in-this-sandbox situation as Batch 11's debug/ bug —
   handed Stefan a pre-filled `issues/new?title=...&body=...` link to sign
