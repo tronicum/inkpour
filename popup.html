@@ -666,6 +666,14 @@
       <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
       <span data-i18n="popupBtnCopyHtml">Copy</span>
     </button>
+    <!-- Copy as plain text: Markdown syntax stripped entirely — for pasting
+         into places that don't render Markdown (plain email, SMS, basic text
+         fields). Copy icon = clipboard, same icon language as copy-html. -->
+    <button class="export-menu-item" type="button" data-format="copy-txt" role="menuitemradio" aria-checked="false">
+      <span class="export-menu-check" aria-hidden="true">✓</span>
+      <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      <span data-i18n="popupBtnCopyTxt">Copy Text</span>
+    </button>
     <button class="export-menu-item" type="button" data-format="json" role="menuitemradio" aria-checked="false">
       <span class="export-menu-check" aria-hidden="true">✓</span>
       <svg class="export-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
@@ -709,6 +717,7 @@
     <button id="jsonBtn" data-i18n-title="popupJsonBtnTitle" title="Export to JSON (Alt+Shift+J)"><div class="spinner"></div><span data-i18n="popupBtnJson">JSON</span></button>
     <button id="docxBtn" data-i18n-title="popupDocxBtnTitle" title="Export to Word document (.docx)"><div class="spinner"></div><span data-i18n="popupBtnDocx">DOCX</span></button>
     <button id="copyHtmlBtn" data-i18n-title="popupCopyHtmlBtnTitle" title="Copy standalone HTML to clipboard (Alt+Shift+H)"><div class="spinner"></div><span data-i18n="popupBtnCopyHtml">Copy</span></button>
+    <button id="copyTxtBtn" data-i18n-title="popupCopyTxtBtnTitle" title="Copy as plain text — Markdown syntax stripped"><div class="spinner"></div><span data-i18n="popupBtnCopyTxt">Copy Text</span></button>
     <button id="allBtn" data-i18n-title="popupAllBtnTitle" title="Export MD + DOCX + ZIP simultaneously"><div class="spinner"></div><span data-i18n="popupBtnExportAll">Export All (MD + DOCX + ZIP)</span></button>
     <button id="gistBtn" data-i18n-title="popupGistBtnTitle" title="Upload Markdown to GitHub Gist" hidden><div class="spinner"></div><span data-i18n="popupBtnGist">Gist</span></button>
     <button id="notionBtn" data-i18n-title="popupNotionBtnTitle" title="Append Markdown to a Notion page" hidden><div class="spinner"></div><span data-i18n="popupBtnNotion">Notion</span></button>

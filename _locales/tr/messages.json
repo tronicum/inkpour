@@ -79,6 +79,9 @@
     "message": "Bağımsız HTML'i panoya kopyala (Alt+Shift+H)",
     "description": "Copy HTML button tooltip"
   },
+  "popupCopyTxtBtnTitle": {
+    "message": "Düz metin olarak kopyala — Markdown sözdizimi kaldırıldı"
+  },
   "popupZipBtnTitle": {
     "message": "chat.md + çıkarılan kod dosyalarıyla ZIP dışa aktar (Alt+Shift+Z)",
     "description": "ZIP button tooltip"
@@ -115,6 +118,9 @@
   },
   "popupBtnCopyHtml": {
     "message": "Kopyala"
+  },
+  "popupBtnCopyTxt": {
+    "message": "Metni kopyala"
   },
   "popupBtnZip": {
     "message": "ZIP"
@@ -205,6 +211,9 @@
   },
   "popupStatusHtmlCopied": {
     "message": "✓ HTML kopyalandı — herhangi bir düzenleyiciye yapıştırın"
+  },
+  "popupStatusTextCopied": {
+    "message": "✓ Düz metin panoya kopyalandı"
   },
   "popupStatusZipSaved": {
     "message": "✓ ZIP kaydedildi — chat.md",

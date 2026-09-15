@@ -79,6 +79,9 @@
     "message": "Скопировать автономный HTML в буфер обмена (Alt+Shift+H)",
     "description": "Copy HTML button tooltip"
   },
+  "popupCopyTxtBtnTitle": {
+    "message": "Копировать как обычный текст — синтаксис Markdown удалён"
+  },
   "popupZipBtnTitle": {
     "message": "Экспорт ZIP с chat.md + извлечёнными файлами кода (Alt+Shift+Z)",
     "description": "ZIP button tooltip"
@@ -115,6 +118,9 @@
   },
   "popupBtnCopyHtml": {
     "message": "Скопировать"
+  },
+  "popupBtnCopyTxt": {
+    "message": "Копировать текст"
   },
   "popupBtnZip": {
     "message": "ZIP"
@@ -205,6 +211,9 @@
   },
   "popupStatusHtmlCopied": {
     "message": "✓ HTML скопирован — вставьте в любой редактор"
+  },
+  "popupStatusTextCopied": {
+    "message": "✓ Обычный текст скопирован в буфер обмена"
   },
   "popupStatusZipSaved": {
     "message": "✓ ZIP сохранён — chat.md",

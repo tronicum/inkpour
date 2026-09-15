@@ -79,6 +79,9 @@
     "message": "نسخ ملف HTML مستقل إلى الحافظة (Alt+Shift+H)",
     "description": "Copy HTML button tooltip"
   },
+  "popupCopyTxtBtnTitle": {
+    "message": "نسخ كنص عادي — مع إزالة صيغة Markdown"
+  },
   "popupZipBtnTitle": {
     "message": "تصدير ZIP يتضمن chat.md وملفات الأكواد المستخرجة (Alt+Shift+Z)",
     "description": "ZIP button tooltip"
@@ -115,6 +118,9 @@
   },
   "popupBtnCopyHtml": {
     "message": "نسخ"
+  },
+  "popupBtnCopyTxt": {
+    "message": "نسخ النص"
   },
   "popupBtnZip": {
     "message": "ZIP"
@@ -205,6 +211,9 @@
   },
   "popupStatusHtmlCopied": {
     "message": "✓ تم نسخ HTML — الصقه في أي محرر"
+  },
+  "popupStatusTextCopied": {
+    "message": "✓ تم نسخ النص العادي إلى الحافظة"
   },
   "popupStatusZipSaved": {
     "message": "✓ تم حفظ ZIP — chat.md",

@@ -59,6 +59,9 @@
   "popupCopyHtmlBtnTitle": {
     "message": "Zkopírovat samostatné HTML do schránky (Alt+Shift+H)"
   },
+  "popupCopyTxtBtnTitle": {
+    "message": "Kopírovat jako prostý text — syntaxe Markdown odstraněna"
+  },
   "popupZipBtnTitle": {
     "message": "Exportovat ZIP s chat.md + extrahovanými soubory kódu (Alt+Shift+Z)"
   },
@@ -92,6 +95,9 @@
   },
   "popupBtnCopyHtml": {
     "message": "Kopírovat"
+  },
+  "popupBtnCopyTxt": {
+    "message": "Kopírovat text"
   },
   "popupBtnZip": {
     "message": "ZIP"
@@ -181,6 +187,9 @@
   },
   "popupStatusHtmlCopied": {
     "message": "✓ HTML zkopírováno — vložte do libovolného editoru"
+  },
+  "popupStatusTextCopied": {
+    "message": "✓ Prostý text zkopírován do schránky"
   },
   "popupStatusZipSaved": {
     "message": "✓ ZIP uložen — chat.md"
