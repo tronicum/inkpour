@@ -1,0 +1,82 @@
+name: Check forks for unmerged improvements
+
+# Weekly scan of every fork of this repo: for each fork whose default branch
+# has commits not present in our main, open or update a tracking issue
+# summarizing what's ahead — a human then decides whether anything is worth
+# cherry-picking. Never merges or modifies code automatically.
+
+on:
+  schedule:
+    - cron: '0 7 * * 1'  # Monday, one hour after ci.yml's weekly run
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check-forks:
+    name: Diff forks against main
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compare each fork's default branch to main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          forks=$(gh api "repos/${REPO}/forks" --paginate --jq '.[] | "\(.full_name)\t\(.default_branch)"')
+
+          if [ -z "$forks" ]; then
+            echo "No forks found — nothing to check."
+            exit 0
+          fi
+
+          while IFS=$'\t' read -r fork_full_name fork_default_branch; do
+            [ -z "$fork_full_name" ] && continue
+            echo "── Checking $fork_full_name ($fork_default_branch) ──"
+
+            fork_owner="${fork_full_name%%/*}"
+            remote_name="fork-$(echo "$fork_owner" | tr -c 'a-zA-Z0-9' '-')"
+
+            git remote add "$remote_name" "https://github.com/${fork_full_name}.git" 2>/dev/null || true
+            if ! git fetch "$remote_name" "$fork_default_branch" 2>/dev/null; then
+              echo "  Could not fetch $fork_full_name — skipping (deleted, renamed, or private branch)."
+              continue
+            fi
+
+            ahead_shas=$(git log origin/main.."${remote_name}/${fork_default_branch}" --format='%H' || true)
+            ahead_count=$(echo "$ahead_shas" | grep -c . || true)
+
+            if [ "$ahead_count" -eq 0 ]; then
+              echo "  Nothing ahead of main — skipping."
+              continue
+            fi
+
+            echo "  $ahead_count commit(s) ahead of main."
+
+            commit_list=$(git log origin/main.."${remote_name}/${fork_default_branch}" \
+              --format='- [`%h`](https://github.com/'"${fork_full_name}"'/commit/%H) %s (%an)')
+
+            issue_title="Fork watch: ${fork_full_name} has unmerged commits"
+            existing_issue=$(gh issue list --repo "$REPO" --label fork-watch --state open \
+              --search "in:title \"${fork_full_name}\"" --json number --jq '.[0].number' || true)
+
+            checked_date=$(date -u +'%Y-%m-%d')
+            body="Automated weekly check found **${ahead_count} commit(s)** in [\`${fork_full_name}\`](https://github.com/${fork_full_name}) not present in \`main\` (as of ${checked_date}):"
+            body="${body}"$'\n\n'"${commit_list}"
+            body="${body}"$'\n\n'"Review these and cherry-pick anything worth adopting, then close this issue. It will reopen automatically (a new one, if closed) next time this fork has new unmerged commits."
+
+            if [ -n "${existing_issue:-}" ] && [ "$existing_issue" != "null" ]; then
+              gh issue comment "$existing_issue" --repo "$REPO" --body "$body"
+              echo "  Updated existing issue #$existing_issue."
+            else
+              gh issue create --repo "$REPO" --title "$issue_title" --label fork-watch --body "$body"
+              echo "  Opened a new tracking issue."
+            fi
+          done <<< "$forks"
