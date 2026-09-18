@@ -1102,6 +1102,12 @@
   "popupBtnProbeAiMode": {
     "message": "AI 모드 진단"
   },
+  "popupDebugOptionsBtnTitle": {
+    "message": "Open Settings, scrolled to the debug options section"
+  },
+  "popupBtnDebugOptions": {
+    "message": "Debug options"
+  },
   "popupStatusProbeStarted": {
     "message": "테스트 프롬프트를 입력했습니다 — 페이지에서 전송 버튼을 누르세요. 답변이 도착하면 보고서가 자동으로 클립보드에 복사됩니다."
   },

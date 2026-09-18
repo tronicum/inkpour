@@ -1102,6 +1102,12 @@
   "popupBtnProbeAiMode": {
     "message": "AI Mode'u test et"
   },
+  "popupDebugOptionsBtnTitle": {
+    "message": "Open Settings, scrolled to the debug options section"
+  },
+  "popupBtnDebugOptions": {
+    "message": "Debug options"
+  },
   "popupStatusProbeStarted": {
     "message": "Test istemi dolduruldu — sayfada gönder'e basın. Yanıt geldiğinde rapor otomatik olarak panoya kopyalanır."
   },

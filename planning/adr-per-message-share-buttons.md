@@ -611,6 +611,84 @@ discrete-controls id list (`:292`).
 **`AGENTS.md` / `CHANGELOG.md`** — one line each; the `src/content.js` bullet
 should mention per-message decoration alongside the floating button.
 
+## Addendum (2026-09-18) — maintainer PoC feedback, follow-up PR
+
+The maintainer tested the PoC from PR #31 live and gave two pieces of
+feedback, implemented in a follow-up PR (`feat/per-message-copy-buttons-v2`,
+builds on PR #31 rather than replacing it):
+
+### A. Button placement moved to the bottom, near each platform's native
+   action row
+
+The original placement (§1 above) put the button at a fixed top corner on
+every platform. Feedback: it read as disconnected from where each platform's
+own message actions (thumbs up/down, copy, regenerate) actually sit — which
+on all three platforms is the **bottom** of the assistant/model turn, not the
+top.
+
+This is a pure CSS repositioning change — the standalone-overlay decision in
+§1 is unchanged, and the button is still **not** inserted into any platform's
+own action row (that alternative is still rejected for the reasons in §1/
+Alternative 1).
+
+`placementKeyFor()` now returns six keys instead of four — `chatgpt-user` /
+`chatgpt-assistant`, `claude-user` / `claude-assistant`, `gemini-user` /
+`gemini-assistant` — since only assistant/model turns have a native row to
+anchor near:
+
+| Platform | Assistant/model placement | Reasoning | User placement (unchanged in spirit) |
+|---|---|---|---|
+| ChatGPT | `bottom: 4px; right: 4px` | The copy/regenerate/thumbs row renders under the assistant's prose, inside the same `article[data-testid^="conversation-turn-"]` wrapper `MESSAGE_ANCHORS.chatgpt` already anchors on — that wrapper exists specifically because it spans the full turn including the trailing action row. | `top: 4px; right: 4px` — no persistent action row on user turns (only a hover-only inline edit icon). |
+| Claude | `bottom: 0; right: 0` | The assistant's copy/retry/thumbs row renders directly below `.font-claude-response`, the exact element `MESSAGE_ANCHORS.claude` anchors assistant turns on. | `top: 2px; right: -30px` — unchanged; user turns are a free-floating bubble with no action row, kept outside the bubble so the button never covers prompt text. |
+| Gemini | `bottom: 6px; right: 6px` | `<message-actions>` (thumbs/copy/share) is documented in the existing `extractGemini()` comment to sit at the bottom of each `<model-response>` — this is exactly why the original top-right placement was already collision-free; moving to bottom-right just puts the two controls next to each other instead of at opposite corners. | `top: 6px; right: 6px` — unchanged; `<user-query>` has no action row. |
+
+No live-browser access was available for this change either — same caveat as
+the original PoC (see Status above and the Verification checklist below,
+which still applies).
+
+### B. Google AI Mode (4th platform) — investigated, not added
+
+Task: check whether Google AI Mode (`detectSite() === 'googlesearch'`, i.e.
+`google.com/search?udm=50`) has a stable-enough DOM anchor for a per-message
+button, following the same `MESSAGE_ANCHORS` pattern as the other three
+platforms.
+
+**Conclusion: no — deliberately not added.** `extractGoogleAiModeTurnsByGeometry()`
+(`src/content.js`, "Google AI Mode: geometry-based turn extraction" section)
+exists precisely because this platform has no stable per-message container to
+anchor on at all:
+
+- The **user** turn does have one plausible anchor — the accessible heading
+  `[role="heading"][aria-level="2"]` each turn renders as (chosen there
+  specifically for being an a11y attribute Google has real reason to keep,
+  unlike a styling class hash).
+- The **assistant answer**, however, has **no single DOM element** that
+  contains it. The extractor collects it by scanning `body *`, filtering by
+  on-screen Y-band position (`getBoundingClientRect` between the heading's
+  bottom and the next turn's top), explicitly rejecting X-position (sidebar)
+  and any element that spills past the band — and then clones the surviving
+  fragments into a synthetic `wrapper` div that exists only for that one
+  extraction call. There is no persistent "this is turn N's answer" element
+  in the live page to attach `data-inkpour-msg` / a shadow host to.
+
+Anchoring a button only on the user-turn heading (skipping the assistant
+side) was considered and rejected: it would be a materially different,
+lesser feature than what exists on the other three platforms (where both
+user and assistant turns get a button — see §9, Alternative 7), for the one
+platform whose extraction is already flagged EXPERIMENTAL and whose selectors
+have already gone stale once (2026-07, per the comment above
+`extractGoogleAiModeTurnsByGeometry()`). Forcing a partial, asymmetric
+implementation to check a box was judged worse than skipping it and revisiting
+if Google AI Mode's markup ever stabilizes around a real per-turn container
+(unlikely to happen without Google shipping one — this isn't something Inkpour
+can create by picking a different selector).
+
+No `MESSAGE_ANCHORS.googlesearch` / `MESSAGE_TO_MD.googlesearch` /
+`googleAiModeMessageToMarkdown()` were added, and no new tests were added for
+this platform's per-message buttons. The existing full-conversation export
+for Google AI Mode (`extractGoogleAiModeTurnsByGeometry()`) is completely
+unaffected.
+
 ## Verification checklist (to move Status to Accepted)
 
 - [ ] Confirm live on chatgpt.com that

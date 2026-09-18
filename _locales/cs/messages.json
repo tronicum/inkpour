@@ -1077,6 +1077,12 @@
   "popupBtnProbeAiMode": {
     "message": "Otestovat AI Mode"
   },
+  "popupDebugOptionsBtnTitle": {
+    "message": "Open Settings, scrolled to the debug options section"
+  },
+  "popupBtnDebugOptions": {
+    "message": "Debug options"
+  },
   "popupStatusProbeStarted": {
     "message": "Testovací dotaz byl vyplněn — na stránce stiskněte Odeslat. Jakmile dorazí odpověď, report se automaticky zkopíruje do schránky."
   },

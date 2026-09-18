@@ -2498,10 +2498,45 @@
         opacity: 1;
         pointer-events: auto;
       }
-      [data-inkpour-placement="chatgpt"]          { top: 4px; right: 4px; }
-      [data-inkpour-placement="claude-user"]      { top: 2px; right: -30px; }
-      [data-inkpour-placement="claude-assistant"] { top: 0;   right: 0; }
-      [data-inkpour-placement="gemini"]           { top: 6px; right: 6px; }
+
+      /* Maintainer feedback (post-PoC review of PR #31): the button read as
+         floating in a corner disconnected from each platform's own message
+         actions. It's now anchored near where that platform's native
+         thumbs-up/down / copy / regenerate row actually renders, instead of
+         a fixed top corner — still a fully standalone overlay (§1 of the
+         ADR: we do NOT insert into the native row itself, only sit near it).
+         User turns on all three platforms have no persistent native action
+         row (ChatGPT/Claude only show a hover-only inline edit icon; Gemini
+         shows none on <user-query>), so those stay top-corner, which is the
+         least likely spot to cover the first line of a short prompt. */
+
+      /* ChatGPT: the copy/regenerate/thumbs row renders directly under the
+         assistant's prose, at the bottom of the turn article
+         (article[data-testid^="conversation-turn-"], MESSAGE_ANCHORS.chatgpt) —
+         confirmed by the extractor's own anchor choice, which exists
+         precisely because the turn wrapper spans the full turn including
+         that trailing action row. Bottom-right sits beside it. */
+      [data-inkpour-placement="chatgpt-user"]      { top: 4px;    right: 4px; }
+      [data-inkpour-placement="chatgpt-assistant"] { bottom: 4px; right: 4px; }
+
+      /* Claude: the assistant's copy/retry/thumbs row renders immediately
+         below .font-claude-response (the same element MESSAGE_ANCHORS.claude
+         anchors on for assistant turns), so bottom-right places the button
+         right next to it without touching Claude's own DOM. User turns stay
+         a free-floating bubble with no action row — keep the existing
+         outside-the-bubble negative offset so the button never sits on top
+         of prompt text. */
+      [data-inkpour-placement="claude-user"]      { top: 2px;    right: -30px; }
+      [data-inkpour-placement="claude-assistant"] { bottom: 0;   right: 0; }
+
+      /* Gemini: <message-actions> (thumbs/copy/share) is documented (see the
+         comment above extractGemini()/MESSAGE_ANCHORS.gemini) to sit at the
+         BOTTOM of each <model-response> — that's exactly why the original PoC
+         placement was safe from collision. Move to bottom-right so the two
+         controls read as a pair instead of ending up at opposite corners.
+         <user-query> has no action row, so keep it top-right. */
+      [data-inkpour-placement="gemini-user"]      { top: 6px;    right: 6px; }
+      [data-inkpour-placement="gemini-assistant"] { bottom: 6px; right: 6px; }
     `;
     (document.head || document.documentElement).appendChild(style);
   }
@@ -2539,10 +2574,25 @@
     }
   }
 
-  /** 'chatgpt' | 'claude-user' | 'claude-assistant' | 'gemini' — drives the placement CSS in ensureMsgStyleTag(). */
+  /**
+   * 'chatgpt-user' | 'chatgpt-assistant' | 'claude-user' | 'claude-assistant' |
+   * 'gemini-user' | 'gemini-assistant' — drives the placement CSS in
+   * ensureMsgStyleTag(). Each platform is split into a user/assistant variant
+   * because, per maintainer feedback, assistant turns are now anchored near
+   * that platform's own native action row (which only assistant turns have on
+   * all three platforms), while user turns keep a plain corner placement.
+   */
   function placementKeyFor(platform, el) {
     if (platform === 'claude') {
       return (el.matches && el.matches('[data-testid="user-message"]')) ? 'claude-user' : 'claude-assistant';
+    }
+    if (platform === 'chatgpt') {
+      const role = (el.getAttribute && el.getAttribute('data-message-author-role')) || '';
+      return role === 'user' ? 'chatgpt-user' : 'chatgpt-assistant';
+    }
+    if (platform === 'gemini') {
+      const tag = (el.tagName || '').toLowerCase();
+      return tag === 'user-query' ? 'gemini-user' : 'gemini-assistant';
     }
     return platform;
   }

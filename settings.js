@@ -10,6 +10,25 @@
   const versionFooterEl = document.getElementById('versionFooter');
   if (versionFooterEl) versionFooterEl.textContent = t('popupVersionFooter', [api.runtime.getManifest().version]);
 
+  // ─── Deep-link into a specific <details class="settings-section">, e.g.
+  // settings.html#debug-section from the popup's "Debug options" footer
+  // link. The Advanced section (#debug-section) currently starts `open`
+  // like every other section, so `.open = true` here is a no-op today — but
+  // it's still done explicitly (rather than relying on that always being
+  // true) so this keeps working unchanged if that section is ever collapsed
+  // by default. scrollIntoView() is what actually matters given the section
+  // already starts open.
+  function openAndScrollToFragment() {
+    const id = (location.hash || '').replace(/^#/, '');
+    if (!id) return;
+    const target = document.getElementById(id);
+    if (!target) return;
+    if (target.tagName === 'DETAILS') target.open = true;
+    target.scrollIntoView({ block: 'start' });
+  }
+  openAndScrollToFragment();
+  window.addEventListener('hashchange', openAndScrollToFragment);
+
   // ─── Browser detection ────────────────────────────────────────────────────
 
   const BROWSER_META = {

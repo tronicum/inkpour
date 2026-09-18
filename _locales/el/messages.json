@@ -1102,6 +1102,12 @@
   "popupBtnProbeAiMode": {
     "message": "Δοκιμή λειτουργίας AI"
   },
+  "popupDebugOptionsBtnTitle": {
+    "message": "Open Settings, scrolled to the debug options section"
+  },
+  "popupBtnDebugOptions": {
+    "message": "Debug options"
+  },
   "popupStatusProbeStarted": {
     "message": "Η δοκιμαστική προτροπή συμπληρώθηκε — πατήστε αποστολή στη σελίδα. Μόλις έρθει η απάντηση, η αναφορά αντιγράφεται αυτόματα στο πρόχειρο."
   },

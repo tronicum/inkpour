@@ -23,6 +23,23 @@ new section here in the same commit as the version bump.
   Proof-of-concept — see `planning/adr-per-message-share-buttons.md` for the
   design and what still needs live-browser verification before this is
   considered fully confirmed.
+- Popup: a new "Debug options" footer link (shown only when Debug mode is on,
+  alongside the other debug tools) opens Settings scrolled directly to the
+  debug section, instead of the top of the page.
+
+### Changed
+- The per-message "Copy as Markdown" button now sits near where each
+  platform's own native message actions (thumbs up/down, copy, regenerate)
+  actually render — bottom-right of the message on assistant/model turns for
+  ChatGPT, Claude, and Gemini — instead of a fixed top corner. User turns
+  (which have no persistent native action row on any of the three platforms)
+  keep a plain corner placement. This is a CSS positioning change only; the
+  button remains a fully standalone overlay, not inserted into any platform's
+  own toolbar (see `planning/adr-per-message-share-buttons.md`'s addendum).
+- Popup: the debug-mode tools ("Copy debug info", "Report bug", "Probe AI
+  Mode") moved from their own button group into small text links in the same
+  footer row as History/Settings, matching that row's style. Same Debug-mode
+  visibility gating as before.
 
 ## [0.4.32.1] - 2026-09-15
 

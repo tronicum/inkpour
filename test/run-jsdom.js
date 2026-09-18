@@ -3119,6 +3119,48 @@ No bullets here at all, just prose under the heading.
     assert(!menu.contains(debugGroup), '#debug-group should not have been folded into the export menu');
   });
 
+  // ─── Debug footer-links reorg (maintainer feedback on PR #31) ─────────────
+  // The debug-mode buttons ("Copy debug info", "Report bug", "Probe AI Mode")
+  // used to be a standalone button group; they're now small text links living
+  // in the same row/style as #historyBtn/#settingsBtn2, plus a new
+  // "Debug options" link that deep-links into Settings' debug section.
+  await test('#debug-group lives inside .footer-links, alongside #historyBtn/#settingsBtn2', () => {
+    const footerLinks = POPUP_DOM.querySelector('.footer-links');
+    const debugGroup  = POPUP_DOM.getElementById('debug-group');
+    assert(footerLinks, '.footer-links missing from popup.html');
+    assert(debugGroup, '#debug-group missing');
+    assert(footerLinks.contains(debugGroup), 'expected #debug-group to be inside .footer-links');
+  });
+
+  await test('the debug buttons are now .footer-link-styled links, not the old button/copy-btn group', () => {
+    ['debugDomBtn', 'reportBugBtn', 'probeAiModeBtn'].forEach(id => {
+      const el = POPUP_DOM.getElementById(id);
+      assert(el, `#${id} missing from popup.html`);
+      assert(el.classList.contains('footer-link'), `expected #${id} to have the footer-link class`);
+      assert(!el.classList.contains('btn') && !el.classList.contains('copy-btn'),
+        `expected #${id} to no longer carry the old btn/copy-btn classes`);
+    });
+  });
+
+  await test('a "Debug options" link exists inside #debug-group, styled like the other footer links', () => {
+    const btn = POPUP_DOM.getElementById('debugOptionsBtn');
+    const debugGroup = POPUP_DOM.getElementById('debug-group');
+    assert(btn, '#debugOptionsBtn missing from popup.html');
+    assert(debugGroup.contains(btn), '#debugOptionsBtn should be inside #debug-group (only shown when Debug mode is on)');
+    assert(btn.classList.contains('footer-link'), 'expected #debugOptionsBtn to have the footer-link class');
+  });
+
+  await test('popup.js opens settings.html#debug-section for the "Debug options" link, not openOptionsPage()', () => {
+    assert(/debugOptionsBtn\?\.addEventListener\('click',[\s\S]{0,200}getURL\('settings\.html#debug-section'\)/.test(POPUP_JS),
+      'expected the debugOptionsBtn click handler to open settings.html#debug-section via api.tabs.create/getURL()');
+  });
+
+  await test('the debug footer-group visibility gating (debugMode setting) still applies to the reorganized links', () => {
+    assert(/debugGroupEl\.hidden = false/.test(POPUP_JS), 'expected the debugMode-gated show logic to remain');
+    assert(/debugGroupEl\.style\.display = 'contents'/.test(POPUP_JS),
+      'expected #debug-group to be shown with display:contents so its links lay out inside .footer-links');
+  });
+
   await test('popup.js maps every picker format to its hidden button element (FORMAT_TO_BTN)', () => {
     const formats = ['md', 'pdf', 'html', 'json', 'docx', "'copy-html'", "'copy-txt'", 'all', 'gist', 'notion'];
     formats.forEach(f => {
@@ -3256,6 +3298,26 @@ No bullets here at all, just prose under the heading.
       assert(summary, 'each settings section needs a <summary>');
       assert(summary.textContent.trim(), 'each <summary> needs visible text');
     });
+  });
+
+  // ─── Debug-section deep-link (popup's "Debug options" footer link) ────────
+  // settings.html#debug-section, opened from the popup, must actually land
+  // on/scroll to the section containing the debugMode toggle.
+  await test('settings.html has a #debug-section <details> that contains the debugMode toggle', () => {
+    const section = SETTINGS_DOM.getElementById('debug-section');
+    assert(section, '#debug-section missing from settings.html');
+    assert(section.tagName === 'DETAILS', '#debug-section should be a <details class="settings-section">');
+    const debugModeInput = SETTINGS_DOM.getElementById('debugMode');
+    assert(debugModeInput, '#debugMode missing from settings.html');
+    assert(section.contains(debugModeInput), 'expected #debug-section to contain the #debugMode toggle');
+  });
+
+  await test('settings.js opens/scrolls to the fragment-targeted section on load and on hashchange', () => {
+    const SETTINGS_JS = fs.readFileSync(path.resolve(__dirname, '../settings.js'), 'utf8');
+    assert(/location\.hash/.test(SETTINGS_JS), 'expected settings.js to read location.hash');
+    assert(/\.open\s*=\s*true/.test(SETTINGS_JS), 'expected settings.js to open a collapsed <details> for the fragment target');
+    assert(/scrollIntoView/.test(SETTINGS_JS), 'expected settings.js to scroll the fragment target into view');
+    assert(/addEventListener\('hashchange'/.test(SETTINGS_JS), 'expected settings.js to also handle a hashchange (in case the page is already open)');
   });
 
   // ─── Google AI Mode probe button (popup wiring) ────────────────────────────
@@ -3507,13 +3569,17 @@ No bullets here at all, just prose under the heading.
 
   await test('every runtime.getURL()-referenced file actually exists in the repo', () => {
     RUNTIME_REFERENCED_FILES.forEach(({ file, ref }) => {
-      const p = path.resolve(__dirname, `../${ref}`);
+      // Strip a URL fragment (e.g. 'settings.html#debug-section', used for the
+      // popup's debug-options deep-link) before resolving to a filesystem path —
+      // the fragment addresses a DOM node inside the page, not a separate file.
+      const filePart = ref.split('#')[0];
+      const p = path.resolve(__dirname, `../${filePart}`);
       assert(fs.existsSync(p), `${ref} (referenced from ${file} via getURL()) does not exist`);
     });
   });
 
   await test("every runtime.getURL()-referenced file survives release.sh's --exclude filters", () => {
-    const broken = RUNTIME_REFERENCED_FILES.filter(({ ref }) => isExcludedByReleaseZip(ref));
+    const broken = RUNTIME_REFERENCED_FILES.filter(({ ref }) => isExcludedByReleaseZip(ref.split('#')[0]));
     assert(broken.length === 0,
       'release.sh excludes file(s) referenced at runtime, breaking them in every installed build: ' +
       broken.map(b => `${b.ref} (referenced from ${b.file})`).join(', '));
@@ -4217,6 +4283,51 @@ No bullets here at all, just prose under the heading.
         window.__inkpourDecorateMessages();
         const hostsAfterSecond = window.document.querySelectorAll('[data-inkpour-msg-host]').length;
         assert(hostsAfterSecond === messageCount, `expected still ${messageCount} hosts after second decorate (no duplicates), got ${hostsAfterSecond}`);
+      });
+    }
+
+    // ── Placement (maintainer feedback on PR #31): assistant/model turns are
+    // now anchored near each platform's own native action row, which on all
+    // three platforms sits at the BOTTOM of the message, not a fixed top
+    // corner. User turns (no native action row on any of the three) keep a
+    // plain corner placement. ──
+    await test('placement CSS anchors assistant/model turns to the bottom, near each platform\'s native action row', async () => {
+      const { window } = await loadContentScriptEnv('gemini.html', 'gemini.google.com');
+      window.__inkpourDecorateMessages();
+      const styleText = window.document.getElementById('inkpour-msg-style').textContent;
+
+      assert(/\[data-inkpour-placement="chatgpt-assistant"\]\s*\{[^}]*bottom:/.test(styleText), 'expected chatgpt-assistant placement to be bottom-anchored');
+      assert(/\[data-inkpour-placement="claude-assistant"\]\s*\{[^}]*bottom:/.test(styleText), 'expected claude-assistant placement to be bottom-anchored');
+      assert(/\[data-inkpour-placement="gemini-assistant"\]\s*\{[^}]*bottom:/.test(styleText), 'expected gemini-assistant placement to be bottom-anchored');
+
+      // User turns keep a top-corner placement (no native action row to anchor near).
+      assert(/\[data-inkpour-placement="chatgpt-user"\]\s*\{[^}]*top:/.test(styleText), 'expected chatgpt-user placement to stay top-anchored');
+      assert(/\[data-inkpour-placement="claude-user"\]\s*\{[^}]*top:/.test(styleText), 'expected claude-user placement to stay top-anchored');
+      assert(/\[data-inkpour-placement="gemini-user"\]\s*\{[^}]*top:/.test(styleText), 'expected gemini-user placement to stay top-anchored');
+    });
+
+    await test('placementKeyFor() assigns distinct user/assistant placement keys per platform', async () => {
+      const { window } = await loadContentScriptEnv('gemini.html', 'gemini.google.com');
+      window.__inkpourDecorateMessages();
+
+      const hosts = Array.from(window.document.querySelectorAll('[data-inkpour-msg-host]'));
+      const placements = new Set(hosts.map(h => h.getAttribute('data-inkpour-placement')));
+      assert(placements.has('gemini-user') || placements.has('gemini-assistant'), `expected gemini-user/gemini-assistant placement keys, got: ${JSON.stringify([...placements])}`);
+      // None of the raw, unsplit platform keys should appear any more.
+      assert(!placements.has('gemini'), 'expected the bare "gemini" placement key to no longer be used');
+    });
+
+    for (const { platform, fixture, hostname } of PLATFORM_FIXTURES) {
+      await test(`${platform}: every decorated host gets a "${platform}-user" or "${platform}-assistant" placement key, never the bare platform name`, async () => {
+        const { window } = await loadContentScriptEnv(fixture, hostname);
+        window.__inkpourDecorateMessages();
+
+        const hosts = Array.from(window.document.querySelectorAll('[data-inkpour-msg-host]'));
+        assert(hosts.length > 0, `expected at least one decorated host for ${fixture}`);
+        hosts.forEach(h => {
+          const key = h.getAttribute('data-inkpour-placement');
+          assert(key === `${platform}-user` || key === `${platform}-assistant`, `unexpected placement key "${key}" for platform ${platform}`);
+        });
       });
     }
 

@@ -1102,6 +1102,12 @@
   "popupBtnProbeAiMode": {
     "message": "Перевірити AI Mode"
   },
+  "popupDebugOptionsBtnTitle": {
+    "message": "Open Settings, scrolled to the debug options section"
+  },
+  "popupBtnDebugOptions": {
+    "message": "Debug options"
+  },
   "popupStatusProbeStarted": {
     "message": "Тестовий запит заповнено — натисніть «Надіслати» на сторінці. Щойно прийде відповідь, звіт автоматично скопіюється в буфер обміну."
   },

@@ -1102,6 +1102,12 @@
   "popupBtnProbeAiMode": {
     "message": "AI मोड जांचें"
   },
+  "popupDebugOptionsBtnTitle": {
+    "message": "Open Settings, scrolled to the debug options section"
+  },
+  "popupBtnDebugOptions": {
+    "message": "Debug options"
+  },
   "popupStatusProbeStarted": {
     "message": "टेस्ट प्रॉम्प्ट भर दिया गया है — पेज पर सेंड दबाएं। जवाब आते ही रिपोर्ट अपने आप क्लिपबोर्ड पर कॉपी हो जाएगी।"
   },

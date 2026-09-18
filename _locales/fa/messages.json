@@ -1102,6 +1102,12 @@
   "popupBtnProbeAiMode": {
     "message": "آزمایش حالت هوش مصنوعی"
   },
+  "popupDebugOptionsBtnTitle": {
+    "message": "Open Settings, scrolled to the debug options section"
+  },
+  "popupBtnDebugOptions": {
+    "message": "Debug options"
+  },
   "popupStatusProbeStarted": {
     "message": "درخواست آزمایشی پر شد — روی صفحه دکمه ارسال را بزنید. به‌محض رسیدن پاسخ، گزارش به‌طور خودکار در کلیپ‌بورد کپی می‌شود."
   },

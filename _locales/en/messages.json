@@ -660,6 +660,12 @@
   "popupBtnProbeAiMode": {
     "message": "Probe AI Mode"
   },
+  "popupDebugOptionsBtnTitle": {
+    "message": "Open Settings, scrolled to the debug options section"
+  },
+  "popupBtnDebugOptions": {
+    "message": "Debug options"
+  },
   "popupStatusProbeStarted": {
     "message": "Test prompt filled in — press send on the page. Once the reply arrives, the report copies to your clipboard automatically."
   },

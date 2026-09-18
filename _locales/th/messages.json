@@ -1102,6 +1102,12 @@
   "popupBtnProbeAiMode": {
     "message": "ทดสอบ AI Mode"
   },
+  "popupDebugOptionsBtnTitle": {
+    "message": "Open Settings, scrolled to the debug options section"
+  },
+  "popupBtnDebugOptions": {
+    "message": "Debug options"
+  },
   "popupStatusProbeStarted": {
     "message": "กรอกพรอมป์ททดสอบแล้ว — กดส่งบนหน้าเพจ เมื่อคำตอบมาถึง รายงานจะถูกคัดลอกไปยังคลิปบอร์ดโดยอัตโนมัติ"
   },

@@ -1102,6 +1102,12 @@
   "popupBtnProbeAiMode": {
     "message": "AI モードを診断"
   },
+  "popupDebugOptionsBtnTitle": {
+    "message": "Open Settings, scrolled to the debug options section"
+  },
+  "popupBtnDebugOptions": {
+    "message": "Debug options"
+  },
   "popupStatusProbeStarted": {
     "message": "テスト用プロンプトを入力しました。ページ上で送信ボタンを押してください。返信が届くと、レポートが自動的にクリップボードにコピーされます。"
   },

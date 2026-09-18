@@ -1102,6 +1102,12 @@
   "popupBtnProbeAiMode": {
     "message": "Testa AI-läge"
   },
+  "popupDebugOptionsBtnTitle": {
+    "message": "Open Settings, scrolled to the debug options section"
+  },
+  "popupBtnDebugOptions": {
+    "message": "Debug options"
+  },
   "popupStatusProbeStarted": {
     "message": "Testprompt ifylld — tryck på skicka på sidan. Så snart svaret kommer kopieras rapporten automatiskt till urklipp."
   },

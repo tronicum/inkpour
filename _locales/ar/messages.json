@@ -1102,6 +1102,12 @@
   "popupBtnProbeAiMode": {
     "message": "فحص Google AI Mode"
   },
+  "popupDebugOptionsBtnTitle": {
+    "message": "Open Settings, scrolled to the debug options section"
+  },
+  "popupBtnDebugOptions": {
+    "message": "Debug options"
+  },
   "popupStatusProbeStarted": {
     "message": "تم ملء الرسالة الاختبارية — اضغط زر الإرسال في الصفحة. بمجرد وصول الرد، يُنسخ التقرير تلقائيًا إلى الحافظة."
   },

@@ -1077,6 +1077,12 @@
   "popupBtnProbeAiMode": {
     "message": "AI Mode ਜਾਂਚੋ"
   },
+  "popupDebugOptionsBtnTitle": {
+    "message": "Open Settings, scrolled to the debug options section"
+  },
+  "popupBtnDebugOptions": {
+    "message": "Debug options"
+  },
   "popupStatusProbeStarted": {
     "message": "ਟੈਸਟ ਪ੍ਰੌਂਪਟ ਭਰ ਦਿੱਤਾ ਗਿਆ ਹੈ — ਪੇਜ 'ਤੇ ਭੇਜੋ ਦਬਾਓ। ਜਵਾਬ ਆਉਂਦੇ ਹੀ ਰਿਪੋਰਟ ਆਪਣੇ-ਆਪ ਕਲਿੱਪਬੋਰਡ ਵਿੱਚ ਕਾਪੀ ਹੋ ਜਾਵੇਗੀ।"
   },

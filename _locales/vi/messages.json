@@ -1102,6 +1102,12 @@
   "popupBtnProbeAiMode": {
     "message": "Kiểm tra AI Mode"
   },
+  "popupDebugOptionsBtnTitle": {
+    "message": "Open Settings, scrolled to the debug options section"
+  },
+  "popupBtnDebugOptions": {
+    "message": "Debug options"
+  },
   "popupStatusProbeStarted": {
     "message": "Đã điền câu lệnh thử nghiệm — hãy nhấn gửi trên trang. Ngay khi có phản hồi, báo cáo sẽ tự động được sao chép vào khay nhớ tạm."
   },

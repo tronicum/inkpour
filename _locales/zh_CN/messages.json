@@ -1102,6 +1102,12 @@
   "popupBtnProbeAiMode": {
     "message": "诊断 AI 模式"
   },
+  "popupDebugOptionsBtnTitle": {
+    "message": "Open Settings, scrolled to the debug options section"
+  },
+  "popupBtnDebugOptions": {
+    "message": "Debug options"
+  },
   "popupStatusProbeStarted": {
     "message": "测试提示词已填入——请在页面上点击发送。收到回复后，报告会自动复制到剪贴板。"
   },

@@ -1102,6 +1102,12 @@
   "popupBtnProbeAiMode": {
     "message": "AI-modus testen"
   },
+  "popupDebugOptionsBtnTitle": {
+    "message": "Open Settings, scrolled to the debug options section"
+  },
+  "popupBtnDebugOptions": {
+    "message": "Debug options"
+  },
   "popupStatusProbeStarted": {
     "message": "Testprompt ingevuld — druk op de pagina op verzenden. Zodra het antwoord binnenkomt, wordt het rapport automatisch naar het klembord gekopieerd."
   },

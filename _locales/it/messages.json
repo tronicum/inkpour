@@ -1102,6 +1102,12 @@
   "popupBtnProbeAiMode": {
     "message": "Prova AI Mode"
   },
+  "popupDebugOptionsBtnTitle": {
+    "message": "Open Settings, scrolled to the debug options section"
+  },
+  "popupBtnDebugOptions": {
+    "message": "Debug options"
+  },
   "popupStatusProbeStarted": {
     "message": "Prompt di prova inserito: premi invio nella pagina. Non appena arriva la risposta, il report viene copiato automaticamente negli appunti."
   },

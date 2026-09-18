@@ -1102,6 +1102,12 @@
   "popupBtnProbeAiMode": {
     "message": "Uji AI Mode"
   },
+  "popupDebugOptionsBtnTitle": {
+    "message": "Open Settings, scrolled to the debug options section"
+  },
+  "popupBtnDebugOptions": {
+    "message": "Debug options"
+  },
   "popupStatusProbeStarted": {
     "message": "Prompt uji telah diisi — tekan kirim di halaman. Setelah balasan tiba, laporan otomatis disalin ke clipboard."
   },

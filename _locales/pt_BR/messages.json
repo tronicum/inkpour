@@ -1102,6 +1102,12 @@
   "popupBtnProbeAiMode": {
     "message": "Testar Modo IA"
   },
+  "popupDebugOptionsBtnTitle": {
+    "message": "Open Settings, scrolled to the debug options section"
+  },
+  "popupBtnDebugOptions": {
+    "message": "Debug options"
+  },
   "popupStatusProbeStarted": {
     "message": "Prompt de teste preenchido — pressione enviar na página. Assim que a resposta chegar, o relatório é copiado automaticamente para a área de transferência."
   },
