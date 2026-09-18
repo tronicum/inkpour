@@ -89,6 +89,7 @@
     notionPageId:         '',
     scrubSecrets:          true,
     scrubLocalExports:     false,
+    perMessageCopyButtons: false,
     webhookUrl:           '',
     webhookIncludeContent: false,
     writeToVault:          false,
@@ -118,6 +119,7 @@
     document.getElementById('notionPageId').value             = prefs.notionPageId || '';
     document.getElementById('scrubSecrets').checked           = prefs.scrubSecrets;
     document.getElementById('scrubLocalExports').checked      = prefs.scrubLocalExports;
+    document.getElementById('perMessageCopyButtons').checked  = prefs.perMessageCopyButtons;
     document.getElementById('webhookUrl').value              = prefs.webhookUrl;
     document.getElementById('webhookIncludeContent').checked = prefs.webhookIncludeContent;
     document.getElementById('writeToVault').checked           = prefs.writeToVault;
@@ -262,6 +264,7 @@
       notionPageId:          document.getElementById('notionPageId').value.trim(),
       scrubSecrets:          document.getElementById('scrubSecrets').checked,
       scrubLocalExports:     document.getElementById('scrubLocalExports').checked,
+      perMessageCopyButtons: document.getElementById('perMessageCopyButtons').checked,
       webhookUrl:            document.getElementById('webhookUrl').value.trim(),
       webhookIncludeContent: document.getElementById('webhookIncludeContent').checked,
       writeToVault:          document.getElementById('writeToVault').checked,
@@ -291,7 +294,7 @@
   // Discrete controls (checkboxes/selects): save immediately, no debounce.
   [
     'defaultFormat', 'pdfAutoPrint', 'yamlFrontMatter', 'generateTOC',
-    'obsidianTags', 'resolveGeminiLinks', 'gistPublic', 'scrubSecrets', 'scrubLocalExports', 'webhookIncludeContent',
+    'obsidianTags', 'resolveGeminiLinks', 'gistPublic', 'scrubSecrets', 'scrubLocalExports', 'perMessageCopyButtons', 'webhookIncludeContent',
     'writeToVault', 'debugMode', 'debugAttachGist',
   ].forEach((id) => {
     document.getElementById(id)?.addEventListener('change', save);

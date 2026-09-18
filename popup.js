@@ -110,6 +110,7 @@
     notionPageId:          '',
     scrubSecrets:          true,
     scrubLocalExports:     false,
+    perMessageCopyButtons: false,
     webhookUrl:            '',
     webhookIncludeContent: false,
     writeToVault:          false,

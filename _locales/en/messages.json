@@ -537,12 +537,24 @@
       }
     }
   },
-  "settingsPageTitle": { "message": "Inkpour — Settings" },
-  "settingsFormatOptionMd": { "message": "Markdown (.md)" },
-  "settingsFormatOptionPdf": { "message": "PDF" },
-  "settingsFormatOptionHtml": { "message": "HTML" },
-  "settingsFormatOptionJson": { "message": "JSON" },
-  "settingsFormatOptionZip": { "message": "ZIP (chat + code files)" },
+  "settingsPageTitle": {
+    "message": "Inkpour — Settings"
+  },
+  "settingsFormatOptionMd": {
+    "message": "Markdown (.md)"
+  },
+  "settingsFormatOptionPdf": {
+    "message": "PDF"
+  },
+  "settingsFormatOptionHtml": {
+    "message": "HTML"
+  },
+  "settingsFormatOptionJson": {
+    "message": "JSON"
+  },
+  "settingsFormatOptionZip": {
+    "message": "ZIP (chat + code files)"
+  },
   "settingsHeaderTitle": {
     "message": "Inkpour Settings"
   },
@@ -585,28 +597,72 @@
   "settingsBrowserUnknownNote": {
     "message": "May work — report issues if something breaks"
   },
-  "settingsSectionLanguage": { "message": "Language" },
-  "settingsLanguageLabel": { "message": "Display language" },
-  "settingsLanguageDesc": { "message": "Overrides your browser's language for Inkpour's own screens only" },
-  "settingsLanguageAuto": { "message": "Follow browser language (auto)" },
-  "settingsGithubTokenFineprint": { "message": "⚠ Stored as plain text in this browser's local extension storage — treat it like a password. Scope it to gist only, never broader repo/account access, to limit exposure if it ever leaks." },
-  "settingsSectionAdvanced": { "message": "Advanced" },
-  "settingsDebugModeLabel": { "message": "Debug mode" },
-  "settingsDebugModeDesc": { "message": "Adds \"Copy debug info\" and \"Report bug\" buttons to the popup — never includes chat content, only page structure (tag/class names, no text), selector diagnostics, and a generalized URL." },
-  "settingsDebugAttachGistLabel": { "message": "Attach full debug info as a secret Gist (for developers)" },
-  "settingsDebugAttachGistDesc": { "message": "Requires the GitHub token above. \"Report bug\" also uploads the same content-free diagnostic as a secret Gist and links it in the pre-filled report, so it's complete without manually pasting anything." },
-  "settingsDevToolsLabel": { "message": "Local debug/fuzzing tools" },
-  "settingsDevToolsDesc": { "message": "Standalone pages for testing the import parser — not shipped in the packaged extension, only present when loaded unpacked for development." },
-  "settingsDevToolsImportDebug": { "message": "Import parser debug tool →" },
-  "settingsDevToolsPdfFuzzer": { "message": "PDF import fuzzer →" },
-  "popupDebugDomBtnTitle": { "message": "Copy debug info (no chat content included)" },
-  "popupBtnDebugDom": { "message": "Copy debug info" },
-  "popupStatusDomCopied": { "message": "✓ Debug info copied to clipboard" },
-  "popupReportBugBtnTitle": { "message": "Report a bug on GitHub (no chat content included)" },
-  "popupBtnReportBug": { "message": "Report bug" },
-  "popupProbeAiModeBtnTitle": { "message": "Fill a test prompt into Google AI Mode to diagnose why extraction isn't finding messages (Google AI Mode only)" },
-  "popupBtnProbeAiMode": { "message": "Probe AI Mode" },
-  "popupStatusProbeStarted": { "message": "Test prompt filled in — press send on the page. Once the reply arrives, the report copies to your clipboard automatically." },
+  "settingsSectionLanguage": {
+    "message": "Language"
+  },
+  "settingsLanguageLabel": {
+    "message": "Display language"
+  },
+  "settingsLanguageDesc": {
+    "message": "Overrides your browser's language for Inkpour's own screens only"
+  },
+  "settingsLanguageAuto": {
+    "message": "Follow browser language (auto)"
+  },
+  "settingsGithubTokenFineprint": {
+    "message": "⚠ Stored as plain text in this browser's local extension storage — treat it like a password. Scope it to gist only, never broader repo/account access, to limit exposure if it ever leaks."
+  },
+  "settingsSectionAdvanced": {
+    "message": "Advanced"
+  },
+  "settingsDebugModeLabel": {
+    "message": "Debug mode"
+  },
+  "settingsDebugModeDesc": {
+    "message": "Adds \"Copy debug info\" and \"Report bug\" buttons to the popup — never includes chat content, only page structure (tag/class names, no text), selector diagnostics, and a generalized URL."
+  },
+  "settingsDebugAttachGistLabel": {
+    "message": "Attach full debug info as a secret Gist (for developers)"
+  },
+  "settingsDebugAttachGistDesc": {
+    "message": "Requires the GitHub token above. \"Report bug\" also uploads the same content-free diagnostic as a secret Gist and links it in the pre-filled report, so it's complete without manually pasting anything."
+  },
+  "settingsDevToolsLabel": {
+    "message": "Local debug/fuzzing tools"
+  },
+  "settingsDevToolsDesc": {
+    "message": "Standalone pages for testing the import parser — not shipped in the packaged extension, only present when loaded unpacked for development."
+  },
+  "settingsDevToolsImportDebug": {
+    "message": "Import parser debug tool →"
+  },
+  "settingsDevToolsPdfFuzzer": {
+    "message": "PDF import fuzzer →"
+  },
+  "popupDebugDomBtnTitle": {
+    "message": "Copy debug info (no chat content included)"
+  },
+  "popupBtnDebugDom": {
+    "message": "Copy debug info"
+  },
+  "popupStatusDomCopied": {
+    "message": "✓ Debug info copied to clipboard"
+  },
+  "popupReportBugBtnTitle": {
+    "message": "Report a bug on GitHub (no chat content included)"
+  },
+  "popupBtnReportBug": {
+    "message": "Report bug"
+  },
+  "popupProbeAiModeBtnTitle": {
+    "message": "Fill a test prompt into Google AI Mode to diagnose why extraction isn't finding messages (Google AI Mode only)"
+  },
+  "popupBtnProbeAiMode": {
+    "message": "Probe AI Mode"
+  },
+  "popupStatusProbeStarted": {
+    "message": "Test prompt filled in — press send on the page. Once the reply arrives, the report copies to your clipboard automatically."
+  },
   "settingsSectionExport": {
     "message": "Export"
   },
@@ -764,6 +820,12 @@
   },
   "settingsScrubLocalDesc": {
     "message": "Apply the same redaction to exports that stay on this computer — Markdown, PDF, HTML, JSON, DOCX, and ZIP files, plus both clipboard copies. Off by default, because local exports never leave your machine. Turn it on when you plan to pass a file along — sending it to a coworker, or saving into a shared or synced folder such as a shared Obsidian vault — so API keys, tokens, and email addresses you pasted into the chat don't travel with it."
+  },
+  "settingsPerMessageCopyLabel": {
+    "message": "Copy button on each message"
+  },
+  "settingsPerMessageCopyDesc": {
+    "message": "Show a small button on every message in ChatGPT, Claude, and Gemini that copies just that one message as Markdown. Off by default. Only affects the three fully-supported platforms."
   },
   "settingsWebhookUrlLabel": {
     "message": "Webhook URL"
@@ -953,20 +1015,53 @@
   "contentFabTitle": {
     "message": "Inkpour — Export this chat"
   },
-  "contentMenuExportMd": { "message": "Export MD" },
-  "contentMenuCopyMd": { "message": "Copy MD" },
-  "contentMenuExportHtml": { "message": "Export HTML" },
-  "contentMenuExportDocx": { "message": "Export DOCX" },
-  "contentMenuExportPdf": { "message": "Export PDF" },
-  "contentMenuExportZip": { "message": "Export ZIP" },
-  "contentStatusSaved": { "message": "✓ Saved!" },
-  "contentStatusCopied": { "message": "✓ Copied!" },
-  "contentStatusExporting": { "message": "Exporting…" },
-  "contentStatusExportStarted": {
-    "message": "✓ $1 export started", "placeholders": { "1": { "content": "$1" } }
+  "contentMenuExportMd": {
+    "message": "Export MD"
   },
-  "contentStatusExportFailed": { "message": "Export failed" },
-  "contentNoMessagesFound": { "message": "No messages found" },
+  "contentMenuCopyMd": {
+    "message": "Copy MD"
+  },
+  "contentMenuExportHtml": {
+    "message": "Export HTML"
+  },
+  "contentMenuExportDocx": {
+    "message": "Export DOCX"
+  },
+  "contentMenuExportPdf": {
+    "message": "Export PDF"
+  },
+  "contentMenuExportZip": {
+    "message": "Export ZIP"
+  },
+  "contentStatusSaved": {
+    "message": "✓ Saved!"
+  },
+  "contentStatusCopied": {
+    "message": "✓ Copied!"
+  },
+  "contentStatusExporting": {
+    "message": "Exporting…"
+  },
+  "contentStatusExportStarted": {
+    "message": "✓ $1 export started",
+    "placeholders": {
+      "1": {
+        "content": "$1"
+      }
+    }
+  },
+  "contentStatusExportFailed": {
+    "message": "Export failed"
+  },
+  "contentNoMessagesFound": {
+    "message": "No messages found"
+  },
+  "contentMsgCopyTitle": {
+    "message": "Copy this message as Markdown"
+  },
+  "contentMsgCopied": {
+    "message": "Message copied as Markdown"
+  },
   "contentToastRedactedOne": {
     "message": "Redacted $1 item ($2) before upload.",
     "placeholders": {

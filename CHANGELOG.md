@@ -14,6 +14,16 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+### Added
+- New opt-in setting "Copy button on each message" (off by default): shows a
+  small button on every message in ChatGPT, Claude, and Gemini — the three
+  fully-supported platforms — that copies just that one message as Markdown
+  to the clipboard, without opening the popup or exporting the whole
+  conversation. Honors the existing "Scrub secrets in local exports" setting.
+  Proof-of-concept — see `planning/adr-per-message-share-buttons.md` for the
+  design and what still needs live-browser verification before this is
+  considered fully confirmed.
+
 ## [0.4.32.1] - 2026-09-15
 
 ### Fixed

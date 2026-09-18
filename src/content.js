@@ -20,6 +20,44 @@
 
   const api = (typeof browser !== 'undefined') ? browser : chrome;
 
+  // ─── Per-message "Copy as Markdown" buttons — settings bootstrap ──────────
+  // See planning/adr-per-message-share-buttons.md §7. This is the content
+  // script's first-ever direct chrome.storage read: every other setting
+  // arrives as a field on the { action: 'extract' } message from the popup,
+  // but per-message buttons must exist at page load, before any popup
+  // interaction, so the setting has to be read here instead. storage.local
+  // is the single source of truth (never storage.sync — that's a convenience
+  // mirror for the settings/popup UI only, see src/settingsSync.js).
+  let _perMessageCopy = false;
+  let _scrubLocalExports = false;
+
+  try {
+    if (api && api.storage && api.storage.local && typeof api.storage.local.get === 'function') {
+      api.storage.local.get('inkpour_settings', (res) => {
+        const s = res && res.inkpour_settings;
+        _perMessageCopy = !!(s && s.perMessageCopyButtons);
+        _scrubLocalExports = !!(s && s.scrubLocalExports);
+        if (_perMessageCopy) startMessageDecoration();
+      });
+    }
+    if (api && api.storage && api.storage.onChanged && typeof api.storage.onChanged.addListener === 'function') {
+      api.storage.onChanged.addListener((changes, area) => {
+        if (area !== 'local' || !changes.inkpour_settings) return;
+        const newVal = changes.inkpour_settings.newValue || {};
+        _scrubLocalExports = !!newVal.scrubLocalExports;
+        const next = !!newVal.perMessageCopyButtons;
+        if (next === _perMessageCopy) return;
+        _perMessageCopy = next;
+        if (next) startMessageDecoration(); else teardownMessageDecoration();
+      });
+    }
+  } catch (err) {
+    // Environments with no chrome.storage (unit tests, unusual embeds) simply
+    // never get per-message buttons — never break the rest of the content
+    // script over this.
+    console.warn('[Inkpour] Could not wire up per-message copy setting:', err);
+  }
+
   // ─── HTML → Markdown ──────────────────────────────────────────────────────
 
   /**
@@ -508,34 +546,115 @@
     return (pos & Node.DOCUMENT_POSITION_FOLLOWING) ? -1 : 1;
   }
 
+  // ─── Per-message anchors (shared by extraction AND the per-message "Copy as
+  // Markdown" buttons — see planning/adr-per-message-share-buttons.md §1/§9).
+  // `sel` is the same selector the extractor below already uses to find each
+  // message; `anchor(el)` maps a message element to the DOM node the button
+  // overlay attaches to (usually the message element itself — for ChatGPT,
+  // the enclosing <article> turn wrapper, with a same-element fallback if
+  // that wrapper isn't present).
+  const MESSAGE_ANCHORS = {
+    chatgpt: {
+      sel: '[data-message-author-role]',
+      anchor: el => el.closest('article[data-testid^="conversation-turn-"]') ?? el,
+    },
+    claude: {
+      sel: '[data-testid="user-message"], .font-claude-message:not(#markdown-artifact), ' +
+           '.font-claude-response:not(#markdown-artifact), [data-testid="assistant-message"]',
+      anchor: el => el,
+    },
+    gemini: {
+      sel: 'user-query, model-response',
+      anchor: el => el,
+    },
+  };
+
   // ChatGPT / OpenAI
+
+  /**
+   * Converts one ChatGPT turn element (a [data-message-author-role] node) to
+   * its Markdown body. Extracted out of extractChatGPT()'s per-message logic
+   * so both the full extractor and the per-message "Copy as Markdown" button
+   * (copyOneMessageMarkdown()) share exactly one implementation.
+   */
+  function chatgptMessageToMarkdown(turn) {
+    const contentEl = (turn.querySelector('.markdown, [class*="prose"], .text-message') ?? turn).cloneNode(true);
+
+    // ChatGPT Canvas: canvas documents appear as embedded components.
+    // Extract the code/text from them before stripping.
+    const canvasSuffix = [];
+    contentEl.querySelectorAll('[class*="canvas"], [data-testid*="canvas"]').forEach(cvEl => {
+      const codeEl = cvEl.querySelector('code, pre, textarea, [class*="content-editable"]');
+      if (codeEl) {
+        const code = codeEl.textContent.trim();
+        if (code) canvasSuffix.push(`\`\`\`\n${code}\n\`\`\``);
+      }
+      cvEl.remove();
+    });
+
+    let content = htmlToMarkdown(contentEl);
+    if (canvasSuffix.length) content = (content ? content + '\n\n' : '') + canvasSuffix.join('\n\n');
+    return content;
+  }
+
   function extractChatGPT() {
     const turns = document.querySelectorAll('[data-message-author-role]');
     if (!turns.length) return null;
     return Array.from(turns).map(turn => {
-      const role     = turn.getAttribute('data-message-author-role');
-      const label    = role === 'user' ? 'You' : 'ChatGPT';
-      const contentEl = (turn.querySelector('.markdown, [class*="prose"], .text-message') ?? turn).cloneNode(true);
-
-      // ChatGPT Canvas: canvas documents appear as embedded components.
-      // Extract the code/text from them before stripping.
-      const canvasSuffix = [];
-      contentEl.querySelectorAll('[class*="canvas"], [data-testid*="canvas"]').forEach(cvEl => {
-        const codeEl = cvEl.querySelector('code, pre, textarea, [class*="content-editable"]');
-        if (codeEl) {
-          const code = codeEl.textContent.trim();
-          if (code) canvasSuffix.push(`\`\`\`\n${code}\n\`\`\``);
-        }
-        cvEl.remove();
-      });
-
-      let content = htmlToMarkdown(contentEl);
-      if (canvasSuffix.length) content = (content ? content + '\n\n' : '') + canvasSuffix.join('\n\n');
-      return { role: label, content };
+      const role  = turn.getAttribute('data-message-author-role');
+      const label = role === 'user' ? 'You' : 'ChatGPT';
+      return { role: label, content: chatgptMessageToMarkdown(turn) };
     }).filter(m => m.content);
   }
 
   // Claude.ai
+
+  /**
+   * Converts one Claude message element (a user or assistant turn, matched by
+   * MESSAGE_ANCHORS.claude.sel) to its Markdown body. Extracted out of
+   * extractClaude()'s per-message logic so both the full extractor and the
+   * per-message "Copy as Markdown" button (copyOneMessageMarkdown()) share
+   * exactly one implementation.
+   */
+  function claudeMessageToMarkdown(el) {
+    const clone = el.cloneNode(true);
+
+    // Extract artifact code before removing the artifact block.
+    // Claude renders artifacts as isolated code editors — the code source is
+    // inside a <code> element or a [class*="ace_text"] / .cm-content block.
+    // We inject it as a fenced code block so the export is complete.
+    const artifactSuffix = [];
+    clone.querySelectorAll('.artifact-block-cell, [class*="artifact-block"]').forEach(artEl => {
+      // Try to grab the artifact's code content
+      const codeEl = artEl.querySelector('code, pre, .cm-content, [class*="ace_text-layer"]');
+      if (codeEl) {
+        // Detect language from sibling header or code class
+        let lang = '';
+        const header = artEl.querySelector('[class*="lang"], [data-artifacttype]');
+        if (header) {
+          const t = (header.textContent || header.getAttribute('data-artifacttype') || '').trim().toLowerCase();
+          if (/^[a-z][a-z0-9+#.-]{0,20}$/.test(t)) lang = t;
+        }
+        if (!lang) {
+          const cls = codeEl.className || '';
+          const m = cls.match(/language-(\w+)/);
+          if (m) lang = m[1];
+        }
+        const code = codeEl.textContent.trim();
+        if (code) artifactSuffix.push(`\`\`\`${lang}\n${code}\n\`\`\``);
+      }
+      artEl.remove();
+    });
+    // Also strip remaining artifact-related UI elements (buttons, badges)
+    clone.querySelectorAll('[class*="artifact"]').forEach(n => n.remove());
+
+    let content = htmlToMarkdown(clone);
+    if (artifactSuffix.length) {
+      content = (content ? content + '\n\n' : '') + artifactSuffix.join('\n\n');
+    }
+    return content;
+  }
+
   function extractClaude() {
     // Use updated selector that covers both old and new Claude DOM
     const userEls = Array.from(document.querySelectorAll('[data-testid="user-message"]'))
@@ -549,44 +668,7 @@
 
     const combined = [...userEls, ...assistantEls].sort(sortByDOMOrder);
     if (!combined.length) return null;
-    return combined.map(({ el, role }) => {
-      const clone = el.cloneNode(true);
-
-      // Extract artifact code before removing the artifact block.
-      // Claude renders artifacts as isolated code editors — the code source is
-      // inside a <code> element or a [class*="ace_text"] / .cm-content block.
-      // We inject it as a fenced code block so the export is complete.
-      const artifactSuffix = [];
-      clone.querySelectorAll('.artifact-block-cell, [class*="artifact-block"]').forEach(artEl => {
-        // Try to grab the artifact's code content
-        const codeEl = artEl.querySelector('code, pre, .cm-content, [class*="ace_text-layer"]');
-        if (codeEl) {
-          // Detect language from sibling header or code class
-          let lang = '';
-          const header = artEl.querySelector('[class*="lang"], [data-artifacttype]');
-          if (header) {
-            const t = (header.textContent || header.getAttribute('data-artifacttype') || '').trim().toLowerCase();
-            if (/^[a-z][a-z0-9+#.-]{0,20}$/.test(t)) lang = t;
-          }
-          if (!lang) {
-            const cls = codeEl.className || '';
-            const m = cls.match(/language-(\w+)/);
-            if (m) lang = m[1];
-          }
-          const code = codeEl.textContent.trim();
-          if (code) artifactSuffix.push(`\`\`\`${lang}\n${code}\n\`\`\``);
-        }
-        artEl.remove();
-      });
-      // Also strip remaining artifact-related UI elements (buttons, badges)
-      clone.querySelectorAll('[class*="artifact"]').forEach(n => n.remove());
-
-      let content = htmlToMarkdown(clone);
-      if (artifactSuffix.length) {
-        content = (content ? content + '\n\n' : '') + artifactSuffix.join('\n\n');
-      }
-      return { role, content };
-    }).filter(m => m.content);
+    return combined.map(({ el, role }) => ({ role, content: claudeMessageToMarkdown(el) })).filter(m => m.content);
   }
 
   // Microsoft Copilot (copilot.microsoft.com + www.copilot.com)
@@ -672,6 +754,28 @@
     }
   }
 
+  /**
+   * Converts one Gemini message element (a <user-query> or <model-response>
+   * custom element, matched by MESSAGE_ANCHORS.gemini.sel) to its Markdown
+   * body. Extracted out of extractGemini()'s per-message logic so both the
+   * full extractor and the per-message "Copy as Markdown" button
+   * (copyOneMessageMarkdown()) share exactly one implementation.
+   */
+  function geminiMessageToMarkdown(el) {
+    const tag = el.tagName.toLowerCase();
+    let contentEl;
+
+    if (tag === 'user-query') {
+      // Use the inner query-content div — this skips "You said" UI label
+      contentEl = el.querySelector('div.query-content') ?? el;
+    } else {
+      // Use the inner message-content element — skips "Gemini said" UI label
+      contentEl = el.querySelector('message-content') ?? el;
+    }
+
+    return htmlToMarkdown(contentEl);
+  }
+
   async function extractGemini() {
     const userEls  = Array.from(document.querySelectorAll('user-query')).map(el => ({ el, role: 'You' }));
     const modelEls = Array.from(document.querySelectorAll('model-response')).map(el => ({ el, role: 'Gemini' }));
@@ -684,21 +788,46 @@
 
     return [...userEls, ...modelEls]
       .sort(sortByDOMOrder)
-      .map(({ el, role }) => {
-        const tag = el.tagName.toLowerCase();
-        let contentEl;
-
-        if (tag === 'user-query') {
-          // Use the inner query-content div — this skips "You said" UI label
-          contentEl = el.querySelector('div.query-content') ?? el;
-        } else {
-          // Use the inner message-content element — skips "Gemini said" UI label
-          contentEl = el.querySelector('message-content') ?? el;
-        }
-
-        return { role, content: htmlToMarkdown(contentEl) };
-      })
+      .map(({ el, role }) => ({ role, content: geminiMessageToMarkdown(el) }))
       .filter(m => m.content);
+  }
+
+  // ─── Per-message "Copy as Markdown" — single source of truth for the three
+  // supported platforms, keyed the same way detectSite() names them.
+  const MESSAGE_TO_MD = {
+    chatgpt: chatgptMessageToMarkdown,
+    claude:  claudeMessageToMarkdown,
+    gemini:  geminiMessageToMarkdown,
+  };
+
+  /**
+   * Converts a single message element to Markdown for the per-message "Copy
+   * as Markdown" button — see planning/adr-per-message-share-buttons.md §4.
+   *
+   * `_footnoteOffset` is a module-level running total normally reset only at
+   * the start of a full extractMessages() pass (see the comment above that
+   * variable's declaration). A per-message copy calling htmlToMarkdown()
+   * outside such a pass would otherwise silently inherit whatever offset the
+   * last full export left behind — starting its footnotes from wherever that
+   * export ended instead of [^1] — and then advance the counter further.
+   * Saving/zeroing/restoring it here isolates every per-message copy so it
+   * always numbers its own citations from [^1], with zero effect on any
+   * extraction pass before or after it.
+   */
+  function copyOneMessageMarkdown(el, platform) {
+    const toMd = MESSAGE_TO_MD[platform];
+    if (!toMd) return '';
+    const saved = _footnoteOffset;
+    _footnoteOffset = 0;
+    try {
+      let md = toMd(el);
+      if (_scrubLocalExports && typeof redactSecrets === 'function') {
+        md = redactSecrets(md).cleaned;
+      }
+      return md;
+    } finally {
+      _footnoteOffset = saved;
+    }
   }
 
   // Alibaba Qwen (chat.qwen.ai). Ported from a fork's basic + parity commits
@@ -2301,6 +2430,310 @@
     zipBtn.addEventListener('click', () => runBgExport('zip'));
   }
 
+  // ─── Per-message "Copy as Markdown" buttons ────────────────────────────────
+  // See planning/adr-per-message-share-buttons.md. Off by default
+  // (perMessageCopyButtons setting, bootstrapped near the top of this file);
+  // when on, ChatGPT/Claude/Gemini messages each get a small overlay button
+  // that copies just that one message as Markdown. Everything below is
+  // additive — the floating FAB above, the popup, and buildMarkdown() are
+  // untouched.
+
+  const MAX_DECORATED = 400; // circuit breaker for pathologically long chats (§8)
+
+  let _msgObserver         = null;
+  let _decorated           = new WeakSet(); // anchors we've attached a host to
+  let _decoratedCount      = 0;
+  let _maxDecoratedWarned  = false;
+  let _rafPending          = false;
+  let _msgIdCounter        = 0;
+  let _msgSharedSheet      = null; // undefined-until-computed CSSStyleSheet, or `false` if unsupported
+
+  const MSG_BTN_CSS = `
+    :host { all: initial; }
+    .inkpour-msg-btn {
+      width: 22px; height: 22px;
+      background: #5b5bd6;
+      color: #fff;
+      border: none; border-radius: 6px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; line-height: 1;
+      box-shadow: 0 1px 4px rgba(91,91,214,0.4);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      padding: 0;
+      transition: transform 0.12s, background 0.12s;
+    }
+    .inkpour-msg-btn:hover { transform: scale(1.08); }
+    .inkpour-msg-btn.copied { background: #16a34a; }
+    @media (prefers-color-scheme: dark) {
+      .inkpour-msg-btn { background: #818cf8; box-shadow: 0 1px 4px rgba(129,140,248,0.4); }
+      .inkpour-msg-btn.copied { background: #16a34a; }
+    }
+  `;
+
+  /**
+   * One document-level <style> providing the CSS this feature needs on the
+   * host page itself (as opposed to inside each button's own shadow root):
+   * the position:relative container-block fix (applied only to anchors whose
+   * computed position was already 'static' — see the guard in decorateOne()),
+   * the hover/focus-reveal opacity rule, and each platform's fixed
+   * top/right placement (§1). No layout reads here — purely declarative CSS,
+   * per the §8 performance guardrails.
+   */
+  function ensureMsgStyleTag() {
+    if (document.getElementById('inkpour-msg-style')) return;
+    const style = document.createElement('style');
+    style.id = 'inkpour-msg-style';
+    style.textContent = `
+      [data-inkpour-pos-rel] { position: relative; }
+      [data-inkpour-msg-host] {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.15s ease;
+        z-index: 2147483000;
+      }
+      [data-inkpour-msg]:hover [data-inkpour-msg-host],
+      [data-inkpour-msg]:focus-within [data-inkpour-msg-host] {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      [data-inkpour-placement="chatgpt"]          { top: 4px; right: 4px; }
+      [data-inkpour-placement="claude-user"]      { top: 2px; right: -30px; }
+      [data-inkpour-placement="claude-assistant"] { top: 0;   right: 0; }
+      [data-inkpour-placement="gemini"]           { top: 6px; right: 6px; }
+    `;
+    (document.head || document.documentElement).appendChild(style);
+  }
+
+  /** One parsed CSSStyleSheet, built once and adopted by every button's shadow root (§3) — falls back to a cloned <style> node where adoptedStyleSheets isn't supported. */
+  function getMsgSharedSheet() {
+    if (_msgSharedSheet !== null) return _msgSharedSheet;
+    try {
+      if (typeof CSSStyleSheet === 'function' && CSSStyleSheet.prototype && 'replaceSync' in CSSStyleSheet.prototype) {
+        const sheet = new CSSStyleSheet();
+        sheet.replaceSync(MSG_BTN_CSS);
+        _msgSharedSheet = sheet;
+        return sheet;
+      }
+    } catch { /* fall through to the cloned-<style> fallback below */ }
+    _msgSharedSheet = false;
+    return false;
+  }
+
+  /** offscreen-textarea + execCommand('copy') fallback for when navigator.clipboard.writeText() rejects (non-secure context, lost focus, older WebKit — see §5). */
+  function fallbackCopyToClipboard(text) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:0;left:-9999px;opacity:0;';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    } catch {
+      return false;
+    }
+  }
+
+  /** 'chatgpt' | 'claude-user' | 'claude-assistant' | 'gemini' — drives the placement CSS in ensureMsgStyleTag(). */
+  function placementKeyFor(platform, el) {
+    if (platform === 'claude') {
+      return (el.matches && el.matches('[data-testid="user-message"]')) ? 'claude-user' : 'claude-assistant';
+    }
+    return platform;
+  }
+
+  /**
+   * Builds the shadow-DOM host + button for one message. `anchor` is where it
+   * gets attached in the DOM (see MESSAGE_ANCHORS); `el` is the actual
+   * message element passed to copyOneMessageMarkdown() — for ChatGPT these
+   * differ (anchor may be the enclosing <article>), for Claude/Gemini they're
+   * the same element.
+   */
+  function makeMessageButton(anchor, el, platform) {
+    const host = document.createElement('div');
+    host.setAttribute('data-inkpour-msg-host', '');
+    host.setAttribute('data-inkpour-placement', placementKeyFor(platform, el));
+
+    const shadow = host.attachShadow({ mode: 'open' });
+    const sheet = getMsgSharedSheet();
+    if (sheet && 'adoptedStyleSheets' in shadow) {
+      shadow.adoptedStyleSheets = [sheet];
+    } else {
+      const styleEl = document.createElement('style');
+      styleEl.textContent = MSG_BTN_CSS;
+      shadow.appendChild(styleEl);
+    }
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'inkpour-msg-btn';
+    btn.textContent = '⎘';
+    const title = api.i18n.getMessage('contentMsgCopyTitle') || 'Copy this message as Markdown';
+    btn.title = title;
+    btn.setAttribute('aria-label', title);
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+
+      let md;
+      try {
+        md = copyOneMessageMarkdown(el, platform);
+      } catch (err) {
+        console.warn('[Inkpour] Per-message copy failed:', err);
+        showToast('Copy failed', 'error');
+        return;
+      }
+      if (!md) return;
+
+      const onCopySuccess = () => {
+        showToast(api.i18n.getMessage('contentMsgCopied') || 'Message copied as Markdown', 'success');
+        btn.textContent = '✓';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = '⎘'; btn.classList.remove('copied'); }, 1200);
+      };
+      const onCopyFailure = () => showToast('Copy failed', 'error');
+
+      // Must call writeText() synchronously within this click handler, before
+      // any other await — Safari/WebKit revokes the clipboard permission the
+      // instant user-gesture activation is lost (§5).
+      try {
+        const p = navigator.clipboard.writeText(md);
+        if (p && typeof p.then === 'function') {
+          p.then(onCopySuccess, () => { (fallbackCopyToClipboard(md) ? onCopySuccess : onCopyFailure)(); });
+        } else {
+          onCopySuccess();
+        }
+      } catch {
+        (fallbackCopyToClipboard(md) ? onCopySuccess : onCopyFailure)();
+      }
+    });
+
+    shadow.appendChild(btn);
+    return host;
+  }
+
+  /**
+   * Decorates (or re-decorates) one message's anchor. Belt-and-braces
+   * duplicate prevention (§2): the `data-inkpour-msg` attribute survives our
+   * own code re-running, and the `_decorated` WeakSet survives the host page
+   * stripping that attribute off during a re-render. An anchor that's in the
+   * WeakSet AND still physically has its host is left alone (attribute just
+   * gets restored if missing); an anchor whose host actually disappeared is
+   * re-attached from scratch.
+   */
+  function decorateOne(anchor, el, platform) {
+    const existingHost = anchor.querySelector(':scope > [data-inkpour-msg-host]');
+
+    if (_decorated.has(anchor) && existingHost) {
+      if (!anchor.hasAttribute('data-inkpour-msg')) {
+        anchor.setAttribute('data-inkpour-msg', String(++_msgIdCounter));
+      }
+      return;
+    }
+
+    if (existingHost) existingHost.remove(); // orphaned host with no WeakSet entry — shouldn't happen, but don't duplicate
+
+    if (_decoratedCount >= MAX_DECORATED) {
+      if (!_maxDecoratedWarned) {
+        _maxDecoratedWarned = true;
+        console.warn('[Inkpour] Per-message copy buttons: reached the 400-message cap, no longer decorating new messages on this page.');
+      }
+      return;
+    }
+
+    anchor.setAttribute('data-inkpour-msg', String(++_msgIdCounter));
+
+    // position:relative container-block fix — only when the anchor doesn't
+    // already have its own positioning (§1). Runs once per anchor, only at
+    // first decoration, never on re-passes (§8 guardrail #2).
+    try {
+      if (getComputedStyle(anchor).position === 'static') {
+        anchor.setAttribute('data-inkpour-pos-rel', '');
+      }
+    } catch { /* getComputedStyle unavailable in this environment — skip the guard */ }
+
+    _decorated.add(anchor);
+    anchor.appendChild(makeMessageButton(anchor, el, platform));
+    _decoratedCount++;
+  }
+
+  /**
+   * Idempotent, cheap, safe to call any number of times (§8 guardrail #2) —
+   * one querySelectorAll for the current platform's messages, then a
+   * decorateOne() dedupe check per node. No layout reads. The last message is
+   * skipped while isStreaming() is true (attaching mid-stream is pointless
+   * and would fight the ongoing mutation storm); the next pass after
+   * streaming ends picks it up. Wrapped in try/catch end-to-end — a selector
+   * change on any of the three platforms must degrade to "no buttons", never
+   * throw into the host page (§8 guardrail #5).
+   */
+  function decorateMessages() {
+    try {
+      const platform = detectSite();
+      const cfg = MESSAGE_ANCHORS[platform];
+      if (!cfg) return;
+
+      const nodes = Array.from(document.querySelectorAll(cfg.sel));
+      if (!nodes.length) return;
+
+      ensureMsgStyleTag();
+
+      const skipLast = isStreaming();
+      nodes.forEach((el, i) => {
+        if (skipLast && i === nodes.length - 1) return;
+        const anchor = cfg.anchor(el);
+        if (!anchor || typeof anchor.querySelector !== 'function') return;
+        decorateOne(anchor, el, platform);
+      });
+    } catch (err) {
+      console.warn('[Inkpour] decorateMessages() failed — per-message buttons skipped for this pass:', err);
+    }
+  }
+
+  /** rAF-coalesced: the mutation observer below can fire hundreds of times per second during streaming; this guarantees at most one decorateMessages() call per animation frame (§8 guardrail #1). */
+  function scheduleDecorate() {
+    if (_rafPending) return;
+    _rafPending = true;
+    const raf = (typeof requestAnimationFrame === 'function') ? requestAnimationFrame : (fn => setTimeout(fn, 16));
+    raf(() => { _rafPending = false; decorateMessages(); });
+  }
+
+  /** Turns the feature on for this tab: an immediate decorate pass, plus a MutationObserver scoped to the chat scroll container (falling back to document.body only when findScrollContainer() can't find anything more specific — see §2). */
+  function startMessageDecoration() {
+    scheduleDecorate();
+    if (_msgObserver) return; // already observing
+    try {
+      const container = findScrollContainer();
+      const target = (container && container !== document.documentElement) ? container : document.body;
+      _msgObserver = new MutationObserver(scheduleDecorate);
+      _msgObserver.observe(target, { childList: true, subtree: true });
+    } catch (err) {
+      console.warn('[Inkpour] Could not start the per-message decoration observer:', err);
+    }
+  }
+
+  /** Turns the feature off: disconnects the observer and removes every trace of decoration from the DOM (§7). */
+  function teardownMessageDecoration() {
+    if (_msgObserver) {
+      try { _msgObserver.disconnect(); } catch { /* already disconnected */ }
+      _msgObserver = null;
+    }
+    document.querySelectorAll('[data-inkpour-msg]').forEach(anchor => {
+      anchor.querySelectorAll(':scope > [data-inkpour-msg-host]').forEach(h => h.remove());
+      anchor.removeAttribute('data-inkpour-msg');
+      anchor.removeAttribute('data-inkpour-pos-rel');
+    });
+    _decorated = new WeakSet();
+    _decoratedCount = 0;
+    _maxDecoratedWarned = false;
+  }
+
   // ─── SPA navigation: reinject button on URL change ────────────────────────
 
   (function watchNavigation() {
@@ -2309,7 +2742,13 @@
       if (location.href !== lastUrl) {
         lastUrl = location.href;
         document.getElementById('inkpour-root')?.remove();
-        setTimeout(injectInPageButton, 900);
+        if (_perMessageCopy) teardownMessageDecoration();
+        setTimeout(() => {
+          injectInPageButton();
+          // Re-attach after teardown: the scroll container is a different
+          // element on the new route, so the observer needs re-creating too.
+          if (_perMessageCopy) startMessageDecoration();
+        }, 900);
       }
     });
     // Watching document.body for child changes catches most SPA routers
@@ -2344,6 +2783,11 @@
     window.__inkpourBuildProbeReport = buildProbeReport;
     window.__inkpourFindAiModeInputBox = findAiModeInputBox;
     window.__inkpourFindScrollContainer = findScrollContainer;
+    window.__inkpourDecorateMessages = decorateMessages;
+    window.__inkpourCopyOneMessageMarkdown = copyOneMessageMarkdown;
+    window.__inkpourStartMessageDecoration = startMessageDecoration;
+    window.__inkpourTeardownMessageDecoration = teardownMessageDecoration;
+    window.__inkpourMessageAnchors = MESSAGE_ANCHORS;
   }
 
   // ─── In-page toast notification ───────────────────────────────────────────

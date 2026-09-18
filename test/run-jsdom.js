@@ -167,6 +167,64 @@ async function extractFromFixture(fixtureName, hostname = '', action = 'extract'
 }
 
 /**
+ * Like extractFromFixture(), but returns the live JSDOM `window` instead of
+ * just the extraction result — needed for the per-message "Copy as Markdown"
+ * button tests, which call the window.__inkpour* test hooks directly
+ * (decorateMessages(), copyOneMessageMarkdown(), etc. — see
+ * planning/adr-per-message-share-buttons.md) rather than only inspecting an
+ * extraction response.
+ */
+async function loadContentScriptEnv(fixtureName, hostname) {
+  const fixturePath = path.join(FIXTURES_DIR, fixtureName);
+  const html = fs.readFileSync(fixturePath, 'utf8');
+
+  const dom = new JSDOM(html, {
+    url: 'https://example.com/',
+    runScripts: 'dangerously',
+    resources: 'usable',
+  });
+
+  const { window } = dom;
+
+  const listeners = [];
+  const mockRuntime = {
+    onMessage: { addListener: fn => listeners.push(fn) },
+    id: 'test-extension-id',
+  };
+  window.browser = { runtime: mockRuntime, i18n: mockI18n() };
+  window.chrome  = { runtime: mockRuntime, i18n: mockI18n() };
+  window.__inkpourTestHostname = hostname;
+
+  window.HTMLElement.prototype.scrollTo = function () {};
+  window.document.documentElement.scrollTo = function () {};
+
+  const scriptEl = window.document.createElement('script');
+  scriptEl.textContent = CONTENT_JS;
+  window.document.body.appendChild(scriptEl);
+
+  await new Promise(r => setTimeout(r, 50));
+
+  const listener = listeners[0];
+  if (!listener) throw new Error('No onMessage listener registered by content.js');
+
+  const extract = (action = 'extract', extraMsg = {}) => new Promise((resolve, reject) => {
+    let settled = false;
+    const sendResponse = (response) => { if (!settled) { settled = true; resolve(response); } };
+    try {
+      const ret = listener({ action, ...extraMsg }, {}, sendResponse);
+      if (ret !== true) {
+        setTimeout(() => { if (!settled) { settled = true; resolve(undefined); } }, 100);
+      }
+    } catch (err) {
+      if (!settled) reject(err);
+    }
+    setTimeout(() => { if (!settled) { settled = true; resolve({ error: 'timeout' }); } }, 3000);
+  });
+
+  return { window, extract };
+}
+
+/**
  * Like extractFromFixture(), but for Google AI Mode's geometry-based turn
  * extraction (extractGoogleAiModeTurnsByGeometry() in src/content.js).
  *
@@ -4128,6 +4186,150 @@ No bullets here at all, just prose under the heading.
     await test('popup.js throttles the update check via a cached timestamp', () => {
       assert(/inkpour_update_check_cache/.test(POPUP_JS), 'expected a cache key gating the update-check fetch');
       assert(/isNewerVersion\(/.test(POPUP_JS), 'expected popup.js to use the shared isNewerVersion() helper, not its own comparison');
+    });
+  });
+
+  // ─── Per-message "Copy as Markdown" buttons ────────────────────────────────
+  // See planning/adr-per-message-share-buttons.md. Off by default; these
+  // tests call the window.__inkpour* hooks content.js exposes only in test
+  // environments (window.__inkpourTestHostname set) to exercise the feature
+  // directly, bypassing the storage-gated settings bootstrap (which this
+  // JSDOM harness's mock chrome API has no storage on, by design — same as
+  // every other suite here).
+  await suite('Per-message "Copy as Markdown" buttons (structure + behavior)', async () => {
+    const PLATFORM_FIXTURES = [
+      { platform: 'chatgpt', fixture: 'chatgpt.html', hostname: 'chatgpt.com' },
+      { platform: 'claude',  fixture: 'claude.html',  hostname: 'claude.ai' },
+      { platform: 'gemini',  fixture: 'gemini.html',  hostname: 'gemini.google.com' },
+    ];
+
+    for (const { platform, fixture, hostname } of PLATFORM_FIXTURES) {
+      await test(`${platform}: decorateMessages() attaches exactly one button host per message, no duplicates on a second call`, async () => {
+        const { window } = await loadContentScriptEnv(fixture, hostname);
+        const cfg = window.__inkpourMessageAnchors[platform];
+        const messageCount = window.document.querySelectorAll(cfg.sel).length;
+        assert(messageCount > 0, `fixture ${fixture} has no ${platform} messages to decorate`);
+
+        window.__inkpourDecorateMessages();
+        const hostsAfterFirst = window.document.querySelectorAll('[data-inkpour-msg-host]').length;
+        assert(hostsAfterFirst === messageCount, `expected ${messageCount} hosts after first decorate, got ${hostsAfterFirst}`);
+
+        window.__inkpourDecorateMessages();
+        const hostsAfterSecond = window.document.querySelectorAll('[data-inkpour-msg-host]').length;
+        assert(hostsAfterSecond === messageCount, `expected still ${messageCount} hosts after second decorate (no duplicates), got ${hostsAfterSecond}`);
+      });
+    }
+
+    await test('re-decorates (without duplicating) an anchor whose data-inkpour-msg attribute was stripped by a host-page re-render', async () => {
+      const { window } = await loadContentScriptEnv('claude.html', 'claude.ai');
+      window.__inkpourDecorateMessages();
+
+      const anchor = window.document.querySelector('[data-inkpour-msg]');
+      assert(anchor, 'expected at least one decorated anchor');
+      anchor.removeAttribute('data-inkpour-msg'); // simulate the host page re-rendering away our attribute
+
+      window.__inkpourDecorateMessages();
+
+      assert(anchor.hasAttribute('data-inkpour-msg'), 'expected the attribute to be restored on re-decoration');
+      const hostsOnThisAnchor = anchor.querySelectorAll(':scope > [data-inkpour-msg-host]').length;
+      assert(hostsOnThisAnchor === 1, `expected exactly 1 host on the re-decorated anchor, got ${hostsOnThisAnchor}`);
+    });
+
+    await test('teardownMessageDecoration() removes every injected host and data-inkpour-msg attribute', async () => {
+      const { window } = await loadContentScriptEnv('gemini.html', 'gemini.google.com');
+      window.__inkpourDecorateMessages();
+      assert(window.document.querySelectorAll('[data-inkpour-msg-host]').length > 0, 'expected hosts to exist before teardown');
+
+      window.__inkpourTeardownMessageDecoration();
+
+      assert(window.document.querySelectorAll('[data-inkpour-msg-host]').length === 0, 'expected zero hosts after teardown');
+      assert(window.document.querySelectorAll('[data-inkpour-msg]').length === 0, 'expected zero data-inkpour-msg attributes after teardown');
+    });
+
+    // ── _footnoteOffset isolation (the most important test in this suite —
+    // see ADR §4: without the save/reset/restore wrapper in
+    // copyOneMessageMarkdown(), a per-message copy would silently inherit
+    // and then corrupt the running footnote counter used by full exports) ──
+    await test('copyOneMessageMarkdown() on a citation-bearing Gemini message starts footnotes at [^1]', async () => {
+      const { window, extract } = await loadContentScriptEnv('gemini.html', 'gemini.google.com');
+
+      // Run one full extraction first, exactly as a real popup export would —
+      // this is what advances _footnoteOffset away from 0 in real usage.
+      const firstExtraction = await extract('extract');
+      assert(Array.isArray(firstExtraction?.messages) && firstExtraction.messages.length > 0, 'expected the first extraction to succeed');
+
+      const modelResponses = window.document.querySelectorAll('model-response');
+      const chipBearingEl = Array.from(modelResponses).find(el => el.querySelector('source-inline-chip'));
+      assert(chipBearingEl, 'expected at least one model-response with a source-inline-chip in the fixture');
+
+      const singleMd = window.__inkpourCopyOneMessageMarkdown(chipBearingEl, 'gemini');
+      const firstMarker = singleMd.match(/\[\^(\d+)\]/);
+      assert(firstMarker, `expected a [^N] footnote marker in the single-message copy, got: ${singleMd}`);
+      assert(firstMarker[1] === '1', `expected the single-message copy's first footnote to be [^1] regardless of the prior full export's offset, got [^${firstMarker[1]}]`);
+    });
+
+    await test('copyOneMessageMarkdown() never advances _footnoteOffset — a full export before and after produces identical footnote numbering', async () => {
+      const { window, extract } = await loadContentScriptEnv('gemini.html', 'gemini.google.com');
+
+      const before = await extract('extract');
+      assert(before?.messages?.length > 0, 'expected the "before" extraction to succeed');
+
+      const modelResponses = window.document.querySelectorAll('model-response');
+      const chipBearingEl = Array.from(modelResponses).find(el => el.querySelector('source-inline-chip'));
+      window.__inkpourCopyOneMessageMarkdown(chipBearingEl, 'gemini'); // the call under test — must be a no-op on shared state
+
+      const after = await extract('extract');
+      assert(after?.messages?.length === before.messages.length, 'message count changed between the two extractions');
+
+      before.messages.forEach((m, i) => {
+        assert(m.content === after.messages[i].content, `message ${i}'s content (including footnote numbering) differs after an intervening copyOneMessageMarkdown() call — _footnoteOffset was corrupted`);
+      });
+    });
+
+    await test('copyOneMessageMarkdown() returns an empty string for an unknown platform rather than throwing', async () => {
+      const { window } = await loadContentScriptEnv('gemini.html', 'gemini.google.com');
+      const anyEl = window.document.querySelector('model-response');
+      let threw = false;
+      let result;
+      try {
+        result = window.__inkpourCopyOneMessageMarkdown(anyEl, 'not-a-real-platform');
+      } catch {
+        threw = true;
+      }
+      assert(!threw, 'copyOneMessageMarkdown() must not throw for an unrecognized platform');
+      assert(result === '', `expected an empty string for an unknown platform, got: ${JSON.stringify(result)}`);
+    });
+
+    await test('manifest.json loads src/redact.js into the content script (needed so per-message copies can honor scrubLocalExports)', () => {
+      const manifest = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../manifest.json'), 'utf8'));
+      const contentScriptJs = manifest.content_scripts[0].js;
+      assert(contentScriptJs.includes('src/redact.js'), `expected src/redact.js in content_scripts[0].js, got: ${JSON.stringify(contentScriptJs)}`);
+      assert(contentScriptJs.indexOf('src/redact.js') < contentScriptJs.indexOf('src/content.js'), 'src/redact.js must load before src/content.js so redactSecrets() is defined when content.js runs');
+    });
+
+    await test('settings.html has the perMessageCopyButtons toggle, wired to its own label/description via aria', () => {
+      const input = SETTINGS_DOM.getElementById('perMessageCopyButtons');
+      assert(input, '#perMessageCopyButtons missing from settings.html');
+      assert(input.getAttribute('role') === 'switch', 'expected role="switch" for consistency with the other toggles');
+      const labelledBy = input.getAttribute('aria-labelledby');
+      const describedBy = input.getAttribute('aria-describedby');
+      assert(labelledBy && SETTINGS_DOM.getElementById(labelledBy), '#perMessageCopyButtons aria-labelledby should point at a real element');
+      assert(describedBy && SETTINGS_DOM.getElementById(describedBy), '#perMessageCopyButtons aria-describedby should point at a real element');
+    });
+
+    await test('settings.js wires perMessageCopyButtons into DEFAULTS, load, save, and the discrete-controls id list', () => {
+      const SETTINGS_JS = fs.readFileSync(path.resolve(__dirname, '../settings.js'), 'utf8');
+      assert(/perMessageCopyButtons:\s*false/.test(SETTINGS_JS), 'expected perMessageCopyButtons: false in DEFAULTS');
+      assert(/getElementById\('perMessageCopyButtons'\)\.checked\s*=\s*prefs\.perMessageCopyButtons/.test(SETTINGS_JS), 'expected the load step to populate the checkbox from prefs');
+      assert(/perMessageCopyButtons:\s*document\.getElementById\('perMessageCopyButtons'\)\.checked/.test(SETTINGS_JS), 'expected save() to read the checkbox back into prefs');
+      assert(/'perMessageCopyButtons'/.test(SETTINGS_JS.match(/Discrete controls[\s\S]*?\]\.forEach/)?.[0] || ''), 'expected perMessageCopyButtons in the discrete-controls (save-on-change) id list');
+    });
+
+    await test('src/settingsSync.js allows perMessageCopyButtons to sync (non-sensitive UI toggle)', () => {
+      const SYNC_JS = fs.readFileSync(path.resolve(__dirname, '../src/settingsSync.js'), 'utf8');
+      const listMatch = SYNC_JS.match(/SYNCABLE_SETTING_KEYS\s*=\s*\[([\s\S]*?)\]/);
+      assert(listMatch, 'could not find SYNCABLE_SETTING_KEYS in src/settingsSync.js');
+      assert(/'perMessageCopyButtons'/.test(listMatch[1]), 'expected perMessageCopyButtons in SYNCABLE_SETTING_KEYS');
     });
   });
 

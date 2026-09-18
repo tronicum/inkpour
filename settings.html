@@ -310,6 +310,19 @@
 
     <div class="field">
       <div class="field-label">
+        <strong id="lbl-perMessageCopyButtons" data-i18n="settingsPerMessageCopyLabel">Copy button on each message</strong>
+        <span id="desc-perMessageCopyButtons" data-i18n="settingsPerMessageCopyDesc">Show a small button on every message in ChatGPT, Claude, and Gemini that copies just that one message as Markdown. Off by default. Only affects the three fully-supported platforms.</span>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="perMessageCopyButtons" role="switch"
+               aria-labelledby="lbl-perMessageCopyButtons"
+               aria-describedby="desc-perMessageCopyButtons" />
+        <div class="toggle-track"></div>
+      </label>
+    </div>
+
+    <div class="field">
+      <div class="field-label">
         <strong id="lbl-downloadSubfolder" data-i18n="settingsSubfolderLabel">Downloads subfolder</strong>
         <span id="desc-downloadSubfolder" data-i18n="settingsSubfolderDesc">Optional sub-path within your default downloads folder (e.g. <code>AI Chats</code>)</span>
       </div>

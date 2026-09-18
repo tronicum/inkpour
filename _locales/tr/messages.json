@@ -681,6 +681,12 @@
   "settingsScrubLocalDesc": {
     "message": "Apply the same redaction to exports that stay on this computer — Markdown, PDF, HTML, JSON, DOCX, and ZIP files, plus both clipboard copies. Off by default, because local exports never leave your machine. Turn it on when you plan to pass a file along — sending it to a coworker, or saving into a shared or synced folder such as a shared Obsidian vault — so API keys, tokens, and email addresses you pasted into the chat don't travel with it."
   },
+  "settingsPerMessageCopyLabel": {
+    "message": "Copy button on each message"
+  },
+  "settingsPerMessageCopyDesc": {
+    "message": "Show a small button on every message in ChatGPT, Claude, and Gemini that copies just that one message as Markdown. Off by default. Only affects the three fully-supported platforms."
+  },
   "settingsWebhookUrlLabel": {
     "message": "Webhook URL'si"
   },
@@ -972,6 +978,12 @@
   },
   "contentNoMessagesFound": {
     "message": "Mesaj bulunamadı"
+  },
+  "contentMsgCopyTitle": {
+    "message": "Copy this message as Markdown"
+  },
+  "contentMsgCopied": {
+    "message": "Message copied as Markdown"
   },
   "settingsPageTitle": {
     "message": "Inkpour — Ayarlar"

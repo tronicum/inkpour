@@ -147,7 +147,7 @@
         "*://www.duck.ai/*",
         "*://chat.qwen.ai/*"
       ],
-      "js": ["src/content.js"],
+      "js": ["src/redact.js", "src/content.js"],
       "run_at": "document_idle"
     }
   ],
