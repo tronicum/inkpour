@@ -116,13 +116,31 @@ Fixtures live in `test/fixtures/`, one real saved HTML page per platform.
 A new platform or a selector fix should come with a fixture + assertions,
 not just "checked it manually in the browser."
 
+## Branching model
+
+- **`main` is release-only.** Nothing lands here except a merge from `dev`,
+  done deliberately when a batch of features is actually ready to ship.
+  Every commit on `main` is tag-ready by definition — no ambiguity about
+  whether a given commit was "meant" to be released.
+- **`dev` is the integration branch.** Every feature branch (`feat/...`,
+  `fix/...`) branches off `dev` and PRs back into `dev`, not `main`. This is
+  what gets tested locally (point the unpacked extension at the feature
+  branch, or at `dev` once merged) before anything is release-ready.
+- **Tags only ever get cut on `main`**, immediately after a `dev` → `main`
+  merge, triggering `release.yml` (Firefox/Chrome/Edge auto-submit). This
+  part is unchanged — see Release / build below.
+- Adopted 2026-09-18 (a `dev` branch already existed in `ci.yml`'s trigger
+  list from the project's early days, but had gone unused/stale — this
+  formalizes actually using it).
+
 ## Release / build
 
 `bash scripts/release.sh [version]` builds the exact zip that ships
 (defaults to `manifest.json`'s version). Same script backs
-`release.yml` (tag-triggered, real releases) and `midnight-snapshot.yml`
-(manual or `*snapshot*`-tag-triggered, disposable test builds — see
-`DEVELOPING.md` for when to reach for a snapshot instead of a real release).
+`release.yml` (tag-triggered, real releases, `main` only) and
+`midnight-snapshot.yml` (manual or `*snapshot*`-tag-triggered, disposable
+test builds — see `DEVELOPING.md` for when to reach for a snapshot instead
+of a real release).
 
 ## Conventions worth knowing before touching UI/DOM code
 
