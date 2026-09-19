@@ -687,6 +687,12 @@
   "settingsPerMessageCopyDesc": {
     "message": "Show a small button on every message in ChatGPT, Claude, and Gemini that copies just that one message as Markdown. Off by default. Only affects the three fully-supported platforms."
   },
+  "settingsShowFabLabel": {
+    "message": "Show floating export button"
+  },
+  "settingsShowFabDesc": {
+    "message": "A small \"ip\" button on every supported chat page for quick export without opening the popup. On by default; turn it off if you find it distracting."
+  },
   "settingsWebhookUrlLabel": {
     "message": "URL webhooka"
   },
@@ -955,6 +961,9 @@
   },
   "contentMenuExportZip": {
     "message": "Eksportuj ZIP"
+  },
+  "contentMenuSettings": {
+    "message": "Settings"
   },
   "contentStatusSaved": {
     "message": "✓ Zapisano!"

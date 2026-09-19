@@ -30,6 +30,12 @@
   // mirror for the settings/popup UI only, see src/settingsSync.js).
   let _perMessageCopy = false;
   let _scrubLocalExports = false;
+  // Default true (shown) even before the async storage read below completes —
+  // an existing settings object with no showFloatingButton key at all (every
+  // installed version before this one) must be treated as "on", never as
+  // "off", or this opt-out toggle would silently hide the button for every
+  // existing user on their next page load. Only an explicit `false` hides it.
+  let _showFab = true;
 
   try {
     if (api && api.storage && api.storage.local && typeof api.storage.local.get === 'function') {
@@ -37,6 +43,11 @@
         const s = res && res.inkpour_settings;
         _perMessageCopy = !!(s && s.perMessageCopyButtons);
         _scrubLocalExports = !!(s && s.scrubLocalExports);
+        const showFab = !(s && s.showFloatingButton === false);
+        if (showFab !== _showFab) {
+          _showFab = showFab;
+          if (!_showFab) document.getElementById('inkpour-root')?.remove();
+        }
         if (_perMessageCopy) startMessageDecoration();
       });
     }
@@ -46,16 +57,24 @@
         const newVal = changes.inkpour_settings.newValue || {};
         _scrubLocalExports = !!newVal.scrubLocalExports;
         const next = !!newVal.perMessageCopyButtons;
-        if (next === _perMessageCopy) return;
-        _perMessageCopy = next;
-        if (next) startMessageDecoration(); else teardownMessageDecoration();
+        if (next !== _perMessageCopy) {
+          _perMessageCopy = next;
+          if (next) startMessageDecoration(); else teardownMessageDecoration();
+        }
+        const nextShowFab = newVal.showFloatingButton !== false;
+        if (nextShowFab !== _showFab) {
+          _showFab = nextShowFab;
+          if (_showFab) injectInPageButton();
+          else document.getElementById('inkpour-root')?.remove();
+        }
       });
     }
   } catch (err) {
     // Environments with no chrome.storage (unit tests, unusual embeds) simply
-    // never get per-message buttons — never break the rest of the content
-    // script over this.
-    console.warn('[Inkpour] Could not wire up per-message copy setting:', err);
+    // never get per-message buttons or the FAB-visibility setting — never
+    // break the rest of the content script over this (fails safe to the FAB
+    // showing, its long-standing default behavior).
+    console.warn('[Inkpour] Could not wire up per-message copy / FAB-visibility settings:', err);
   }
 
   // ─── HTML → Markdown ──────────────────────────────────────────────────────
@@ -2327,6 +2346,9 @@
     <button class="menu-btn" id="inkpour-zip">
       <span class="icon">📦</span> <span id="inkpour-zip-label"></span>
     </button>
+    <button class="menu-btn" id="inkpour-settings">
+      <span class="icon">⚙</span> <span id="inkpour-settings-label"></span>
+    </button>
     <div class="status-msg" id="inkpour-status"></div>
   </div>
   <button class="fab" id="inkpour-fab">ip</button>
@@ -2342,7 +2364,11 @@
     const docxBtn = shadow.getElementById('inkpour-docx');
     const pdfBtn  = shadow.getElementById('inkpour-pdf');
     const zipBtn  = shadow.getElementById('inkpour-zip');
+    const settingsBtn = shadow.getElementById('inkpour-settings');
     const status  = shadow.getElementById('inkpour-status');
+    // settingsBtn deliberately excluded: it's not an export action, so it
+    // must stay clickable even while an export is in progress and every
+    // button in allBtns gets disabled.
     const allBtns = [mdBtn, cpBtn, htmlBtn, docxBtn, pdfBtn, zipBtn];
 
     // Apply localized text via property/textContent assignment — never via
@@ -2354,6 +2380,7 @@
     shadow.getElementById('inkpour-docx-label').textContent = api.i18n.getMessage('contentMenuExportDocx');
     shadow.getElementById('inkpour-pdf-label').textContent  = api.i18n.getMessage('contentMenuExportPdf');
     shadow.getElementById('inkpour-zip-label').textContent  = api.i18n.getMessage('contentMenuExportZip');
+    shadow.getElementById('inkpour-settings-label').textContent = api.i18n.getMessage('contentMenuSettings') || 'Settings';
 
     // Toggle menu
     fab.addEventListener('click', (e) => {
@@ -2362,6 +2389,13 @@
       menu.hidden = open;
       fab.classList.toggle('active', !open);
       setStatus('', '');
+    });
+
+    settingsBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      menu.hidden = true;
+      fab.classList.remove('active');
+      if (api.runtime.openOptionsPage) api.runtime.openOptionsPage();
     });
 
     // Close on outside click
@@ -2794,7 +2828,7 @@
         document.getElementById('inkpour-root')?.remove();
         if (_perMessageCopy) teardownMessageDecoration();
         setTimeout(() => {
-          injectInPageButton();
+          if (_showFab) injectInPageButton();
           // Re-attach after teardown: the scroll container is a different
           // element on the new route, so the observer needs re-creating too.
           if (_perMessageCopy) startMessageDecoration();

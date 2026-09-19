@@ -112,6 +112,7 @@
     scrubSecrets:          true,
     scrubLocalExports:     false,
     perMessageCopyButtons: false,
+    showFloatingButton:    true,
     webhookUrl:            '',
     webhookIncludeContent: false,
     writeToVault:          false,

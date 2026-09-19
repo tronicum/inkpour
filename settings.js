@@ -109,6 +109,7 @@
     scrubSecrets:          true,
     scrubLocalExports:     false,
     perMessageCopyButtons: false,
+    showFloatingButton:    true,
     webhookUrl:           '',
     webhookIncludeContent: false,
     writeToVault:          false,
@@ -139,6 +140,7 @@
     document.getElementById('scrubSecrets').checked           = prefs.scrubSecrets;
     document.getElementById('scrubLocalExports').checked      = prefs.scrubLocalExports;
     document.getElementById('perMessageCopyButtons').checked  = prefs.perMessageCopyButtons;
+    document.getElementById('showFloatingButton').checked     = prefs.showFloatingButton;
     document.getElementById('webhookUrl').value              = prefs.webhookUrl;
     document.getElementById('webhookIncludeContent').checked = prefs.webhookIncludeContent;
     document.getElementById('writeToVault').checked           = prefs.writeToVault;
@@ -284,6 +286,7 @@
       scrubSecrets:          document.getElementById('scrubSecrets').checked,
       scrubLocalExports:     document.getElementById('scrubLocalExports').checked,
       perMessageCopyButtons: document.getElementById('perMessageCopyButtons').checked,
+      showFloatingButton:    document.getElementById('showFloatingButton').checked,
       webhookUrl:            document.getElementById('webhookUrl').value.trim(),
       webhookIncludeContent: document.getElementById('webhookIncludeContent').checked,
       writeToVault:          document.getElementById('writeToVault').checked,
@@ -313,7 +316,7 @@
   // Discrete controls (checkboxes/selects): save immediately, no debounce.
   [
     'defaultFormat', 'pdfAutoPrint', 'yamlFrontMatter', 'generateTOC',
-    'obsidianTags', 'resolveGeminiLinks', 'gistPublic', 'scrubSecrets', 'scrubLocalExports', 'perMessageCopyButtons', 'webhookIncludeContent',
+    'obsidianTags', 'resolveGeminiLinks', 'gistPublic', 'scrubSecrets', 'scrubLocalExports', 'perMessageCopyButtons', 'showFloatingButton', 'webhookIncludeContent',
     'writeToVault', 'debugMode', 'debugAttachGist',
   ].forEach((id) => {
     document.getElementById(id)?.addEventListener('change', save);

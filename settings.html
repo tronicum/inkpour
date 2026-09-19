@@ -323,6 +323,19 @@
 
     <div class="field">
       <div class="field-label">
+        <strong id="lbl-showFloatingButton" data-i18n="settingsShowFabLabel">Show floating export button</strong>
+        <span id="desc-showFloatingButton" data-i18n="settingsShowFabDesc">A small "ip" button on every supported chat page for quick export without opening the popup. On by default; turn it off if you find it distracting.</span>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="showFloatingButton" role="switch"
+               aria-labelledby="lbl-showFloatingButton"
+               aria-describedby="desc-showFloatingButton" checked />
+        <div class="toggle-track"></div>
+      </label>
+    </div>
+
+    <div class="field">
+      <div class="field-label">
         <strong id="lbl-downloadSubfolder" data-i18n="settingsSubfolderLabel">Downloads subfolder</strong>
         <span id="desc-downloadSubfolder" data-i18n="settingsSubfolderDesc">Optional sub-path within your default downloads folder (e.g. <code>AI Chats</code>)</span>
       </div>

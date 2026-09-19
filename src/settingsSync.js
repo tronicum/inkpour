@@ -24,6 +24,7 @@ const SYNCABLE_SETTING_KEYS = [
   'gistPublic',
   'scrubSecrets',
   'perMessageCopyButtons',
+  'showFloatingButton',
   'webhookIncludeContent',
   'debugMode',
   'debugAttachGist',

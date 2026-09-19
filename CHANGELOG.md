@@ -15,6 +15,11 @@ new section here in the same commit as the version bump.
 ## [Unreleased]
 
 ### Added
+- New opt-out setting "Show floating export button" (on by default, matching
+  existing behavior for everyone already using it): turns off the small "ip"
+  button that appears on supported chat pages, for anyone who finds it
+  distracting. The floating button's own menu also gained a Settings shortcut,
+  so Settings is reachable without going through the toolbar popup.
 - New opt-in setting "Copy button on each message" (off by default): shows a
   small button on every message in ChatGPT, Claude, and Gemini — the three
   fully-supported platforms — that copies just that one message as Markdown

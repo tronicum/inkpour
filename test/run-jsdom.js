@@ -3142,11 +3142,16 @@ No bullets here at all, just prose under the heading.
     });
   });
 
-  await test('a "Debug options" link exists inside #debug-group, styled like the other footer links', () => {
+  await test('a "Debug options" link exists, always visible (NOT gated inside #debug-group)', () => {
     const btn = POPUP_DOM.getElementById('debugOptionsBtn');
     const debugGroup = POPUP_DOM.getElementById('debug-group');
     assert(btn, '#debugOptionsBtn missing from popup.html');
-    assert(debugGroup.contains(btn), '#debugOptionsBtn should be inside #debug-group (only shown when Debug mode is on)');
+    // Must NOT live inside #debug-group, which only shows once Debug mode is
+    // already on — #debugOptionsBtn is the discovery path TO Debug mode, so
+    // nesting it there would make it invisible until after you've already
+    // found and enabled the setting it's meant to help you find.
+    assert(!debugGroup.contains(btn), '#debugOptionsBtn must be a direct sibling in .footer-links, not nested inside #debug-group — it needs to stay visible even when Debug mode is off');
+    assert(!btn.hasAttribute('hidden'), '#debugOptionsBtn should never be hidden');
     assert(btn.classList.contains('footer-link'), 'expected #debugOptionsBtn to have the footer-link class');
   });
 
@@ -4441,6 +4446,65 @@ No bullets here at all, just prose under the heading.
       const listMatch = SYNC_JS.match(/SYNCABLE_SETTING_KEYS\s*=\s*\[([\s\S]*?)\]/);
       assert(listMatch, 'could not find SYNCABLE_SETTING_KEYS in src/settingsSync.js');
       assert(/'perMessageCopyButtons'/.test(listMatch[1]), 'expected perMessageCopyButtons in SYNCABLE_SETTING_KEYS');
+    });
+  });
+
+  // ─── Floating button visibility toggle + FAB Settings link ─────────────────
+  // The floating "ip" button had no opt-out at all before this — some users
+  // find any injected on-page UI intrusive. showFloatingButton defaults to
+  // true (unchanged behavior for every existing install; an old stored
+  // settings object with no such key must still show the button, never hide
+  // it) and content.js's FAB menu gained its own Settings shortcut so the
+  // toggle (and everything else) is reachable without opening the popup.
+  await suite('Floating button visibility toggle + FAB Settings link', async () => {
+    await test('settings.html has the showFloatingButton toggle, checked by default, wired to its own label/description via aria', () => {
+      const input = SETTINGS_DOM.getElementById('showFloatingButton');
+      assert(input, '#showFloatingButton missing from settings.html');
+      assert(input.getAttribute('role') === 'switch', 'expected role="switch" for consistency with the other toggles');
+      assert(input.hasAttribute('checked'), 'expected showFloatingButton to default to checked (on) in the markup');
+      const labelledBy = input.getAttribute('aria-labelledby');
+      const describedBy = input.getAttribute('aria-describedby');
+      assert(labelledBy && SETTINGS_DOM.getElementById(labelledBy), '#showFloatingButton aria-labelledby should point at a real element');
+      assert(describedBy && SETTINGS_DOM.getElementById(describedBy), '#showFloatingButton aria-describedby should point at a real element');
+    });
+
+    await test('settings.js wires showFloatingButton into DEFAULTS (true), load, save, and the discrete-controls id list', () => {
+      const SETTINGS_JS = fs.readFileSync(path.resolve(__dirname, '../settings.js'), 'utf8');
+      assert(/showFloatingButton:\s*true/.test(SETTINGS_JS), 'expected showFloatingButton: true in DEFAULTS — must default on, not off');
+      assert(/getElementById\('showFloatingButton'\)\.checked\s*=\s*prefs\.showFloatingButton/.test(SETTINGS_JS), 'expected the load step to populate the checkbox from prefs');
+      assert(/showFloatingButton:\s*document\.getElementById\('showFloatingButton'\)\.checked/.test(SETTINGS_JS), 'expected save() to read the checkbox back into prefs');
+      assert(/'showFloatingButton'/.test(SETTINGS_JS.match(/Discrete controls[\s\S]*?\]\.forEach/)?.[0] || ''), 'expected showFloatingButton in the discrete-controls (save-on-change) id list');
+    });
+
+    await test('popup.js DEFAULTS also default showFloatingButton to true (key-complete settings snapshot)', () => {
+      assert(/showFloatingButton:\s*true/.test(POPUP_JS), 'expected popup.js DEFAULTS to include showFloatingButton: true');
+    });
+
+    await test('src/settingsSync.js allows showFloatingButton to sync (non-sensitive UI toggle)', () => {
+      const SYNC_JS = fs.readFileSync(path.resolve(__dirname, '../src/settingsSync.js'), 'utf8');
+      const listMatch = SYNC_JS.match(/SYNCABLE_SETTING_KEYS\s*=\s*\[([\s\S]*?)\]/);
+      assert(listMatch, 'could not find SYNCABLE_SETTING_KEYS in src/settingsSync.js');
+      assert(/'showFloatingButton'/.test(listMatch[1]), 'expected showFloatingButton in SYNCABLE_SETTING_KEYS');
+    });
+
+    await test('src/content.js treats a missing showFloatingButton key as "shown" (existing installs must not lose the FAB)', () => {
+      // The exact guard: `!(s && s.showFloatingButton === false)` — only an
+      // explicit false hides it; undefined/missing must fail safe to shown.
+      assert(/s\s*&&\s*s\.showFloatingButton\s*===\s*false/.test(CONTENT_JS), 'expected the initial-load guard to check specifically for showFloatingButton === false, not a truthy/falsy read');
+      assert(/newVal\.showFloatingButton\s*!==\s*false/.test(CONTENT_JS), 'expected the live onChanged guard to check specifically for !== false, not a truthy/falsy read');
+    });
+
+    await test('src/content.js gates both the initial FAB injection and SPA-navigation re-injection behind _showFab', () => {
+      assert(/if\s*\(_showFab\)\s*injectInPageButton\(\)/.test(CONTENT_JS), 'expected the SPA-navigation re-injection to check _showFab before calling injectInPageButton()');
+    });
+
+    await test('the FAB menu has a Settings button that opens the options page and is excluded from the export-buttons disable-during-loading group', () => {
+      assert(/id="inkpour-settings"/.test(CONTENT_JS), 'expected an #inkpour-settings button in the FAB menu markup');
+      assert(/settingsBtn\.addEventListener\('click'/.test(CONTENT_JS), 'expected a click handler for the FAB settings button');
+      assert(/openOptionsPage/.test(CONTENT_JS), 'expected the FAB settings button to open the options page, same as the popup\'s own settings button');
+      const allBtnsMatch = CONTENT_JS.match(/const allBtns\s*=\s*\[([^\]]*)\]/);
+      assert(allBtnsMatch, 'could not find the allBtns array in content.js');
+      assert(!/settingsBtn/.test(allBtnsMatch[1]), 'settingsBtn must NOT be in allBtns — it should stay clickable during an export, unlike the actual export buttons');
     });
   });
 
