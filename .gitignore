@@ -14,3 +14,8 @@ tmp/
 debug/input/
 debug/playonwords
 debug/rendertest.pdf
+
+# Claude Code session state — agent worktrees, local settings. Never meant
+# to land in the repo; a stray `git add -A` once staged these as embedded
+# git repos (gitlinks), which is exactly what this line prevents.
+.claude/
