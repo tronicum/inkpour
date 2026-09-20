@@ -1,13 +1,20 @@
 # ADR: Per-message "Copy as Markdown" buttons injected into the page
 
-- **Status:** Proof-of-concept implemented (2026-09-18) — all three DOM-anchor
-  assumptions (ChatGPT `article[data-testid^="conversation-turn-"]`, Claude's
-  overlay placement, Gemini's `<message-actions>` non-collision) are
-  implemented with the fallback-safe defaults this ADR specifies, but **not
-  yet verified against the real, live sites** — no browser access was
-  available while building the PoC. All jsdom tests pass (454/454), including
-  the `_footnoteOffset` isolation tests. Do not mark Accepted until the
-  Verification checklist below has actually been run in a real browser.
+- **Status:** Accepted — verified working (2026-09-20) in real Chromium (not
+  jsdom) against all three platforms, via a Playwright harness that
+  intercepts network requests to serve local fixtures at the real hostnames
+  (so `content_scripts` match patterns fire for real, with no login and no
+  live-network flakiness). Real service worker, real shadow-DOM button click,
+  real clipboard read, on ChatGPT/Claude/Gemini: 12/12 passed on each,
+  4 anchors / 4 `data-inkpour-msg` / 4 hosts per site, no duplicates after a
+  forced DOM mutation, zero console errors. The multi-day "button doesn't
+  appear" investigation resolved to a single root cause: **the
+  `perMessageCopyButtons` setting was simply never turned on** in the browser
+  being tested — the code was correct throughout. jsdom suite: 473/473.
+  Verification credit: a second Claude Code session ("Cowork") with real
+  Chrome automation attached, collaborating via a small peer-to-peer file
+  protocol (`agent-echochamber`) built during this same investigation. Their
+  Playwright harness is intended to become `test/e2e/per-message.spec.js`.
 - **Date:** 2026-09-18
 - **Deciders:** Inkpour maintainers
 - **Related:** `src/content.js` (`htmlToMarkdown`, `extractChatGPT`,
