@@ -14,6 +14,8 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+## [0.4.33.0] - 2026-09-22
+
 ### Added
 - New opt-out setting "Show floating export button" (on by default, matching
   existing behavior for everyone already using it): turns off the small "ip"
@@ -25,12 +27,15 @@ new section here in the same commit as the version bump.
   fully-supported platforms — that copies just that one message as Markdown
   to the clipboard, without opening the popup or exporting the whole
   conversation. Honors the existing "Scrub secrets in local exports" setting.
-  Proof-of-concept — see `planning/adr-per-message-share-buttons.md` for the
-  design and what still needs live-browser verification before this is
-  considered fully confirmed.
 - Popup: a new "Debug options" footer link (shown only when Debug mode is on,
   alongside the other debug tools) opens Settings scrolled directly to the
   debug section, instead of the top of the page.
+
+### Fixed
+- The floating button's new Settings shortcut did nothing when clicked —
+  `chrome.runtime.openOptionsPage()` isn't available to content scripts, only
+  to the background/popup/options pages, so the call was a silent no-op.
+  It now relays through a message to the background script instead.
 
 ### Changed
 - The per-message "Copy as Markdown" button now sits near where each
