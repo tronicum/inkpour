@@ -167,6 +167,64 @@ async function extractFromFixture(fixtureName, hostname = '', action = 'extract'
 }
 
 /**
+ * Like extractFromFixture(), but returns the live JSDOM `window` instead of
+ * just the extraction result — needed for the per-message "Copy as Markdown"
+ * button tests, which call the window.__inkpour* test hooks directly
+ * (decorateMessages(), copyOneMessageMarkdown(), etc. — see
+ * planning/adr-per-message-share-buttons.md) rather than only inspecting an
+ * extraction response.
+ */
+async function loadContentScriptEnv(fixtureName, hostname) {
+  const fixturePath = path.join(FIXTURES_DIR, fixtureName);
+  const html = fs.readFileSync(fixturePath, 'utf8');
+
+  const dom = new JSDOM(html, {
+    url: 'https://example.com/',
+    runScripts: 'dangerously',
+    resources: 'usable',
+  });
+
+  const { window } = dom;
+
+  const listeners = [];
+  const mockRuntime = {
+    onMessage: { addListener: fn => listeners.push(fn) },
+    id: 'test-extension-id',
+  };
+  window.browser = { runtime: mockRuntime, i18n: mockI18n() };
+  window.chrome  = { runtime: mockRuntime, i18n: mockI18n() };
+  window.__inkpourTestHostname = hostname;
+
+  window.HTMLElement.prototype.scrollTo = function () {};
+  window.document.documentElement.scrollTo = function () {};
+
+  const scriptEl = window.document.createElement('script');
+  scriptEl.textContent = CONTENT_JS;
+  window.document.body.appendChild(scriptEl);
+
+  await new Promise(r => setTimeout(r, 50));
+
+  const listener = listeners[0];
+  if (!listener) throw new Error('No onMessage listener registered by content.js');
+
+  const extract = (action = 'extract', extraMsg = {}) => new Promise((resolve, reject) => {
+    let settled = false;
+    const sendResponse = (response) => { if (!settled) { settled = true; resolve(response); } };
+    try {
+      const ret = listener({ action, ...extraMsg }, {}, sendResponse);
+      if (ret !== true) {
+        setTimeout(() => { if (!settled) { settled = true; resolve(undefined); } }, 100);
+      }
+    } catch (err) {
+      if (!settled) reject(err);
+    }
+    setTimeout(() => { if (!settled) { settled = true; resolve({ error: 'timeout' }); } }, 3000);
+  });
+
+  return { window, extract };
+}
+
+/**
  * Like extractFromFixture(), but for Google AI Mode's geometry-based turn
  * extraction (extractGoogleAiModeTurnsByGeometry() in src/content.js).
  *
@@ -3061,6 +3119,53 @@ No bullets here at all, just prose under the heading.
     assert(!menu.contains(debugGroup), '#debug-group should not have been folded into the export menu');
   });
 
+  // ─── Debug footer-links reorg (maintainer feedback on PR #31) ─────────────
+  // The debug-mode buttons ("Copy debug info", "Report bug", "Probe AI Mode")
+  // used to be a standalone button group; they're now small text links living
+  // in the same row/style as #historyBtn/#settingsBtn2, plus a new
+  // "Debug options" link that deep-links into Settings' debug section.
+  await test('#debug-group lives inside .footer-links, alongside #historyBtn/#settingsBtn2', () => {
+    const footerLinks = POPUP_DOM.querySelector('.footer-links');
+    const debugGroup  = POPUP_DOM.getElementById('debug-group');
+    assert(footerLinks, '.footer-links missing from popup.html');
+    assert(debugGroup, '#debug-group missing');
+    assert(footerLinks.contains(debugGroup), 'expected #debug-group to be inside .footer-links');
+  });
+
+  await test('the debug buttons are now .footer-link-styled links, not the old button/copy-btn group', () => {
+    ['debugDomBtn', 'reportBugBtn', 'probeAiModeBtn'].forEach(id => {
+      const el = POPUP_DOM.getElementById(id);
+      assert(el, `#${id} missing from popup.html`);
+      assert(el.classList.contains('footer-link'), `expected #${id} to have the footer-link class`);
+      assert(!el.classList.contains('btn') && !el.classList.contains('copy-btn'),
+        `expected #${id} to no longer carry the old btn/copy-btn classes`);
+    });
+  });
+
+  await test('a "Debug options" link exists, always visible (NOT gated inside #debug-group)', () => {
+    const btn = POPUP_DOM.getElementById('debugOptionsBtn');
+    const debugGroup = POPUP_DOM.getElementById('debug-group');
+    assert(btn, '#debugOptionsBtn missing from popup.html');
+    // Must NOT live inside #debug-group, which only shows once Debug mode is
+    // already on — #debugOptionsBtn is the discovery path TO Debug mode, so
+    // nesting it there would make it invisible until after you've already
+    // found and enabled the setting it's meant to help you find.
+    assert(!debugGroup.contains(btn), '#debugOptionsBtn must be a direct sibling in .footer-links, not nested inside #debug-group — it needs to stay visible even when Debug mode is off');
+    assert(!btn.hasAttribute('hidden'), '#debugOptionsBtn should never be hidden');
+    assert(btn.classList.contains('footer-link'), 'expected #debugOptionsBtn to have the footer-link class');
+  });
+
+  await test('popup.js opens settings.html#debug-section for the "Debug options" link, not openOptionsPage()', () => {
+    assert(/debugOptionsBtn\?\.addEventListener\('click',[\s\S]{0,200}getURL\('settings\.html#debug-section'\)/.test(POPUP_JS),
+      'expected the debugOptionsBtn click handler to open settings.html#debug-section via api.tabs.create/getURL()');
+  });
+
+  await test('the debug footer-group visibility gating (debugMode setting) still applies to the reorganized links', () => {
+    assert(/debugGroupEl\.hidden = false/.test(POPUP_JS), 'expected the debugMode-gated show logic to remain');
+    assert(/debugGroupEl\.style\.display = 'contents'/.test(POPUP_JS),
+      'expected #debug-group to be shown with display:contents so its links lay out inside .footer-links');
+  });
+
   await test('popup.js maps every picker format to its hidden button element (FORMAT_TO_BTN)', () => {
     const formats = ['md', 'pdf', 'html', 'json', 'docx', "'copy-html'", "'copy-txt'", 'all', 'gist', 'notion'];
     formats.forEach(f => {
@@ -3198,6 +3303,26 @@ No bullets here at all, just prose under the heading.
       assert(summary, 'each settings section needs a <summary>');
       assert(summary.textContent.trim(), 'each <summary> needs visible text');
     });
+  });
+
+  // ─── Debug-section deep-link (popup's "Debug options" footer link) ────────
+  // settings.html#debug-section, opened from the popup, must actually land
+  // on/scroll to the section containing the debugMode toggle.
+  await test('settings.html has a #debug-section <details> that contains the debugMode toggle', () => {
+    const section = SETTINGS_DOM.getElementById('debug-section');
+    assert(section, '#debug-section missing from settings.html');
+    assert(section.tagName === 'DETAILS', '#debug-section should be a <details class="settings-section">');
+    const debugModeInput = SETTINGS_DOM.getElementById('debugMode');
+    assert(debugModeInput, '#debugMode missing from settings.html');
+    assert(section.contains(debugModeInput), 'expected #debug-section to contain the #debugMode toggle');
+  });
+
+  await test('settings.js opens/scrolls to the fragment-targeted section on load and on hashchange', () => {
+    const SETTINGS_JS = fs.readFileSync(path.resolve(__dirname, '../settings.js'), 'utf8');
+    assert(/location\.hash/.test(SETTINGS_JS), 'expected settings.js to read location.hash');
+    assert(/\.open\s*=\s*true/.test(SETTINGS_JS), 'expected settings.js to open a collapsed <details> for the fragment target');
+    assert(/scrollIntoView/.test(SETTINGS_JS), 'expected settings.js to scroll the fragment target into view');
+    assert(/addEventListener\('hashchange'/.test(SETTINGS_JS), 'expected settings.js to also handle a hashchange (in case the page is already open)');
   });
 
   // ─── Google AI Mode probe button (popup wiring) ────────────────────────────
@@ -3449,13 +3574,17 @@ No bullets here at all, just prose under the heading.
 
   await test('every runtime.getURL()-referenced file actually exists in the repo', () => {
     RUNTIME_REFERENCED_FILES.forEach(({ file, ref }) => {
-      const p = path.resolve(__dirname, `../${ref}`);
+      // Strip a URL fragment (e.g. 'settings.html#debug-section', used for the
+      // popup's debug-options deep-link) before resolving to a filesystem path —
+      // the fragment addresses a DOM node inside the page, not a separate file.
+      const filePart = ref.split('#')[0];
+      const p = path.resolve(__dirname, `../${filePart}`);
       assert(fs.existsSync(p), `${ref} (referenced from ${file} via getURL()) does not exist`);
     });
   });
 
   await test("every runtime.getURL()-referenced file survives release.sh's --exclude filters", () => {
-    const broken = RUNTIME_REFERENCED_FILES.filter(({ ref }) => isExcludedByReleaseZip(ref));
+    const broken = RUNTIME_REFERENCED_FILES.filter(({ ref }) => isExcludedByReleaseZip(ref.split('#')[0]));
     assert(broken.length === 0,
       'release.sh excludes file(s) referenced at runtime, breaking them in every installed build: ' +
       broken.map(b => `${b.ref} (referenced from ${b.file})`).join(', '));
@@ -4128,6 +4257,254 @@ No bullets here at all, just prose under the heading.
     await test('popup.js throttles the update check via a cached timestamp', () => {
       assert(/inkpour_update_check_cache/.test(POPUP_JS), 'expected a cache key gating the update-check fetch');
       assert(/isNewerVersion\(/.test(POPUP_JS), 'expected popup.js to use the shared isNewerVersion() helper, not its own comparison');
+    });
+  });
+
+  // ─── Per-message "Copy as Markdown" buttons ────────────────────────────────
+  // See planning/adr-per-message-share-buttons.md. Off by default; these
+  // tests call the window.__inkpour* hooks content.js exposes only in test
+  // environments (window.__inkpourTestHostname set) to exercise the feature
+  // directly, bypassing the storage-gated settings bootstrap (which this
+  // JSDOM harness's mock chrome API has no storage on, by design — same as
+  // every other suite here).
+  await suite('Per-message "Copy as Markdown" buttons (structure + behavior)', async () => {
+    const PLATFORM_FIXTURES = [
+      { platform: 'chatgpt', fixture: 'chatgpt.html', hostname: 'chatgpt.com' },
+      { platform: 'claude',  fixture: 'claude.html',  hostname: 'claude.ai' },
+      { platform: 'gemini',  fixture: 'gemini.html',  hostname: 'gemini.google.com' },
+    ];
+
+    for (const { platform, fixture, hostname } of PLATFORM_FIXTURES) {
+      await test(`${platform}: decorateMessages() attaches exactly one button host per message, no duplicates on a second call`, async () => {
+        const { window } = await loadContentScriptEnv(fixture, hostname);
+        const cfg = window.__inkpourMessageAnchors[platform];
+        const messageCount = window.document.querySelectorAll(cfg.sel).length;
+        assert(messageCount > 0, `fixture ${fixture} has no ${platform} messages to decorate`);
+
+        window.__inkpourDecorateMessages();
+        const hostsAfterFirst = window.document.querySelectorAll('[data-inkpour-msg-host]').length;
+        assert(hostsAfterFirst === messageCount, `expected ${messageCount} hosts after first decorate, got ${hostsAfterFirst}`);
+
+        window.__inkpourDecorateMessages();
+        const hostsAfterSecond = window.document.querySelectorAll('[data-inkpour-msg-host]').length;
+        assert(hostsAfterSecond === messageCount, `expected still ${messageCount} hosts after second decorate (no duplicates), got ${hostsAfterSecond}`);
+      });
+    }
+
+    // ── Placement (maintainer feedback on PR #31): assistant/model turns are
+    // now anchored near each platform's own native action row, which on all
+    // three platforms sits at the BOTTOM of the message, not a fixed top
+    // corner. User turns (no native action row on any of the three) keep a
+    // plain corner placement. ──
+    await test('placement CSS anchors assistant/model turns to the bottom, near each platform\'s native action row', async () => {
+      const { window } = await loadContentScriptEnv('gemini.html', 'gemini.google.com');
+      window.__inkpourDecorateMessages();
+      const styleText = window.document.getElementById('inkpour-msg-style').textContent;
+
+      assert(/\[data-inkpour-placement="chatgpt-assistant"\]\s*\{[^}]*bottom:/.test(styleText), 'expected chatgpt-assistant placement to be bottom-anchored');
+      assert(/\[data-inkpour-placement="claude-assistant"\]\s*\{[^}]*bottom:/.test(styleText), 'expected claude-assistant placement to be bottom-anchored');
+      assert(/\[data-inkpour-placement="gemini-assistant"\]\s*\{[^}]*bottom:/.test(styleText), 'expected gemini-assistant placement to be bottom-anchored');
+
+      // User turns keep a top-corner placement (no native action row to anchor near).
+      assert(/\[data-inkpour-placement="chatgpt-user"\]\s*\{[^}]*top:/.test(styleText), 'expected chatgpt-user placement to stay top-anchored');
+      assert(/\[data-inkpour-placement="claude-user"\]\s*\{[^}]*top:/.test(styleText), 'expected claude-user placement to stay top-anchored');
+      assert(/\[data-inkpour-placement="gemini-user"\]\s*\{[^}]*top:/.test(styleText), 'expected gemini-user placement to stay top-anchored');
+    });
+
+    await test('placementKeyFor() assigns distinct user/assistant placement keys per platform', async () => {
+      const { window } = await loadContentScriptEnv('gemini.html', 'gemini.google.com');
+      window.__inkpourDecorateMessages();
+
+      const hosts = Array.from(window.document.querySelectorAll('[data-inkpour-msg-host]'));
+      const placements = new Set(hosts.map(h => h.getAttribute('data-inkpour-placement')));
+      assert(placements.has('gemini-user') || placements.has('gemini-assistant'), `expected gemini-user/gemini-assistant placement keys, got: ${JSON.stringify([...placements])}`);
+      // None of the raw, unsplit platform keys should appear any more.
+      assert(!placements.has('gemini'), 'expected the bare "gemini" placement key to no longer be used');
+    });
+
+    for (const { platform, fixture, hostname } of PLATFORM_FIXTURES) {
+      await test(`${platform}: every decorated host gets a "${platform}-user" or "${platform}-assistant" placement key, never the bare platform name`, async () => {
+        const { window } = await loadContentScriptEnv(fixture, hostname);
+        window.__inkpourDecorateMessages();
+
+        const hosts = Array.from(window.document.querySelectorAll('[data-inkpour-msg-host]'));
+        assert(hosts.length > 0, `expected at least one decorated host for ${fixture}`);
+        hosts.forEach(h => {
+          const key = h.getAttribute('data-inkpour-placement');
+          assert(key === `${platform}-user` || key === `${platform}-assistant`, `unexpected placement key "${key}" for platform ${platform}`);
+        });
+      });
+    }
+
+    await test('re-decorates (without duplicating) an anchor whose data-inkpour-msg attribute was stripped by a host-page re-render', async () => {
+      const { window } = await loadContentScriptEnv('claude.html', 'claude.ai');
+      window.__inkpourDecorateMessages();
+
+      const anchor = window.document.querySelector('[data-inkpour-msg]');
+      assert(anchor, 'expected at least one decorated anchor');
+      anchor.removeAttribute('data-inkpour-msg'); // simulate the host page re-rendering away our attribute
+
+      window.__inkpourDecorateMessages();
+
+      assert(anchor.hasAttribute('data-inkpour-msg'), 'expected the attribute to be restored on re-decoration');
+      const hostsOnThisAnchor = anchor.querySelectorAll(':scope > [data-inkpour-msg-host]').length;
+      assert(hostsOnThisAnchor === 1, `expected exactly 1 host on the re-decorated anchor, got ${hostsOnThisAnchor}`);
+    });
+
+    await test('teardownMessageDecoration() removes every injected host and data-inkpour-msg attribute', async () => {
+      const { window } = await loadContentScriptEnv('gemini.html', 'gemini.google.com');
+      window.__inkpourDecorateMessages();
+      assert(window.document.querySelectorAll('[data-inkpour-msg-host]').length > 0, 'expected hosts to exist before teardown');
+
+      window.__inkpourTeardownMessageDecoration();
+
+      assert(window.document.querySelectorAll('[data-inkpour-msg-host]').length === 0, 'expected zero hosts after teardown');
+      assert(window.document.querySelectorAll('[data-inkpour-msg]').length === 0, 'expected zero data-inkpour-msg attributes after teardown');
+    });
+
+    // ── _footnoteOffset isolation (the most important test in this suite —
+    // see ADR §4: without the save/reset/restore wrapper in
+    // copyOneMessageMarkdown(), a per-message copy would silently inherit
+    // and then corrupt the running footnote counter used by full exports) ──
+    await test('copyOneMessageMarkdown() on a citation-bearing Gemini message starts footnotes at [^1]', async () => {
+      const { window, extract } = await loadContentScriptEnv('gemini.html', 'gemini.google.com');
+
+      // Run one full extraction first, exactly as a real popup export would —
+      // this is what advances _footnoteOffset away from 0 in real usage.
+      const firstExtraction = await extract('extract');
+      assert(Array.isArray(firstExtraction?.messages) && firstExtraction.messages.length > 0, 'expected the first extraction to succeed');
+
+      const modelResponses = window.document.querySelectorAll('model-response');
+      const chipBearingEl = Array.from(modelResponses).find(el => el.querySelector('source-inline-chip'));
+      assert(chipBearingEl, 'expected at least one model-response with a source-inline-chip in the fixture');
+
+      const singleMd = window.__inkpourCopyOneMessageMarkdown(chipBearingEl, 'gemini');
+      const firstMarker = singleMd.match(/\[\^(\d+)\]/);
+      assert(firstMarker, `expected a [^N] footnote marker in the single-message copy, got: ${singleMd}`);
+      assert(firstMarker[1] === '1', `expected the single-message copy's first footnote to be [^1] regardless of the prior full export's offset, got [^${firstMarker[1]}]`);
+    });
+
+    await test('copyOneMessageMarkdown() never advances _footnoteOffset — a full export before and after produces identical footnote numbering', async () => {
+      const { window, extract } = await loadContentScriptEnv('gemini.html', 'gemini.google.com');
+
+      const before = await extract('extract');
+      assert(before?.messages?.length > 0, 'expected the "before" extraction to succeed');
+
+      const modelResponses = window.document.querySelectorAll('model-response');
+      const chipBearingEl = Array.from(modelResponses).find(el => el.querySelector('source-inline-chip'));
+      window.__inkpourCopyOneMessageMarkdown(chipBearingEl, 'gemini'); // the call under test — must be a no-op on shared state
+
+      const after = await extract('extract');
+      assert(after?.messages?.length === before.messages.length, 'message count changed between the two extractions');
+
+      before.messages.forEach((m, i) => {
+        assert(m.content === after.messages[i].content, `message ${i}'s content (including footnote numbering) differs after an intervening copyOneMessageMarkdown() call — _footnoteOffset was corrupted`);
+      });
+    });
+
+    await test('copyOneMessageMarkdown() returns an empty string for an unknown platform rather than throwing', async () => {
+      const { window } = await loadContentScriptEnv('gemini.html', 'gemini.google.com');
+      const anyEl = window.document.querySelector('model-response');
+      let threw = false;
+      let result;
+      try {
+        result = window.__inkpourCopyOneMessageMarkdown(anyEl, 'not-a-real-platform');
+      } catch {
+        threw = true;
+      }
+      assert(!threw, 'copyOneMessageMarkdown() must not throw for an unrecognized platform');
+      assert(result === '', `expected an empty string for an unknown platform, got: ${JSON.stringify(result)}`);
+    });
+
+    await test('manifest.json loads src/redact.js into the content script (needed so per-message copies can honor scrubLocalExports)', () => {
+      const manifest = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../manifest.json'), 'utf8'));
+      const contentScriptJs = manifest.content_scripts[0].js;
+      assert(contentScriptJs.includes('src/redact.js'), `expected src/redact.js in content_scripts[0].js, got: ${JSON.stringify(contentScriptJs)}`);
+      assert(contentScriptJs.indexOf('src/redact.js') < contentScriptJs.indexOf('src/content.js'), 'src/redact.js must load before src/content.js so redactSecrets() is defined when content.js runs');
+    });
+
+    await test('settings.html has the perMessageCopyButtons toggle, wired to its own label/description via aria', () => {
+      const input = SETTINGS_DOM.getElementById('perMessageCopyButtons');
+      assert(input, '#perMessageCopyButtons missing from settings.html');
+      assert(input.getAttribute('role') === 'switch', 'expected role="switch" for consistency with the other toggles');
+      const labelledBy = input.getAttribute('aria-labelledby');
+      const describedBy = input.getAttribute('aria-describedby');
+      assert(labelledBy && SETTINGS_DOM.getElementById(labelledBy), '#perMessageCopyButtons aria-labelledby should point at a real element');
+      assert(describedBy && SETTINGS_DOM.getElementById(describedBy), '#perMessageCopyButtons aria-describedby should point at a real element');
+    });
+
+    await test('settings.js wires perMessageCopyButtons into DEFAULTS, load, save, and the discrete-controls id list', () => {
+      const SETTINGS_JS = fs.readFileSync(path.resolve(__dirname, '../settings.js'), 'utf8');
+      assert(/perMessageCopyButtons:\s*false/.test(SETTINGS_JS), 'expected perMessageCopyButtons: false in DEFAULTS');
+      assert(/getElementById\('perMessageCopyButtons'\)\.checked\s*=\s*prefs\.perMessageCopyButtons/.test(SETTINGS_JS), 'expected the load step to populate the checkbox from prefs');
+      assert(/perMessageCopyButtons:\s*document\.getElementById\('perMessageCopyButtons'\)\.checked/.test(SETTINGS_JS), 'expected save() to read the checkbox back into prefs');
+      assert(/'perMessageCopyButtons'/.test(SETTINGS_JS.match(/Discrete controls[\s\S]*?\]\.forEach/)?.[0] || ''), 'expected perMessageCopyButtons in the discrete-controls (save-on-change) id list');
+    });
+
+    await test('src/settingsSync.js allows perMessageCopyButtons to sync (non-sensitive UI toggle)', () => {
+      const SYNC_JS = fs.readFileSync(path.resolve(__dirname, '../src/settingsSync.js'), 'utf8');
+      const listMatch = SYNC_JS.match(/SYNCABLE_SETTING_KEYS\s*=\s*\[([\s\S]*?)\]/);
+      assert(listMatch, 'could not find SYNCABLE_SETTING_KEYS in src/settingsSync.js');
+      assert(/'perMessageCopyButtons'/.test(listMatch[1]), 'expected perMessageCopyButtons in SYNCABLE_SETTING_KEYS');
+    });
+  });
+
+  // ─── Floating button visibility toggle + FAB Settings link ─────────────────
+  // The floating "ip" button had no opt-out at all before this — some users
+  // find any injected on-page UI intrusive. showFloatingButton defaults to
+  // true (unchanged behavior for every existing install; an old stored
+  // settings object with no such key must still show the button, never hide
+  // it) and content.js's FAB menu gained its own Settings shortcut so the
+  // toggle (and everything else) is reachable without opening the popup.
+  await suite('Floating button visibility toggle + FAB Settings link', async () => {
+    await test('settings.html has the showFloatingButton toggle, checked by default, wired to its own label/description via aria', () => {
+      const input = SETTINGS_DOM.getElementById('showFloatingButton');
+      assert(input, '#showFloatingButton missing from settings.html');
+      assert(input.getAttribute('role') === 'switch', 'expected role="switch" for consistency with the other toggles');
+      assert(input.hasAttribute('checked'), 'expected showFloatingButton to default to checked (on) in the markup');
+      const labelledBy = input.getAttribute('aria-labelledby');
+      const describedBy = input.getAttribute('aria-describedby');
+      assert(labelledBy && SETTINGS_DOM.getElementById(labelledBy), '#showFloatingButton aria-labelledby should point at a real element');
+      assert(describedBy && SETTINGS_DOM.getElementById(describedBy), '#showFloatingButton aria-describedby should point at a real element');
+    });
+
+    await test('settings.js wires showFloatingButton into DEFAULTS (true), load, save, and the discrete-controls id list', () => {
+      const SETTINGS_JS = fs.readFileSync(path.resolve(__dirname, '../settings.js'), 'utf8');
+      assert(/showFloatingButton:\s*true/.test(SETTINGS_JS), 'expected showFloatingButton: true in DEFAULTS — must default on, not off');
+      assert(/getElementById\('showFloatingButton'\)\.checked\s*=\s*prefs\.showFloatingButton/.test(SETTINGS_JS), 'expected the load step to populate the checkbox from prefs');
+      assert(/showFloatingButton:\s*document\.getElementById\('showFloatingButton'\)\.checked/.test(SETTINGS_JS), 'expected save() to read the checkbox back into prefs');
+      assert(/'showFloatingButton'/.test(SETTINGS_JS.match(/Discrete controls[\s\S]*?\]\.forEach/)?.[0] || ''), 'expected showFloatingButton in the discrete-controls (save-on-change) id list');
+    });
+
+    await test('popup.js DEFAULTS also default showFloatingButton to true (key-complete settings snapshot)', () => {
+      assert(/showFloatingButton:\s*true/.test(POPUP_JS), 'expected popup.js DEFAULTS to include showFloatingButton: true');
+    });
+
+    await test('src/settingsSync.js allows showFloatingButton to sync (non-sensitive UI toggle)', () => {
+      const SYNC_JS = fs.readFileSync(path.resolve(__dirname, '../src/settingsSync.js'), 'utf8');
+      const listMatch = SYNC_JS.match(/SYNCABLE_SETTING_KEYS\s*=\s*\[([\s\S]*?)\]/);
+      assert(listMatch, 'could not find SYNCABLE_SETTING_KEYS in src/settingsSync.js');
+      assert(/'showFloatingButton'/.test(listMatch[1]), 'expected showFloatingButton in SYNCABLE_SETTING_KEYS');
+    });
+
+    await test('src/content.js treats a missing showFloatingButton key as "shown" (existing installs must not lose the FAB)', () => {
+      // The exact guard: `!(s && s.showFloatingButton === false)` — only an
+      // explicit false hides it; undefined/missing must fail safe to shown.
+      assert(/s\s*&&\s*s\.showFloatingButton\s*===\s*false/.test(CONTENT_JS), 'expected the initial-load guard to check specifically for showFloatingButton === false, not a truthy/falsy read');
+      assert(/newVal\.showFloatingButton\s*!==\s*false/.test(CONTENT_JS), 'expected the live onChanged guard to check specifically for !== false, not a truthy/falsy read');
+    });
+
+    await test('src/content.js gates both the initial FAB injection and SPA-navigation re-injection behind _showFab', () => {
+      assert(/if\s*\(_showFab\)\s*injectInPageButton\(\)/.test(CONTENT_JS), 'expected the SPA-navigation re-injection to check _showFab before calling injectInPageButton()');
+    });
+
+    await test('the FAB menu has a Settings button that opens the options page and is excluded from the export-buttons disable-during-loading group', () => {
+      assert(/id="inkpour-settings"/.test(CONTENT_JS), 'expected an #inkpour-settings button in the FAB menu markup');
+      assert(/settingsBtn\.addEventListener\('click'/.test(CONTENT_JS), 'expected a click handler for the FAB settings button');
+      assert(/openOptionsPage/.test(CONTENT_JS), 'expected the FAB settings button to open the options page, same as the popup\'s own settings button');
+      const allBtnsMatch = CONTENT_JS.match(/const allBtns\s*=\s*\[([^\]]*)\]/);
+      assert(allBtnsMatch, 'could not find the allBtns array in content.js');
+      assert(!/settingsBtn/.test(allBtnsMatch[1]), 'settingsBtn must NOT be in allBtns — it should stay clickable during an export, unlike the actual export buttons');
     });
   });
 

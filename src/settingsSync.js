@@ -23,6 +23,8 @@ const SYNCABLE_SETTING_KEYS = [
   'resolveGeminiLinks',
   'gistPublic',
   'scrubSecrets',
+  'perMessageCopyButtons',
+  'showFloatingButton',
   'webhookIncludeContent',
   'debugMode',
   'debugAttachGist',

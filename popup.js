@@ -26,6 +26,7 @@
   const debugDomBtn  = document.getElementById('debugDomBtn');
   const reportBugBtn = document.getElementById('reportBugBtn');
   const probeAiModeBtn = document.getElementById('probeAiModeBtn');
+  const debugOptionsBtn = document.getElementById('debugOptionsBtn');
   const allBtn      = document.getElementById('allBtn');
   const exportSelectBtn    = document.getElementById('exportSelectBtn');
   const exportSelectedLabel = document.getElementById('exportSelectedLabel');
@@ -110,6 +111,8 @@
     notionPageId:          '',
     scrubSecrets:          true,
     scrubLocalExports:     false,
+    perMessageCopyButtons: false,
+    showFloatingButton:    true,
     webhookUrl:            '',
     webhookIncludeContent: false,
     writeToVault:          false,
@@ -157,7 +160,12 @@
     });
     if (debugGroupEl && userSettings.debugMode) {
       debugGroupEl.hidden = false;
-      debugGroupEl.style.display = 'flex';
+      // 'contents' (not 'flex'/'block'): this <span> only exists to group the
+      // debug links for one hidden/shown toggle — its children must lay out
+      // as direct items of the surrounding .footer-links flex row, not as a
+      // nested box of their own (see the comment above #debug-group in
+      // popup.html).
+      debugGroupEl.style.display = 'contents';
     }
   });
 
@@ -719,6 +727,15 @@
 
   historyBtn?.addEventListener('click', () => {
     api.tabs.create({ url: api.runtime.getURL('history.html') });
+  });
+
+  // Deep-links into settings.html's Advanced/debug section (id="debug-section")
+  // instead of the top of the page. api.runtime.openOptionsPage() (used by
+  // settingsBtn/settingsBtn2 above) has no cross-browser way to carry a URL
+  // fragment, so this opens settings.html directly as a plain tab — the
+  // fragment is picked up by openAndScrollToFragment() in settings.js.
+  debugOptionsBtn?.addEventListener('click', () => {
+    api.tabs.create({ url: api.runtime.getURL('settings.html#debug-section') });
   });
 
   // ─── Import from clipboard ────────────────────────────────────────────────

@@ -495,8 +495,9 @@
     /* ── Footer links ── */
     .footer-links {
       display: flex;
+      flex-wrap: wrap;
       justify-content: center;
-      gap: 12px;
+      gap: 8px 12px;
       margin-top: 12px;
       padding-top: 10px;
       border-top: 1px solid var(--border);
@@ -735,28 +736,6 @@
     <button id="notionBtn" data-i18n-title="popupNotionBtnTitle" title="Append Markdown to a Notion page" hidden><div class="spinner"></div><span data-i18n="popupBtnNotion">Notion</span></button>
   </div>
 
-  <!-- Debug mode (Settings → Advanced → Debug mode) — never includes chat content -->
-  <div class="btn-group copy-group" id="debug-group" hidden style="display:none;">
-    <button class="btn copy-btn" id="debugDomBtn" data-i18n-title="popupDebugDomBtnTitle" title="Copy debug info (no chat content included)">
-      <div class="spinner"></div>
-      <span data-i18n="popupBtnDebugDom">Copy debug info</span>
-    </button>
-    <button class="btn copy-btn" id="reportBugBtn" data-i18n-title="popupReportBugBtnTitle" title="Report a bug on GitHub (no chat content included)">
-      <div class="spinner"></div>
-      <span data-i18n="popupBtnReportBug">Report bug</span>
-    </button>
-    <!-- Google AI Mode only for now — fills a unique test prompt into the
-         query box; you press send yourself, then the content script reports
-         (via clipboard + an in-page toast, not back through this popup,
-         which closes the moment you click the actual page) exactly which
-         DOM elements ended up wrapping it. See src/content.js's
-         startGoogleAiModeProbe for why. -->
-    <button class="btn copy-btn" id="probeAiModeBtn" data-i18n-title="popupProbeAiModeBtnTitle" title="Fill a test prompt into Google AI Mode to diagnose why extraction isn't finding messages (Google AI Mode only)">
-      <div class="spinner"></div>
-      <span data-i18n="popupBtnProbeAiMode">Probe AI Mode</span>
-    </button>
-  </div>
-
   <div id="status" role="status" aria-live="polite"></div>
   <div id="new-msgs-hint" hidden style="display:none;margin-top:4px;font-size:10.5px;
        text-align:center;color:var(--warning);"></div>
@@ -846,6 +825,36 @@
   <div class="footer-links">
     <button class="footer-link" id="historyBtn" data-i18n="popupHistoryBtn">⏱ History</button>
     <button class="footer-link" id="settingsBtn2" data-i18n="popupSettingsBtn">⚙ Settings</button>
+    <!-- Always visible, regardless of Debug mode state — this is the
+         discovery path TO debug mode (deep-links into settings.html's
+         Advanced section, id="debug-section", scrolled/expanded to it on
+         load — see settings.js's openAndScrollToFragment()). It must not be
+         nested inside #debug-group below: that group only shows once Debug
+         mode is already on, which would make this link — the thing meant to
+         help you find and enable Debug mode in the first place — invisible
+         until after you've already enabled it. Opened as a plain new tab
+         (not api.runtime.openOptionsPage(), which has no way to carry a URL
+         fragment across browsers) so the #debug-section hash survives. -->
+    <button class="footer-link" id="debugOptionsBtn" data-i18n="popupBtnDebugOptions" data-i18n-title="popupDebugOptionsBtnTitle" title="Open Settings, scrolled to the debug options section">Debug options</button>
+    <!-- Debug mode (Settings → Advanced → Debug mode) action buttons — never
+         include chat content. Small text links matching #historyBtn/
+         #settingsBtn2's own style, living in the same footer row, only shown
+         when Debug mode is on (see the `debugGroupEl.hidden`/`.style.display`
+         toggle in popup.js). `display: contents` on this <span> (set in
+         popup.js, not here, since it must match the `hidden`/shown state)
+         makes it invisible to layout so its links sit as direct items of the
+         same flex row instead of a nested block of their own, while still
+         being togglable as one unit. -->
+    <span id="debug-group" hidden style="display:none;">
+      <button class="footer-link" id="debugDomBtn" data-i18n="popupBtnDebugDom" data-i18n-title="popupDebugDomBtnTitle" title="Copy debug info (no chat content included)">Copy debug info</button>
+      <!-- Google AI Mode only for now — fills a unique test prompt into the
+           query box; you press send yourself, then the content script
+           reports (via clipboard + an in-page toast, not back through this
+           popup, which closes the moment you click the actual page) exactly
+           which DOM elements ended up wrapping it. See src/content.js's
+           startGoogleAiModeProbe for why. -->
+      <button class="footer-link" id="probeAiModeBtn" data-i18n="popupBtnProbeAiMode" data-i18n-title="popupProbeAiModeBtnTitle" title="Fill a test prompt into Google AI Mode to diagnose why extraction isn't finding messages (Google AI Mode only)">Probe AI Mode</button>
+    </span>
   </div>
 
   <!-- Update notice: hidden unless a newer version than this install is
@@ -854,7 +863,15 @@
        until the user actually updates, since it's still actionable. -->
   <a id="updateAvailable" class="update-notice" href="#" target="_blank" rel="noopener" hidden style="display:none;"></a>
 
-  <div id="versionFooter" style="text-align:center;font-size:10px;color:var(--subtext);margin-top:6px;opacity:0.7;"></div>
+  <!-- Report bug lives here rather than in #debug-group above: it's a
+       generally useful action for anyone hitting a problem, most of whom
+       won't have Debug mode on — gating it behind that setting would hide
+       the one link a confused/frustrated user is most likely to need.
+       Never includes chat content, same as elsewhere. -->
+  <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;">
+    <div id="versionFooter" style="font-size:10px;color:var(--subtext);opacity:0.7;"></div>
+    <button class="footer-link" id="reportBugBtn" data-i18n="popupBtnReportBug" data-i18n-title="popupReportBugBtnTitle" title="Report a bug on GitHub (no chat content included)" style="font-size:10px;opacity:0.7;">Report bug</button>
+  </div>
 
   <script src="src/i18n.js"></script>
   <script src="src/utils.js"></script>

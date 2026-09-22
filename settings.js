@@ -10,6 +10,25 @@
   const versionFooterEl = document.getElementById('versionFooter');
   if (versionFooterEl) versionFooterEl.textContent = t('popupVersionFooter', [api.runtime.getManifest().version]);
 
+  // ─── Deep-link into a specific <details class="settings-section">, e.g.
+  // settings.html#debug-section from the popup's "Debug options" footer
+  // link. The Advanced section (#debug-section) currently starts `open`
+  // like every other section, so `.open = true` here is a no-op today — but
+  // it's still done explicitly (rather than relying on that always being
+  // true) so this keeps working unchanged if that section is ever collapsed
+  // by default. scrollIntoView() is what actually matters given the section
+  // already starts open.
+  function openAndScrollToFragment() {
+    const id = (location.hash || '').replace(/^#/, '');
+    if (!id) return;
+    const target = document.getElementById(id);
+    if (!target) return;
+    if (target.tagName === 'DETAILS') target.open = true;
+    target.scrollIntoView({ block: 'start' });
+  }
+  openAndScrollToFragment();
+  window.addEventListener('hashchange', openAndScrollToFragment);
+
   // ─── Browser detection ────────────────────────────────────────────────────
 
   const BROWSER_META = {
@@ -89,6 +108,8 @@
     notionPageId:         '',
     scrubSecrets:          true,
     scrubLocalExports:     false,
+    perMessageCopyButtons: false,
+    showFloatingButton:    true,
     webhookUrl:           '',
     webhookIncludeContent: false,
     writeToVault:          false,
@@ -118,6 +139,8 @@
     document.getElementById('notionPageId').value             = prefs.notionPageId || '';
     document.getElementById('scrubSecrets').checked           = prefs.scrubSecrets;
     document.getElementById('scrubLocalExports').checked      = prefs.scrubLocalExports;
+    document.getElementById('perMessageCopyButtons').checked  = prefs.perMessageCopyButtons;
+    document.getElementById('showFloatingButton').checked     = prefs.showFloatingButton;
     document.getElementById('webhookUrl').value              = prefs.webhookUrl;
     document.getElementById('webhookIncludeContent').checked = prefs.webhookIncludeContent;
     document.getElementById('writeToVault').checked           = prefs.writeToVault;
@@ -262,6 +285,8 @@
       notionPageId:          document.getElementById('notionPageId').value.trim(),
       scrubSecrets:          document.getElementById('scrubSecrets').checked,
       scrubLocalExports:     document.getElementById('scrubLocalExports').checked,
+      perMessageCopyButtons: document.getElementById('perMessageCopyButtons').checked,
+      showFloatingButton:    document.getElementById('showFloatingButton').checked,
       webhookUrl:            document.getElementById('webhookUrl').value.trim(),
       webhookIncludeContent: document.getElementById('webhookIncludeContent').checked,
       writeToVault:          document.getElementById('writeToVault').checked,
@@ -291,7 +316,7 @@
   // Discrete controls (checkboxes/selects): save immediately, no debounce.
   [
     'defaultFormat', 'pdfAutoPrint', 'yamlFrontMatter', 'generateTOC',
-    'obsidianTags', 'resolveGeminiLinks', 'gistPublic', 'scrubSecrets', 'scrubLocalExports', 'webhookIncludeContent',
+    'obsidianTags', 'resolveGeminiLinks', 'gistPublic', 'scrubSecrets', 'scrubLocalExports', 'perMessageCopyButtons', 'showFloatingButton', 'webhookIncludeContent',
     'writeToVault', 'debugMode', 'debugAttachGist',
   ].forEach((id) => {
     document.getElementById(id)?.addEventListener('change', save);

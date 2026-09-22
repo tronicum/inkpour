@@ -656,6 +656,18 @@
   "settingsScrubLocalDesc": {
     "message": "Apply the same redaction to exports that stay on this computer — Markdown, PDF, HTML, JSON, DOCX, and ZIP files, plus both clipboard copies. Off by default, because local exports never leave your machine. Turn it on when you plan to pass a file along — sending it to a coworker, or saving into a shared or synced folder such as a shared Obsidian vault — so API keys, tokens, and email addresses you pasted into the chat don't travel with it."
   },
+  "settingsPerMessageCopyLabel": {
+    "message": "Copy button on each message"
+  },
+  "settingsPerMessageCopyDesc": {
+    "message": "Show a small button on every message in ChatGPT, Claude, and Gemini that copies just that one message as Markdown. Off by default. Only affects the three fully-supported platforms."
+  },
+  "settingsShowFabLabel": {
+    "message": "Show floating export button"
+  },
+  "settingsShowFabDesc": {
+    "message": "A small \"ip\" button on every supported chat page for quick export without opening the popup. On by default; turn it off if you find it distracting."
+  },
   "settingsWebhookUrlLabel": {
     "message": "Webhook URL"
   },
@@ -925,6 +937,9 @@
   "contentMenuExportZip": {
     "message": "ZIP ਐਕਸਪੋਰਟ ਕਰੋ"
   },
+  "contentMenuSettings": {
+    "message": "Settings"
+  },
   "contentStatusSaved": {
     "message": "✓ ਸੇਵ ਹੋ ਗਿਆ!"
   },
@@ -947,6 +962,12 @@
   },
   "contentNoMessagesFound": {
     "message": "ਕੋਈ ਸੁਨੇਹਾ ਨਹੀਂ ਮਿਲਿਆ"
+  },
+  "contentMsgCopyTitle": {
+    "message": "Copy this message as Markdown"
+  },
+  "contentMsgCopied": {
+    "message": "Message copied as Markdown"
   },
   "settingsPageTitle": {
     "message": "Inkpour — ਸੈਟਿੰਗਸ"
@@ -1064,6 +1085,12 @@
   },
   "popupBtnProbeAiMode": {
     "message": "AI Mode ਜਾਂਚੋ"
+  },
+  "popupDebugOptionsBtnTitle": {
+    "message": "Open Settings, scrolled to the debug options section"
+  },
+  "popupBtnDebugOptions": {
+    "message": "Debug options"
   },
   "popupStatusProbeStarted": {
     "message": "ਟੈਸਟ ਪ੍ਰੌਂਪਟ ਭਰ ਦਿੱਤਾ ਗਿਆ ਹੈ — ਪੇਜ 'ਤੇ ਭੇਜੋ ਦਬਾਓ। ਜਵਾਬ ਆਉਂਦੇ ਹੀ ਰਿਪੋਰਟ ਆਪਣੇ-ਆਪ ਕਲਿੱਪਬੋਰਡ ਵਿੱਚ ਕਾਪੀ ਹੋ ਜਾਵੇਗੀ।"
