@@ -1159,6 +1159,27 @@ path is one self-contained click handler (settings.js:138–162) building one
   `planning/adr-orion-ios-automation.md` — both stuck on "no automation
   protocol," different platforms).
 
+## Batch 17 — Per-message buttons don't render on live claude.ai (bug, 2026-09-22)
+GitHub issue: https://github.com/tronicum/inkpour/issues/34
+- [ ] **M** `perMessageCopyButtons` (off by default) passes 12/12 against a
+  saved static Playwright fixture of claude.ai but produces 0 button hosts on
+  the real live site — `cfg.sel` matches 18 message elements, `[data-inkpour-
+  msg]`/`[data-inkpour-msg-host]` stay at 0, no console error (decorateMessages()
+  wraps the whole pass in try/catch). Leading theory: `MESSAGE_ANCHORS.claude
+  .anchor()`'s ancestor walk-up (src/content.js) returns null against claude.ai's
+  actual current DOM shape even though the flat selector still matches, so
+  `decorateOne()` is silently skipped for every message.
+- [ ] **S** Needs live-browser diagnosis to confirm/refute the theory — doesn't
+  reproduce in jsdom or the static-fixture harness, only the real site. Log
+  `el.outerHTML` and the ancestor-walk result against the live DOM.
+- [ ] **XS** Once fixed: re-verify all three platforms (ChatGPT/Claude/Gemini)
+  live, not just via the harness, before re-marking
+  `planning/adr-per-message-share-buttons.md` as "Accepted — verified working"
+  again — that status was set prematurely off the isolated-harness result alone
+  and has been walked back.
+- Not started. Low urgency for existing users (setting defaults off), but
+  blocks the feature actually working for anyone who turns it on.
+
 ## Batch 9 — Distribution (XL; blocked on Stefan — accounts, fees, listing assets)
 - [x] **XL** Submit to Firefox Add-ons (AMO) + Chrome Web Store — in progress,
   Stefan is doing this directly (developer accounts, listing copy/screenshots,
