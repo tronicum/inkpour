@@ -1388,8 +1388,13 @@ Positioning (reference, not work items):
   fixture suite growing and selectors re-verified.
 
 Stefan's action items (not code):
-- [ ] README "Workflows: exporting to knowledge bases" section — Obsidian
+- [x] README "Workflows: exporting to knowledge bases" section — Obsidian
   (drag-and-drop, or point Downloads-subfolder at the vault); Notion once
   Batch 5 ships; temp-chat support once Batch 7's verification passes.
+  Done 2026-09-24: README now has a "## Workflows" section covering Obsidian
+  (subfolder + direct-to-vault + `type: ai-chat` Dataview key), Notion setup,
+  Gist, webhook (brief — may be superseded by fix/webhook-payload-consistency
+  docs), temp-chat note (ChatGPT-verified only), and the mobile bookmarklet
+  pointer.
 - [ ] Decisions needed before their batches: Notion test token (Batch 5),
   logged-in browser time (Batch 7), store/dev accounts (Batch 9).
