@@ -1077,6 +1077,73 @@ async function main() {
     });
   });
 
+  await suite('findGoogleShareUrl — passive capture of Google\'s native Share link', async () => {
+    async function loadWithBody(bodyHtml, hostname) {
+      const dom = new JSDOM(`<!DOCTYPE html><body>${bodyHtml}</body>`, { url: `https://${hostname}/`, runScripts: 'dangerously' });
+      dom.window.__inkpourTestHostname = hostname;
+      dom.window.HTMLElement.prototype.scrollTo = function () {};
+      dom.window.document.documentElement.scrollTo = function () {};
+      const ls = [];
+      dom.window.browser = { runtime: { onMessage: { addListener: fn => ls.push(fn) }, id: 't' }, i18n: mockI18n() };
+      dom.window.chrome  = dom.window.browser;
+      const s = dom.window.document.createElement('script');
+      s.textContent = CONTENT_JS;
+      dom.window.document.body.appendChild(s);
+      await new Promise(r => setTimeout(r, 50));
+      return dom.window.__inkpourFindGoogleShareUrl;
+    }
+
+    await test('captures an already-rendered Gemini share link (anchor)', async () => {
+      const fn = await loadWithBody(
+        '<div role="dialog"><a href="https://g.co/gemini/share/abc123">Copy link</a></div>',
+        'gemini.google.com'
+      );
+      assert(fn() === 'https://g.co/gemini/share/abc123', `expected the share link, got: ${fn()}`);
+    });
+
+    await test('captures a share link from a readonly input field', async () => {
+      const fn = await loadWithBody(
+        '<div aria-label="Share this chat"><input type="text" readonly value="https://gemini.google.com/share/xyz789" /></div>',
+        'gemini.google.com'
+      );
+      assert(fn() === 'https://gemini.google.com/share/xyz789', `expected the share link, got: ${fn()}`);
+    });
+
+    await test('returns empty string when no share link is present (the common case)', async () => {
+      const fn = await loadWithBody('<main><h1>Hi there</h1></main>', 'gemini.google.com');
+      assert(fn() === '', `expected empty string, got: ${JSON.stringify(fn())}`);
+    });
+
+    await test('does not mistake an unrelated link for a share link', async () => {
+      const fn = await loadWithBody(
+        '<a href="https://support.google.com/gemini">Help</a>',
+        'gemini.google.com'
+      );
+      assert(fn() === '', `expected empty string, got: ${JSON.stringify(fn())}`);
+    });
+
+    await test('the aria-label fallback rejects an off-domain "Share" widget (e.g. share-to-X)', async () => {
+      // Regression: '[aria-label*="Share" i] a[href^="http"]' alone would
+      // match ANY http link inside ANY "Share"-labeled element — a social
+      // share-to-X button, "Share feedback" widget, etc. — not just Google's
+      // own conversation-share link. The found URL's own host must be
+      // google.com/g.co, or it must be rejected.
+      const fn = await loadWithBody(
+        '<div aria-label="Share this result"><a href="https://x.com/intent/tweet?text=hi">Share on X</a></div>',
+        'gemini.google.com'
+      );
+      assert(fn() === '', `expected empty string (off-domain host), got: ${JSON.stringify(fn())}`);
+    });
+
+    await test('the aria-label fallback accepts an on-domain Google AI Mode share link', async () => {
+      const fn = await loadWithBody(
+        '<div aria-label="Share this AI Mode response"><a href="https://www.google.com/share/abc123">Copy link</a></div>',
+        'google.com'
+      );
+      assert(fn() === 'https://www.google.com/share/abc123', `expected the on-domain share link, got: ${fn()}`);
+    });
+  });
+
   await suite('getConversationList — unsupported/logged-out platform', async () => {
     const dom = new JSDOM(`<!DOCTYPE html><body>
       <nav><a href="/some/other/link">Not a conversation link</a></nav>
@@ -1239,6 +1306,23 @@ async function main() {
       const md = buildMarkdown(msgs, 'Chat', 'chatgpt', { yamlFrontMatter: true }, 'https://chatgpt.com/c/abc');
       assert(md.startsWith('---\n'), 'missing YAML opening');
       assert(md.includes('source_url: "https://chatgpt.com/c/abc"'), 'missing source_url');
+    });
+
+    await test('YAML front matter includes share_url when provided', () => {
+      const md = buildMarkdown(msgs, 'Chat', 'gemini', { yamlFrontMatter: true }, '', 'https://g.co/gemini/share/abc123');
+      assert(md.startsWith('---\n'), 'missing YAML opening');
+      assert(md.includes('share_url: "https://g.co/gemini/share/abc123"'), `missing share_url. Got: ${md.slice(0, 300)}`);
+    });
+
+    await test('no share_url line when not provided', () => {
+      const md = buildMarkdown(msgs, 'Chat', 'claude', { yamlFrontMatter: true });
+      assert(!md.includes('share_url:'), `unexpected share_url. Got: ${md.slice(0, 300)}`);
+    });
+
+    await test('source_url and share_url can both appear together', () => {
+      const md = buildMarkdown(msgs, 'Chat', 'gemini', { yamlFrontMatter: true }, 'https://gemini.google.com/app/abc', 'https://g.co/gemini/share/xyz789');
+      assert(md.includes('source_url: "https://gemini.google.com/app/abc"'), 'missing source_url');
+      assert(md.includes('share_url: "https://g.co/gemini/share/xyz789"'), 'missing share_url');
     });
 
     await test('YAML front matter includes an Obsidian-Dataview-friendly type key', () => {
