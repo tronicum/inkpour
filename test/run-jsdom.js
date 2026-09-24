@@ -1121,6 +1121,27 @@ async function main() {
       );
       assert(fn() === '', `expected empty string, got: ${JSON.stringify(fn())}`);
     });
+
+    await test('the aria-label fallback rejects an off-domain "Share" widget (e.g. share-to-X)', async () => {
+      // Regression: '[aria-label*="Share" i] a[href^="http"]' alone would
+      // match ANY http link inside ANY "Share"-labeled element — a social
+      // share-to-X button, "Share feedback" widget, etc. — not just Google's
+      // own conversation-share link. The found URL's own host must be
+      // google.com/g.co, or it must be rejected.
+      const fn = await loadWithBody(
+        '<div aria-label="Share this result"><a href="https://x.com/intent/tweet?text=hi">Share on X</a></div>',
+        'gemini.google.com'
+      );
+      assert(fn() === '', `expected empty string (off-domain host), got: ${JSON.stringify(fn())}`);
+    });
+
+    await test('the aria-label fallback accepts an on-domain Google AI Mode share link', async () => {
+      const fn = await loadWithBody(
+        '<div aria-label="Share this AI Mode response"><a href="https://www.google.com/share/abc123">Copy link</a></div>',
+        'google.com'
+      );
+      assert(fn() === 'https://www.google.com/share/abc123', `expected the on-domain share link, got: ${fn()}`);
+    });
   });
 
   await suite('getConversationList — unsupported/logged-out platform', async () => {

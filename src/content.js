@@ -1749,19 +1749,37 @@
    */
   function findGoogleShareUrl() {
     try {
-      const candidates = [
+      // Domain-specific: any match here IS the share link, no further check needed.
+      const strict = [
         'a[href*="g.co/gemini/share/"]',
         'a[href*="gemini.google.com/share/"]',
         'input[readonly][value*="g.co/gemini/share/"]',
         'input[readonly][value*="gemini.google.com/share/"]',
-        '[aria-label*="Share" i] a[href^="http"]',
-        '[aria-label*="Share" i] input[readonly][value^="http"]',
       ];
-      for (const sel of candidates) {
+      for (const sel of strict) {
         const el = document.querySelector(sel);
         if (!el) continue;
         const url = el.tagName === 'INPUT' ? el.value : el.getAttribute('href');
         if (url && /^https?:\/\//.test(url)) return url;
+      }
+
+      // Broader fallback for Google AI Mode, which has no known dedicated
+      // share-link domain to match on — but "[aria-label*='Share']" alone
+      // is too loose (matches "Share feedback", social share-to-X buttons,
+      // etc.), so the found URL's own host must still point at Google.
+      const fallback = [
+        '[aria-label*="Share" i] a[href^="http"]',
+        '[aria-label*="Share" i] input[readonly][value^="http"]',
+      ];
+      for (const sel of fallback) {
+        const el = document.querySelector(sel);
+        if (!el) continue;
+        const url = el.tagName === 'INPUT' ? el.value : el.getAttribute('href');
+        if (!url) continue;
+        try {
+          const host = new URL(url).hostname;
+          if (/(^|\.)(google\.com|g\.co)$/.test(host)) return url;
+        } catch { /* not a parseable absolute URL — skip it */ }
       }
     } catch { /* best-effort — a lookup failure here must never break extraction */ }
     return '';
