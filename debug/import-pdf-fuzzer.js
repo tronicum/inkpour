@@ -36,6 +36,154 @@ const FUZZ_FACTORS = [1.15, 1.4, 1.7, 2.2, 3];
 
 let lastLines = null; // cached line data so "Re-fuzz" doesn't need to re-parse the PDF
 
+// ─── N-up grid detection ────────────────────────────────────────────────
+// An "N-up" PDF prints several shrunken logical pages onto one physical
+// sheet (e.g. a landscape sheet holding a 2x2 or 2x4 grid). The
+// line-grouping below sorts a whole physical page's items by descending Y
+// then ascending X — correct for one logical page, but on an N-up sheet it
+// braids every grid cell's text into one interleaved nonsense order. This
+// pre-pass detects such a grid from the raw item coordinates and splits
+// the items into per-cell groups first, so each cell can be line-grouped
+// independently as its own virtual sub-page.
+
+/**
+ * Detect an N-up grid layout on one physical page's text items.
+ *
+ * Projects every item's approximate bounding interval onto each axis,
+ * merges overlapping intervals into occupied bands, and treats any
+ * page-spanning whitespace gully between bands — a gap at least 10% of the
+ * page dimension AND at least 3x the median text height, i.e. far wider
+ * than any intra-line/paragraph spacing — as a grid divider. Item widths
+ * aren't in the item shape, so they're estimated from string length x
+ * text height (~0.5em average glyph width), which is plenty for finding
+ * page-scale gutters.
+ *
+ * @param {Array<{str:string, x:number, y:number, height:number}>} items
+ *   One physical page's text items (same shape extractLinesFromPdf builds).
+ * @param {number} pageWidth  physical page width  (from pdf.js page.view)
+ * @param {number} pageHeight physical page height (from pdf.js page.view)
+ * @returns {{rows:number, cols:number, cells:Array<Array<object>>}|null}
+ *   `null` when no multi-cell grid is detected (the normal single-page
+ *   case — callers must then run their existing single-page path
+ *   unchanged). Otherwise the grid shape plus the items partitioned into
+ *   non-empty cells in reading order: row-major, top row first, left to
+ *   right within each row (the standard N-up imposition convention).
+ */
+function detectNupGrid(items, pageWidth, pageHeight) {
+  if (!Array.isArray(items) || items.length < 4) return null;
+  if (!(pageWidth > 0) || !(pageHeight > 0)) return null;
+
+  const sortedHeights = items.map(it => it.height).sort((a, b) => a - b);
+  const medianHeight  = sortedHeights[Math.floor(sortedHeights.length / 2)] || 10;
+
+  // Rough item width: string length x ~0.5em per glyph. Only needs to be
+  // good enough that adjacent runs on the same logical page overlap/abut,
+  // while a page-scale gutter between cells stays empty.
+  const estWidth = it => Math.max(it.str.length * it.height * 0.5, it.height * 0.5);
+
+  /** Merge sorted [start, end] intervals into bands, splitting only on gaps >= minGap. */
+  function mergeIntoBands(intervals, minGap) {
+    const sorted = intervals.slice().sort((a, b) => a[0] - b[0]);
+    const bands = [];
+    let cur = null;
+    for (const [s, e] of sorted) {
+      if (cur && s - cur[1] < minGap) {
+        if (e > cur[1]) cur[1] = e;
+      } else {
+        cur = [s, e];
+        bands.push(cur);
+      }
+    }
+    return bands;
+  }
+
+  // A divider gap must be page-scale: >= 10% of the page dimension AND
+  // >= 3x the median text height. Paragraph breaks (~1.5-3x line height,
+  // a few % of the page) never reach the 10% bar, so a genuine single
+  // page — even a sparse/irregular one — stays a single band per axis.
+  const colGap = Math.max(pageWidth  * 0.1, medianHeight * 3);
+  const rowGap = Math.max(pageHeight * 0.1, medianHeight * 3);
+
+  const xBands = mergeIntoBands(items.map(it => [it.x, it.x + estWidth(it)]), colGap);
+  const yBands = mergeIntoBands(items.map(it => [it.y, it.y + it.height]), rowGap);
+
+  const cols = xBands.length;
+  const rows = yBands.length;
+  if (cols * rows <= 1) return null;      // normal single-page case
+  if (cols > 6 || rows > 6) return null;  // implausible as an N-up grid — bail out
+
+  // Reading order: top row first (PDF y grows upward, so descending y
+  // bands), left to right within each row (ascending x bands).
+  const yBandsTopFirst = yBands.slice().reverse();
+
+  // Every item's interval start lies inside exactly one merged band by
+  // construction, so classifying by start coordinate is exact.
+  const bandIndex = (bands, v) => {
+    for (let i = 0; i < bands.length; i++) {
+      if (v >= bands[i][0] && v <= bands[i][1]) return i;
+    }
+    return bands.length - 1; // unreachable in practice; clamp defensively
+  };
+
+  const cells = Array.from({ length: rows * cols }, () => []);
+  for (const it of items) {
+    const r = bandIndex(yBandsTopFirst, it.y);
+    const c = bandIndex(xBands, it.x);
+    cells[r * cols + c].push(it);
+  }
+
+  const nonEmpty = cells.filter(cell => cell.length > 0);
+  if (nonEmpty.length <= 1) return null;
+  return { rows, cols, cells: nonEmpty };
+}
+
+/**
+ * Group one page's (or one N-up cell's) text items into visual lines —
+ * the exact single-page line-grouping logic extractLinesFromPdf() always
+ * used, extracted so an N-up page can run it once per grid cell.
+ * Sorts `items` in place (as before) and returns line objects
+ * { text, gap, height, page: pageId, fontKey }. `pageId` is the physical
+ * page number for a normal page, or a "<page>.<cell>" string (e.g. "2.3"
+ * = physical page 2, third cell in reading order) for an N-up sub-page —
+ * relative order in the returned array is what downstream consumers rely
+ * on, and that is preserved either way.
+ */
+function groupItemsIntoLines(items, pageId) {
+  // PDF coordinates grow upward, so "top of page first" is descending y.
+  items.sort((a, b) => (b.y - a.y) || (a.x - b.x));
+
+  const pageLines = [];
+  let current = null;
+  for (const it of items) {
+    if (!current || Math.abs(it.y - current.y) > current.height * 0.4) {
+      current = { y: it.y, height: it.height, parts: [], fontVotes: new Map() };
+      pageLines.push(current);
+    }
+    current.parts.push(it.str);
+    // A line can mix fonts (e.g. bold word inline) — track the most
+    // common one so mixed lines still get one representative fontKey.
+    const key = it.fontName + '@' + it.height.toFixed(1);
+    current.fontVotes.set(key, (current.fontVotes.get(key) || 0) + it.str.length);
+  }
+
+  const lines = [];
+  pageLines.forEach((line, i) => {
+    const text = line.parts.join(' ').replace(/\s+/g, ' ').trim();
+    if (!text) return;
+    const prev = pageLines[i - 1];
+    let fontKey = '', bestVotes = -1;
+    line.fontVotes.forEach((votes, key) => { if (votes > bestVotes) { bestVotes = votes; fontKey = key; } });
+    lines.push({
+      text,
+      gap:    prev ? (prev.y - line.y) : 0,
+      height: line.height,
+      page:   pageId,
+      fontKey,
+    });
+  });
+  return lines;
+}
+
 /** Pull every text run out of every page, grouped into visual lines. */
 async function extractLinesFromPdf(arrayBuffer) {
   const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -54,37 +202,20 @@ async function extractLinesFromPdf(arrayBuffer) {
         fontName: it.fontName || '',
       }));
 
-    // PDF coordinates grow upward, so "top of page first" is descending y.
-    items.sort((a, b) => (b.y - a.y) || (a.x - b.x));
-
-    const pageLines = [];
-    let current = null;
-    for (const it of items) {
-      if (!current || Math.abs(it.y - current.y) > current.height * 0.4) {
-        current = { y: it.y, height: it.height, parts: [], fontVotes: new Map() };
-        pageLines.push(current);
-      }
-      current.parts.push(it.str);
-      // A line can mix fonts (e.g. bold word inline) — track the most
-      // common one so mixed lines still get one representative fontKey.
-      const key = it.fontName + '@' + it.height.toFixed(1);
-      current.fontVotes.set(key, (current.fontVotes.get(key) || 0) + it.str.length);
-    }
-
-    pageLines.forEach((line, i) => {
-      const text = line.parts.join(' ').replace(/\s+/g, ' ').trim();
-      if (!text) return;
-      const prev = pageLines[i - 1];
-      let fontKey = '', bestVotes = -1;
-      line.fontVotes.forEach((votes, key) => { if (votes > bestVotes) { bestVotes = votes; fontKey = key; } });
-      lines.push({
-        text,
-        gap:    prev ? (prev.y - line.y) : 0,
-        height: line.height,
-        page:   p,
-        fontKey,
+    // N-up pre-pass: if this physical page is a grid of shrunken logical
+    // pages, line-group each cell independently (as virtual sub-pages
+    // "<p>.1", "<p>.2", … in reading order) instead of braiding all cells
+    // together. detectNupGrid() returns null for a normal page, in which
+    // case this is exactly the original single-page behavior.
+    const view = page.view || [0, 0, 0, 0]; // [x0, y0, x1, y1]
+    const grid = detectNupGrid(items, view[2] - view[0], view[3] - view[1]);
+    if (grid) {
+      grid.cells.forEach((cellItems, k) => {
+        lines.push(...groupItemsIntoLines(cellItems, `${p}.${k + 1}`));
       });
-    });
+    } else {
+      lines.push(...groupItemsIntoLines(items, p));
+    }
   }
   return lines;
 }
