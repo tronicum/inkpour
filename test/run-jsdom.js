@@ -1077,6 +1077,132 @@ async function main() {
     });
   });
 
+  // ── extractClaudeFull — virtualized conversation sweep (issue #26) ──────
+  // claude.ai renders long conversations as a virtualized list (TanStack
+  // Virtual): only the messages near the viewport are mounted in the DOM, the
+  // rest are UNMOUNTED. A single querySelectorAll snapshot therefore silently
+  // truncates long exports to a viewport-sized window — the exact failure
+  // reported in issue #26 (and in the upstream Trifall/chat-export#14, whose
+  // Claude selectors this extractor shares). extractClaudeFull() fixes this by
+  // sweeping the scroll container top-to-bottom, collecting mounted messages
+  // per data-index at each stop. This suite simulates the virtualizer: 12
+  // turns of 500px each inside a 1000px-tall scroll container whose scrollTo()
+  // re-renders only the turns intersecting the viewport.
+  await suite('extractClaudeFull — virtualized conversation sweep (issue #26)', async () => {
+    const ITEM_H   = 500;
+    const N_TURNS  = 12;
+    const VIEWPORT = 1000;
+
+    const dom = new JSDOM(`<!DOCTYPE html><body>
+      <main>
+        <div id="scroller" style="overflow-y: auto">
+          <div id="items"></div>
+        </div>
+      </main>
+    </body>`, { url: 'https://claude.ai/chat/abc-123', runScripts: 'dangerously' });
+    dom.window.__inkpourTestHostname = 'claude.ai';
+    dom.window.HTMLElement.prototype.scrollTo = function () {};
+    dom.window.document.documentElement.scrollTo = function () {};
+    const ls = [];
+    dom.window.browser = { runtime: { onMessage: { addListener: fn => ls.push(fn) }, id: 't' }, i18n: mockI18n() };
+    dom.window.chrome  = dom.window.browser;
+
+    const scroller = dom.window.document.getElementById('scroller');
+    const items    = dom.window.document.getElementById('items');
+
+    // Mock virtualizer: mount only the turns intersecting the viewport window.
+    let scrollTop = 0;
+    function render() {
+      let html = '';
+      for (let i = 0; i < N_TURNS; i++) {
+        const top = i * ITEM_H, bottom = top + ITEM_H;
+        if (bottom <= scrollTop || top >= scrollTop + VIEWPORT) continue; // unmounted
+        html += (i % 2 === 0)
+          ? `<div data-index="${i}"><div data-testid="user-message"><p>User message ${i}</p></div></div>`
+          : `<div data-index="${i}"><div class="font-claude-response"><p>Assistant reply ${i}</p></div></div>`;
+      }
+      items.innerHTML = html;
+    }
+    Object.defineProperty(scroller, 'scrollHeight', { get: () => ITEM_H * N_TURNS });
+    Object.defineProperty(scroller, 'clientHeight', { get: () => VIEWPORT });
+    Object.defineProperty(scroller, 'scrollTop',    { get: () => scrollTop, set: v => { scrollTop = v; render(); } });
+    scroller.scrollTo = (opts) => { scrollTop = (opts && typeof opts === 'object') ? opts.top : opts; render(); };
+
+    // Start scrolled to the bottom (where a user actually exports from) —
+    // only the last two turns are mounted before the sweep runs.
+    scroller.scrollTo({ top: ITEM_H * N_TURNS - VIEWPORT });
+
+    const s = dom.window.document.createElement('script');
+    s.textContent = CONTENT_JS;
+    dom.window.document.body.appendChild(s);
+    await new Promise(r => setTimeout(r, 50));
+    const extractClaudeFull = dom.window.__inkpourExtractClaudeFull;
+    assert(typeof extractClaudeFull === 'function', '__inkpourExtractClaudeFull not exposed');
+
+    assert(dom.window.document.querySelectorAll('[data-testid="user-message"], .font-claude-response').length === 2,
+      'precondition: only the viewport window should be mounted before the sweep');
+
+    const messages = await extractClaudeFull();
+
+    await test('collects every message, including ones unmounted at extraction time', () => {
+      assert(Array.isArray(messages), `expected array, got ${JSON.stringify(messages)}`);
+      assert(messages.length === N_TURNS, `expected ${N_TURNS} messages, got ${messages.length}: ${JSON.stringify(messages.map(m => m.content))}`);
+    });
+    await test('messages come back in conversation (data-index) order with correct roles', () => {
+      messages.forEach((m, i) => {
+        const wantRole = i % 2 === 0 ? 'You' : 'Claude';
+        const wantText = i % 2 === 0 ? `User message ${i}` : `Assistant reply ${i}`;
+        assert(m.role === wantRole, `role[${i}]=${m.role}, expected ${wantRole}`);
+        assert(m.content.includes(wantText), `content[${i}] missing "${wantText}": ${m.content}`);
+      });
+    });
+    await test('no duplicates despite overlapping sweep windows', () => {
+      const contents = messages.map(m => m.content);
+      assert(new Set(contents).size === contents.length, `duplicate messages: ${JSON.stringify(contents)}`);
+    });
+    await test('restores the original scroll position after the sweep', () => {
+      assert(scrollTop === ITEM_H * N_TURNS - VIEWPORT,
+        `expected scrollTop restored to ${ITEM_H * N_TURNS - VIEWPORT}, got ${scrollTop}`);
+    });
+  });
+
+  await suite('extractClaudeFull — non-virtualized conversation takes the plain snapshot path', async () => {
+    // A short Claude conversation has no [data-index] wrappers — everything is
+    // already mounted, so extractClaudeFull() must behave exactly like the old
+    // extractClaude(): full extraction, zero scrolling, zero added delay.
+    const dom = new JSDOM(`<!DOCTYPE html><body>
+      <main>
+        <div style="overflow-y: auto">
+          <div data-testid="user-message"><p>Hello Claude</p></div>
+          <div class="font-claude-response"><p>Hello! How can I help?</p></div>
+        </div>
+      </main>
+    </body>`, { url: 'https://claude.ai/chat/def-456', runScripts: 'dangerously' });
+    dom.window.__inkpourTestHostname = 'claude.ai';
+    let scrollCalls = 0;
+    dom.window.HTMLElement.prototype.scrollTo = function () { scrollCalls++; };
+    dom.window.document.documentElement.scrollTo = function () { scrollCalls++; };
+    const ls = [];
+    dom.window.browser = { runtime: { onMessage: { addListener: fn => ls.push(fn) }, id: 't' }, i18n: mockI18n() };
+    dom.window.chrome  = dom.window.browser;
+    const s = dom.window.document.createElement('script');
+    s.textContent = CONTENT_JS;
+    dom.window.document.body.appendChild(s);
+    await new Promise(r => setTimeout(r, 50));
+    const extractClaudeFull = dom.window.__inkpourExtractClaudeFull;
+
+    const messages = await extractClaudeFull();
+
+    await test('extracts both messages via the snapshot path', () => {
+      assert(messages && messages.length === 2, `expected 2 messages, got ${JSON.stringify(messages)}`);
+      assert(messages[0].role === 'You' && messages[0].content.includes('Hello Claude'), `unexpected messages[0]: ${JSON.stringify(messages[0])}`);
+      assert(messages[1].role === 'Claude', `unexpected messages[1]: ${JSON.stringify(messages[1])}`);
+    });
+    await test('performs no scrolling at all', () => {
+      assert(scrollCalls === 0, `expected 0 scrollTo calls, got ${scrollCalls}`);
+    });
+  });
+
   await suite('getConversationList — unsupported/logged-out platform', async () => {
     const dom = new JSDOM(`<!DOCTYPE html><body>
       <nav><a href="/some/other/link">Not a conversation link</a></nav>
