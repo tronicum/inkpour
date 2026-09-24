@@ -873,6 +873,29 @@ path is one self-contained click handler (settings.js:138–162) building one
     live test" status Batch 5 (Notion) and Batch 6 (vault) shipped in, not
     a claim that this is fully verified.
 
+  **Pre-live-test code review (2026-09-24)**: orchestration core (tab
+  cleanup, the extract/timeout race, filename collision suffixing,
+  sequential-not-parallel iteration, origin-tab toast safety, all-fail
+  summary) all verified correct — no tab leaks, no race bugs, no ordering
+  bugs. Two real, non-critical risks to specifically watch for during the
+  live test, both **silent-success** failure modes (no error, just wrong
+  output) rather than crashes:
+  1. A background tab is never focused, and Chrome throttles timers there —
+     ChatGPT's lazy-load-older-messages step (`scrollToLoadAll()`) leans on
+     `scrollTo({behavior:'smooth'})` + a `setInterval` poll, which may not
+     run reliably unfocused. A long (multi-screen) conversation could
+     silently export truncated, counted as a success. Check message counts
+     against a normal foreground export of the same conversation, not just
+     "did a ZIP appear."
+  2. `getConversationList()` (the sidebar picker) does no scroll-to-load —
+     it only sees whatever's rendered on initial sidebar open. This repo's
+     own earlier live testing (see the ChatGPT sidebar notes above) already
+     found the sidebar lazy-loads and needs incremental-scroll simulation
+     or it silently under-collects; that was never carried into
+     `getConversationList()`. Accounts with more than ~25-30 past
+     conversations will likely see only the first batch in the picker, with
+     no indication anything was cut off.
+
 ## Batch 11 — PDF-import debug tools: release-packaging bug + N-up layout support
 - [x] **XS, high priority — real user-facing bug, filed 2026-07** Settings →
   Advanced → Debug mode exposes two links ("Import debug", "PDF fuzzer")
