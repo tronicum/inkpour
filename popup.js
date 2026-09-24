@@ -864,7 +864,7 @@
     // whole point of choosing to save imports there instead of a one-shot
     // download) silently doesn't happen until you separately click a format
     // button, which isn't obvious and isn't what was promised.
-    const md = buildMarkdown(cachedData.messages, cachedData.title, cachedData.site, userSettings, cachedData.sourceUrl);
+    const md = buildMarkdown(cachedData.messages, cachedData.title, cachedData.site, userSettings, cachedData.sourceUrl, cachedData.shareUrl);
     saveLastExport('md', cachedData, md);
 
     const count = messages.length;
@@ -921,7 +921,7 @@
       const data = await extractFromPage();
       const { msgs, title } = applyLocalScrub(getSelectedMessages(data.messages), data.title);
       const notes = getExportNotes();
-      const md   = notesBlockMD(notes) + buildMarkdown(msgs, title, data.site, userSettings, data.sourceUrl);
+      const md   = notesBlockMD(notes) + buildMarkdown(msgs, title, data.site, userSettings, data.sourceUrl, data.shareUrl);
       const filename = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length) + '.md';
 
       if (vaultHandle) {
@@ -998,7 +998,7 @@
       const data  = await extractFromPage();
       const { msgs, title } = applyLocalScrub(getSelectedMessages(data.messages), data.title);
       const notes = getExportNotes();
-      const md    = notesBlockMD(notes) + buildMarkdown(msgs, title, data.site, userSettings, data.sourceUrl);
+      const md    = notesBlockMD(notes) + buildMarkdown(msgs, title, data.site, userSettings, data.sourceUrl, data.shareUrl);
       await navigator.clipboard.writeText(md);
       setStatus(t('popupStatusMarkdownCopied'), 'success');
       saveLastExport('copy-md', data, md);
@@ -1149,7 +1149,7 @@
       const data = await extractFromPage();
       const { msgs, title } = applyLocalScrub(getSelectedMessages(data.messages), data.title);
       const { files, codeCount } = buildZipExport(
-        msgs, title, data.site, userSettings, data.sourceUrl
+        msgs, title, data.site, userSettings, data.sourceUrl, data.shareUrl
       );
       const zipBytes = buildZip(files);
       const filename = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length) + '.zip';
@@ -1199,7 +1199,7 @@
       const slug  = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length);
 
       // Build MD
-      const md = notesBlockMD(notes) + buildMarkdown(msgs, title, data.site, userSettings, data.sourceUrl);
+      const md = notesBlockMD(notes) + buildMarkdown(msgs, title, data.site, userSettings, data.sourceUrl, data.shareUrl);
       downloadFile(md, slug + '.md', 'text/markdown;charset=utf-8');
 
       // Build DOCX
@@ -1216,7 +1216,7 @@
       setTimeout(() => URL.revokeObjectURL(docxUrl), 1000);
 
       // Build ZIP
-      const { files } = buildZipExport(msgs, title, data.site, userSettings, data.sourceUrl);
+      const { files } = buildZipExport(msgs, title, data.site, userSettings, data.sourceUrl, data.shareUrl);
       const zipBytes  = buildZip(files);
       const zipBlob   = new Blob([zipBytes], { type: 'application/zip' });
       const zipUrl    = URL.createObjectURL(zipBlob);
@@ -1315,7 +1315,7 @@
         obsidianTags:    true,
         gistExtraTags:   userSettings.gistTags || '',
       };
-      const md    = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, gistSettings, data.sourceUrl);
+      const md    = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, gistSettings, data.sourceUrl, data.shareUrl);
       const slug  = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length);
       const filename = slug + '.md';
 
@@ -1373,7 +1373,7 @@
       const data  = await extractFromPage();
       const msgs  = getSelectedMessages(data.messages);
       const notes = getExportNotes();
-      let md = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, userSettings, data.sourceUrl);
+      let md = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, userSettings, data.sourceUrl, data.shareUrl);
 
       // Scrub likely secrets (API keys, tokens, emails, ...) before anything
       // leaves the machine, unless the user has explicitly disabled this —
@@ -1957,7 +1957,7 @@
       }
       const notes = getExportNotes();
       const scrubbed = applyLocalScrub(newOnly, data.title);
-      const md = notesBlockMD(notes) + buildMarkdown(scrubbed.msgs, scrubbed.title, data.site, userSettings, data.sourceUrl);
+      const md = notesBlockMD(notes) + buildMarkdown(scrubbed.msgs, scrubbed.title, data.site, userSettings, data.sourceUrl, data.shareUrl);
       const slug = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(newOnly), newOnly.length);
       downloadFile(md, slug + '-continued.md', 'text/markdown;charset=utf-8');
       setStatus(t(newOnly.length === 1 ? 'popupSavedNewMessagesOne' : 'popupSavedNewMessagesOther', [String(newOnly.length)]), 'success');

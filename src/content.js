@@ -1736,6 +1736,37 @@
   // as a hard stop for collection — see the 2026-07 dupe-bug comment below.
   const AI_MODE_DISCLAIMER_RE = /ai responses (?:may|can) include mistakes|ki-antworten k.nnen fehler enthalten/i;
 
+  /**
+   * Best-effort, passive capture of Google's own native "Share" public link
+   * (Gemini's "Create public link" / AI Mode's share dialog) — only picks up
+   * a link that's already generated and present somewhere in the DOM (the
+   * user clicked Google's own Share button themselves, earlier in this
+   * session, and the dialog/field is still mounted). Never clicks anything
+   * or triggers link generation itself: doing that as a side effect of an
+   * export would silently make a private conversation publicly accessible,
+   * which is not something an export action should ever do on its own.
+   * Returns '' when nothing is found — this is best-effort, not required.
+   */
+  function findGoogleShareUrl() {
+    try {
+      const candidates = [
+        'a[href*="g.co/gemini/share/"]',
+        'a[href*="gemini.google.com/share/"]',
+        'input[readonly][value*="g.co/gemini/share/"]',
+        'input[readonly][value*="gemini.google.com/share/"]',
+        '[aria-label*="Share" i] a[href^="http"]',
+        '[aria-label*="Share" i] input[readonly][value^="http"]',
+      ];
+      for (const sel of candidates) {
+        const el = document.querySelector(sel);
+        if (!el) continue;
+        const url = el.tagName === 'INPUT' ? el.value : el.getAttribute('href');
+        if (url && /^https?:\/\//.test(url)) return url;
+      }
+    } catch { /* best-effort — a lookup failure here must never break extraction */ }
+    return '';
+  }
+
   function extractGoogleAiModeTurnsByGeometry() {
     const turnHeadings = Array.from(document.querySelectorAll('[role="heading"][aria-level="2"]'))
       .filter(isVisibleForExtraction);
@@ -2867,6 +2898,7 @@
     window.__inkpourBuildProbeReport = buildProbeReport;
     window.__inkpourFindAiModeInputBox = findAiModeInputBox;
     window.__inkpourFindScrollContainer = findScrollContainer;
+    window.__inkpourFindGoogleShareUrl = findGoogleShareUrl;
     window.__inkpourDecorateMessages = decorateMessages;
     window.__inkpourCopyOneMessageMarkdown = copyOneMessageMarkdown;
     window.__inkpourStartMessageDecoration = startMessageDecoration;
@@ -3334,12 +3366,18 @@
       }
       const cleanTitle = smartenTitle(getCleanTitle(), messages);
       const slug = cleanTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
+      const platform = detectSite();
+      // Passive Google share-link capture — only meaningful on Gemini/AI
+      // Mode, where Google's own native "Share" button lives. See
+      // findGoogleShareUrl() for why this never triggers link generation.
+      const shareUrl = (platform === 'gemini' || platform === 'googlesearch') ? findGoogleShareUrl() : '';
       sendResponse({
         messages,
         title:    cleanTitle,
         site:     location.hostname,
-        platform: detectSite(),
+        platform,
         filename: slug,
+        shareUrl,
       });
     }).catch(err => {
       sendResponse({ error: `Extraction failed: ${err.message}` });
