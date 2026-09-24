@@ -874,7 +874,7 @@ path is one self-contained click handler (settings.js:138–162) building one
     a claim that this is fully verified.
 
 ## Batch 11 — PDF-import debug tools: release-packaging bug + N-up layout support
-- [ ] **XS, high priority — real user-facing bug, filed 2026-07** Settings →
+- [x] **XS, high priority — real user-facing bug, filed 2026-07** Settings →
   Advanced → Debug mode exposes two links ("Import debug", "PDF fuzzer")
   that open `debug/import-debug.html` / `debug/import-pdf-fuzzer.html`
   directly (`settings.js` lines ~133-141, via
@@ -1158,6 +1158,15 @@ path is one self-contained click handler (settings.js:138–162) building one
   priority (parallel gap to the Orion-iOS Simulator blocker in
   `planning/adr-orion-ios-automation.md` — both stuck on "no automation
   protocol," different platforms).
+- Note (2026-09-24): a starting scaffold now exists at
+  `docker/orion-linux-smoke/` (Dockerfile, `smoke-test.py`, README) —
+  written but never built or run (no Docker/GUI available in the sandbox
+  that produced it). It documents its own unverified assumptions
+  (Flathub app ID, unpacked-extension load flag, dogtail role/name
+  selectors) and restates the Flatpak-sandbox open question above with a
+  manual check to run first. Nothing here is checked off because nothing
+  has actually been executed — this just gives the next session something
+  concrete to build/debug instead of a blank page.
 
 ## Batch 17 — Per-message buttons don't render on live claude.ai (bug, 2026-09-22)
 GitHub issue: https://github.com/tronicum/inkpour/issues/34
