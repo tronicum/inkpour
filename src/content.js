@@ -674,7 +674,10 @@
     return content;
   }
 
-  function extractClaude() {
+  // Queries the currently-mounted Claude message elements in DOM order.
+  // Shared by extractClaude() (single snapshot) and extractClaudeFull()'s
+  // virtualized-list sweep below, so both always use the same selectors.
+  function claudeMessageElements() {
     // Use updated selector that covers both old and new Claude DOM
     const userEls = Array.from(document.querySelectorAll('[data-testid="user-message"]'))
       .map(el => ({ el, role: 'You' }));
@@ -685,9 +688,126 @@
       '[data-testid="assistant-message"]'
     )).map(el => ({ el, role: 'Claude' }));
 
-    const combined = [...userEls, ...assistantEls].sort(sortByDOMOrder);
+    return [...userEls, ...assistantEls].sort(sortByDOMOrder);
+  }
+
+  function extractClaude() {
+    const combined = claudeMessageElements();
     if (!combined.length) return null;
     return combined.map(({ el, role }) => ({ role, content: claudeMessageToMarkdown(el) })).filter(m => m.content);
+  }
+
+  // Walks up from a message element to the nearest scrollable ancestor —
+  // used by extractClaudeFull() to find the real chat scroll container without
+  // hardcoding a Claude class name (their Tailwind classes churn).
+  function findScrollableAncestor(el) {
+    try {
+      for (let n = el && el.parentElement; n; n = n.parentElement) {
+        if (n.scrollHeight > n.clientHeight && typeof n.scrollTo === 'function') {
+          let oy = '';
+          try { oy = window.getComputedStyle(n).overflowY; } catch (_) {}
+          if (oy === 'auto' || oy === 'scroll' || oy === 'overlay') return n;
+        }
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  /**
+   * Full-conversation Claude extraction (issue #26).
+   *
+   * claude.ai renders long conversations as a virtualized list (TanStack
+   * Virtual): only the messages near the viewport are mounted in the DOM —
+   * everything else is UNMOUNTED, not merely off-screen. A single
+   * querySelectorAll snapshot (extractClaude()) therefore only ever sees a
+   * viewport-sized window of a long chat, and scrollToLoadAll()'s
+   * "scroll, then snapshot at the end" model can't help either, because
+   * messages unload again as you scroll away from them.
+   *
+   * The only DOM-based way to get everything is a sweep: step the scroll
+   * container from top to bottom, collecting whatever is mounted at each stop,
+   * keyed by the virtualizer's own data-index attribute, then reassemble in
+   * index order. Short conversations (no [data-index] wrapper on any message)
+   * take the plain-snapshot path unchanged — no scrolling, no delay.
+   */
+  async function extractClaudeFull() {
+    const initial = claudeMessageElements();
+    if (!initial.length) return null;
+
+    // No virtualization markers → the whole conversation is already mounted.
+    const virtualized = initial.some(({ el }) => el.closest('[data-index]'));
+    if (!virtualized) return extractClaude();
+
+    try {
+      const container = findScrollableAncestor(initial[0].el);
+      if (!container) return extractClaude();
+
+      const MAX_SWEEP_STEPS = 500;  // circuit breaker for pathological cases
+      const SETTLE_MS       = 200;  // per-step wait for React to mount the new window
+
+      const byKey = new Map();      // "idx|role" → { idx, role, content }
+      const collect = () => {
+        for (const { el, role } of claudeMessageElements()) {
+          const item = el.closest('[data-index]');
+          if (!item) continue;
+          const idx = parseInt(item.getAttribute('data-index'), 10);
+          if (!Number.isFinite(idx)) continue;
+          const content = claudeMessageToMarkdown(el);
+          if (!content) continue;
+          const key  = `${idx}|${role}`;
+          const prev = byKey.get(key);
+          // Keep the longest capture per message — a turn can be collected
+          // mid-render at one stop and fully rendered at the next.
+          if (!prev || content.length > prev.content.length) byKey.set(key, { idx, role, content });
+        }
+      };
+
+      try { await (chrome || browser).storage.session.set({ inkpourScrolling: true, inkpourScrollMsg: 'Loading older messages…' }); } catch (_) {}
+
+      const originalTop = container.scrollTop;
+
+      // Instant jumps are fine here: TanStack Virtual reacts to the container's
+      // scroll offset, unlike the IntersectionObserver-sentinel lazy loaders
+      // that need incremental scrolling (see planning/TODOs.md Batch 8). The
+      // explicit dispatched scroll event after each jump covers listeners that
+      // only react to real events.
+      const jumpTo = (top) => {
+        container.scrollTo({ top, behavior: 'instant' });
+        try { container.dispatchEvent(new Event('scroll', { bubbles: true })); } catch (_) {}
+      };
+
+      jumpTo(0);
+      await new Promise(r => setTimeout(r, SETTLE_MS));
+      collect();
+
+      // Overlapping steps (70% of the viewport) so every message is fully
+      // mounted at at least one stop; re-read scrollHeight each iteration
+      // because the virtualizer refines its size estimate as items mount.
+      const step = Math.max(200, Math.floor(container.clientHeight * 0.7));
+      let top = 0;
+      for (let i = 0; i < MAX_SWEEP_STEPS; i++) {
+        const maxTop = container.scrollHeight - container.clientHeight;
+        if (top >= maxTop) break;
+        top = Math.min(top + step, maxTop);
+        jumpTo(top);
+        await new Promise(r => setTimeout(r, SETTLE_MS));
+        collect();
+      }
+
+      // Restore scroll position so the user still sees what they were reading
+      jumpTo(originalTop);
+
+      try { await (chrome || browser).storage.session.set({ inkpourScrolling: false, inkpourScrollMsg: '' }); } catch (_) {}
+
+      if (!byKey.size) return extractClaude();
+      return Array.from(byKey.values())
+        .sort((a, b) => a.idx - b.idx || (a.role === 'You' ? -1 : 1))
+        .map(({ role, content }) => ({ role, content }));
+    } catch {
+      // Sweep failure must never break the export — fall back to the
+      // plain snapshot of whatever is currently mounted.
+      return extractClaude();
+    }
   }
 
   // Microsoft Copilot (copilot.microsoft.com + www.copilot.com)
@@ -2127,7 +2247,7 @@
 
     switch (site) {
       case 'chatgpt':     messages = extractChatGPT();          break;
-      case 'claude':      messages = extractClaude();            break;
+      case 'claude':      messages = await extractClaudeFull();  break;
       case 'copilot':     messages = extractCopilot();           break;
       case 'gemini':      messages = await extractGemini();      break;
       case 'aistudio':    messages = await extractAIStudio();    break;
@@ -2867,6 +2987,7 @@
     window.__inkpourBuildProbeReport = buildProbeReport;
     window.__inkpourFindAiModeInputBox = findAiModeInputBox;
     window.__inkpourFindScrollContainer = findScrollContainer;
+    window.__inkpourExtractClaudeFull = extractClaudeFull;
     window.__inkpourDecorateMessages = decorateMessages;
     window.__inkpourCopyOneMessageMarkdown = copyOneMessageMarkdown;
     window.__inkpourStartMessageDecoration = startMessageDecoration;
