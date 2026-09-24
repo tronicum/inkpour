@@ -392,24 +392,25 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
 async function doWebhook(settings, format, response, wordCount, tabId) {
   const url = (settings.webhookUrl || '').trim();
   if (!url) return;
-  let title = response.title;
+  if (!isSafeWebhookUrl(url)) {
+    console.warn('[Inkpour] Webhook skipped — the URL must be https:// (http:// is only allowed for localhost). Configured:', url);
+    return;
+  }
 
   // Scrub likely secrets from any free-text fields before they leave the
   // machine. background.js's webhook payload doesn't carry full chat content
   // today (see below), but the title can be arbitrary text copied from the
   // page, so it's still worth passing through the scrubber.
-  if (settings.scrubSecrets !== false) {
-    const { cleaned, findings } = redactSecrets(title || '');
-    title = cleaned;
-    if (findings.length > 0 && tabId != null) {
-      const types = [...new Set(findings.map(f => f.type))].join(', ');
-      const key   = findings.length === 1 ? 'contentToastRedactedOne' : 'contentToastRedactedOther';
-      api.tabs.sendMessage(tabId, {
-        action:  'showToast',
-        text:    api.i18n.getMessage(key, [String(findings.length), types]),
-        variant: 'info',
-      }).catch(() => {});
-    }
+  const scrubbed = scrubForUpload(settings, '', response.title);
+  const title    = scrubbed.title;
+  if (scrubbed.findings.length > 0 && tabId != null) {
+    const types = [...new Set(scrubbed.findings.map(f => f.type))].join(', ');
+    const key   = scrubbed.findings.length === 1 ? 'contentToastRedactedOne' : 'contentToastRedactedOther';
+    api.tabs.sendMessage(tabId, {
+      action:  'showToast',
+      text:    api.i18n.getMessage(key, [String(scrubbed.findings.length), types]),
+      variant: 'info',
+    }).catch(() => {});
   }
 
   const record = {
@@ -448,21 +449,18 @@ async function doGistUpload(tab, settings, response, sourceUrl, filename) {
 
   // Scrub likely secrets (API keys, tokens, emails, ...) before the content
   // leaves the machine, unless the user has explicitly disabled this.
-  if (settings.scrubSecrets !== false) {
-    const bodyResult  = redactSecrets(md);
-    const titleResult = redactSecrets(description);
-    md          = bodyResult.cleaned;
-    description = titleResult.cleaned;
-    const allFindings = [...bodyResult.findings, ...titleResult.findings];
-    if (allFindings.length > 0) {
-      const types = [...new Set(allFindings.map(f => f.type))].join(', ');
-      const key   = allFindings.length === 1 ? 'contentToastRedactedOne' : 'contentToastRedactedOther';
-      await api.tabs.sendMessage(tab.id, {
-        action:  'showToast',
-        text:    api.i18n.getMessage(key, [String(allFindings.length), types]),
-        variant: 'info',
-      }).catch(() => {});
-    }
+  // Same gate popup.js's Gist/Notion buttons use — see scrubForUpload().
+  const scrubbed = scrubForUpload(settings, md, description);
+  md          = scrubbed.body;
+  description = scrubbed.title;
+  if (scrubbed.findings.length > 0) {
+    const types = [...new Set(scrubbed.findings.map(f => f.type))].join(', ');
+    const key   = scrubbed.findings.length === 1 ? 'contentToastRedactedOne' : 'contentToastRedactedOther';
+    await api.tabs.sendMessage(tab.id, {
+      action:  'showToast',
+      text:    api.i18n.getMessage(key, [String(scrubbed.findings.length), types]),
+      variant: 'info',
+    }).catch(() => {});
   }
 
   let res;

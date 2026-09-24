@@ -123,3 +123,33 @@ function redactMessages(messages) {
     return { ...msg, content: redactSecrets(msg.content).cleaned };
   });
 }
+
+/**
+ * The single scrub gate for everything that leaves the machine — Gist, Notion,
+ * webhook. Governed by `scrubSecrets` (network upload = opt-OUT, so a missing
+ * key means "scrub"), unlike the local-export scrub which is opt-in.
+ *
+ * Exists because popup.js and background.js each used to inline this check and
+ * drifted: the popup's Gist upload skipped it entirely, so whether a secret was
+ * stripped depended on which button the user happened to press.
+ *
+ * Pure — returns new strings, mutates nothing. `findings` is the combined list
+ * so the caller can raise the "redacted N secrets" toast in its own way.
+ *
+ * @param {{scrubSecrets?:boolean}} settings
+ * @param {string} body   the payload text (markdown, JSON, ...)
+ * @param {string} title  conversation title / description
+ * @returns {{ body:string, title:string, findings:Array<{type:string,match:string}> }}
+ */
+function scrubForUpload(settings, body, title) {
+  if (settings && settings.scrubSecrets === false) {
+    return { body, title, findings: [] };
+  }
+  const bodyResult  = redactSecrets(body || '');
+  const titleResult = redactSecrets(title || '');
+  return {
+    body:     bodyResult.cleaned,
+    title:    titleResult.cleaned,
+    findings: [...bodyResult.findings, ...titleResult.findings],
+  };
+}

@@ -1315,9 +1315,16 @@
         obsidianTags:    true,
         gistExtraTags:   userSettings.gistTags || '',
       };
-      const md    = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, gistSettings, data.sourceUrl);
+      const rawMd = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, gistSettings, data.sourceUrl);
       const slug  = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length);
       const filename = slug + '.md';
+
+      // Scrub likely secrets before anything leaves the machine, unless the
+      // user has explicitly disabled it — the same gate background.js's
+      // context-menu/shortcut Gist path runs. This path used to skip it
+      // entirely, so whether secrets were stripped depended on which button
+      // the user pressed.
+      const { body: md, title: description } = scrubForUpload(userSettings, rawMd, data.title);
 
       setStatus(t('popupStatusGistUploading'));
       const res = await fetch('https://api.github.com/gists', {
@@ -1328,8 +1335,8 @@
           'Content-Type':  'application/json',
         },
         body: JSON.stringify({
-          description: data.title,
-          public:      userSettings.gistPublic === true,
+          description,
+          public: userSettings.gistPublic === true,
           files: { [filename]: { content: md } },
         }),
       });
@@ -1373,14 +1380,12 @@
       const data  = await extractFromPage();
       const msgs  = getSelectedMessages(data.messages);
       const notes = getExportNotes();
-      let md = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, userSettings, data.sourceUrl);
+      const rawMd = notesBlockMD(notes) + buildMarkdown(msgs, data.title, data.site, userSettings, data.sourceUrl);
 
       // Scrub likely secrets (API keys, tokens, emails, ...) before anything
       // leaves the machine, unless the user has explicitly disabled this —
       // same pass background.js's doGistUpload runs before a Gist upload.
-      if (userSettings.scrubSecrets !== false) {
-        md = redactSecrets(md).cleaned;
-      }
+      const { body: md } = scrubForUpload(userSettings, rawMd, data.title);
 
       const pageId  = userSettings.notionPageId.trim();
       const blocks  = markdownToNotionBlocks(md);
@@ -1882,9 +1887,21 @@
   function doWebhook(record) {
     const url = (userSettings.webhookUrl || '').trim();
     if (!url) return;
-    const payload = userSettings.webhookIncludeContent
+    if (!isSafeWebhookUrl(url)) {
+      console.warn('[Inkpour] Webhook skipped — the URL must be https:// (http:// is only allowed for localhost). Configured:', url);
+      return;
+    }
+    let payload = userSettings.webhookIncludeContent
       ? record
       : (({ content, ...rest }) => rest)(record); // omit content if not requested
+
+    // Scrub likely secrets before the payload leaves the machine — same gate
+    // the Gist/Notion uploads use. Matters most with "include content" on,
+    // but the title is arbitrary page text either way.
+    const scrubbed = scrubForUpload(userSettings, payload.content || '', payload.title || '');
+    payload = { ...payload, title: scrubbed.title };
+    if ('content' in payload) payload.content = scrubbed.body;
+
     fetch(url, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },

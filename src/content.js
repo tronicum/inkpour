@@ -2850,6 +2850,12 @@
   // chrome.commands global shortcut), which is an acceptable trade-off for a
   // 5th+ hotkey. background.js's runCommand() handles the actual upload.
   document.addEventListener('keydown', (e) => {
+    // Only a real keypress may trigger this. Without the guard, any script on
+    // the page (a compromised third-party bundle, a userscript, an XSS) could
+    // dispatch a synthetic KeyboardEvent and have the whole conversation
+    // uploaded to the user's GitHub account — publicly, if gistPublic is on.
+    // Synthesised events always report isTrusted === false and cannot fake it.
+    if (!e.isTrusted) return;
     if (e.altKey && e.shiftKey && !e.ctrlKey && !e.metaKey && e.key.toLowerCase() === 'g') {
       e.preventDefault();
       e.stopPropagation();
