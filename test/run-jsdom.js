@@ -4508,6 +4508,231 @@ No bullets here at all, just prose under the heading.
     });
   });
 
+  // ─── Security patch regressions (external review 2026-09-24: S1–S4, S8, B2)
+  await suite('Security patch — S1 trusted-keypress guard on the Gist hotkey', async () => {
+    // Alt+Shift+G is handled by an in-page keydown listener (Chrome's
+    // 4-shortcut cap, see content.js). Without an isTrusted check, any script
+    // running on the page could dispatch a synthetic KeyboardEvent and have
+    // the whole conversation uploaded to the user's GitHub account.
+    async function keydownEnv() {
+      const env   = await loadContentScriptEnv('chatgpt.html', 'chatgpt.com');
+      const sent  = [];
+      env.window.browser.runtime.sendMessage = (msg) => { sent.push(msg); return Promise.resolve({ ok: true }); };
+      return { ...env, sent };
+    }
+
+    await test('a synthetic (page-scripted) Alt+Shift+G does NOT trigger a Gist upload', async () => {
+      const { window, sent } = await keydownEnv();
+      // Exactly what a malicious/compromised page script would run. Events
+      // created this way always report isTrusted === false, in JSDOM and in
+      // every browser, and page code cannot change that.
+      const evt = new window.KeyboardEvent('keydown', { key: 'g', altKey: true, shiftKey: true, bubbles: true, cancelable: true });
+      assert(evt.isTrusted === false, 'sanity: a constructed KeyboardEvent must be untrusted');
+      window.document.dispatchEvent(evt);
+      assert(sent.length === 0, `expected no message to the background page, got: ${JSON.stringify(sent)}`);
+      assert(!evt.defaultPrevented, 'the handler should bail out before preventDefault()');
+    });
+
+    // The matching positive case (a real keypress still uploads) can only be
+    // asserted on the source: JSDOM defines isTrusted as a non-configurable
+    // own accessor, so a trusted event cannot be synthesised here — which is
+    // precisely the property the guard relies on.
+    await test('the isTrusted guard is the first check in the handler, and the rest of it is intact', () => {
+      const handler = CONTENT_JS.match(/document\.addEventListener\('keydown',[\s\S]*?\}, true\);/);
+      assert(handler, 'could not find the Alt+Shift+G keydown listener in content.js');
+      const guardIdx = handler[0].indexOf('e.isTrusted');
+      const keyIdx   = handler[0].indexOf('e.altKey');
+      assert(guardIdx !== -1, 'expected an isTrusted check in the keydown handler');
+      assert(guardIdx < keyIdx, 'the isTrusted guard must come before the key-combination check');
+      assert(/!e\.isTrusted\)\s*return/.test(handler[0]), 'expected an early return on an untrusted event');
+      assert(/action:\s*'runShortcutCommand',\s*command:\s*'upload-gist'/.test(handler[0]), 'a real keypress must still run the upload-gist command');
+    });
+  });
+
+  await suite('Security patch — S2/S3 one scrub gate for everything that leaves the machine', async () => {
+    // NOTE: fake credential, constructed for the test — not a real key.
+    const FAKE_KEY = 'sk-' + 'abc123def456ghi789jkl0';
+
+    await test('scrubForUpload() redacts body and title when scrubSecrets is on (the default)', () => {
+      const r = scrubForUpload({}, `here: ${FAKE_KEY}`, `title ${FAKE_KEY}`);
+      assert(!r.body.includes(FAKE_KEY), `body still carries the key: ${r.body}`);
+      assert(!r.title.includes(FAKE_KEY), `title still carries the key: ${r.title}`);
+      assert(r.findings.length === 2, `expected findings from both fields, got ${JSON.stringify(r.findings)}`);
+    });
+
+    await test('scrubForUpload() treats a missing scrubSecrets key as ON (network upload = opt-OUT)', () => {
+      const r = scrubForUpload({ someOtherSetting: true }, FAKE_KEY, '');
+      assert(!r.body.includes(FAKE_KEY), 'a settings object without scrubSecrets must still scrub');
+    });
+
+    await test('scrubForUpload() passes content through untouched only on an explicit opt-out', () => {
+      const r = scrubForUpload({ scrubSecrets: false }, FAKE_KEY, FAKE_KEY);
+      assert(r.body === FAKE_KEY && r.title === FAKE_KEY, 'explicit opt-out must not alter the payload');
+      assert(r.findings.length === 0, 'no findings should be reported when scrubbing is off');
+    });
+
+    await test('popup.js routes the Gist upload through scrubForUpload before POSTing (S2)', () => {
+      const POPUP_JS = fs.readFileSync(path.resolve(__dirname, '../popup.js'), 'utf8');
+      const handler  = POPUP_JS.match(/gistBtn\?\.addEventListener\('click'[\s\S]*?api\.github\.com\/gists/);
+      assert(handler, 'could not find the popup Gist handler');
+      assert(/scrubForUpload\(userSettings,/.test(handler[0]), 'the popup Gist path must scrub before the upload — it previously POSTed raw markdown');
+    });
+
+    await test('background.js and popup.js both use the shared helper rather than their own scrubSecrets checks', () => {
+      const POPUP_JS      = fs.readFileSync(path.resolve(__dirname, '../popup.js'), 'utf8');
+      const BACKGROUND_JS = fs.readFileSync(path.resolve(__dirname, '../background.js'), 'utf8');
+      for (const [name, src] of [['popup.js', POPUP_JS], ['background.js', BACKGROUND_JS]]) {
+        assert(/scrubForUpload\(/.test(src), `${name} should call scrubForUpload()`);
+        assert(!/scrubSecrets\s*!==\s*false/.test(src), `${name} still inlines its own scrubSecrets check — that drift is exactly what S2 was`);
+      }
+    });
+
+    await test('isSafeWebhookUrl() requires https, allowing plain http only for localhost (S3)', () => {
+      assert(isSafeWebhookUrl('https://hooks.example.com/x') === true, 'https must be accepted');
+      assert(isSafeWebhookUrl('http://hooks.example.com/x') === false, 'plaintext http to a remote host must be rejected');
+      assert(isSafeWebhookUrl('http://localhost:5678/webhook') === true, 'local automation over http never leaves the machine');
+      assert(isSafeWebhookUrl('http://127.0.0.1:5678/webhook') === true, 'loopback over http is fine');
+      assert(isSafeWebhookUrl('javascript:alert(1)') === false, 'non-http schemes must be rejected');
+      assert(isSafeWebhookUrl('not a url') === false, 'garbage must be rejected, not thrown on');
+      assert(isSafeWebhookUrl('') === false, 'empty input must be rejected, not thrown on');
+    });
+
+    await test('both webhook senders gate on isSafeWebhookUrl and scrub the payload (S3)', () => {
+      const POPUP_JS      = fs.readFileSync(path.resolve(__dirname, '../popup.js'), 'utf8');
+      const BACKGROUND_JS = fs.readFileSync(path.resolve(__dirname, '../background.js'), 'utf8');
+      for (const [name, src] of [['popup.js', POPUP_JS], ['background.js', BACKGROUND_JS]]) {
+        const start = src.indexOf('function doWebhook(');
+        assert(start !== -1, `could not find doWebhook() in ${name}`);
+        const fn = src.slice(start, src.indexOf('fetch(', start) + 1);
+        assert(/isSafeWebhookUrl\(url\)/.test(fn), `${name}'s doWebhook must reject a non-https URL before fetching`);
+        assert(/scrubForUpload\(/.test(fn), `${name}'s doWebhook must scrub before sending`);
+      }
+    });
+  });
+
+  await suite('Security patch — S4 HTML export escapes at the boundary', async () => {
+    const XSS = '<img src=x onerror=alert(1)>';
+
+    await test('mdToHTML() escapes raw HTML in a paragraph', () => {
+      const html = mdToHTML(`hello ${XSS} world`);
+      assert(!html.includes('<img'), `raw <img> survived: ${html}`);
+      assert(html.includes('&lt;img src=x onerror=alert(1)&gt;'), html);
+    });
+
+    await test('mdToHTML() escapes raw HTML in headings, list items and table cells', () => {
+      const heading = mdToHTML(`# ${XSS}`);
+      assert(/^<h1>&lt;img/.test(heading), heading);
+      const list = mdToHTML(`- ${XSS}`);
+      assert(!list.includes('<img'), list);
+      const table = mdToHTML(`| a | b |\n|---|---|\n| ${XSS} | 2 |`);
+      assert(!table.includes('<img'), table);
+      assert(table.includes('<td>&lt;img'), table);
+    });
+
+    await test('mdToHTML() drops a javascript: link but keeps its text', () => {
+      const html = mdToHTML('[click me](javascript:alert(1))');
+      assert(!/href="javascript:/i.test(html), `javascript: href survived: ${html}`);
+      assert(html.includes('click me'), 'the link text should still be rendered as plain text');
+    });
+
+    await test('mdToHTML() still emits http/https/mailto links', () => {
+      assert(mdToHTML('[a](https://example.com/x)').includes('<a href="https://example.com/x">a</a>'));
+      assert(mdToHTML('[b](http://example.com/)').includes('<a href="http://example.com/">b</a>'));
+      assert(mdToHTML('[c](mailto:jane@example.com)').includes('<a href="mailto:jane@example.com">c</a>'));
+    });
+
+    await test('mdToHTML() still renders the legitimate Markdown it always did', () => {
+      // Guards against the escape pass breaking structural parsing.
+      assert(mdToHTML('**bold**') === '<strong>bold</strong>', mdToHTML('**bold**'));
+      assert(mdToHTML('plain **bold** text') === '<p>plain <strong>bold</strong> text</p>', mdToHTML('plain **bold** text'));
+      assert(mdToHTML('> quoted line').includes('<blockquote>quoted line</blockquote>'), mdToHTML('> quoted line'));
+      const code = mdToHTML('```js\nif (a < b) { x(); }\n```');
+      assert(code.includes('<pre><code class="lang-js">if (a &lt; b) { x(); }</code></pre>'), code);
+      assert(mdToHTML('if `a < b` then') === '<p>if <code>a &lt; b</code> then</p>', mdToHTML('if `a < b` then'));
+      assert(mdToHTML('## Heading') === '<h2>Heading</h2>', mdToHTML('## Heading'));
+    });
+
+    await test('a code block is escaped exactly once (no &amp;lt; double-escaping)', () => {
+      const html = mdToHTML('```\na & b < c\n```');
+      assert(html.includes('a &amp; b &lt; c'), html);
+      assert(!html.includes('&amp;amp;'), `double-escaped: ${html}`);
+    });
+
+    await test('buildStandaloneHTML() carries the XSS payload through escaped and ships a CSP meta tag', () => {
+      const doc = buildStandaloneHTML([{ role: 'You', content: XSS }], `T ${XSS}`, 'ChatGPT', {});
+      assert(!doc.includes('<img src=x'), 'the exported document must not contain an executable payload');
+      assert(doc.includes('&lt;img src=x onerror=alert(1)&gt;'), 'the payload should still be readable as text');
+      assert(/http-equiv="Content-Security-Policy"/.test(doc), 'expected a CSP meta tag in the standalone export');
+      assert(/default-src 'none'/.test(doc), 'expected default-src \'none\' in the CSP');
+    });
+  });
+
+  await suite('Security patch — B2 DOCX XML escaping', async () => {
+    const docxText = (bytes) => new TextDecoder('utf-8').decode(bytes); // buildZip is STORED, so parts appear verbatim
+
+    await test('a hyperlink whose URL contains & produces a valid relationship entry', () => {
+      const url  = 'https://example.com/search?a=1&b=2';
+      const text = docxText(buildDocx([{ role: 'You', content: `see [source](${url})` }], 'T', 'ChatGPT'));
+      const rel  = text.match(/<Relationship Id="rId3"[^>]*\/>/);
+      assert(rel, `no content hyperlink relationship emitted:\n${text.slice(0, 400)}`);
+      assert(rel[0].includes('Target="https://example.com/search?a=1&amp;b=2"'), `unescaped & in Target — Word reports "unreadable content": ${rel[0]}`);
+      assert(!/&(?!amp;|lt;|gt;|quot;|apos;|#)/.test(rel[0]), `bare & left in the relationship XML: ${rel[0]}`);
+    });
+
+    await test('a hyperlink URL containing a quote cannot break out of the Target attribute', () => {
+      const text = docxText(buildDocx([{ role: 'You', content: 'see [x](https://example.com/?q=")' }], 'T', 'ChatGPT'));
+      const rel  = text.match(/<Relationship Id="rId3"[^>]*\/>/);
+      assert(rel, 'no content hyperlink relationship emitted');
+      assert(!/Target="[^"]*"[^ ]/.test(rel[0].replace(/TargetMode="External"/, '')), `attribute terminated early: ${rel[0]}`);
+      assert(/%22|&quot;/.test(rel[0]), `the quote should be percent-encoded or entity-escaped: ${rel[0]}`);
+    });
+
+    await test('_xmlAttrEsc() escapes all five XML attribute specials', () => {
+      assert(_xmlAttrEsc('a&b<c>d"e\'f') === 'a&amp;b&lt;c&gt;d&quot;e&apos;f', _xmlAttrEsc('a&b<c>d"e\'f'));
+    });
+
+    await test('_xmlEsc() strips XML 1.0 illegal control characters (e.g. ESC from pasted terminal output)', () => {
+      const out = _xmlEsc('colour\x1b[31mred\x1b[0m');
+      assert(!/[\x00-\x08\x0B\x0C\x0E-\x1F]/.test(out), `control character survived: ${JSON.stringify(out)}`);
+      assert(out === 'colour[31mred[0m', JSON.stringify(out));
+      assert(_xmlEsc('keep\ttabs\nand newlines') === 'keep\ttabs\nand newlines', 'tab/newline are legal XML 1.0 and must survive');
+    });
+
+    await test('a message containing an ESC sequence still produces a parseable document.xml', () => {
+      const text = docxText(buildDocx([{ role: 'You', content: 'out: \x1b[31mfail\x1b[0m' }], 'T', 'ChatGPT'));
+      const doc  = text.match(/<w:document[\s\S]*?<\/w:document>/);
+      assert(doc, 'no document.xml body found');
+      assert(!/[\x00-\x08\x0B\x0C\x0E-\x1F]/.test(doc[0]), 'illegal control characters reached document.xml');
+    });
+  });
+
+  await suite('Security patch — S8 no web_accessible_resources', async () => {
+    const MANIFEST_WAR = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../manifest.json'), 'utf8'));
+
+    await test('manifest.json exposes no resources to web pages', () => {
+      assert(!('web_accessible_resources' in MANIFEST_WAR),
+        'print.html/history.html are only ever opened from extension contexts — exposing them to <all_urls> makes the extension fingerprintable and the pages iframeable by any site');
+    });
+
+    await test('print.html and history.html are still only opened from extension contexts', () => {
+      const POPUP_JS      = fs.readFileSync(path.resolve(__dirname, '../popup.js'), 'utf8');
+      const BACKGROUND_JS = fs.readFileSync(path.resolve(__dirname, '../background.js'), 'utf8');
+      const HISTORY_JS    = fs.readFileSync(path.resolve(__dirname, '../history.js'), 'utf8');
+      // Every reference must be wrapped in runtime.getURL() from an extension
+      // page (popup/background/history). A page loaded by a *website* is what
+      // web_accessible_resources is for, and nothing here does that.
+      for (const [name, src] of [['popup.js', POPUP_JS], ['background.js', BACKGROUND_JS], ['history.js', HISTORY_JS]]) {
+        const refs = src.match(/.{0,20}['"](?:print|history)\.html['"]/g) || [];
+        assert(refs.length > 0, `expected ${name} to reference at least one of the two pages`);
+        for (const ref of refs) {
+          assert(/getURL\(\s*['"]$/.test(ref.slice(0, -('print.html'.length + 1))) || /getURL\(['"]/.test(ref),
+            `${name} references one of the pages without runtime.getURL(): ...${ref}`);
+        }
+      }
+      assert(!/print\.html|history\.html/.test(CONTENT_JS), 'the content script must never open these pages directly — that WOULD need web_accessible_resources');
+    });
+  });
+
   // ─── Results ───────────────────────────────────────────────────────────────
   console.log('\n' + '─'.repeat(50));
   console.log(`Results: ${passed} passed, ${failed} failed`);

@@ -36,6 +36,22 @@ function cleanUrl(rawUrl) {
   return url.toString().replace(/\?$/, '');
 }
 
+// ─── Webhook URL validation ───────────────────────────────────────────────────
+// A webhook can carry the whole conversation, so it must not travel in the
+// clear. Enforced at the send site rather than only in the settings form: the
+// value can also arrive via storage.sync mirroring or an imported settings
+// file, neither of which passes through the form's validation.
+// localhost is allowed over http — it never leaves the machine, and local
+// automation (n8n, Node-RED) is a normal way to use this feature.
+
+function isSafeWebhookUrl(rawUrl) {
+  let url;
+  try { url = new URL(String(rawUrl).trim()); } catch { return false; }
+  if (url.protocol === 'https:') return true;
+  return url.protocol === 'http:' &&
+         (url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname === '[::1]');
+}
+
 // ─── HTML escaping ────────────────────────────────────────────────────────────
 
 function esc(s) {
@@ -48,8 +64,20 @@ function esc(s) {
 
 // ─── Minimal Markdown → HTML (used for PDF and standalone HTML output) ───────
 
+// Schemes allowed in a generated <a href>. Anything else — most importantly
+// `javascript:`, but also `data:` and `vbscript:` — is dropped and the link
+// renders as plain text. The .html export is a real document the user may open
+// or share, and print.html is a privileged extension page.
+const SAFE_HREF_RE = /^(?:https?:|mailto:|#)/i;
+
+function safeHref(url) {
+  return SAFE_HREF_RE.test(String(url).trim()) ? url : null;
+}
+
 function mdToHTML(md) {
-  // 1. Pull out fenced code blocks before any other processing
+  // 1. Pull out fenced code blocks before any other processing.
+  //    Their contents are escaped here and parked behind a \x00BLK marker that
+  //    the whole-string escape in step 1b leaves untouched.
   const blocks = [];
   md = md.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
     const idx = blocks.length;
@@ -57,8 +85,18 @@ function mdToHTML(md) {
     return `\x00BLK${idx}\x00`;
   });
 
-  // 2. Inline code
-  md = md.replace(/`([^`\n]+)`/g, (_, c) => `<code>${esc(c)}</code>`);
+  // 1b. Escape at the boundary: everything still in the string is untrusted
+  //     text (a user's own message, or an AI reply that may carry injected
+  //     markup). Escaping it here — before any structural transform below adds
+  //     a tag of its own — is what keeps `<img src=x onerror=...>` from
+  //     surviving into the exported document. esc() only touches & < > " ,
+  //     none of which carry Markdown meaning, so the transforms below still
+  //     see the syntax they expect. The one exception is blockquotes, whose
+  //     `> ` marker is now `&gt; ` (handled in step 6).
+  md = esc(md);
+
+  // 2. Inline code (text already escaped by step 1b)
+  md = md.replace(/`([^`\n]+)`/g, (_, c) => `<code>${c}</code>`);
 
   // 3. Headings (must come before bold/italic)
   md = md.replace(/^(#{1,6})\s+(.+)$/gm, (_, h, t) => `<h${h.length}>${t}</h${h.length}>`);
@@ -69,15 +107,19 @@ function mdToHTML(md) {
   md = md.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
   md = md.replace(/~~(.+?)~~/g, '<del>$1</del>');
   md = md.replace(/\+\+(.+?)\+\+/g, '<u>$1</u>');
-  md = md.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+  md = md.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, text, url) => {
+    const href = safeHref(url);
+    return href ? `<a href="${href}">${text}</a>` : text;
+  });
 
   // 5. Horizontal rule
   md = md.replace(/^---$/gm, '<hr>');
 
   // 6. Blockquotes — group consecutive "> " lines into one <blockquote>
-  md = md.replace(/((?:^> .+$\n?)+)/gm, match => {
+  //    (the marker reads as "&gt; " here because of the escape in step 1b)
+  md = md.replace(/((?:^&gt; .+$\n?)+)/gm, match => {
     const inner = match.trim().split('\n')
-      .map(l => l.replace(/^> /, '').trim())
+      .map(l => l.replace(/^&gt; /, '').trim())
       .join('<br>');
     return `<blockquote>${inner}</blockquote>\n`;
   });
@@ -239,6 +281,10 @@ function buildStandaloneHTML(messages, title, site, opts = {}) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Defence in depth: the export is fully self-contained, so nothing needs
+       to load or execute. mdToHTML() escapes message text, and this blocks
+       whatever might still slip past it from doing anything. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:" />
   <title>${esc(title)}</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1003,14 +1049,43 @@ function buildZipExport(messages, title, site, opts, sourceUrl) {
 // No external dependencies — all XML is built as template strings.
 // Returns a Uint8Array (the ZIP bytes), same as buildZip.
 
+// Control characters that are simply not representable in XML 1.0, not even as
+// a numeric entity. They reach us from text pasted out of a terminal (\x1b
+// escape sequences are the common case) and make Word reject the whole file.
+const _XML_ILLEGAL_RE = /[\x00-\x08\x0B\x0C\x0E-\x1F]/g;
+
 /**
  * Escape special characters for XML text content.
  */
 function _xmlEsc(s) {
   return String(s)
+    .replace(_XML_ILLEGAL_RE, '')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
+}
+
+/**
+ * Escape a value for use inside an XML *attribute*. Same as _xmlEsc plus the
+ * quote characters, which are harmless in text content but terminate an
+ * attribute early. Needed for hyperlink Target="…": chat citation URLs
+ * routinely carry `?a=1&b=2`, and a bare `&` makes the document unreadable.
+ */
+function _xmlAttrEsc(s) {
+  return _xmlEsc(s)
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+/**
+ * Normalise a hyperlink target for the relationship part: percent-encode
+ * characters that are not legal in a URI (spaces, non-ASCII) without touching
+ * an existing %XX, then escape it as an XML attribute value.
+ */
+function _xmlHrefAttr(url) {
+  let out = String(url);
+  try { out = encodeURI(out); } catch (_) { /* lone surrogate — use as-is */ }
+  return _xmlAttrEsc(out);
 }
 
 /**
@@ -1046,8 +1121,10 @@ function _htmlInlineToRuns(html) {
     else if (m[5]) result += _wRun(_htmlDecodeText(m[5]), { strike: true });
     else if (m[6]) result += _wRun(_htmlDecodeText(m[6]), { underline: true });
     else if (m[7] !== undefined) {
-      // Hyperlink — register URL, emit <w:hyperlink>
-      const href = m[7];
+      // Hyperlink — register URL, emit <w:hyperlink>. mdToHTML() emits the
+      // href HTML-escaped, so decode it back to the real URL here; the
+      // relationship part re-escapes it for XML at emission time.
+      const href = _htmlDecodeText(m[7]);
       const text = _htmlDecodeText(m[8] || href);
       const rId  = _docxLinkRId(href);
       const rPr  = `<w:rPr><w:color w:val="5B5BD6"/><w:u w:val="single"/></w:rPr>`;
@@ -1432,7 +1509,7 @@ function buildDocx(messages, title, site, opts = {}, sourceUrl = '') {
 </Relationships>`;
 
   const contentLinkRels = _docxLinks
-    .map(({ url, rId }) => `  <Relationship Id="${rId}" Type="${NS_REL}/hyperlink" Target="${url}" TargetMode="External"/>`)
+    .map(({ url, rId }) => `  <Relationship Id="${rId}" Type="${NS_REL}/hyperlink" Target="${_xmlHrefAttr(url)}" TargetMode="External"/>`)
     .join('\n');
   const docRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="${NS_PKG}/relationships">

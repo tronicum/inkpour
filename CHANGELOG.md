@@ -14,6 +14,29 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+### Fixed
+- **Security:** the Alt+Shift+G "upload to Gist" hotkey now only responds to a
+  real keypress. Previously a script running on the chat page could fake the
+  key combination and upload the whole conversation to your GitHub account
+  without you touching the keyboard.
+- **Security:** uploading a Gist from the popup now strips likely secrets
+  (API keys, tokens, email addresses) the same way the keyboard-shortcut and
+  right-click paths always did. "Scrub secrets before upload" is on by
+  default, but this one path ignored it.
+- **Security:** webhooks now require an `https://` URL (plain `http://` is
+  still allowed for `localhost`, for local automation) and the payload —
+  including the conversation text, when "Include content in webhook" is on —
+  passes through the same secret scrubbing as every other upload.
+- **Security:** exported `.html` files and the print preview now escape
+  message text, so markup inside a conversation is shown as text instead of
+  being rendered. `javascript:` links are dropped, and the exported file
+  carries a Content-Security-Policy that blocks anything from loading.
+- Word documents no longer come out corrupt when a conversation contains a
+  link with `&` in it (most citation links do) or text pasted from a
+  terminal. Word previously reported "unreadable content" for those exports.
+- The extension no longer advertises its internal print/history pages to every
+  website, which made it detectable by any page you visited.
+
 ## [0.4.33.0] - 2026-09-22
 
 ### Added
