@@ -7,7 +7,6 @@
     "test": "node test/run-jsdom.js",
     "test:jsdom": "node test/run-jsdom.js",
     "test:e2e": "playwright test test/e2e",
-    "test:unit": "playwright test test/unit",
     "test:chrome": "playwright test --project=chrome",
     "test:firefox": "playwright test --project=firefox",
     "build:bookmarklet": "node bookmarklet/build.js"
