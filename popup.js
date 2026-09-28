@@ -113,6 +113,7 @@
     scrubLocalExports:     false,
     perMessageCopyButtons: false,
     showFloatingButton:    true,
+    localArchive:          true,
     webhookUrl:            '',
     webhookIncludeContent: false,
     writeToVault:          false,
@@ -1870,6 +1871,18 @@
 
       api.storage.local.set({ inkpour_history: history, inkpour_lifetime_stats: stats });
     }).catch(() => {});
+
+    // Also mirror the full record into the uncapped IndexedDB archive (see
+    // src/exportArchive.js) so exports survive past the 20-entry rolling
+    // window above. Best-effort and strictly additive: the storage.local
+    // quick list stays the source the popup and History page load first, and
+    // an archive failure must never break the export itself. Gated on the
+    // "Keep a full local export archive" setting (default on) — `!== false`
+    // so existing installs whose saved settings object predates the key keep
+    // archiving without re-saving Settings.
+    if (userSettings.localArchive !== false && typeof archiveAddExport === 'function') {
+      archiveAddExport(record).catch(() => {});
+    }
 
     // Fire webhook (best-effort, non-blocking)
     doWebhook(record);

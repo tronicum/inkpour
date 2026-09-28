@@ -693,6 +693,12 @@
   "settingsShowFabDesc": {
     "message": "A small \"ip\" button on every supported chat page for quick export without opening the popup. On by default; turn it off if you find it distracting."
   },
+  "settingsLocalArchiveLabel": {
+    "message": "Keep a full local export archive"
+  },
+  "settingsLocalArchiveDesc": {
+    "message": "Keep a copy of every export on this computer (IndexedDB), searchable from the History page — not just the last 20. On by default; grows with use, so the History page has a \"Clear archive\" button. Per-device: the archive itself never syncs or leaves your machine."
+  },
   "settingsWebhookUrlLabel": {
     "message": "URL ของ Webhook"
   },
@@ -717,6 +723,9 @@
   "historyHeaderSubtitle": {
     "message": "การส่งออก 20 รายการล่าสุด — จัดเก็บในเครื่อง ไม่เคยอัปโหลด"
   },
+  "historyHeaderSubtitleArchive": {
+    "message": "All exports — stored locally, never uploaded"
+  },
   "historySearchPlaceholder": {
     "message": "ค้นหาชื่อเรื่อง แพลตฟอร์ม หรือเนื้อหาการสนทนา…"
   },
@@ -728,6 +737,9 @@
   },
   "historyClearStarred": {
     "message": "ล้าง ★"
+  },
+  "historyClearArchive": {
+    "message": "Clear archive"
   },
   "historyClearRecentTitle": {
     "message": "ล้างประวัติล่าสุด (การส่งออกที่ติดดาวจะยังคงอยู่)"
@@ -764,6 +776,9 @@
   },
   "historySectionRecent": {
     "message": "ล่าสุด"
+  },
+  "historySectionArchive": {
+    "message": "Archive"
   },
   "historyStarPin": {
     "message": "ปักหมุดเป็นรายการติดดาว"
@@ -868,6 +883,9 @@
   },
   "historyConfirmClearStarred": {
     "message": "ลบรายการที่ติดดาวทั้งหมดหรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้"
+  },
+  "historyConfirmClearArchive": {
+    "message": "Delete the entire local export archive? Recent and starred exports are kept. This cannot be undone."
   },
   "printLoading": {
     "message": "กำลังโหลดการสนทนา…"

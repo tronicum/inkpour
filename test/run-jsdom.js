@@ -43,6 +43,13 @@ require('fake-indexeddb/auto');
 const VAULT_HANDLE_JS = fs.readFileSync(path.resolve(__dirname, '../src/vaultHandle.js'), 'utf8');
 vm.runInThisContext(VAULT_HANDLE_JS);
 
+// ─── src/exportArchive.js (uncapped local export archive, IndexedDB) ────────
+// Same deal as src/vaultHandle.js above: plain global functions, no
+// chrome/browser dependency, exercised directly against fake-indexeddb (it
+// owns its own 'inkpour-archive' database, separate from 'inkpour-vault').
+const EXPORT_ARCHIVE_JS = fs.readFileSync(path.resolve(__dirname, '../src/exportArchive.js'), 'utf8');
+vm.runInThisContext(EXPORT_ARCHIVE_JS);
+
 // ─── src/redact.js (secret scrubbing) ───────────────────────────────────────
 // Same global-scope pattern as src/utils.js — loading it here makes
 // scanForSecrets()/redactSecrets()/redactMessages() directly callable below.
@@ -3854,6 +3861,135 @@ No bullets here at all, just prose under the heading.
       };
       const ok = await ensureReadWritePermission(dirHandle);
       assert(ok === false, 'expected false when permission denied');
+    });
+  });
+
+  // ── src/exportArchive.js — uncapped local export archive ──────────────────
+  // Same coverage model as vaultHandle.js above: the IndexedDB round-trip is
+  // exercised for real against fake-indexeddb (its own 'inkpour-archive'
+  // database). What is NOT covered here, and why: popup.js's saveLastExport()
+  // call site and history.js's async archive load/render both live inside
+  // page IIFEs that need chrome.storage/DOM wiring — same "not jsdom-testable
+  // without new infrastructure" limitation as the rest of popup.js/history.js.
+  // Their wiring is asserted structurally below instead (source-regex tests,
+  // the established pattern used for showFloatingButton).
+  await suite('exportArchive.js — uncapped local export archive (IndexedDB)', async () => {
+    const rec = (id, extra = {}) => ({
+      id, title: `T${id}`, platform: 'chatgpt', slug: `t-${id}`, sourceUrl: '',
+      format: 'md', messageCount: 2, wordCount: 10,
+      exportedAt: new Date(Number(id)).toISOString(), content: `# T${id}`, ...extra,
+    });
+
+    await test('archive starts empty (count 0, getAll [])', async () => {
+      await archiveClearExports(); // clean slate regardless of test order
+      assert((await archiveCountExports()) === 0, 'expected count 0');
+      const all = await archiveGetAllExports();
+      assert(Array.isArray(all) && all.length === 0, `expected [], got ${JSON.stringify(all)}`);
+    });
+
+    await test('archiveAddExport() + archiveGetAllExports() round-trips a full record, content included', async () => {
+      await archiveAddExport(rec('1000', { content: '# Full transcript\n\nHello **world**' }));
+      const all = await archiveGetAllExports();
+      assert(all.length === 1, `expected 1 entry, got ${all.length}`);
+      assert(all[0].content === '# Full transcript\n\nHello **world**', 'content did not round-trip');
+      assert(all[0].title === 'T1000' && all[0].format === 'md', `metadata lost: ${JSON.stringify(all[0])}`);
+    });
+
+    await test('archive is uncapped past the storage.local list\'s 20-entry window', async () => {
+      for (let i = 0; i < 25; i++) await archiveAddExport(rec(String(2000 + i)));
+      assert((await archiveCountExports()) === 26, `expected 26 (1 + 25), got ${await archiveCountExports()}`);
+    });
+
+    await test('archiveGetAllExports() returns newest-first by exportedAt', async () => {
+      const all = await archiveGetAllExports();
+      for (let i = 1; i < all.length; i++) {
+        assert(all[i - 1].exportedAt >= all[i].exportedAt,
+          `not newest-first at index ${i}: ${all[i - 1].exportedAt} < ${all[i].exportedAt}`);
+      }
+      assert(all[0].id === '2024', `expected newest id 2024 first, got ${all[0].id}`);
+    });
+
+    await test('re-adding the same id replaces the entry (put semantics), never duplicates', async () => {
+      await archiveAddExport(rec('1000', { title: 'Replaced' }));
+      const all = await archiveGetAllExports();
+      const matches = all.filter(e => e.id === '1000');
+      assert(matches.length === 1, `expected 1 entry for id 1000, got ${matches.length}`);
+      assert(matches[0].title === 'Replaced', `expected replaced title, got ${matches[0].title}`);
+    });
+
+    await test('archiveDeleteExport() removes one entry and leaves the rest', async () => {
+      const before = await archiveCountExports();
+      await archiveDeleteExport('1000');
+      assert((await archiveCountExports()) === before - 1, 'expected exactly one fewer entry');
+      const all = await archiveGetAllExports();
+      assert(!all.some(e => e.id === '1000'), 'deleted entry still present');
+    });
+
+    await test('archiveAddExport() rejects a record without an id (fail loud, not silent bad data)', async () => {
+      let threw = false;
+      try { await archiveAddExport({ title: 'no id' }); } catch { threw = true; }
+      assert(threw, 'expected a rejection for a record without an id');
+    });
+
+    await test('archiveClearExports() empties the archive', async () => {
+      await archiveClearExports();
+      assert((await archiveCountExports()) === 0, 'expected count 0 after clear');
+    });
+  });
+
+  // ── Local archive — settings/UI wiring (structure) ────────────────────────
+  await suite('Local export archive — settings + page wiring (structure)', async () => {
+    const SETTINGS_JS   = fs.readFileSync(path.resolve(__dirname, '../settings.js'), 'utf8');
+    const POPUP_SRC     = fs.readFileSync(path.resolve(__dirname, '../popup.js'), 'utf8');
+    const HISTORY_JS    = fs.readFileSync(path.resolve(__dirname, '../history.js'), 'utf8');
+    const POPUP_HTML    = fs.readFileSync(path.resolve(__dirname, '../popup.html'), 'utf8');
+    const HISTORY_HTML  = fs.readFileSync(path.resolve(__dirname, '../history.html'), 'utf8');
+    const SETTINGS_HTML = fs.readFileSync(path.resolve(__dirname, '../settings.html'), 'utf8');
+    const SYNC_JS       = fs.readFileSync(path.resolve(__dirname, '../src/settingsSync.js'), 'utf8');
+
+    await test('settings.js wires localArchive into DEFAULTS (true), load, save, and the discrete-controls id list', () => {
+      assert(/localArchive:\s*true/.test(SETTINGS_JS), 'expected localArchive: true in DEFAULTS — must default on, not off');
+      assert(/getElementById\('localArchive'\)\.checked\s*=\s*prefs\.localArchive\s*!==\s*false/.test(SETTINGS_JS), 'expected the load step to treat a missing key as on (!== false), so pre-existing installs archive without re-saving');
+      assert(/localArchive:\s*document\.getElementById\('localArchive'\)\.checked/.test(SETTINGS_JS), 'expected save() to read the checkbox back into prefs');
+      assert(/'localArchive'/.test(SETTINGS_JS.match(/Discrete controls[\s\S]*?\]\.forEach/)?.[0] || ''), 'expected localArchive in the discrete-controls (save-on-change) id list');
+    });
+
+    await test('popup.js defaults localArchive on and mirrors every saveLastExport() record into the archive, gated on !== false', () => {
+      assert(/localArchive:\s*true/.test(POPUP_SRC), 'expected popup.js SETTING_DEFAULTS to include localArchive: true');
+      assert(/userSettings\.localArchive\s*!==\s*false[\s\S]{0,200}archiveAddExport\(record\)/.test(POPUP_SRC), 'expected saveLastExport() to call archiveAddExport(record) gated on localArchive !== false');
+      assert(/archiveAddExport\(record\)\.catch/.test(POPUP_SRC), 'expected the archive write to be best-effort (.catch) so it can never break an export');
+    });
+
+    await test('src/settingsSync.js deliberately does NOT sync localArchive (per-device storage mechanism)', () => {
+      const listMatch = SYNC_JS.match(/SYNCABLE_SETTING_KEYS\s*=\s*\[([\s\S]*?)\]/);
+      assert(listMatch, 'could not find SYNCABLE_SETTING_KEYS in src/settingsSync.js');
+      const listCode = listMatch[1].replace(/\/\/[^\n]*/g, ''); // the list carries a comment explaining this exclusion
+      assert(!/'localArchive'/.test(listCode), 'localArchive must NOT be in SYNCABLE_SETTING_KEYS — the archive and its disk cost are per-device');
+    });
+
+    await test('popup.html and history.html both load src/exportArchive.js', () => {
+      assert(/src\/exportArchive\.js/.test(POPUP_HTML), 'popup.html missing the exportArchive.js script tag');
+      assert(/src\/exportArchive\.js/.test(HISTORY_HTML), 'history.html missing the exportArchive.js script tag');
+    });
+
+    await test('settings.html has the localArchive toggle following the established field markup (checked by default)', () => {
+      assert(/id="localArchive"[^>]*role="switch"/.test(SETTINGS_HTML.replace(/\n\s*/g, ' ')), 'expected an id="localArchive" switch input');
+      assert(/id="localArchive"[\s\S]{0,200}checked/.test(SETTINGS_HTML), 'expected the localArchive checkbox to carry the checked attribute (on by default)');
+      assert(/data-i18n="settingsLocalArchiveLabel"/.test(SETTINGS_HTML), 'expected the label to use the settingsLocalArchiveLabel i18n key');
+    });
+
+    await test('history.js loads the archive after the instant storage.local render and filters it with the same matchesQuery pass', () => {
+      assert(/loadArchive\(\)\.catch/.test(HISTORY_JS), 'expected loadHistory() to kick off a best-effort loadArchive()');
+      assert(/archiveGetAllExports/.test(HISTORY_JS), 'expected history.js to read the archive via archiveGetAllExports()');
+      assert(/archiveOnly\.filter\(e => matchesQuery\(e, q\)\)/.test(HISTORY_JS), 'expected the existing matchesQuery() filter to also cover archive entries');
+      assert(/historySectionArchive/.test(HISTORY_JS), 'expected an Archive section heading (historySectionArchive)');
+      assert(/historyConfirmClearArchive/.test(HISTORY_JS), 'expected a confirm before clearing the archive');
+      assert(/archiveClearExports\(\)/.test(HISTORY_JS), 'expected the Clear archive button to call archiveClearExports()');
+    });
+
+    await test('src/exportArchive.js stays chrome-free (jsdom-testable, same rule as vaultHandle.js)', () => {
+      const code = EXPORT_ARCHIVE_JS.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, ''); // comments may (and do) mention chrome.storage
+      assert(!/\bchrome\./.test(code) && !/\bbrowser\./.test(code), 'src/exportArchive.js must not touch chrome.*/browser.* APIs');
     });
   });
 
