@@ -5,6 +5,14 @@ on:
     tags:
       - 'v*'
 
+# Default the GITHUB_TOKEN to read-only for every job. The publish jobs only
+# check out, build a zip, and talk to external store APIs with their own
+# Environment-scoped secrets — none of them needs any repo write access. The
+# release job alone re-widens to contents: write (it creates the GitHub
+# Release) via its own job-level permissions block below.
+permissions:
+  contents: read
+
 jobs:
   release:
     name: Build & publish GitHub Release
@@ -13,7 +21,7 @@ jobs:
       contents: write   # needed to create GitHub Releases
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Read version from manifest
         id: meta
@@ -54,7 +62,7 @@ jobs:
           echo "✓ Built ${{ steps.meta.outputs.zip }} ($(du -sh ${{ steps.meta.outputs.zip }} | cut -f1))"
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         with:
           name: "${{ steps.meta.outputs.name }} v${{ steps.meta.outputs.version }}"
           files: ${{ steps.meta.outputs.zip }}
@@ -72,7 +80,7 @@ jobs:
     # doesn't exist yet, but with no protection rules until configured.
     environment: Firefox
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Build extension zip (same script as the release job, so the
           submitted package is byte-identical to what's on the GitHub Release)
@@ -89,7 +97,10 @@ jobs:
           WEB_EXT_API_KEY: ${{ secrets.WEB_EXT_API_KEY }}
           WEB_EXT_API_SECRET: ${{ secrets.WEB_EXT_API_SECRET }}
         run: |
-          npx web-ext@10 sign \
+          # Exact-pinned (was @10): npx resolves the tag at publish time with
+          # real store credentials in env — pin so a compromised or broken
+          # future release can't be pulled in silently (review T3).
+          npx web-ext@10.7.0 sign \
             --source-dir unpacked \
             --artifacts-dir web-ext-artifacts \
             --channel listed \
@@ -98,7 +109,7 @@ jobs:
 
       - name: Upload signed artifact (for inspection if anything looks off)
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: firefox-submission
           path: web-ext-artifacts/
@@ -113,7 +124,7 @@ jobs:
     # four secrets (EXTENSION_ID, CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN).
     environment: Chrome
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Build extension zip (same script as the release job, so the
           submitted package is byte-identical to what's on the GitHub Release)
@@ -127,13 +138,15 @@ jobs:
           REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
         run: |
           VERSION=$(node -e "process.stdout.write(require('./manifest.json').version)")
-          npx chrome-webstore-upload-cli@3 upload \
+          # Exact-pinned (was @3) — same supply-chain reasoning as the
+          # web-ext pin in publish-firefox (review T3).
+          npx chrome-webstore-upload-cli@3.5.0 upload \
             --source "../inkpour-${VERSION}.zip" \
             --extension-id "$EXTENSION_ID" \
             --client-id "$CLIENT_ID" \
             --client-secret "$CLIENT_SECRET" \
             --refresh-token "$REFRESH_TOKEN"
-          npx chrome-webstore-upload-cli@3 publish \
+          npx chrome-webstore-upload-cli@3.5.0 publish \
             --extension-id "$EXTENSION_ID" \
             --client-id "$CLIENT_ID" \
             --client-secret "$CLIENT_SECRET" \
@@ -152,7 +165,7 @@ jobs:
     # and EDGE_API_KEY expires roughly every 72 days and needs re-minting.
     environment: Edge
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Build extension zip (same script as the release job, so the
           submitted package is byte-identical to what's on the GitHub Release)
