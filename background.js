@@ -88,7 +88,7 @@ api.runtime.onMessage.addListener((message, sender) => {
     }
 
     if (message.format === 'zip') {
-      const { files } = buildZipExport(msgs, title, response.site, settings, sourceUrl);
+      const { files } = buildZipExport(msgs, title, response.site, settings, sourceUrl, response.shareUrl);
       const zipBytes  = buildZip(files);
       const b64  = uint8ToBase64(zipBytes);
       const url  = 'data:application/zip;base64,' + b64;
@@ -218,7 +218,7 @@ async function runBatchExport(conversations, originTabId) {
 
       // Opt-in local-export scrub — the batch ZIP is a local download.
       const scrubbed = applyLocalScrub(settings, response.messages, response.title);
-      const md = buildMarkdown(scrubbed.messages, scrubbed.title, response.site, settings, sourceUrl);
+      const md = buildMarkdown(scrubbed.messages, scrubbed.title, response.site, settings, sourceUrl, response.shareUrl);
       files.push({ name: unique + '.md', content: md });
       succeeded++;
     } catch {
@@ -338,13 +338,13 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
   const { messages: msgs, title } = applyLocalScrub(settings, response.messages, response.title);
 
   if (info.menuItemId === 'inkpour-md') {
-    const md  = buildMarkdown(msgs, title, response.site, settings, sourceUrl);
+    const md  = buildMarkdown(msgs, title, response.site, settings, sourceUrl, response.shareUrl);
     const url = 'data:text/markdown;charset=utf-8,' + encodeURIComponent(md);
     safeDownload(tab.id, url, withSubfolder(settings, filename + '.md'));
   }
 
   if (info.menuItemId === 'inkpour-copy') {
-    const md = buildMarkdown(msgs, title, response.site, settings, sourceUrl);
+    const md = buildMarkdown(msgs, title, response.site, settings, sourceUrl, response.shareUrl);
     await api.tabs.sendMessage(tab.id, { action: 'copyToClipboard', text: md });
   }
 
@@ -355,7 +355,7 @@ api.contextMenus.onClicked.addListener(async (info, tab) => {
   }
 
   if (info.menuItemId === 'inkpour-zip') {
-    const { files } = buildZipExport(msgs, title, response.site, settings, sourceUrl);
+    const { files } = buildZipExport(msgs, title, response.site, settings, sourceUrl, response.shareUrl);
     const zipBytes  = buildZip(files);
     const b64  = uint8ToBase64(zipBytes);
     const url  = 'data:application/zip;base64,' + b64;
@@ -442,7 +442,7 @@ async function doGistUpload(tab, settings, response, sourceUrl, filename) {
   }
   // Gist exports always carry YAML front matter + base tags for GitHub search.
   const gistSettings = { ...settings, yamlFrontMatter: true, obsidianTags: true, gistExtraTags: settings.gistTags || '' };
-  let md = buildMarkdown(response.messages, response.title, response.site, gistSettings, sourceUrl);
+  let md = buildMarkdown(response.messages, response.title, response.site, gistSettings, sourceUrl, response.shareUrl);
   let description = response.title;
   const gistFilename = filename + '.md';
 
@@ -543,7 +543,7 @@ async function runCommand(command) {
   const { messages: msgs, title } = applyLocalScrub(settings, response.messages, response.title);
 
   if (command === 'export-markdown') {
-    const md  = buildMarkdown(msgs, title, response.site, settings, sourceUrl);
+    const md  = buildMarkdown(msgs, title, response.site, settings, sourceUrl, response.shareUrl);
     const url = 'data:text/markdown;charset=utf-8,' + encodeURIComponent(md);
     safeDownload(tab.id, url, withSubfolder(settings, filename + '.md'));
   }
@@ -557,7 +557,7 @@ async function runCommand(command) {
 
   if (command === 'copy-markdown') {
     // Service workers don't have clipboard access — send to content script to copy
-    const md = buildMarkdown(msgs, title, response.site, settings, sourceUrl);
+    const md = buildMarkdown(msgs, title, response.site, settings, sourceUrl, response.shareUrl);
     await api.tabs.sendMessage(tab.id, { action: 'copyToClipboard', text: md });
   }
 
@@ -574,7 +574,7 @@ async function runCommand(command) {
   }
 
   if (command === 'export-zip') {
-    const { files } = buildZipExport(msgs, title, response.site, settings, sourceUrl);
+    const { files } = buildZipExport(msgs, title, response.site, settings, sourceUrl, response.shareUrl);
     const zipBytes  = buildZip(files);
     // base64-encode for data: URL (no createObjectURL in SW)
     const b64  = uint8ToBase64(zipBytes);
