@@ -873,8 +873,31 @@ path is one self-contained click handler (settings.js:138–162) building one
     live test" status Batch 5 (Notion) and Batch 6 (vault) shipped in, not
     a claim that this is fully verified.
 
+  **Pre-live-test code review (2026-09-24)**: orchestration core (tab
+  cleanup, the extract/timeout race, filename collision suffixing,
+  sequential-not-parallel iteration, origin-tab toast safety, all-fail
+  summary) all verified correct — no tab leaks, no race bugs, no ordering
+  bugs. Two real, non-critical risks to specifically watch for during the
+  live test, both **silent-success** failure modes (no error, just wrong
+  output) rather than crashes:
+  1. A background tab is never focused, and Chrome throttles timers there —
+     ChatGPT's lazy-load-older-messages step (`scrollToLoadAll()`) leans on
+     `scrollTo({behavior:'smooth'})` + a `setInterval` poll, which may not
+     run reliably unfocused. A long (multi-screen) conversation could
+     silently export truncated, counted as a success. Check message counts
+     against a normal foreground export of the same conversation, not just
+     "did a ZIP appear."
+  2. `getConversationList()` (the sidebar picker) does no scroll-to-load —
+     it only sees whatever's rendered on initial sidebar open. This repo's
+     own earlier live testing (see the ChatGPT sidebar notes above) already
+     found the sidebar lazy-loads and needs incremental-scroll simulation
+     or it silently under-collects; that was never carried into
+     `getConversationList()`. Accounts with more than ~25-30 past
+     conversations will likely see only the first batch in the picker, with
+     no indication anything was cut off.
+
 ## Batch 11 — PDF-import debug tools: release-packaging bug + N-up layout support
-- [ ] **XS, high priority — real user-facing bug, filed 2026-07** Settings →
+- [x] **XS, high priority — real user-facing bug, filed 2026-07** Settings →
   Advanced → Debug mode exposes two links ("Import debug", "PDF fuzzer")
   that open `debug/import-debug.html` / `debug/import-pdf-fuzzer.html`
   directly (`settings.js` lines ~133-141, via
@@ -1158,6 +1181,36 @@ path is one self-contained click handler (settings.js:138–162) building one
   priority (parallel gap to the Orion-iOS Simulator blocker in
   `planning/adr-orion-ios-automation.md` — both stuck on "no automation
   protocol," different platforms).
+- Note (2026-09-24): a starting scaffold now exists at
+  `docker/orion-linux-smoke/` (Dockerfile, `smoke-test.py`, README) —
+  written but never built or run (no Docker/GUI available in the sandbox
+  that produced it). It documents its own unverified assumptions
+  (Flathub app ID, unpacked-extension load flag, dogtail role/name
+  selectors) and restates the Flatpak-sandbox open question above with a
+  manual check to run first. Nothing here is checked off because nothing
+  has actually been executed — this just gives the next session something
+  concrete to build/debug instead of a blank page.
+
+## Batch 17 — Per-message buttons don't render on live claude.ai (bug, 2026-09-22)
+GitHub issue: https://github.com/tronicum/inkpour/issues/34
+- [ ] **M** `perMessageCopyButtons` (off by default) passes 12/12 against a
+  saved static Playwright fixture of claude.ai but produces 0 button hosts on
+  the real live site — `cfg.sel` matches 18 message elements, `[data-inkpour-
+  msg]`/`[data-inkpour-msg-host]` stay at 0, no console error (decorateMessages()
+  wraps the whole pass in try/catch). Leading theory: `MESSAGE_ANCHORS.claude
+  .anchor()`'s ancestor walk-up (src/content.js) returns null against claude.ai's
+  actual current DOM shape even though the flat selector still matches, so
+  `decorateOne()` is silently skipped for every message.
+- [ ] **S** Needs live-browser diagnosis to confirm/refute the theory — doesn't
+  reproduce in jsdom or the static-fixture harness, only the real site. Log
+  `el.outerHTML` and the ancestor-walk result against the live DOM.
+- [ ] **XS** Once fixed: re-verify all three platforms (ChatGPT/Claude/Gemini)
+  live, not just via the harness, before re-marking
+  `planning/adr-per-message-share-buttons.md` as "Accepted — verified working"
+  again — that status was set prematurely off the isolated-harness result alone
+  and has been walked back.
+- Not started. Low urgency for existing users (setting defaults off), but
+  blocks the feature actually working for anyone who turns it on.
 
 ## Batch 9 — Distribution (XL; blocked on Stefan — accounts, fees, listing assets)
 - [x] **XL** Submit to Firefox Add-ons (AMO) + Chrome Web Store — in progress,

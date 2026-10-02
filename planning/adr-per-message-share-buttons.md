@@ -1,20 +1,34 @@
 # ADR: Per-message "Copy as Markdown" buttons injected into the page
 
-- **Status:** Accepted — verified working (2026-09-20) in real Chromium (not
-  jsdom) against all three platforms, via a Playwright harness that
-  intercepts network requests to serve local fixtures at the real hostnames
-  (so `content_scripts` match patterns fire for real, with no login and no
-  live-network flakiness). Real service worker, real shadow-DOM button click,
-  real clipboard read, on ChatGPT/Claude/Gemini: 12/12 passed on each,
-  4 anchors / 4 `data-inkpour-msg` / 4 hosts per site, no duplicates after a
-  forced DOM mutation, zero console errors. The multi-day "button doesn't
-  appear" investigation resolved to a single root cause: **the
-  `perMessageCopyButtons` setting was simply never turned on** in the browser
-  being tested — the code was correct throughout. jsdom suite: 473/473.
-  Verification credit: a second Claude Code session ("Cowork") with real
-  Chrome automation attached, collaborating via a small peer-to-peer file
-  protocol (`agent-echochamber`) built during this same investigation. Their
-  Playwright harness is intended to become `test/e2e/per-message.spec.js`.
+- **Status:** Reopened — a real live-browser bug found (2026-09-22), status
+  walked back from a premature "Accepted — verified working." The
+  2026-09-20 verification below (12/12 passed on each of ChatGPT/Claude/
+  Gemini) was real, but ran only against a saved *static fixture* of each
+  site's DOM, served at the real hostname via Playwright route interception
+  — not the actual live site. On 2026-09-22, the same collaborator ("Cowork")
+  tested the real loaded extension against live claude.ai (setting confirmed
+  on, tab hard-reloaded) and found: `MESSAGE_ANCHORS.claude.sel` matches 18
+  message elements, but `[data-inkpour-msg]`/`[data-inkpour-msg-host]` both
+  stay at 0 — no buttons render, no console error. Leading theory:
+  `MESSAGE_ANCHORS.claude.anchor()`'s ancestor walk-up matches the static
+  fixture's DOM shape but not live claude.ai's actual current markup, so
+  `decorateOne()` silently never runs (caught by `decorateMessages()`'s
+  wrapping try/catch). Tracked as
+  [#34](https://github.com/tronicum/inkpour/issues/34) / TODOs Batch 17.
+  Not yet re-verified on ChatGPT/Gemini live either — only Claude has been
+  live-tested so far. `perMessageCopyButtons` defaults to off, so this
+  doesn't affect existing users, but the feature does not currently work
+  for anyone who opts in. Do not re-mark this ADR "Accepted" again off a
+  fixture-harness result alone — require a live-site pass first.
+  jsdom suite: still 473/473 (jsdom exercises the same code paths as the
+  fixture harness, so it wouldn't have caught this either).
+  Investigation credit for both the original harness work and catching this
+  regression: a second Claude Code session ("Cowork") with real Chrome
+  automation attached, collaborating via a small peer-to-peer file protocol
+  (`agent-echochamber`) built during this investigation. Their Playwright
+  harness became `test/e2e/per-message.spec.js` — which, being fixture-based
+  like the original harness, also would not have caught this; it isn't a
+  substitute for the live-site pass still needed.
 - **Date:** 2026-09-18
 - **Deciders:** Inkpour maintainers
 - **Related:** `src/content.js` (`htmlToMarkdown`, `extractChatGPT`,

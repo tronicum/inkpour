@@ -14,6 +14,13 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+### Added
+- Exports from Gemini and Google AI Mode now include a `share_url` YAML
+  frontmatter field when Google's own native "Share" public link has already
+  been generated on the page (e.g. you clicked Share yourself earlier).
+  Passive only — Inkpour never clicks Share on your behalf, so exporting
+  never creates a new public link as a side effect.
+
 ## [0.4.33.0] - 2026-09-22
 
 ### Added
