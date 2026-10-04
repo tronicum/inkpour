@@ -349,9 +349,10 @@ function _tocLabel(content, max = 70) {
  * @param {string} site
  * @param {{ yamlFrontMatter?:boolean, generateTOC?:boolean, obsidianTags?:boolean }} opts
  * @param {string} sourceUrl
+ * @param {string} shareUrl - Google's own native public share link (Gemini/AI Mode only), when passively captured
  * @returns {string}
  */
-function buildMarkdown(messages, title, site, opts = {}, sourceUrl = '') {
+function buildMarkdown(messages, title, site, opts = {}, sourceUrl = '', shareUrl = '') {
   const date    = new Date().toISOString().replace('T', ' ').slice(0, 19);
   const isoDate = new Date().toISOString();
   let md = '';
@@ -364,6 +365,7 @@ function buildMarkdown(messages, title, site, opts = {}, sourceUrl = '') {
   if (opts.yamlFrontMatter) {
     const safeTitle = title.replace(/"/g, '\\"');
     const urlLine   = sourceUrl ? `\nsource_url: "${cleanUrl(sourceUrl)}"` : '';
+    const shareLine = shareUrl ? `\nshare_url: "${cleanUrl(shareUrl)}"` : '';
     // Base tags: always present when obsidianTags is on.
     // opts.gistExtraTags: comma-separated custom tags added on Gist exports (always
     // forces [ai-chat, platform] in addition to any user-defined extras).
@@ -375,7 +377,7 @@ function buildMarkdown(messages, title, site, opts = {}, sourceUrl = '') {
     // notes by kind (e.g. `FROM "" WHERE type = "ai-chat"`) — always included
     // alongside YAML front matter since it's cheap, harmless for non-Obsidian
     // users, and there's no other field playing that role today.
-    md += `---\ntitle: "${safeTitle}"\ntype: ai-chat\nplatform: ${site}\nmessages: ${messages.length}\nwords: ${wordCount}\nreading_time_min: ${readingMin}\ndate: ${isoDate}${urlLine}${tagsLine}\nexporter: inkpour\n---\n\n`;
+    md += `---\ntitle: "${safeTitle}"\ntype: ai-chat\nplatform: ${site}\nmessages: ${messages.length}\nwords: ${wordCount}\nreading_time_min: ${readingMin}\ndate: ${isoDate}${urlLine}${shareLine}${tagsLine}\nexporter: inkpour\n---\n\n`;
   }
 
   md += `# ${title}\n\n`;
@@ -974,8 +976,8 @@ const _CODE_EXT = {
  * Build the file list for ZIP export: chat.md + one file per code block.
  * @returns {{ files: Array<{name:string,content:string}>, codeCount: number }}
  */
-function buildZipExport(messages, title, site, opts, sourceUrl) {
-  const md    = buildMarkdown(messages, title, site, opts, sourceUrl);
+function buildZipExport(messages, title, site, opts, sourceUrl, shareUrl) {
+  const md    = buildMarkdown(messages, title, site, opts, sourceUrl, shareUrl);
   const files = [{ name: 'chat.md', content: md }];
 
   const counters      = {};

@@ -22,6 +22,11 @@ new section here in the same commit as the version bump.
   (older entries appear under a new "Archive" section) and has a "Clear
   archive" button to reclaim disk space. The archive never leaves your
   machine. The existing last-20 quick list is unchanged.
+- Exports from Gemini and Google AI Mode now include a `share_url` YAML
+  frontmatter field when Google's own native "Share" public link has already
+  been generated on the page (e.g. you clicked Share yourself earlier).
+  Passive only — Inkpour never clicks Share on your behalf, so exporting
+  never creates a new public link as a side effect.
 
 ## [0.4.33.0] - 2026-09-22
 
