@@ -14,6 +14,8 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+## [0.4.34.0] - 2026-10-04
+
 ### Added
 - Full local export archive (on by default, new "Keep a full local export
   archive" setting): every export is now also kept, full content included, in
@@ -57,6 +59,11 @@ new section here in the same commit as the version bump.
   test that would have caught the gap: `chrome.runtime.openOptionsPage()`
   isn't available to content scripts, so the FAB's Settings click now relays
   through a message to the background script, which does have it.
+- Claude exports could silently cut off long conversations: claude.ai
+  renders long chats as a virtualized list, so only the messages near the
+  viewport were ever actually in the page at once. Exporting now sweeps the
+  whole conversation first so every message is captured, no matter how long
+  the chat is.
 
 ## [0.4.33.0] - 2026-09-22
 
