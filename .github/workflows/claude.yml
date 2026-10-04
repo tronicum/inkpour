@@ -90,6 +90,14 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Supplying a custom prompt: auto-switches the action from its
+          # default "tag" mode (used by the fallback step below, with no
+          # custom prompt) to "agent" mode — which runs the prompt but does
+          # NOT post a PR comment unless explicitly told to track progress.
+          # Confirmed live on PR #17: without this, the run completes
+          # successfully (and the App still reacts with 👀) but no reply
+          # ever appears — track_progress is what makes agent mode post one.
+          track_progress: true
           additional_permissions: |
             actions: read
           prompt: |
