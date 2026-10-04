@@ -14,6 +14,20 @@ output format as the tag-based flow below. The result is posted back as Claude's
 thread, same as any other `@claude` mention. An unknown persona name, or an `@claude` mention
 with no `review:` syntax at all, falls back to Claude's normal free-form behavior unchanged.
 
+**Turn budget**: each persona has a default `--max-turns` (`detect-persona-mention.sh`), sized to
+how much context-reading it typically needs:
+
+| Persona | Default | Persona | Default |
+|---|---|---|---|
+| `quick-sanitycheck` | 8 | `testing` | 20 |
+| `docs` | 15 | `architect` | 20 |
+| `customer` | 15 | `sre` | 20 |
+| `devops` | 15 | `security` | 25 |
+
+Append `:<N>` to override it for one run, e.g. `@claude review:security:35` — capped at 50
+regardless of what's asked for. A request outside 1–50 is ignored with a warning in the run's
+log, falling back to the persona's default rather than failing the run.
+
 This needs the Claude GitHub App installed (`claude /install-github-app` from Claude Code, or
 install it manually) and the `CLAUDE_CODE_OAUTH_TOKEN` repository secret it sets up — see
 "Before the first run" below.
