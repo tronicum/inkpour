@@ -48,6 +48,17 @@ function applyLocalScrub(settings, messages, title) {
   };
 }
 
+// ─── In-page Settings link ─────────────────────────────────────────────────
+// chrome.runtime.openOptionsPage is NOT part of the API subset exposed to
+// content scripts (only background/popup/options pages get it) — calling it
+// from content.js is a silent no-op there, which is exactly what made the
+// FAB's Settings button look broken. Route it through the background script,
+// which always has it.
+api.runtime.onMessage.addListener((message) => {
+  if (message?.action !== 'openOptionsPage') return;
+  api.runtime.openOptionsPage();
+});
+
 // ─── In-page button export requests ──────────────────────────────────────
 // Content script sends { action: 'inPageExport', format: 'pdf'|'zip'|'docx'|'html' }
 // Background handles it so the SW can download files / open tabs.

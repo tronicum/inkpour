@@ -4585,7 +4585,13 @@ No bullets here at all, just prose under the heading.
     await test('the FAB menu has a Settings button that opens the options page and is excluded from the export-buttons disable-during-loading group', () => {
       assert(/id="inkpour-settings"/.test(CONTENT_JS), 'expected an #inkpour-settings button in the FAB menu markup');
       assert(/settingsBtn\.addEventListener\('click'/.test(CONTENT_JS), 'expected a click handler for the FAB settings button');
-      assert(/openOptionsPage/.test(CONTENT_JS), 'expected the FAB settings button to open the options page, same as the popup\'s own settings button');
+      // chrome.runtime.openOptionsPage is NOT part of the runtime API subset
+      // exposed to content scripts (background/popup/options pages only) —
+      // calling it directly from content.js is a silent no-op there. It must
+      // relay through a message to background.js, which does have it.
+      assert(!/settingsBtn\.addEventListener\('click',[\s\S]{0,500}?api\.runtime\.openOptionsPage\(\)/.test(CONTENT_JS), 'the FAB settings button must not call api.runtime.openOptionsPage() directly — that API is unavailable in content-script context and silently no-ops');
+      assert(/settingsBtn\.addEventListener\('click',[\s\S]{0,500}?api\.runtime\.sendMessage\(\{\s*action:\s*'openOptionsPage'\s*\}\)/.test(CONTENT_JS), 'expected the FAB settings button to relay via api.runtime.sendMessage({ action: \'openOptionsPage\' })');
+      assert(/message\?\.action\s*!==\s*'openOptionsPage'/.test(BACKGROUND_JS) || /message\.action\s*!==\s*'openOptionsPage'/.test(BACKGROUND_JS), 'expected background.js to have a message listener that relays { action: \'openOptionsPage\' } to api.runtime.openOptionsPage()');
       const allBtnsMatch = CONTENT_JS.match(/const allBtns\s*=\s*\[([^\]]*)\]/);
       assert(allBtnsMatch, 'could not find the allBtns array in content.js');
       assert(!/settingsBtn/.test(allBtnsMatch[1]), 'settingsBtn must NOT be in allBtns — it should stay clickable during an export, unlike the actual export buttons');

@@ -43,6 +43,13 @@ new section here in the same commit as the version bump.
   terminal. Word previously reported "unreadable content" for those exports.
 - The extension no longer advertises its internal print/history pages to every
   website, which made it detectable by any page you visited.
+- The floating button's Settings link still did nothing when clicked, despite
+  0.4.33.0's changelog entry below claiming this was fixed — the actual code
+  change never made it into that release (a squash-merge picked up an older
+  version of the branch than intended). Re-applied for real this time, with a
+  test that would have caught the gap: `chrome.runtime.openOptionsPage()`
+  isn't available to content scripts, so the FAB's Settings click now relays
+  through a message to the background script, which does have it.
 
 ## [0.4.33.0] - 2026-09-22
 

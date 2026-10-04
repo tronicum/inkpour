@@ -2444,7 +2444,10 @@
       e.stopPropagation();
       menu.hidden = true;
       fab.classList.remove('active');
-      if (api.runtime.openOptionsPage) api.runtime.openOptionsPage();
+      // api.runtime.openOptionsPage is not part of the runtime API subset
+      // exposed to content scripts (extension pages only) — relay through
+      // the background script, which always has it.
+      api.runtime.sendMessage({ action: 'openOptionsPage' }).catch(() => {});
     });
 
     // Close on outside click
