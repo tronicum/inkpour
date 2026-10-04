@@ -177,6 +177,56 @@ Then follow the "Load unpacked" row for your browser above.
 
 ---
 
+## Workflows
+
+How to wire Inkpour's export destinations into the tools you actually keep notes in. All settings named below appear under the extension's Settings page (popup → ⚙, or right-click the extension icon → Options).
+
+### Obsidian
+
+Two paths, depending on how much setup you want.
+
+**Simplest — download into your vault:**
+
+1. In Settings, turn on **Include YAML front matter** and **Obsidian tags in YAML** (adds `tags: [ai-chat, {platform}]` to the front matter). Optionally enable **Generate table of contents** for long chats.
+2. Export as Markdown and drag the file into your vault — or skip the manual step entirely: set **Obsidian vault subfolder** to a sub-path of your Downloads folder and point Obsidian at it (or symlink it into your vault). Every Markdown export then lands there automatically. (**Obsidian vault subfolder** overrides the general **Downloads subfolder** setting.)
+3. Adjust **Filename template** if you want vault-friendly names — tokens: `{platform}`, `{title}`, `{date}`, `{time}`, `{url}`, `{words}`, `{msgcount}`.
+
+**Direct-to-vault (Chrome/Edge only):**
+
+1. In Settings → **Direct-to-vault**, click **Choose vault folder…** and pick your vault (or a folder inside it). Inkpour remembers the folder via the browser's File System Access API — stored locally, not synced.
+2. Turn on **Write exports directly to this folder**. Popup MD/DOCX/ZIP exports now write straight into the vault, bypassing Downloads entirely — no drag, no subfolder. The browser may ask you to re-grant folder permission after a restart.
+3. Firefox and Safari don't implement the File System Access API — use the subfolder path above there.
+
+Every export with YAML front matter includes `type: ai-chat`, so Dataview users can query all exported chats with e.g. `FROM "" WHERE type = "ai-chat"`. The front matter also carries `platform`, `messages`, `words`, `reading_time_min`, `date`, and `source_url`.
+
+### Notion
+
+One-time setup:
+
+1. Create an internal integration at [notion.so/developers/tokens](https://www.notion.so/developers/tokens) and paste the token into **Notion integration token** in Settings.
+2. Connect the integration to your target page in Notion: open the page → **•••** menu → **Connections** → your integration. Skipping this makes uploads fail with a 404.
+3. Copy the 32-character ID from the end of the page's URL into **Notion page ID** (with or without dashes).
+
+With both set, a **Notion ↑** button appears in the popup. Clicking it converts the conversation to native Notion blocks (paragraphs, headings, code, quotes, flat lists) and appends them to your page, then opens the page in a new tab. v1 scope: nested lists and tables aren't converted yet. Secrets (API keys, tokens, email addresses) are redacted before upload unless you turn off **Scrub secrets before uploads**.
+
+### GitHub Gist
+
+The "quick shareable link" workflow. Add a Personal Access Token with the `gist` scope (and only that scope) to **GitHub token** in Settings — then the **Gist ↑** popup button, the `Alt+Shift+G` shortcut, and the right-click menu entry upload the conversation as a Markdown Gist and open it in a new tab. Gists are **secret by default** (unlisted, viewable by anyone with the link); flip **Gist visibility** to Public if you want them indexed. **Gist tags** adds your own comma-separated tags to each Gist's YAML header on top of the automatic `ai-chat` + platform tags, so you can find them later with GitHub's `user:you "tag"` search. The same pre-upload secret scrubbing applies as for Notion.
+
+### Webhook
+
+Set **Webhook URL** in Settings and Inkpour POSTs a JSON record (`title`, `platform`, `format`, `messageCount`, `wordCount`, `exportedAt`) to it after every export — enough to drive n8n, Zapier, Make.com, or any custom endpoint. Turn on **Include content in webhook** to also send the full exported text (popup exports only; keyboard-shortcut and context-menu exports send metadata only). Requests are best-effort — a dead endpoint never breaks the export.
+
+### Temporary / incognito chats
+
+Extraction is purely DOM-based — Inkpour reads what's on screen and doesn't care whether the platform is persisting the conversation on its end. Verified live on ChatGPT's Temporary Chat mode: exports work identically to a normal chat, logged in or not. Equivalent modes on other platforms haven't been individually verified, but the same DOM-only mechanism applies.
+
+### Mobile (no extension possible)
+
+Mobile Safari and mobile Chrome can't install WebExtensions, so for phones there's a small standalone [bookmarklet](./bookmarklet/README.md): tap it on a ChatGPT or Claude page and it copies the visible conversation to your clipboard as Markdown. That's the entire feature set — no other platforms, no file formats, no settings, no scroll-to-load (scroll through the conversation first so it's all rendered). Install steps and full limitations are in [`bookmarklet/README.md`](./bookmarklet/README.md). On iOS, [Orion](https://kagi.com/orion/) can run the real extension instead — see [Supported browsers](#supported-browsers).
+
+---
+
 ## Development
 
 ```bash
