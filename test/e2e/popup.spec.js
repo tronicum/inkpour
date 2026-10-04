@@ -93,11 +93,19 @@ test.describe('Popup UI', () => {
     await expect(popupPage.locator('#settingsBtn')).toBeVisible();
   });
 
-  test('shows supported platform chips', async ({ popupPage }) => {
-    const chips = popupPage.locator('.chip');
-    await expect(chips).toHaveCount(5);
-    const labels = await chips.allTextContents();
-    expect(labels).toEqual(['ChatGPT', 'Claude', 'Gemini', 'AI Studio', 'Copilot']);
+  test('shows the platform indicator line instead of the old chip list', async ({ popupPage }) => {
+    // The static 5-chip list ('ChatGPT', 'Claude', …) was replaced by a
+    // single #platformIndicator line (popup.js CHIP_HOSTS + popup.html
+    // "Platform indicator (replaces chip list)") — this spec asserted the
+    // chips long after they were gone and failed permanently, unseen,
+    // because the e2e job rarely runs (review 2026-09-24, T1).
+    await expect(popupPage.locator('.chip')).toHaveCount(0);
+    // Blank test context — no supported chat tab is active — so the
+    // indicator falls back to the generic "N platforms supported" count
+    // (i18n popupPlatformCount) rather than the "✓ <name>" detected state.
+    const indicator = popupPage.locator('#platformIndicator');
+    await expect(indicator).toHaveText(/\d+ platforms supported/);
+    await expect(indicator).not.toHaveClass(/detected/);
   });
 
   test('shows error when no chat page is open', async ({ popupPage }) => {
