@@ -9,6 +9,11 @@ name: Claude Code
 # instead of a maintainer pushing a tag. Any other @claude mention (no
 # "review:<persona>", or an unknown persona name) falls back to default
 # behavior unchanged.
+#
+# Restricted to the repo owner and collaborators (author_association OWNER /
+# MEMBER / COLLABORATOR) — the installer's own default has no such check, so
+# on a public repo any GitHub user could otherwise comment "@claude ..." on
+# any issue/PR and trigger a real run against the installed plan's usage.
 
 on:
   issue_comment:
@@ -23,10 +28,16 @@ on:
 jobs:
   claude:
     if: |
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
-      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'),
+        github.event_name == 'issues' && github.event.issue.author_association ||
+        github.event_name == 'pull_request_review' && github.event.review.author_association ||
+        github.event.comment.author_association) &&
+      (
+        (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+        (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+        (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
+        (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+      )
     runs-on: ubuntu-latest
     permissions:
       contents: read

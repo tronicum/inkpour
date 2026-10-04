@@ -81,17 +81,16 @@ Both cap the diff at 200,000 bytes and say so in the review if it was truncated.
 - Tags containing `snapshot` are rejected, and `review/**` cannot match `v*`, so a review tag never
   triggers `release.yml` or `midnight-snapshot.yml`.
 
-**Mention flow — this is the important one to understand before relying on it:**
-- Unlike the tag flow, **`claude.yml` has no restriction on who can post an `@claude` mention.**
-  This is `claude /install-github-app`'s own default — not something added for persona routing —
-  and it applies to every `@claude` mention on this repo, not just `review:<persona>` ones. On a
-  public repo, anyone with a GitHub account can comment on an issue or PR and trigger a real run
-  against the installed plan's usage.
-- Persona-mode itself is narrowly scoped (`--allowedTools "Read,Grep,Glob"`, no `Bash`, no `Write`)
-  and the diff/comment/commit text is still treated as data, never instructions, same as the tag
-  flow — but neither of those addresses *who* can make it run in the first place, only what it can
-  do once running.
-- If unrestricted triggering by any commenter is not acceptable, add an actor check to the job's
-  `if:` condition (e.g. `github.event.comment.author_association == 'OWNER' ||
-  github.event.comment.author_association == 'MEMBER' || ... == 'COLLABORATOR'`) — this was left
-  as an explicit open decision for the maintainer rather than silently assumed either way.
+**Mention flow:**
+- `claude.yml`'s job `if:` restricts every `@claude` mention (persona or default) to
+  `author_association` of `OWNER`, `MEMBER`, or `COLLABORATOR` — the repo owner and
+  collaborators only. `claude /install-github-app`'s own default has no such check (any GitHub
+  user could otherwise comment `@claude ...` on a public repo and trigger a real run against the
+  installed plan's usage); this repo adds the restriction on top of that default.
+- Persona-mode is additionally narrowly scoped (`--allowedTools "Read,Grep,Glob"`, no `Bash`, no
+  `Write`), and the diff/comment/commit text is still treated as data, never instructions, same
+  as the tag flow.
+- `author_association` reflects the commenter's relationship to the repo at comment time, not a
+  one-time check — a collaborator who's later removed loses trigger access immediately; it is not
+  cached. A fork's PR comments are still evaluated against *this* repo's association, which is
+  the correct behavior (a drive-by contributor opening a PR from a fork is not a collaborator).
