@@ -42,9 +42,16 @@ async function extractViaRoute(context, extensionId, urlPattern, url, fixturePat
   );
   await tab.goto(url);
 
-  // 2. Wait for content script to be ready (or for page load to complete)
+  // 2. Wait for the content script to be ready. content.js never sets a
+  // window.__inkpourReady global (the old wait here only ever passed via its
+  // document.readyState fallback, racing the document_idle injection). What
+  // the script *does* do, synchronously in the same IIFE pass that registers
+  // its runtime.onMessage listener, is inject the FAB host <div id=
+  // "inkpour-root"> on every supported site (showFloatingButton defaults to
+  // on, and these fixtures are served at supported hosts) — so its presence
+  // proves the extract listener is live before we sendMessage below.
   await tab.waitForFunction(
-    () => typeof window.__inkpourReady !== 'undefined' || document.readyState === 'complete',
+    () => !!document.getElementById('inkpour-root'),
     { timeout: 5000 }
   );
 

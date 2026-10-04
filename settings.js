@@ -110,6 +110,7 @@
     scrubLocalExports:     false,
     perMessageCopyButtons: false,
     showFloatingButton:    true,
+    localArchive:          true,
     webhookUrl:           '',
     webhookIncludeContent: false,
     writeToVault:          false,
@@ -141,6 +142,9 @@
     document.getElementById('scrubLocalExports').checked      = prefs.scrubLocalExports;
     document.getElementById('perMessageCopyButtons').checked  = prefs.perMessageCopyButtons;
     document.getElementById('showFloatingButton').checked     = prefs.showFloatingButton;
+    // `!== false` so installs whose saved settings predate this key stay on
+    // (default), same pattern as resolveGeminiLinks above.
+    document.getElementById('localArchive').checked           = prefs.localArchive !== false;
     document.getElementById('webhookUrl').value              = prefs.webhookUrl;
     document.getElementById('webhookIncludeContent').checked = prefs.webhookIncludeContent;
     document.getElementById('writeToVault').checked           = prefs.writeToVault;
@@ -287,6 +291,7 @@
       scrubLocalExports:     document.getElementById('scrubLocalExports').checked,
       perMessageCopyButtons: document.getElementById('perMessageCopyButtons').checked,
       showFloatingButton:    document.getElementById('showFloatingButton').checked,
+      localArchive:          document.getElementById('localArchive').checked,
       webhookUrl:            document.getElementById('webhookUrl').value.trim(),
       webhookIncludeContent: document.getElementById('webhookIncludeContent').checked,
       writeToVault:          document.getElementById('writeToVault').checked,
@@ -316,7 +321,7 @@
   // Discrete controls (checkboxes/selects): save immediately, no debounce.
   [
     'defaultFormat', 'pdfAutoPrint', 'yamlFrontMatter', 'generateTOC',
-    'obsidianTags', 'resolveGeminiLinks', 'gistPublic', 'scrubSecrets', 'scrubLocalExports', 'perMessageCopyButtons', 'showFloatingButton', 'webhookIncludeContent',
+    'obsidianTags', 'resolveGeminiLinks', 'gistPublic', 'scrubSecrets', 'scrubLocalExports', 'perMessageCopyButtons', 'showFloatingButton', 'localArchive', 'webhookIncludeContent',
     'writeToVault', 'debugMode', 'debugAttachGist',
   ].forEach((id) => {
     document.getElementById(id)?.addEventListener('change', save);

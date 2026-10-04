@@ -693,6 +693,12 @@
   "settingsShowFabDesc": {
     "message": "A small \"ip\" button on every supported chat page for quick export without opening the popup. On by default; turn it off if you find it distracting."
   },
+  "settingsLocalArchiveLabel": {
+    "message": "Keep a full local export archive"
+  },
+  "settingsLocalArchiveDesc": {
+    "message": "Keep a copy of every export on this computer (IndexedDB), searchable from the History page — not just the last 20. On by default; grows with use, so the History page has a \"Clear archive\" button. Per-device: the archive itself never syncs or leaves your machine."
+  },
   "settingsWebhookUrlLabel": {
     "message": "URL webhook"
   },
@@ -717,6 +723,9 @@
   "historyHeaderSubtitle": {
     "message": "Οι τελευταίες 20 εξαγωγές — αποθηκεύονται τοπικά, ποτέ δεν μεταφορτώνονται"
   },
+  "historyHeaderSubtitleArchive": {
+    "message": "All exports — stored locally, never uploaded"
+  },
   "historySearchPlaceholder": {
     "message": "Αναζήτηση τίτλου, πλατφόρμας ή περιεχομένου συνομιλίας…"
   },
@@ -728,6 +737,9 @@
   },
   "historyClearStarred": {
     "message": "Εκκαθάριση ★"
+  },
+  "historyClearArchive": {
+    "message": "Clear archive"
   },
   "historyClearRecentTitle": {
     "message": "Εκκαθάριση πρόσφατου ιστορικού (οι επισημασμένες εξαγωγές διατηρούνται)"
@@ -764,6 +776,9 @@
   },
   "historySectionRecent": {
     "message": "Πρόσφατα"
+  },
+  "historySectionArchive": {
+    "message": "Archive"
   },
   "historyStarPin": {
     "message": "Καρφίτσωμα ως επισημασμένο"
@@ -868,6 +883,9 @@
   },
   "historyConfirmClearStarred": {
     "message": "Αφαίρεση όλων των επισημασμένων εξαγωγών; Αυτή η ενέργεια δεν μπορεί να αναιρεθεί."
+  },
+  "historyConfirmClearArchive": {
+    "message": "Delete the entire local export archive? Recent and starred exports are kept. This cannot be undone."
   },
   "printLoading": {
     "message": "Φόρτωση συνομιλίας…"

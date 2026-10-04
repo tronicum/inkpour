@@ -43,6 +43,13 @@ require('fake-indexeddb/auto');
 const VAULT_HANDLE_JS = fs.readFileSync(path.resolve(__dirname, '../src/vaultHandle.js'), 'utf8');
 vm.runInThisContext(VAULT_HANDLE_JS);
 
+// ─── src/exportArchive.js (uncapped local export archive, IndexedDB) ────────
+// Same deal as src/vaultHandle.js above: plain global functions, no
+// chrome/browser dependency, exercised directly against fake-indexeddb (it
+// owns its own 'inkpour-archive' database, separate from 'inkpour-vault').
+const EXPORT_ARCHIVE_JS = fs.readFileSync(path.resolve(__dirname, '../src/exportArchive.js'), 'utf8');
+vm.runInThisContext(EXPORT_ARCHIVE_JS);
+
 // ─── src/redact.js (secret scrubbing) ───────────────────────────────────────
 // Same global-scope pattern as src/utils.js — loading it here makes
 // scanForSecrets()/redactSecrets()/redactMessages() directly callable below.
@@ -1074,6 +1081,132 @@ async function main() {
       const container = findScrollContainer();
       assert(container.classList.contains('overflow-y-auto'),
         `expected overflow-y-auto container, got ${container.outerHTML.slice(0, 80)}`);
+    });
+  });
+
+  // ── extractClaudeFull — virtualized conversation sweep (issue #26) ──────
+  // claude.ai renders long conversations as a virtualized list (TanStack
+  // Virtual): only the messages near the viewport are mounted in the DOM, the
+  // rest are UNMOUNTED. A single querySelectorAll snapshot therefore silently
+  // truncates long exports to a viewport-sized window — the exact failure
+  // reported in issue #26 (and in the upstream Trifall/chat-export#14, whose
+  // Claude selectors this extractor shares). extractClaudeFull() fixes this by
+  // sweeping the scroll container top-to-bottom, collecting mounted messages
+  // per data-index at each stop. This suite simulates the virtualizer: 12
+  // turns of 500px each inside a 1000px-tall scroll container whose scrollTo()
+  // re-renders only the turns intersecting the viewport.
+  await suite('extractClaudeFull — virtualized conversation sweep (issue #26)', async () => {
+    const ITEM_H   = 500;
+    const N_TURNS  = 12;
+    const VIEWPORT = 1000;
+
+    const dom = new JSDOM(`<!DOCTYPE html><body>
+      <main>
+        <div id="scroller" style="overflow-y: auto">
+          <div id="items"></div>
+        </div>
+      </main>
+    </body>`, { url: 'https://claude.ai/chat/abc-123', runScripts: 'dangerously' });
+    dom.window.__inkpourTestHostname = 'claude.ai';
+    dom.window.HTMLElement.prototype.scrollTo = function () {};
+    dom.window.document.documentElement.scrollTo = function () {};
+    const ls = [];
+    dom.window.browser = { runtime: { onMessage: { addListener: fn => ls.push(fn) }, id: 't' }, i18n: mockI18n() };
+    dom.window.chrome  = dom.window.browser;
+
+    const scroller = dom.window.document.getElementById('scroller');
+    const items    = dom.window.document.getElementById('items');
+
+    // Mock virtualizer: mount only the turns intersecting the viewport window.
+    let scrollTop = 0;
+    function render() {
+      let html = '';
+      for (let i = 0; i < N_TURNS; i++) {
+        const top = i * ITEM_H, bottom = top + ITEM_H;
+        if (bottom <= scrollTop || top >= scrollTop + VIEWPORT) continue; // unmounted
+        html += (i % 2 === 0)
+          ? `<div data-index="${i}"><div data-testid="user-message"><p>User message ${i}</p></div></div>`
+          : `<div data-index="${i}"><div class="font-claude-response"><p>Assistant reply ${i}</p></div></div>`;
+      }
+      items.innerHTML = html;
+    }
+    Object.defineProperty(scroller, 'scrollHeight', { get: () => ITEM_H * N_TURNS });
+    Object.defineProperty(scroller, 'clientHeight', { get: () => VIEWPORT });
+    Object.defineProperty(scroller, 'scrollTop',    { get: () => scrollTop, set: v => { scrollTop = v; render(); } });
+    scroller.scrollTo = (opts) => { scrollTop = (opts && typeof opts === 'object') ? opts.top : opts; render(); };
+
+    // Start scrolled to the bottom (where a user actually exports from) —
+    // only the last two turns are mounted before the sweep runs.
+    scroller.scrollTo({ top: ITEM_H * N_TURNS - VIEWPORT });
+
+    const s = dom.window.document.createElement('script');
+    s.textContent = CONTENT_JS;
+    dom.window.document.body.appendChild(s);
+    await new Promise(r => setTimeout(r, 50));
+    const extractClaudeFull = dom.window.__inkpourExtractClaudeFull;
+    assert(typeof extractClaudeFull === 'function', '__inkpourExtractClaudeFull not exposed');
+
+    assert(dom.window.document.querySelectorAll('[data-testid="user-message"], .font-claude-response').length === 2,
+      'precondition: only the viewport window should be mounted before the sweep');
+
+    const messages = await extractClaudeFull();
+
+    await test('collects every message, including ones unmounted at extraction time', () => {
+      assert(Array.isArray(messages), `expected array, got ${JSON.stringify(messages)}`);
+      assert(messages.length === N_TURNS, `expected ${N_TURNS} messages, got ${messages.length}: ${JSON.stringify(messages.map(m => m.content))}`);
+    });
+    await test('messages come back in conversation (data-index) order with correct roles', () => {
+      messages.forEach((m, i) => {
+        const wantRole = i % 2 === 0 ? 'You' : 'Claude';
+        const wantText = i % 2 === 0 ? `User message ${i}` : `Assistant reply ${i}`;
+        assert(m.role === wantRole, `role[${i}]=${m.role}, expected ${wantRole}`);
+        assert(m.content.includes(wantText), `content[${i}] missing "${wantText}": ${m.content}`);
+      });
+    });
+    await test('no duplicates despite overlapping sweep windows', () => {
+      const contents = messages.map(m => m.content);
+      assert(new Set(contents).size === contents.length, `duplicate messages: ${JSON.stringify(contents)}`);
+    });
+    await test('restores the original scroll position after the sweep', () => {
+      assert(scrollTop === ITEM_H * N_TURNS - VIEWPORT,
+        `expected scrollTop restored to ${ITEM_H * N_TURNS - VIEWPORT}, got ${scrollTop}`);
+    });
+  });
+
+  await suite('extractClaudeFull — non-virtualized conversation takes the plain snapshot path', async () => {
+    // A short Claude conversation has no [data-index] wrappers — everything is
+    // already mounted, so extractClaudeFull() must behave exactly like the old
+    // extractClaude(): full extraction, zero scrolling, zero added delay.
+    const dom = new JSDOM(`<!DOCTYPE html><body>
+      <main>
+        <div style="overflow-y: auto">
+          <div data-testid="user-message"><p>Hello Claude</p></div>
+          <div class="font-claude-response"><p>Hello! How can I help?</p></div>
+        </div>
+      </main>
+    </body>`, { url: 'https://claude.ai/chat/def-456', runScripts: 'dangerously' });
+    dom.window.__inkpourTestHostname = 'claude.ai';
+    let scrollCalls = 0;
+    dom.window.HTMLElement.prototype.scrollTo = function () { scrollCalls++; };
+    dom.window.document.documentElement.scrollTo = function () { scrollCalls++; };
+    const ls = [];
+    dom.window.browser = { runtime: { onMessage: { addListener: fn => ls.push(fn) }, id: 't' }, i18n: mockI18n() };
+    dom.window.chrome  = dom.window.browser;
+    const s = dom.window.document.createElement('script');
+    s.textContent = CONTENT_JS;
+    dom.window.document.body.appendChild(s);
+    await new Promise(r => setTimeout(r, 50));
+    const extractClaudeFull = dom.window.__inkpourExtractClaudeFull;
+
+    const messages = await extractClaudeFull();
+
+    await test('extracts both messages via the snapshot path', () => {
+      assert(messages && messages.length === 2, `expected 2 messages, got ${JSON.stringify(messages)}`);
+      assert(messages[0].role === 'You' && messages[0].content.includes('Hello Claude'), `unexpected messages[0]: ${JSON.stringify(messages[0])}`);
+      assert(messages[1].role === 'Claude', `unexpected messages[1]: ${JSON.stringify(messages[1])}`);
+    });
+    await test('performs no scrolling at all', () => {
+      assert(scrollCalls === 0, `expected 0 scrollTo calls, got ${scrollCalls}`);
     });
   });
 
@@ -3941,6 +4074,135 @@ No bullets here at all, just prose under the heading.
     });
   });
 
+  // ── src/exportArchive.js — uncapped local export archive ──────────────────
+  // Same coverage model as vaultHandle.js above: the IndexedDB round-trip is
+  // exercised for real against fake-indexeddb (its own 'inkpour-archive'
+  // database). What is NOT covered here, and why: popup.js's saveLastExport()
+  // call site and history.js's async archive load/render both live inside
+  // page IIFEs that need chrome.storage/DOM wiring — same "not jsdom-testable
+  // without new infrastructure" limitation as the rest of popup.js/history.js.
+  // Their wiring is asserted structurally below instead (source-regex tests,
+  // the established pattern used for showFloatingButton).
+  await suite('exportArchive.js — uncapped local export archive (IndexedDB)', async () => {
+    const rec = (id, extra = {}) => ({
+      id, title: `T${id}`, platform: 'chatgpt', slug: `t-${id}`, sourceUrl: '',
+      format: 'md', messageCount: 2, wordCount: 10,
+      exportedAt: new Date(Number(id)).toISOString(), content: `# T${id}`, ...extra,
+    });
+
+    await test('archive starts empty (count 0, getAll [])', async () => {
+      await archiveClearExports(); // clean slate regardless of test order
+      assert((await archiveCountExports()) === 0, 'expected count 0');
+      const all = await archiveGetAllExports();
+      assert(Array.isArray(all) && all.length === 0, `expected [], got ${JSON.stringify(all)}`);
+    });
+
+    await test('archiveAddExport() + archiveGetAllExports() round-trips a full record, content included', async () => {
+      await archiveAddExport(rec('1000', { content: '# Full transcript\n\nHello **world**' }));
+      const all = await archiveGetAllExports();
+      assert(all.length === 1, `expected 1 entry, got ${all.length}`);
+      assert(all[0].content === '# Full transcript\n\nHello **world**', 'content did not round-trip');
+      assert(all[0].title === 'T1000' && all[0].format === 'md', `metadata lost: ${JSON.stringify(all[0])}`);
+    });
+
+    await test('archive is uncapped past the storage.local list\'s 20-entry window', async () => {
+      for (let i = 0; i < 25; i++) await archiveAddExport(rec(String(2000 + i)));
+      assert((await archiveCountExports()) === 26, `expected 26 (1 + 25), got ${await archiveCountExports()}`);
+    });
+
+    await test('archiveGetAllExports() returns newest-first by exportedAt', async () => {
+      const all = await archiveGetAllExports();
+      for (let i = 1; i < all.length; i++) {
+        assert(all[i - 1].exportedAt >= all[i].exportedAt,
+          `not newest-first at index ${i}: ${all[i - 1].exportedAt} < ${all[i].exportedAt}`);
+      }
+      assert(all[0].id === '2024', `expected newest id 2024 first, got ${all[0].id}`);
+    });
+
+    await test('re-adding the same id replaces the entry (put semantics), never duplicates', async () => {
+      await archiveAddExport(rec('1000', { title: 'Replaced' }));
+      const all = await archiveGetAllExports();
+      const matches = all.filter(e => e.id === '1000');
+      assert(matches.length === 1, `expected 1 entry for id 1000, got ${matches.length}`);
+      assert(matches[0].title === 'Replaced', `expected replaced title, got ${matches[0].title}`);
+    });
+
+    await test('archiveDeleteExport() removes one entry and leaves the rest', async () => {
+      const before = await archiveCountExports();
+      await archiveDeleteExport('1000');
+      assert((await archiveCountExports()) === before - 1, 'expected exactly one fewer entry');
+      const all = await archiveGetAllExports();
+      assert(!all.some(e => e.id === '1000'), 'deleted entry still present');
+    });
+
+    await test('archiveAddExport() rejects a record without an id (fail loud, not silent bad data)', async () => {
+      let threw = false;
+      try { await archiveAddExport({ title: 'no id' }); } catch { threw = true; }
+      assert(threw, 'expected a rejection for a record without an id');
+    });
+
+    await test('archiveClearExports() empties the archive', async () => {
+      await archiveClearExports();
+      assert((await archiveCountExports()) === 0, 'expected count 0 after clear');
+    });
+  });
+
+  // ── Local archive — settings/UI wiring (structure) ────────────────────────
+  await suite('Local export archive — settings + page wiring (structure)', async () => {
+    const SETTINGS_JS   = fs.readFileSync(path.resolve(__dirname, '../settings.js'), 'utf8');
+    const POPUP_SRC     = fs.readFileSync(path.resolve(__dirname, '../popup.js'), 'utf8');
+    const HISTORY_JS    = fs.readFileSync(path.resolve(__dirname, '../history.js'), 'utf8');
+    const POPUP_HTML    = fs.readFileSync(path.resolve(__dirname, '../popup.html'), 'utf8');
+    const HISTORY_HTML  = fs.readFileSync(path.resolve(__dirname, '../history.html'), 'utf8');
+    const SETTINGS_HTML = fs.readFileSync(path.resolve(__dirname, '../settings.html'), 'utf8');
+    const SYNC_JS       = fs.readFileSync(path.resolve(__dirname, '../src/settingsSync.js'), 'utf8');
+
+    await test('settings.js wires localArchive into DEFAULTS (true), load, save, and the discrete-controls id list', () => {
+      assert(/localArchive:\s*true/.test(SETTINGS_JS), 'expected localArchive: true in DEFAULTS — must default on, not off');
+      assert(/getElementById\('localArchive'\)\.checked\s*=\s*prefs\.localArchive\s*!==\s*false/.test(SETTINGS_JS), 'expected the load step to treat a missing key as on (!== false), so pre-existing installs archive without re-saving');
+      assert(/localArchive:\s*document\.getElementById\('localArchive'\)\.checked/.test(SETTINGS_JS), 'expected save() to read the checkbox back into prefs');
+      assert(/'localArchive'/.test(SETTINGS_JS.match(/Discrete controls[\s\S]*?\]\.forEach/)?.[0] || ''), 'expected localArchive in the discrete-controls (save-on-change) id list');
+    });
+
+    await test('popup.js defaults localArchive on and mirrors every saveLastExport() record into the archive, gated on !== false', () => {
+      assert(/localArchive:\s*true/.test(POPUP_SRC), 'expected popup.js SETTING_DEFAULTS to include localArchive: true');
+      assert(/userSettings\.localArchive\s*!==\s*false[\s\S]{0,200}archiveAddExport\(record\)/.test(POPUP_SRC), 'expected saveLastExport() to call archiveAddExport(record) gated on localArchive !== false');
+      assert(/archiveAddExport\(record\)\.catch/.test(POPUP_SRC), 'expected the archive write to be best-effort (.catch) so it can never break an export');
+    });
+
+    await test('src/settingsSync.js deliberately does NOT sync localArchive (per-device storage mechanism)', () => {
+      const listMatch = SYNC_JS.match(/SYNCABLE_SETTING_KEYS\s*=\s*\[([\s\S]*?)\]/);
+      assert(listMatch, 'could not find SYNCABLE_SETTING_KEYS in src/settingsSync.js');
+      const listCode = listMatch[1].replace(/\/\/[^\n]*/g, ''); // the list carries a comment explaining this exclusion
+      assert(!/'localArchive'/.test(listCode), 'localArchive must NOT be in SYNCABLE_SETTING_KEYS — the archive and its disk cost are per-device');
+    });
+
+    await test('popup.html and history.html both load src/exportArchive.js', () => {
+      assert(/src\/exportArchive\.js/.test(POPUP_HTML), 'popup.html missing the exportArchive.js script tag');
+      assert(/src\/exportArchive\.js/.test(HISTORY_HTML), 'history.html missing the exportArchive.js script tag');
+    });
+
+    await test('settings.html has the localArchive toggle following the established field markup (checked by default)', () => {
+      assert(/id="localArchive"[^>]*role="switch"/.test(SETTINGS_HTML.replace(/\n\s*/g, ' ')), 'expected an id="localArchive" switch input');
+      assert(/id="localArchive"[\s\S]{0,200}checked/.test(SETTINGS_HTML), 'expected the localArchive checkbox to carry the checked attribute (on by default)');
+      assert(/data-i18n="settingsLocalArchiveLabel"/.test(SETTINGS_HTML), 'expected the label to use the settingsLocalArchiveLabel i18n key');
+    });
+
+    await test('history.js loads the archive after the instant storage.local render and filters it with the same matchesQuery pass', () => {
+      assert(/loadArchive\(\)\.catch/.test(HISTORY_JS), 'expected loadHistory() to kick off a best-effort loadArchive()');
+      assert(/archiveGetAllExports/.test(HISTORY_JS), 'expected history.js to read the archive via archiveGetAllExports()');
+      assert(/archiveOnly\.filter\(e => matchesQuery\(e, q\)\)/.test(HISTORY_JS), 'expected the existing matchesQuery() filter to also cover archive entries');
+      assert(/historySectionArchive/.test(HISTORY_JS), 'expected an Archive section heading (historySectionArchive)');
+      assert(/historyConfirmClearArchive/.test(HISTORY_JS), 'expected a confirm before clearing the archive');
+      assert(/archiveClearExports\(\)/.test(HISTORY_JS), 'expected the Clear archive button to call archiveClearExports()');
+    });
+
+    await test('src/exportArchive.js stays chrome-free (jsdom-testable, same rule as vaultHandle.js)', () => {
+      const code = EXPORT_ARCHIVE_JS.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, ''); // comments may (and do) mention chrome.storage
+      assert(!/\bchrome\./.test(code) && !/\bbrowser\./.test(code), 'src/exportArchive.js must not touch chrome.*/browser.* APIs');
+    });
+  });
+
   // ─── Mobile bookmarklet (bookmarklet/src/inkpour-bookmarklet.js) ──────────
   // The bookmarklet is a deliberately duplicated, standalone subset of
   // src/content.js's extraction/markdown logic (see bookmarklet/README.md
@@ -4585,10 +4847,241 @@ No bullets here at all, just prose under the heading.
     await test('the FAB menu has a Settings button that opens the options page and is excluded from the export-buttons disable-during-loading group', () => {
       assert(/id="inkpour-settings"/.test(CONTENT_JS), 'expected an #inkpour-settings button in the FAB menu markup');
       assert(/settingsBtn\.addEventListener\('click'/.test(CONTENT_JS), 'expected a click handler for the FAB settings button');
-      assert(/openOptionsPage/.test(CONTENT_JS), 'expected the FAB settings button to open the options page, same as the popup\'s own settings button');
+      // chrome.runtime.openOptionsPage is NOT part of the runtime API subset
+      // exposed to content scripts (background/popup/options pages only) —
+      // calling it directly from content.js is a silent no-op there. It must
+      // relay through a message to background.js, which does have it.
+      assert(!/settingsBtn\.addEventListener\('click',[\s\S]{0,500}?api\.runtime\.openOptionsPage\(\)/.test(CONTENT_JS), 'the FAB settings button must not call api.runtime.openOptionsPage() directly — that API is unavailable in content-script context and silently no-ops');
+      assert(/settingsBtn\.addEventListener\('click',[\s\S]{0,500}?api\.runtime\.sendMessage\(\{\s*action:\s*'openOptionsPage'\s*\}\)/.test(CONTENT_JS), 'expected the FAB settings button to relay via api.runtime.sendMessage({ action: \'openOptionsPage\' })');
+      assert(/message\?\.action\s*!==\s*'openOptionsPage'/.test(BACKGROUND_JS) || /message\.action\s*!==\s*'openOptionsPage'/.test(BACKGROUND_JS), 'expected background.js to have a message listener that relays { action: \'openOptionsPage\' } to api.runtime.openOptionsPage()');
       const allBtnsMatch = CONTENT_JS.match(/const allBtns\s*=\s*\[([^\]]*)\]/);
       assert(allBtnsMatch, 'could not find the allBtns array in content.js');
       assert(!/settingsBtn/.test(allBtnsMatch[1]), 'settingsBtn must NOT be in allBtns — it should stay clickable during an export, unlike the actual export buttons');
+    });
+  });
+
+  // ─── Security patch regressions (external review 2026-09-24: S1–S4, S8, B2)
+  await suite('Security patch — S1 trusted-keypress guard on the Gist hotkey', async () => {
+    // Alt+Shift+G is handled by an in-page keydown listener (Chrome's
+    // 4-shortcut cap, see content.js). Without an isTrusted check, any script
+    // running on the page could dispatch a synthetic KeyboardEvent and have
+    // the whole conversation uploaded to the user's GitHub account.
+    async function keydownEnv() {
+      const env   = await loadContentScriptEnv('chatgpt.html', 'chatgpt.com');
+      const sent  = [];
+      env.window.browser.runtime.sendMessage = (msg) => { sent.push(msg); return Promise.resolve({ ok: true }); };
+      return { ...env, sent };
+    }
+
+    await test('a synthetic (page-scripted) Alt+Shift+G does NOT trigger a Gist upload', async () => {
+      const { window, sent } = await keydownEnv();
+      // Exactly what a malicious/compromised page script would run. Events
+      // created this way always report isTrusted === false, in JSDOM and in
+      // every browser, and page code cannot change that.
+      const evt = new window.KeyboardEvent('keydown', { key: 'g', altKey: true, shiftKey: true, bubbles: true, cancelable: true });
+      assert(evt.isTrusted === false, 'sanity: a constructed KeyboardEvent must be untrusted');
+      window.document.dispatchEvent(evt);
+      assert(sent.length === 0, `expected no message to the background page, got: ${JSON.stringify(sent)}`);
+      assert(!evt.defaultPrevented, 'the handler should bail out before preventDefault()');
+    });
+
+    // The matching positive case (a real keypress still uploads) can only be
+    // asserted on the source: JSDOM defines isTrusted as a non-configurable
+    // own accessor, so a trusted event cannot be synthesised here — which is
+    // precisely the property the guard relies on.
+    await test('the isTrusted guard is the first check in the handler, and the rest of it is intact', () => {
+      const handler = CONTENT_JS.match(/document\.addEventListener\('keydown',[\s\S]*?\}, true\);/);
+      assert(handler, 'could not find the Alt+Shift+G keydown listener in content.js');
+      const guardIdx = handler[0].indexOf('e.isTrusted');
+      const keyIdx   = handler[0].indexOf('e.altKey');
+      assert(guardIdx !== -1, 'expected an isTrusted check in the keydown handler');
+      assert(guardIdx < keyIdx, 'the isTrusted guard must come before the key-combination check');
+      assert(/!e\.isTrusted\)\s*return/.test(handler[0]), 'expected an early return on an untrusted event');
+      assert(/action:\s*'runShortcutCommand',\s*command:\s*'upload-gist'/.test(handler[0]), 'a real keypress must still run the upload-gist command');
+    });
+  });
+
+  await suite('Security patch — S2/S3 one scrub gate for everything that leaves the machine', async () => {
+    // NOTE: fake credential, constructed for the test — not a real key.
+    const FAKE_KEY = 'sk-' + 'abc123def456ghi789jkl0';
+
+    await test('scrubForUpload() redacts body and title when scrubSecrets is on (the default)', () => {
+      const r = scrubForUpload({}, `here: ${FAKE_KEY}`, `title ${FAKE_KEY}`);
+      assert(!r.body.includes(FAKE_KEY), `body still carries the key: ${r.body}`);
+      assert(!r.title.includes(FAKE_KEY), `title still carries the key: ${r.title}`);
+      assert(r.findings.length === 2, `expected findings from both fields, got ${JSON.stringify(r.findings)}`);
+    });
+
+    await test('scrubForUpload() treats a missing scrubSecrets key as ON (network upload = opt-OUT)', () => {
+      const r = scrubForUpload({ someOtherSetting: true }, FAKE_KEY, '');
+      assert(!r.body.includes(FAKE_KEY), 'a settings object without scrubSecrets must still scrub');
+    });
+
+    await test('scrubForUpload() passes content through untouched only on an explicit opt-out', () => {
+      const r = scrubForUpload({ scrubSecrets: false }, FAKE_KEY, FAKE_KEY);
+      assert(r.body === FAKE_KEY && r.title === FAKE_KEY, 'explicit opt-out must not alter the payload');
+      assert(r.findings.length === 0, 'no findings should be reported when scrubbing is off');
+    });
+
+    await test('popup.js routes the Gist upload through scrubForUpload before POSTing (S2)', () => {
+      const POPUP_JS = fs.readFileSync(path.resolve(__dirname, '../popup.js'), 'utf8');
+      const handler  = POPUP_JS.match(/gistBtn\?\.addEventListener\('click'[\s\S]*?api\.github\.com\/gists/);
+      assert(handler, 'could not find the popup Gist handler');
+      assert(/scrubForUpload\(userSettings,/.test(handler[0]), 'the popup Gist path must scrub before the upload — it previously POSTed raw markdown');
+    });
+
+    await test('background.js and popup.js both use the shared helper rather than their own scrubSecrets checks', () => {
+      const POPUP_JS      = fs.readFileSync(path.resolve(__dirname, '../popup.js'), 'utf8');
+      const BACKGROUND_JS = fs.readFileSync(path.resolve(__dirname, '../background.js'), 'utf8');
+      for (const [name, src] of [['popup.js', POPUP_JS], ['background.js', BACKGROUND_JS]]) {
+        assert(/scrubForUpload\(/.test(src), `${name} should call scrubForUpload()`);
+        assert(!/scrubSecrets\s*!==\s*false/.test(src), `${name} still inlines its own scrubSecrets check — that drift is exactly what S2 was`);
+      }
+    });
+
+    await test('isSafeWebhookUrl() requires https, allowing plain http only for localhost (S3)', () => {
+      assert(isSafeWebhookUrl('https://hooks.example.com/x') === true, 'https must be accepted');
+      assert(isSafeWebhookUrl('http://hooks.example.com/x') === false, 'plaintext http to a remote host must be rejected');
+      assert(isSafeWebhookUrl('http://localhost:5678/webhook') === true, 'local automation over http never leaves the machine');
+      assert(isSafeWebhookUrl('http://127.0.0.1:5678/webhook') === true, 'loopback over http is fine');
+      assert(isSafeWebhookUrl('javascript:alert(1)') === false, 'non-http schemes must be rejected');
+      assert(isSafeWebhookUrl('not a url') === false, 'garbage must be rejected, not thrown on');
+      assert(isSafeWebhookUrl('') === false, 'empty input must be rejected, not thrown on');
+    });
+
+    await test('both webhook senders gate on isSafeWebhookUrl and scrub the payload (S3)', () => {
+      const POPUP_JS      = fs.readFileSync(path.resolve(__dirname, '../popup.js'), 'utf8');
+      const BACKGROUND_JS = fs.readFileSync(path.resolve(__dirname, '../background.js'), 'utf8');
+      for (const [name, src] of [['popup.js', POPUP_JS], ['background.js', BACKGROUND_JS]]) {
+        const start = src.indexOf('function doWebhook(');
+        assert(start !== -1, `could not find doWebhook() in ${name}`);
+        const fn = src.slice(start, src.indexOf('fetch(', start) + 1);
+        assert(/isSafeWebhookUrl\(url\)/.test(fn), `${name}'s doWebhook must reject a non-https URL before fetching`);
+        assert(/scrubForUpload\(/.test(fn), `${name}'s doWebhook must scrub before sending`);
+      }
+    });
+  });
+
+  await suite('Security patch — S4 HTML export escapes at the boundary', async () => {
+    const XSS = '<img src=x onerror=alert(1)>';
+
+    await test('mdToHTML() escapes raw HTML in a paragraph', () => {
+      const html = mdToHTML(`hello ${XSS} world`);
+      assert(!html.includes('<img'), `raw <img> survived: ${html}`);
+      assert(html.includes('&lt;img src=x onerror=alert(1)&gt;'), html);
+    });
+
+    await test('mdToHTML() escapes raw HTML in headings, list items and table cells', () => {
+      const heading = mdToHTML(`# ${XSS}`);
+      assert(/^<h1>&lt;img/.test(heading), heading);
+      const list = mdToHTML(`- ${XSS}`);
+      assert(!list.includes('<img'), list);
+      const table = mdToHTML(`| a | b |\n|---|---|\n| ${XSS} | 2 |`);
+      assert(!table.includes('<img'), table);
+      assert(table.includes('<td>&lt;img'), table);
+    });
+
+    await test('mdToHTML() drops a javascript: link but keeps its text', () => {
+      const html = mdToHTML('[click me](javascript:alert(1))');
+      assert(!/href="javascript:/i.test(html), `javascript: href survived: ${html}`);
+      assert(html.includes('click me'), 'the link text should still be rendered as plain text');
+    });
+
+    await test('mdToHTML() still emits http/https/mailto links', () => {
+      assert(mdToHTML('[a](https://example.com/x)').includes('<a href="https://example.com/x">a</a>'));
+      assert(mdToHTML('[b](http://example.com/)').includes('<a href="http://example.com/">b</a>'));
+      assert(mdToHTML('[c](mailto:jane@example.com)').includes('<a href="mailto:jane@example.com">c</a>'));
+    });
+
+    await test('mdToHTML() still renders the legitimate Markdown it always did', () => {
+      // Guards against the escape pass breaking structural parsing.
+      assert(mdToHTML('**bold**') === '<strong>bold</strong>', mdToHTML('**bold**'));
+      assert(mdToHTML('plain **bold** text') === '<p>plain <strong>bold</strong> text</p>', mdToHTML('plain **bold** text'));
+      assert(mdToHTML('> quoted line').includes('<blockquote>quoted line</blockquote>'), mdToHTML('> quoted line'));
+      const code = mdToHTML('```js\nif (a < b) { x(); }\n```');
+      assert(code.includes('<pre><code class="lang-js">if (a &lt; b) { x(); }</code></pre>'), code);
+      assert(mdToHTML('if `a < b` then') === '<p>if <code>a &lt; b</code> then</p>', mdToHTML('if `a < b` then'));
+      assert(mdToHTML('## Heading') === '<h2>Heading</h2>', mdToHTML('## Heading'));
+    });
+
+    await test('a code block is escaped exactly once (no &amp;lt; double-escaping)', () => {
+      const html = mdToHTML('```\na & b < c\n```');
+      assert(html.includes('a &amp; b &lt; c'), html);
+      assert(!html.includes('&amp;amp;'), `double-escaped: ${html}`);
+    });
+
+    await test('buildStandaloneHTML() carries the XSS payload through escaped and ships a CSP meta tag', () => {
+      const doc = buildStandaloneHTML([{ role: 'You', content: XSS }], `T ${XSS}`, 'ChatGPT', {});
+      assert(!doc.includes('<img src=x'), 'the exported document must not contain an executable payload');
+      assert(doc.includes('&lt;img src=x onerror=alert(1)&gt;'), 'the payload should still be readable as text');
+      assert(/http-equiv="Content-Security-Policy"/.test(doc), 'expected a CSP meta tag in the standalone export');
+      assert(/default-src 'none'/.test(doc), 'expected default-src \'none\' in the CSP');
+    });
+  });
+
+  await suite('Security patch — B2 DOCX XML escaping', async () => {
+    const docxText = (bytes) => new TextDecoder('utf-8').decode(bytes); // buildZip is STORED, so parts appear verbatim
+
+    await test('a hyperlink whose URL contains & produces a valid relationship entry', () => {
+      const url  = 'https://example.com/search?a=1&b=2';
+      const text = docxText(buildDocx([{ role: 'You', content: `see [source](${url})` }], 'T', 'ChatGPT'));
+      const rel  = text.match(/<Relationship Id="rId3"[^>]*\/>/);
+      assert(rel, `no content hyperlink relationship emitted:\n${text.slice(0, 400)}`);
+      assert(rel[0].includes('Target="https://example.com/search?a=1&amp;b=2"'), `unescaped & in Target — Word reports "unreadable content": ${rel[0]}`);
+      assert(!/&(?!amp;|lt;|gt;|quot;|apos;|#)/.test(rel[0]), `bare & left in the relationship XML: ${rel[0]}`);
+    });
+
+    await test('a hyperlink URL containing a quote cannot break out of the Target attribute', () => {
+      const text = docxText(buildDocx([{ role: 'You', content: 'see [x](https://example.com/?q=")' }], 'T', 'ChatGPT'));
+      const rel  = text.match(/<Relationship Id="rId3"[^>]*\/>/);
+      assert(rel, 'no content hyperlink relationship emitted');
+      assert(!/Target="[^"]*"[^ ]/.test(rel[0].replace(/TargetMode="External"/, '')), `attribute terminated early: ${rel[0]}`);
+      assert(/%22|&quot;/.test(rel[0]), `the quote should be percent-encoded or entity-escaped: ${rel[0]}`);
+    });
+
+    await test('_xmlAttrEsc() escapes all five XML attribute specials', () => {
+      assert(_xmlAttrEsc('a&b<c>d"e\'f') === 'a&amp;b&lt;c&gt;d&quot;e&apos;f', _xmlAttrEsc('a&b<c>d"e\'f'));
+    });
+
+    await test('_xmlEsc() strips XML 1.0 illegal control characters (e.g. ESC from pasted terminal output)', () => {
+      const out = _xmlEsc('colour\x1b[31mred\x1b[0m');
+      assert(!/[\x00-\x08\x0B\x0C\x0E-\x1F]/.test(out), `control character survived: ${JSON.stringify(out)}`);
+      assert(out === 'colour[31mred[0m', JSON.stringify(out));
+      assert(_xmlEsc('keep\ttabs\nand newlines') === 'keep\ttabs\nand newlines', 'tab/newline are legal XML 1.0 and must survive');
+    });
+
+    await test('a message containing an ESC sequence still produces a parseable document.xml', () => {
+      const text = docxText(buildDocx([{ role: 'You', content: 'out: \x1b[31mfail\x1b[0m' }], 'T', 'ChatGPT'));
+      const doc  = text.match(/<w:document[\s\S]*?<\/w:document>/);
+      assert(doc, 'no document.xml body found');
+      assert(!/[\x00-\x08\x0B\x0C\x0E-\x1F]/.test(doc[0]), 'illegal control characters reached document.xml');
+    });
+  });
+
+  await suite('Security patch — S8 no web_accessible_resources', async () => {
+    const MANIFEST_WAR = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../manifest.json'), 'utf8'));
+
+    await test('manifest.json exposes no resources to web pages', () => {
+      assert(!('web_accessible_resources' in MANIFEST_WAR),
+        'print.html/history.html are only ever opened from extension contexts — exposing them to <all_urls> makes the extension fingerprintable and the pages iframeable by any site');
+    });
+
+    await test('print.html and history.html are still only opened from extension contexts', () => {
+      const POPUP_JS      = fs.readFileSync(path.resolve(__dirname, '../popup.js'), 'utf8');
+      const BACKGROUND_JS = fs.readFileSync(path.resolve(__dirname, '../background.js'), 'utf8');
+      const HISTORY_JS    = fs.readFileSync(path.resolve(__dirname, '../history.js'), 'utf8');
+      // Every reference must be wrapped in runtime.getURL() from an extension
+      // page (popup/background/history). A page loaded by a *website* is what
+      // web_accessible_resources is for, and nothing here does that.
+      for (const [name, src] of [['popup.js', POPUP_JS], ['background.js', BACKGROUND_JS], ['history.js', HISTORY_JS]]) {
+        const refs = src.match(/.{0,20}['"](?:print|history)\.html['"]/g) || [];
+        assert(refs.length > 0, `expected ${name} to reference at least one of the two pages`);
+        for (const ref of refs) {
+          assert(/getURL\(\s*['"]$/.test(ref.slice(0, -('print.html'.length + 1))) || /getURL\(['"]/.test(ref),
+            `${name} references one of the pages without runtime.getURL(): ...${ref}`);
+        }
+      }
+      assert(!/print\.html|history\.html/.test(CONTENT_JS), 'the content script must never open these pages directly — that WOULD need web_accessible_resources');
     });
   });
 

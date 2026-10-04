@@ -16,12 +16,17 @@
   const countLabel      = document.getElementById('countLabel');
   const clearBtn        = document.getElementById('clearBtn');
   const clearStarredBtn = document.getElementById('clearStarredBtn');
+  const clearArchiveBtn = document.getElementById('clearArchiveBtn');
   const searchBox       = document.getElementById('searchBox');
 
   // All loaded entries — filtering operates on this
   let allEntries   = [];
   let starredIds   = new Set();   // IDs of starred entries
   let starredStore = [];          // Full starred records from inkpour_starred
+  // Full IndexedDB archive (src/exportArchive.js) — loaded asynchronously
+  // AFTER the storage.local quick list has already rendered, so the page
+  // stays as instant as before; once loaded, filtering covers it too.
+  let archiveStore = [];
 
   // ─── Platform icons ────────────────────────────────────────────────────────
 
@@ -321,15 +326,21 @@
     const starredOnly  = starredStore.filter(e => !recentIds.has(e.id));
     const starredInRecent = allEntries.filter(e => starredIds.has(e.id));
 
+    // Archive entries that aren't already shown in Recent or Starred (every
+    // recent export is also archived, so most archive rows are duplicates of
+    // the quick list until entries age past its 20-entry window).
+    const archiveOnly = archiveStore.filter(e => !recentIds.has(e.id) && !starredIds.has(e.id));
+
     const filteredStarredOnly  = q ? starredOnly.filter(e  => matchesQuery(e, q)) : starredOnly;
     const filteredStarredRecent= q ? starredInRecent.filter(e => matchesQuery(e, q)) : starredInRecent;
     const filteredRecent       = q
       ? allEntries.filter(e => !starredIds.has(e.id) && matchesQuery(e, q))
       : allEntries.filter(e => !starredIds.has(e.id));
+    const filteredArchive      = q ? archiveOnly.filter(e => matchesQuery(e, q)) : archiveOnly;
 
     const totalStarred  = filteredStarredOnly.length + filteredStarredRecent.length;
-    const totalFiltered = totalStarred + filteredRecent.length;
-    const totalAll      = starredOnly.length + allEntries.length;
+    const totalFiltered = totalStarred + filteredRecent.length + filteredArchive.length;
+    const totalAll      = starredOnly.length + allEntries.length + archiveOnly.length;
 
     historyList.textContent = '';
     if (totalFiltered === 0 && totalAll === 0) {
@@ -357,8 +368,12 @@
     }
     // Recent section
     if (filteredRecent.length > 0) {
-      if (totalStarred > 0) renderSection(t('historySectionRecent'), filteredRecent, false);
+      if (totalStarred > 0 || filteredArchive.length > 0) renderSection(t('historySectionRecent'), filteredRecent, false);
       else for (const entry of filteredRecent) historyList.appendChild(renderEntry(entry));
+    }
+    // Archive section — everything older than the 20-entry quick list
+    if (filteredArchive.length > 0) {
+      renderSection(t('historySectionArchive'), filteredArchive, false);
     }
   }
 
@@ -437,6 +452,31 @@
     renderStats([...allEntries, ...starredStore.filter(e => !new Set(allEntries.map(x=>x.id)).has(e.id))]);
     applyFilter(searchBox?.value ?? '');
     renderLifetimeStats().catch(() => {});
+    // The uncapped IndexedDB archive loads after the instant storage.local
+    // render above — never blocking it (and never breaking the page if
+    // IndexedDB is unavailable). Once in memory, search/filter stays the
+    // same synchronous client-side pass it always was.
+    loadArchive().catch(() => {});
+  }
+
+  // ─── Full local archive (IndexedDB, src/exportArchive.js) ─────────────────
+
+  async function loadArchive() {
+    if (typeof archiveGetAllExports !== 'function') return;
+    archiveStore = await archiveGetAllExports();
+    if (clearArchiveBtn) clearArchiveBtn.hidden = archiveStore.length === 0;
+    if (archiveStore.length === 0) return;
+    // The header still says "Last 20 exports" — no longer the whole story
+    // once archived entries exist.
+    const subtitle = document.querySelector('.header-text p');
+    if (subtitle) subtitle.textContent = t('historyHeaderSubtitleArchive');
+    const known = new Set([...allEntries.map(e => e.id), ...starredStore.map(e => e.id)]);
+    renderStats([
+      ...allEntries,
+      ...starredStore.filter(e => !new Set(allEntries.map(x => x.id)).has(e.id)),
+      ...archiveStore.filter(e => !known.has(e.id)),
+    ]);
+    applyFilter(searchBox?.value ?? '');
   }
 
   // ─── Search ────────────────────────────────────────────────────────────────
@@ -471,6 +511,19 @@
     if (clearStarredBtn) clearStarredBtn.hidden = true;
     applyFilter(searchBox?.value ?? '');
     renderStats(allEntries);
+  });
+
+  // ─── Clear archive ─────────────────────────────────────────────────────────
+
+  clearArchiveBtn?.addEventListener('click', async () => {
+    if (!confirm(t('historyConfirmClearArchive'))) return;
+    try {
+      await archiveClearExports();
+    } catch { /* best-effort */ }
+    archiveStore = [];
+    clearArchiveBtn.hidden = true;
+    renderStats([...allEntries, ...starredStore.filter(e => !new Set(allEntries.map(x => x.id)).has(e.id))]);
+    applyFilter(searchBox?.value ?? '');
   });
 
   // ─── Init ──────────────────────────────────────────────────────────────────

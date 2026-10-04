@@ -693,6 +693,12 @@
   "settingsShowFabDesc": {
     "message": "A small \"ip\" button on every supported chat page for quick export without opening the popup. On by default; turn it off if you find it distracting."
   },
+  "settingsLocalArchiveLabel": {
+    "message": "Keep a full local export archive"
+  },
+  "settingsLocalArchiveDesc": {
+    "message": "Keep a copy of every export on this computer (IndexedDB), searchable from the History page — not just the last 20. On by default; grows with use, so the History page has a \"Clear archive\" button. Per-device: the archive itself never syncs or leaves your machine."
+  },
   "settingsWebhookUrlLabel": {
     "message": "Webhook URL"
   },
@@ -717,6 +723,9 @@
   "historyHeaderSubtitle": {
     "message": "पिछले 20 एक्सपोर्ट — लोकल रूप से सेव, कभी अपलोड नहीं होते"
   },
+  "historyHeaderSubtitleArchive": {
+    "message": "All exports — stored locally, never uploaded"
+  },
   "historySearchPlaceholder": {
     "message": "शीर्षक, प्लेटफ़ॉर्म, या बातचीत का कंटेंट खोजें…"
   },
@@ -728,6 +737,9 @@
   },
   "historyClearStarred": {
     "message": "★ साफ़ करें"
+  },
+  "historyClearArchive": {
+    "message": "Clear archive"
   },
   "historyClearRecentTitle": {
     "message": "हाल का एक्सपोर्ट इतिहास साफ़ करें (स्टार किए गए एक्सपोर्ट सुरक्षित रहेंगे)"
@@ -764,6 +776,9 @@
   },
   "historySectionRecent": {
     "message": "हाल के"
+  },
+  "historySectionArchive": {
+    "message": "Archive"
   },
   "historyStarPin": {
     "message": "स्टार में पिन करें"
@@ -868,6 +883,9 @@
   },
   "historyConfirmClearStarred": {
     "message": "सभी स्टार किए गए एक्सपोर्ट हटाएं? इसे पूर्ववत नहीं किया जा सकता।"
+  },
+  "historyConfirmClearArchive": {
+    "message": "Delete the entire local export archive? Recent and starred exports are kept. This cannot be undone."
   },
   "printLoading": {
     "message": "बातचीत लोड हो रही है…"

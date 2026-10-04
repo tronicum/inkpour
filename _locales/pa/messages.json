@@ -668,6 +668,12 @@
   "settingsShowFabDesc": {
     "message": "A small \"ip\" button on every supported chat page for quick export without opening the popup. On by default; turn it off if you find it distracting."
   },
+  "settingsLocalArchiveLabel": {
+    "message": "Keep a full local export archive"
+  },
+  "settingsLocalArchiveDesc": {
+    "message": "Keep a copy of every export on this computer (IndexedDB), searchable from the History page — not just the last 20. On by default; grows with use, so the History page has a \"Clear archive\" button. Per-device: the archive itself never syncs or leaves your machine."
+  },
   "settingsWebhookUrlLabel": {
     "message": "Webhook URL"
   },
@@ -692,6 +698,9 @@
   "historyHeaderSubtitle": {
     "message": "ਆਖਰੀ 20 ਐਕਸਪੋਰਟ — ਸਥਾਨਕ ਤੌਰ 'ਤੇ ਸਟੋਰ ਕੀਤੇ, ਕਦੇ ਅੱਪਲੋਡ ਨਹੀਂ ਹੁੰਦੇ"
   },
+  "historyHeaderSubtitleArchive": {
+    "message": "All exports — stored locally, never uploaded"
+  },
   "historySearchPlaceholder": {
     "message": "ਸਿਰਲੇਖ, ਪਲੇਟਫਾਰਮ, ਜਾਂ ਗੱਲਬਾਤ ਸਮੱਗਰੀ ਖੋਜੋ…"
   },
@@ -703,6 +712,9 @@
   },
   "historyClearStarred": {
     "message": "★ ਸਾਫ਼ ਕਰੋ"
+  },
+  "historyClearArchive": {
+    "message": "Clear archive"
   },
   "historyClearRecentTitle": {
     "message": "ਹਾਲੀਆ ਇਤਿਹਾਸ ਸਾਫ਼ ਕਰੋ (ਸਟਾਰਡ ਐਕਸਪੋਰਟ ਰੱਖੇ ਜਾਣਗੇ)"
@@ -739,6 +751,9 @@
   },
   "historySectionRecent": {
     "message": "ਹਾਲੀਆ"
+  },
+  "historySectionArchive": {
+    "message": "Archive"
   },
   "historyStarPin": {
     "message": "ਸਟਾਰਡ ਵਿੱਚ ਪਿੰਨ ਕਰੋ"
@@ -843,6 +858,9 @@
   },
   "historyConfirmClearStarred": {
     "message": "ਸਾਰੇ ਸਟਾਰਡ ਐਕਸਪੋਰਟ ਹਟਾਉਣੇ ਹਨ? ਇਹ ਵਾਪਸ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ।"
+  },
+  "historyConfirmClearArchive": {
+    "message": "Delete the entire local export archive? Recent and starred exports are kept. This cannot be undone."
   },
   "printLoading": {
     "message": "ਗੱਲਬਾਤ ਲੋਡ ਹੋ ਰਹੀ ਹੈ…"

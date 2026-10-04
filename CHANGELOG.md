@@ -14,12 +14,56 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+## [0.4.34.0] - 2026-10-04
+
 ### Added
+- Full local export archive (on by default, new "Keep a full local export
+  archive" setting): every export is now also kept, full content included, in
+  an uncapped local archive on your computer — nothing ages out after 20
+  exports anymore. The History page shows and searches the whole archive
+  (older entries appear under a new "Archive" section) and has a "Clear
+  archive" button to reclaim disk space. The archive never leaves your
+  machine. The existing last-20 quick list is unchanged.
 - Exports from Gemini and Google AI Mode now include a `share_url` YAML
   frontmatter field when Google's own native "Share" public link has already
   been generated on the page (e.g. you clicked Share yourself earlier).
   Passive only — Inkpour never clicks Share on your behalf, so exporting
   never creates a new public link as a side effect.
+
+### Fixed
+- **Security:** the Alt+Shift+G "upload to Gist" hotkey now only responds to a
+  real keypress. Previously a script running on the chat page could fake the
+  key combination and upload the whole conversation to your GitHub account
+  without you touching the keyboard.
+- **Security:** uploading a Gist from the popup now strips likely secrets
+  (API keys, tokens, email addresses) the same way the keyboard-shortcut and
+  right-click paths always did. "Scrub secrets before upload" is on by
+  default, but this one path ignored it.
+- **Security:** webhooks now require an `https://` URL (plain `http://` is
+  still allowed for `localhost`, for local automation) and the payload —
+  including the conversation text, when "Include content in webhook" is on —
+  passes through the same secret scrubbing as every other upload.
+- **Security:** exported `.html` files and the print preview now escape
+  message text, so markup inside a conversation is shown as text instead of
+  being rendered. `javascript:` links are dropped, and the exported file
+  carries a Content-Security-Policy that blocks anything from loading.
+- Word documents no longer come out corrupt when a conversation contains a
+  link with `&` in it (most citation links do) or text pasted from a
+  terminal. Word previously reported "unreadable content" for those exports.
+- The extension no longer advertises its internal print/history pages to every
+  website, which made it detectable by any page you visited.
+- The floating button's Settings link still did nothing when clicked, despite
+  0.4.33.0's changelog entry below claiming this was fixed — the actual code
+  change never made it into that release (a squash-merge picked up an older
+  version of the branch than intended). Re-applied for real this time, with a
+  test that would have caught the gap: `chrome.runtime.openOptionsPage()`
+  isn't available to content scripts, so the FAB's Settings click now relays
+  through a message to the background script, which does have it.
+- Claude exports could silently cut off long conversations: claude.ai
+  renders long chats as a virtualized list, so only the messages near the
+  viewport were ever actually in the page at once. Exporting now sweeps the
+  whole conversation first so every message is captured, no matter how long
+  the chat is.
 
 ## [0.4.33.0] - 2026-09-22
 
