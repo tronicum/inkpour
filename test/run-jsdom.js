@@ -1077,6 +1077,73 @@ async function main() {
     });
   });
 
+  await suite('findGoogleShareUrl — passive capture of Google\'s native Share link', async () => {
+    async function loadWithBody(bodyHtml, hostname) {
+      const dom = new JSDOM(`<!DOCTYPE html><body>${bodyHtml}</body>`, { url: `https://${hostname}/`, runScripts: 'dangerously' });
+      dom.window.__inkpourTestHostname = hostname;
+      dom.window.HTMLElement.prototype.scrollTo = function () {};
+      dom.window.document.documentElement.scrollTo = function () {};
+      const ls = [];
+      dom.window.browser = { runtime: { onMessage: { addListener: fn => ls.push(fn) }, id: 't' }, i18n: mockI18n() };
+      dom.window.chrome  = dom.window.browser;
+      const s = dom.window.document.createElement('script');
+      s.textContent = CONTENT_JS;
+      dom.window.document.body.appendChild(s);
+      await new Promise(r => setTimeout(r, 50));
+      return dom.window.__inkpourFindGoogleShareUrl;
+    }
+
+    await test('captures an already-rendered Gemini share link (anchor)', async () => {
+      const fn = await loadWithBody(
+        '<div role="dialog"><a href="https://g.co/gemini/share/abc123">Copy link</a></div>',
+        'gemini.google.com'
+      );
+      assert(fn() === 'https://g.co/gemini/share/abc123', `expected the share link, got: ${fn()}`);
+    });
+
+    await test('captures a share link from a readonly input field', async () => {
+      const fn = await loadWithBody(
+        '<div aria-label="Share this chat"><input type="text" readonly value="https://gemini.google.com/share/xyz789" /></div>',
+        'gemini.google.com'
+      );
+      assert(fn() === 'https://gemini.google.com/share/xyz789', `expected the share link, got: ${fn()}`);
+    });
+
+    await test('returns empty string when no share link is present (the common case)', async () => {
+      const fn = await loadWithBody('<main><h1>Hi there</h1></main>', 'gemini.google.com');
+      assert(fn() === '', `expected empty string, got: ${JSON.stringify(fn())}`);
+    });
+
+    await test('does not mistake an unrelated link for a share link', async () => {
+      const fn = await loadWithBody(
+        '<a href="https://support.google.com/gemini">Help</a>',
+        'gemini.google.com'
+      );
+      assert(fn() === '', `expected empty string, got: ${JSON.stringify(fn())}`);
+    });
+
+    await test('the aria-label fallback rejects an off-domain "Share" widget (e.g. share-to-X)', async () => {
+      // Regression: '[aria-label*="Share" i] a[href^="http"]' alone would
+      // match ANY http link inside ANY "Share"-labeled element — a social
+      // share-to-X button, "Share feedback" widget, etc. — not just Google's
+      // own conversation-share link. The found URL's own host must be
+      // google.com/g.co, or it must be rejected.
+      const fn = await loadWithBody(
+        '<div aria-label="Share this result"><a href="https://x.com/intent/tweet?text=hi">Share on X</a></div>',
+        'gemini.google.com'
+      );
+      assert(fn() === '', `expected empty string (off-domain host), got: ${JSON.stringify(fn())}`);
+    });
+
+    await test('the aria-label fallback accepts an on-domain Google AI Mode share link', async () => {
+      const fn = await loadWithBody(
+        '<div aria-label="Share this AI Mode response"><a href="https://www.google.com/share/abc123">Copy link</a></div>',
+        'google.com'
+      );
+      assert(fn() === 'https://www.google.com/share/abc123', `expected the on-domain share link, got: ${fn()}`);
+    });
+  });
+
   await suite('getConversationList — unsupported/logged-out platform', async () => {
     const dom = new JSDOM(`<!DOCTYPE html><body>
       <nav><a href="/some/other/link">Not a conversation link</a></nav>
@@ -1239,6 +1306,23 @@ async function main() {
       const md = buildMarkdown(msgs, 'Chat', 'chatgpt', { yamlFrontMatter: true }, 'https://chatgpt.com/c/abc');
       assert(md.startsWith('---\n'), 'missing YAML opening');
       assert(md.includes('source_url: "https://chatgpt.com/c/abc"'), 'missing source_url');
+    });
+
+    await test('YAML front matter includes share_url when provided', () => {
+      const md = buildMarkdown(msgs, 'Chat', 'gemini', { yamlFrontMatter: true }, '', 'https://g.co/gemini/share/abc123');
+      assert(md.startsWith('---\n'), 'missing YAML opening');
+      assert(md.includes('share_url: "https://g.co/gemini/share/abc123"'), `missing share_url. Got: ${md.slice(0, 300)}`);
+    });
+
+    await test('no share_url line when not provided', () => {
+      const md = buildMarkdown(msgs, 'Chat', 'claude', { yamlFrontMatter: true });
+      assert(!md.includes('share_url:'), `unexpected share_url. Got: ${md.slice(0, 300)}`);
+    });
+
+    await test('source_url and share_url can both appear together', () => {
+      const md = buildMarkdown(msgs, 'Chat', 'gemini', { yamlFrontMatter: true }, 'https://gemini.google.com/app/abc', 'https://g.co/gemini/share/xyz789');
+      assert(md.includes('source_url: "https://gemini.google.com/app/abc"'), 'missing source_url');
+      assert(md.includes('share_url: "https://g.co/gemini/share/xyz789"'), 'missing share_url');
     });
 
     await test('YAML front matter includes an Obsidian-Dataview-friendly type key', () => {
@@ -4730,6 +4814,193 @@ No bullets here at all, just prose under the heading.
         }
       }
       assert(!/print\.html|history\.html/.test(CONTENT_JS), 'the content script must never open these pages directly — that WOULD need web_accessible_resources');
+    });
+  });
+
+  // ─── PDF fuzzer: N-up grid detection (debug/import-pdf-fuzzer.js) ──────────
+  // detectNupGrid() splits one physical PDF page's text items into virtual
+  // sub-pages when the sheet is an N-up print layout (several shrunken
+  // logical pages in a grid). Tested here with hand-built synthetic item
+  // arrays — no real N-up PDF fixture exists (and pdf.js isn't loaded in
+  // jsdom), so this exercises the pure geometry logic directly. NOTE: this
+  // means N-up support is NOT live-PDF-verified; only the synthetic cases
+  // below are covered.
+  await suite('PDF fuzzer — N-up grid detection', async () => {
+    const FUZZER_JS = fs.readFileSync(path.resolve(__dirname, '../debug/import-pdf-fuzzer.js'), 'utf8');
+
+    // The fuzzer script wires addEventListener onto several elements at
+    // top level, so the bare test DOM must contain those ids (plain
+    // getElementById returning null is fine for the ones only *read*, but
+    // pdfInput/rerunBtn/copyRawTextBtn get .addEventListener called).
+    // pdfjsLib is guarded with `typeof pdfjsLib !== 'undefined'`, so no
+    // pdf.js stub is needed.
+    function loadPdfFuzzerEnv() {
+      const html = `<!DOCTYPE html><html><body>
+        <input id="pdfInput" type="file">
+        <button id="rerunBtn"></button>
+        <div id="pdfStatus"></div>
+        <textarea id="rawText"></textarea>
+        <div id="output"></div>
+        <div id="stats"></div>
+        <div id="fuzzReport" hidden><table><tbody id="fuzzRows"></tbody></table></div>
+        <button id="copyRawTextBtn"></button>
+        <span id="copyStatus"></span>
+      </body></html>`;
+      const dom = new JSDOM(html, { url: 'https://example.com/', runScripts: 'dangerously' });
+      const { window } = dom;
+      const scriptEl = window.document.createElement('script');
+      scriptEl.textContent = FUZZER_JS;
+      window.document.body.appendChild(scriptEl);
+      if (typeof window.detectNupGrid !== 'function') {
+        throw new Error('detectNupGrid() not defined after loading debug/import-pdf-fuzzer.js — script failed to load in jsdom');
+      }
+      return window;
+    }
+
+    /**
+     * Build a synthetic block of text items: `lineCount` lines starting at
+     * (x0, yTop), lines 16pt apart going down, `height` 12, each line two
+     * runs wide. Every str is prefixed with `tag` so tests can verify cell
+     * membership exactly.
+     */
+    function makeBlock(tag, x0, yTop, lineCount) {
+      const items = [];
+      for (let i = 0; i < lineCount; i++) {
+        const y = yTop - i * 16;
+        items.push({ str: `${tag} line${i}a word`, x: x0,      y, height: 12, fontName: 'F1' });
+        items.push({ str: `${tag} line${i}b word`, x: x0 + 90, y, height: 12, fontName: 'F1' });
+      }
+      return items;
+    }
+
+    /** Shuffle deterministically so tests don't depend on construction order. */
+    function interleave(...blocks) {
+      const all = [];
+      const max = Math.max(...blocks.map(b => b.length));
+      for (let i = 0; i < max; i++) {
+        for (const b of blocks) if (b[i]) all.push(b[i]);
+      }
+      return all;
+    }
+
+    await test('detectNupGrid() returns null for a normal single-column page', () => {
+      const window = loadPdfFuzzerEnv();
+      // A plain portrait page (612x792) of full-width paragraph text.
+      const items = makeBlock('P', 72, 720, 30);
+      assert(window.detectNupGrid(items, 612, 792) === null, 'expected null (no grid) for a normal single page');
+    });
+
+    await test('detectNupGrid() detects a 2x2 N-up grid with 4 cells in reading order (TL, TR, BL, BR)', () => {
+      const window = loadPdfFuzzerEnv();
+      // Landscape 800x600 sheet, four logical pages in quadrants: left
+      // column x 50-230, right column x 450-630; top row y 550 down to
+      // ~440, bottom row y 250 down to ~140 — a clear x-gully (~200pt) and
+      // y-gully (~190pt), both far over the 10%-of-page-dimension bar.
+      const tl = makeBlock('TL', 50, 550, 8);
+      const tr = makeBlock('TR', 450, 550, 8);
+      const bl = makeBlock('BL', 50, 250, 8);
+      const br = makeBlock('BR', 450, 250, 8);
+      const grid = window.detectNupGrid(interleave(br, tl, bl, tr), 800, 600);
+      assert(grid, 'expected a grid to be detected');
+      assert(grid.rows === 2 && grid.cols === 2, `expected 2x2, got ${grid.rows}x${grid.cols}`);
+      assert(grid.cells.length === 4, `expected 4 cells, got ${grid.cells.length}`);
+      const tags = ['TL', 'TR', 'BL', 'BR'];
+      grid.cells.forEach((cell, i) => {
+        assert(cell.length === 16, `cell ${i} (${tags[i]}) expected 16 items, got ${cell.length}`);
+        assert(cell.every(it => it.str.startsWith(tags[i])), `cell ${i} should contain only ${tags[i]} items — reading order or partitioning is wrong`);
+      });
+    });
+
+    await test('detectNupGrid() detects a 1x2 side-by-side layout (2 cells, left then right)', () => {
+      const window = loadPdfFuzzerEnv();
+      const left  = makeBlock('L', 50, 550, 20);
+      const right = makeBlock('R', 450, 550, 20);
+      const grid = window.detectNupGrid(interleave(right, left), 800, 600);
+      assert(grid, 'expected a grid to be detected');
+      assert(grid.rows === 1 && grid.cols === 2, `expected 1x2, got ${grid.rows}x${grid.cols}`);
+      assert(grid.cells.length === 2, `expected 2 cells, got ${grid.cells.length}`);
+      assert(grid.cells[0].every(it => it.str.startsWith('L')), 'first cell must be the LEFT logical page');
+      assert(grid.cells[1].every(it => it.str.startsWith('R')), 'second cell must be the RIGHT logical page');
+    });
+
+    await test('detectNupGrid() does not false-positive on a sparse, irregular single page', () => {
+      const window = loadPdfFuzzerEnv();
+      // Genuine single page (612x792) with natural irregularity: varying
+      // indents, headings, and paragraph gaps of up to ~3.5x line height —
+      // but no page-spanning whitespace gully.
+      const items = [];
+      let y = 730;
+      const paras = [
+        { x: 72,  lines: 3, gapAfter: 40 }, // heading-ish block, big gap after
+        { x: 72,  lines: 6, gapAfter: 28 },
+        { x: 100, lines: 4, gapAfter: 42 }, // indented block (e.g. quote)
+        { x: 72,  lines: 7, gapAfter: 30 },
+        { x: 90,  lines: 2, gapAfter: 38 },
+        { x: 72,  lines: 5, gapAfter: 0 },
+      ];
+      paras.forEach((p2, pi) => {
+        for (let i = 0; i < p2.lines; i++) {
+          items.push({ str: `para${pi} line${i} some words here`, x: p2.x, y, height: 12, fontName: 'F1' });
+          y -= 16;
+        }
+        y -= p2.gapAfter;
+      });
+      assert(window.detectNupGrid(items, 612, 792) === null, 'irregular single page must NOT be detected as an N-up grid');
+    });
+
+    await test('detectNupGrid() returns null for empty or tiny item arrays', () => {
+      const window = loadPdfFuzzerEnv();
+      assert(window.detectNupGrid([], 800, 600) === null, 'empty items must return null');
+      assert(window.detectNupGrid([{ str: 'x', x: 10, y: 10, height: 12, fontName: '' }], 800, 600) === null, 'a single item must return null');
+    });
+
+    await test('groupItemsIntoLines() reproduces the original single-page line grouping (text order, gap, numeric page id)', () => {
+      const window = loadPdfFuzzerEnv();
+      const items = [
+        { str: 'Hello',     x: 72,  y: 700, height: 12, fontName: 'F1' },
+        { str: 'world',     x: 120, y: 700, height: 12, fontName: 'F1' },
+        { str: 'Second',    x: 72,  y: 684, height: 12, fontName: 'F1' },
+        { str: 'Paragraph', x: 72,  y: 640, height: 12, fontName: 'F2' },
+      ];
+      const lines = window.groupItemsIntoLines(items, 3);
+      assert(lines.length === 3, `expected 3 lines, got ${lines.length}`);
+      assert(lines[0].text === 'Hello world', `expected same-y runs joined into one line, got: ${lines[0].text}`);
+      assert(lines[0].gap === 0 && lines[1].gap === 16 && lines[2].gap === 44, `expected gaps 0/16/44, got ${lines.map(l => l.gap).join('/')}`);
+      assert(lines.every(l => l.page === 3), 'expected the numeric page id passed through unchanged for the single-page path');
+      assert(lines[2].fontKey === 'F2@12.0', `expected fontKey F2@12.0, got ${lines[2].fontKey}`);
+    });
+
+    await test('2x2 N-up end-to-end: per-cell line grouping keeps each logical page contiguous, with "<page>.<cell>" sub-page ids', () => {
+      const window = loadPdfFuzzerEnv();
+      const tl = makeBlock('TL', 50, 550, 8);
+      const tr = makeBlock('TR', 450, 550, 8);
+      const bl = makeBlock('BL', 50, 250, 8);
+      const br = makeBlock('BR', 450, 250, 8);
+      const items = interleave(tr, bl, br, tl); // deliberately scrambled input order
+      // Same wiring extractLinesFromPdf() now uses per physical page,
+      // minus pdf.js itself (which can't run in jsdom):
+      const grid = window.detectNupGrid(items, 800, 600);
+      assert(grid && grid.cells.length === 4, 'precondition: 2x2 grid detected');
+      const lines = [];
+      grid.cells.forEach((cellItems, k) => {
+        lines.push(...window.groupItemsIntoLines(cellItems, `1.${k + 1}`));
+      });
+      assert(lines.length === 32, `expected 8 lines x 4 cells = 32 lines, got ${lines.length}`);
+      // Each logical page's lines must be contiguous and internally in
+      // top-to-bottom order — no interleaving across cells.
+      const tagSequence = lines.map(l => l.text.slice(0, 2)).join('');
+      assert(tagSequence === 'TL'.repeat(8) + 'TR'.repeat(8) + 'BL'.repeat(8) + 'BR'.repeat(8),
+        `logical pages interleaved or out of reading order: ${lines.map(l => l.text.slice(0, 2)).join(',')}`);
+      ['TL', 'TR', 'BL', 'BR'].forEach((tag, cellIdx) => {
+        const cellLines = lines.filter(l => l.page === `1.${cellIdx + 1}`);
+        assert(cellLines.length === 8, `sub-page 1.${cellIdx + 1} expected 8 lines, got ${cellLines.length}`);
+        cellLines.forEach((l, i) => {
+          assert(l.text === `${tag} line${i}a word ${tag} line${i}b word`,
+            `sub-page 1.${cellIdx + 1} line ${i} wrong or out of order: ${l.text}`);
+        });
+        // gap resets at the top of every cell — a braided N-up would not do this
+        assert(cellLines[0].gap === 0, `sub-page 1.${cellIdx + 1} first line should have gap 0 (fresh sub-page)`);
+      });
     });
   });
 
