@@ -713,6 +713,14 @@
     return null;
   }
 
+  // In-flight sweep, shared across concurrent callers (e.g. the popup's
+  // eager runPeek() and an explicit export firing close together) — without
+  // this, two sweeps would independently scroll the same container and each
+  // restore its own "original" position on top of the other's, leaving the
+  // page scrolled somewhere neither caller expected (found in Copilot's
+  // review of #37).
+  let _claudeFullSweepPromise = null;
+
   /**
    * Full-conversation Claude extraction (issue #26).
    *
@@ -738,44 +746,62 @@
     const virtualized = initial.some(({ el }) => el.closest('[data-index]'));
     if (!virtualized) return extractClaude();
 
+    if (_claudeFullSweepPromise) return _claudeFullSweepPromise;
+    _claudeFullSweepPromise = runClaudeFullSweep(initial);
     try {
-      const container = findScrollableAncestor(initial[0].el);
-      if (!container) return extractClaude();
+      return await _claudeFullSweepPromise;
+    } finally {
+      _claudeFullSweepPromise = null;
+    }
+  }
 
-      const MAX_SWEEP_STEPS = 500;  // circuit breaker for pathological cases
-      const SETTLE_MS       = 200;  // per-step wait for React to mount the new window
+  async function runClaudeFullSweep(initial) {
+    const container = findScrollableAncestor(initial[0].el);
+    if (!container) return extractClaude();
 
-      const byKey = new Map();      // "idx|role" → { idx, role, content }
-      const collect = () => {
-        for (const { el, role } of claudeMessageElements()) {
-          const item = el.closest('[data-index]');
-          if (!item) continue;
-          const idx = parseInt(item.getAttribute('data-index'), 10);
-          if (!Number.isFinite(idx)) continue;
-          const content = claudeMessageToMarkdown(el);
-          if (!content) continue;
-          const key  = `${idx}|${role}`;
-          const prev = byKey.get(key);
-          // Keep the longest capture per message — a turn can be collected
-          // mid-render at one stop and fully rendered at the next.
-          if (!prev || content.length > prev.content.length) byKey.set(key, { idx, role, content });
-        }
-      };
+    const MAX_SWEEP_STEPS = 500;   // circuit breaker for pathological cases
+    const SETTLE_MS       = 200;   // per-step wait for React to mount the new window
+    // background.js's batch export races each extraction against a 15s
+    // timeout (runBatchExport()) — stay comfortably under that so a slow
+    // sweep is reported as incomplete by this function, not silently
+    // dropped as a skipped conversation by the caller (found in Copilot's
+    // review of #37).
+    const MAX_SWEEP_MS    = 11000;
 
-      try { await (chrome || browser).storage.session.set({ inkpourScrolling: true, inkpourScrollMsg: 'Loading older messages…' }); } catch (_) {}
+    const byKey = new Map();       // "idx|role" → { idx, role, content }
+    const collect = () => {
+      for (const { el, role } of claudeMessageElements()) {
+        const item = el.closest('[data-index]');
+        if (!item) continue;
+        const idx = parseInt(item.getAttribute('data-index'), 10);
+        if (!Number.isFinite(idx)) continue;
+        const content = claudeMessageToMarkdown(el);
+        if (!content) continue;
+        const key  = `${idx}|${role}`;
+        const prev = byKey.get(key);
+        // Keep the longest capture per message — a turn can be collected
+        // mid-render at one stop and fully rendered at the next.
+        if (!prev || content.length > prev.content.length) byKey.set(key, { idx, role, content });
+      }
+    };
 
-      const originalTop = container.scrollTop;
+    // Instant jumps are fine here: TanStack Virtual reacts to the container's
+    // scroll offset, unlike the IntersectionObserver-sentinel lazy loaders
+    // that need incremental scrolling (see planning/TODOs.md Batch 8). The
+    // explicit dispatched scroll event after each jump covers listeners that
+    // only react to real events.
+    const jumpTo = (top) => {
+      container.scrollTo({ top, behavior: 'instant' });
+      try { container.dispatchEvent(new Event('scroll', { bubbles: true })); } catch (_) {}
+    };
 
-      // Instant jumps are fine here: TanStack Virtual reacts to the container's
-      // scroll offset, unlike the IntersectionObserver-sentinel lazy loaders
-      // that need incremental scrolling (see planning/TODOs.md Batch 8). The
-      // explicit dispatched scroll event after each jump covers listeners that
-      // only react to real events.
-      const jumpTo = (top) => {
-        container.scrollTo({ top, behavior: 'instant' });
-        try { container.dispatchEvent(new Event('scroll', { bubbles: true })); } catch (_) {}
-      };
+    const originalTop = container.scrollTop;
+    let reachedBottom = false;
+    let sweepFailed = false;
 
+    try { await (chrome || browser).storage.session.set({ inkpourScrolling: true, inkpourScrollMsg: 'Loading older messages…' }); } catch (_) {}
+
+    try {
       jumpTo(0);
       await new Promise(r => setTimeout(r, SETTLE_MS));
       collect();
@@ -785,29 +811,40 @@
       // because the virtualizer refines its size estimate as items mount.
       const step = Math.max(200, Math.floor(container.clientHeight * 0.7));
       let top = 0;
+      const deadline = Date.now() + MAX_SWEEP_MS;
       for (let i = 0; i < MAX_SWEEP_STEPS; i++) {
         const maxTop = container.scrollHeight - container.clientHeight;
-        if (top >= maxTop) break;
+        if (top >= maxTop) { reachedBottom = true; break; }
+        if (Date.now() >= deadline) break; // time budget exhausted, not a real failure
         top = Math.min(top + step, maxTop);
         jumpTo(top);
         await new Promise(r => setTimeout(r, SETTLE_MS));
         collect();
       }
 
-      // Restore scroll position so the user still sees what they were reading
-      jumpTo(originalTop);
-
+      if (!reachedBottom) {
+        console.warn('[Inkpour] extractClaudeFull(): sweep ended (step or time budget exhausted) before reaching the bottom of the conversation — export may be missing the oldest messages.');
+      }
+    } catch (err) {
+      // Sweep failure must never break the export — fall back to the plain
+      // snapshot of whatever is currently mounted, not a possibly-partial
+      // byKey collection. Scroll/flag cleanup below (in `finally`) still
+      // runs either way.
+      sweepFailed = true;
+      console.warn('[Inkpour] extractClaudeFull(): sweep failed, falling back to snapshot:', err);
+    } finally {
+      // Always restore the user's scroll position and clear the in-page
+      // "loading" indicator, even on a thrown error — previously a mid-sweep
+      // exception skipped both, leaving the page scrolled wherever the sweep
+      // had reached and the indicator stuck on (found in Copilot's review of #37).
+      try { jumpTo(originalTop); } catch (_) {}
       try { await (chrome || browser).storage.session.set({ inkpourScrolling: false, inkpourScrollMsg: '' }); } catch (_) {}
-
-      if (!byKey.size) return extractClaude();
-      return Array.from(byKey.values())
-        .sort((a, b) => a.idx - b.idx || (a.role === 'You' ? -1 : 1))
-        .map(({ role, content }) => ({ role, content }));
-    } catch {
-      // Sweep failure must never break the export — fall back to the
-      // plain snapshot of whatever is currently mounted.
-      return extractClaude();
     }
+
+    if (sweepFailed || !byKey.size) return extractClaude();
+    return Array.from(byKey.values())
+      .sort((a, b) => a.idx - b.idx || (a.role === 'You' ? -1 : 1))
+      .map(({ role, content }) => ({ role, content }));
   }
 
   // Microsoft Copilot (copilot.microsoft.com + www.copilot.com)

@@ -1210,6 +1210,186 @@ async function main() {
     });
   });
 
+  // ── extractClaudeFull — hardening found by Copilot's review of #37 ─────────
+  await suite('extractClaudeFull — concurrent callers share one in-flight sweep', async () => {
+    const ITEM_H = 500, N_TURNS = 6, VIEWPORT = 1000;
+    const dom = new JSDOM(`<!DOCTYPE html><body>
+      <main><div id="scroller" style="overflow-y: auto"><div id="items"></div></div></main>
+    </body>`, { url: 'https://claude.ai/chat/concurrent-1', runScripts: 'dangerously' });
+    dom.window.__inkpourTestHostname = 'claude.ai';
+    dom.window.HTMLElement.prototype.scrollTo = function () {};
+    dom.window.document.documentElement.scrollTo = function () {};
+    const ls = [];
+    dom.window.browser = { runtime: { onMessage: { addListener: fn => ls.push(fn) }, id: 't' }, i18n: mockI18n() };
+    dom.window.chrome  = dom.window.browser;
+
+    const scroller = dom.window.document.getElementById('scroller');
+    const items    = dom.window.document.getElementById('items');
+    let scrollTop = 0;
+    let scrollToCalls = 0;
+    function render() {
+      let html = '';
+      for (let i = 0; i < N_TURNS; i++) {
+        const top = i * ITEM_H, bottom = top + ITEM_H;
+        if (bottom <= scrollTop || top >= scrollTop + VIEWPORT) continue;
+        html += `<div data-index="${i}"><div data-testid="user-message"><p>Turn ${i}</p></div></div>`;
+      }
+      items.innerHTML = html;
+    }
+    Object.defineProperty(scroller, 'scrollHeight', { get: () => ITEM_H * N_TURNS });
+    Object.defineProperty(scroller, 'clientHeight', { get: () => VIEWPORT });
+    Object.defineProperty(scroller, 'scrollTop',    { get: () => scrollTop, set: v => { scrollTop = v; render(); } });
+    scroller.scrollTo = (opts) => { scrollToCalls++; scrollTop = (opts && typeof opts === 'object') ? opts.top : opts; render(); };
+    scroller.scrollTo({ top: ITEM_H * N_TURNS - VIEWPORT });
+
+    const s = dom.window.document.createElement('script');
+    s.textContent = CONTENT_JS;
+    dom.window.document.body.appendChild(s);
+    await new Promise(r => setTimeout(r, 50));
+    const extractClaudeFull = dom.window.__inkpourExtractClaudeFull;
+
+    // Fire two calls back-to-back without awaiting the first — the second
+    // must join the first's in-flight sweep rather than starting its own
+    // (two independent sweeps would race the same container and each try to
+    // restore its own "original" scroll position over the other's).
+    const callsBefore = scrollToCalls;
+    const [a, b] = await Promise.all([extractClaudeFull(), extractClaudeFull()]);
+    const callsForOneSweep = scrollToCalls - callsBefore;
+
+    await test('both callers get the same correct result', () => {
+      assert(Array.isArray(a) && a.length === N_TURNS, `caller A: expected ${N_TURNS} messages, got ${JSON.stringify(a)}`);
+      assert(JSON.stringify(a) === JSON.stringify(b), 'caller A and caller B got different results from a supposedly shared sweep');
+    });
+    await test('only one sweep actually ran (second call did not start its own)', async () => {
+      // Baseline: a genuinely independent sweep (run after the first has
+      // fully finished, so there's nothing in-flight to join) costs some N
+      // scrollTo calls. If the earlier concurrent PAIR had each started its
+      // own sweep, their combined call count would be roughly double this
+      // baseline; sharing one in-flight sweep means the pair's combined
+      // count equals a single sweep's cost, same as this solo baseline.
+      const before = scrollToCalls;
+      await extractClaudeFull();
+      const soloSweepCalls = scrollToCalls - before;
+      assert(callsForOneSweep === soloSweepCalls,
+        `the concurrent pair made ${callsForOneSweep} scrollTo calls combined, but one independent sweep alone makes ${soloSweepCalls} — expected them to be equal (both calls sharing one sweep), not ~2x`);
+    });
+  });
+
+  await suite('extractClaudeFull — sweep failure still restores scroll position and clears the loading flag', async () => {
+    const ITEM_H = 500, N_TURNS = 6, VIEWPORT = 1000;
+    const dom = new JSDOM(`<!DOCTYPE html><body>
+      <main><div id="scroller" style="overflow-y: auto"><div id="items"></div></div></main>
+    </body>`, { url: 'https://claude.ai/chat/fail-1', runScripts: 'dangerously' });
+    dom.window.__inkpourTestHostname = 'claude.ai';
+    dom.window.HTMLElement.prototype.scrollTo = function () {};
+    dom.window.document.documentElement.scrollTo = function () {};
+    const sessionSets = [];
+    const ls = [];
+    dom.window.browser = {
+      runtime: { onMessage: { addListener: fn => ls.push(fn) }, id: 't' },
+      i18n: mockI18n(),
+      storage: { session: { set: async (v) => { sessionSets.push(v); } } },
+    };
+    dom.window.chrome  = dom.window.browser;
+    const warnings = [];
+    dom.window.console.warn = (...args) => warnings.push(args.map(String).join(' '));
+
+    const scroller = dom.window.document.getElementById('scroller');
+    const items    = dom.window.document.getElementById('items');
+    let scrollTop = 0;
+    let scrollToCalls = 0;
+    function render() {
+      let html = '';
+      for (let i = 0; i < N_TURNS; i++) {
+        const top = i * ITEM_H, bottom = top + ITEM_H;
+        if (bottom <= scrollTop || top >= scrollTop + VIEWPORT) continue;
+        html += `<div data-index="${i}"><div data-testid="user-message"><p>Turn ${i}</p></div></div>`;
+      }
+      items.innerHTML = html;
+    }
+    Object.defineProperty(scroller, 'scrollHeight', { get: () => ITEM_H * N_TURNS });
+    Object.defineProperty(scroller, 'clientHeight', { get: () => VIEWPORT });
+    Object.defineProperty(scroller, 'scrollTop',    { get: () => scrollTop, set: v => { scrollTop = v; render(); } });
+    // Throws on the SECOND scrollTo (the first real sweep step, after the
+    // initial jumpTo(0)) so the sweep is genuinely interrupted mid-run, then
+    // behaves normally again afterward — including for the restore-scroll
+    // call in `finally`, so a successful restore is actually observable.
+    scroller.scrollTo = (opts) => {
+      scrollToCalls++;
+      if (scrollToCalls === 2) throw new Error('simulated mid-sweep failure');
+      scrollTop = (opts && typeof opts === 'object') ? opts.top : opts;
+      render();
+    };
+    const originalTop = ITEM_H * N_TURNS - VIEWPORT;
+    scroller.scrollTo({ top: originalTop }); // sets scrollTop directly (1st call, succeeds)
+    scrollToCalls = 1; // the line above is the "user's own" positioning, not part of the sweep
+
+    const s = dom.window.document.createElement('script');
+    s.textContent = CONTENT_JS;
+    dom.window.document.body.appendChild(s);
+    await new Promise(r => setTimeout(r, 50));
+    const extractClaudeFull = dom.window.__inkpourExtractClaudeFull;
+
+    const messages = await extractClaudeFull();
+
+    await test('does not throw — resolves to a result despite the mid-sweep failure', () => {
+      assert(messages === null || Array.isArray(messages), `expected null or an array, got ${JSON.stringify(messages)}`);
+    });
+    await test('a warning was logged about the sweep failure', () => {
+      assert(warnings.some(w => w.includes('sweep failed')), `expected a "sweep failed" warning, got: ${JSON.stringify(warnings)}`);
+    });
+    await test('scroll position is restored despite the failure (finally still ran)', () => {
+      assert(scrollTop === originalTop, `expected scrollTop restored to ${originalTop}, got ${scrollTop}`);
+    });
+    await test('the in-page loading flag is cleared despite the failure (finally still ran)', () => {
+      const last = sessionSets[sessionSets.length - 1];
+      assert(last && last.inkpourScrolling === false, `expected the last storage.session.set to clear inkpourScrolling, got: ${JSON.stringify(sessionSets)}`);
+    });
+  });
+
+  await suite('extractClaudeFull — warns when the sweep is cut off before reaching the bottom', async () => {
+    // A pathologically tall conversation (more steps than MAX_SWEEP_STEPS)
+    // must not silently return a partial result as if it were complete.
+    // setTimeout is overridden to fire immediately so the real 500-iteration
+    // cap can actually be reached inside a fast unit test.
+    const dom = new JSDOM(`<!DOCTYPE html><body>
+      <main><div id="scroller" style="overflow-y: auto"><div id="items"></div></div></main>
+    </body>`, { url: 'https://claude.ai/chat/toolong-1', runScripts: 'dangerously' });
+    dom.window.__inkpourTestHostname = 'claude.ai';
+    dom.window.HTMLElement.prototype.scrollTo = function () {};
+    dom.window.document.documentElement.scrollTo = function () {};
+    dom.window.setTimeout = (fn) => { fn(); return 0; }; // collapse the 200ms-per-step delay
+    const ls = [];
+    dom.window.browser = { runtime: { onMessage: { addListener: fn => ls.push(fn) }, id: 't' }, i18n: mockI18n() };
+    dom.window.chrome  = dom.window.browser;
+    const warnings = [];
+    dom.window.console.warn = (...args) => warnings.push(args.map(String).join(' '));
+
+    const scroller = dom.window.document.getElementById('scroller');
+    const items    = dom.window.document.getElementById('items');
+    // A single mounted turn at the very top, a scrollHeight far too tall to
+    // sweep within 500 steps at this step size (clientHeight 100 -> step
+    // floor(100*0.7)=70, so maxTop/step is in the millions).
+    items.innerHTML = '<div data-index="0"><div data-testid="user-message"><p>Turn 0</p></div></div>';
+    let scrollTop = 0;
+    Object.defineProperty(scroller, 'scrollHeight', { get: () => 100_000_000 });
+    Object.defineProperty(scroller, 'clientHeight', { get: () => 100 });
+    Object.defineProperty(scroller, 'scrollTop',    { get: () => scrollTop, set: v => { scrollTop = v; } });
+    scroller.scrollTo = (opts) => { scrollTop = (opts && typeof opts === 'object') ? opts.top : opts; };
+
+    const s = dom.window.document.createElement('script');
+    s.textContent = CONTENT_JS;
+    dom.window.document.body.appendChild(s);
+    await new Promise(r => setTimeout(r, 50));
+    const extractClaudeFull = dom.window.__inkpourExtractClaudeFull;
+
+    await extractClaudeFull();
+
+    await test('warns that the sweep ended before reaching the bottom', () => {
+      assert(warnings.some(w => w.includes('before reaching the bottom')), `expected a "before reaching the bottom" warning, got: ${JSON.stringify(warnings)}`);
+    });
+  });
+
   await suite('findGoogleShareUrl — passive capture of Google\'s native Share link', async () => {
     async function loadWithBody(bodyHtml, hostname) {
       const dom = new JSDOM(`<!DOCTYPE html><body>${bodyHtml}</body>`, { url: `https://${hostname}/`, runScripts: 'dangerously' });
