@@ -137,11 +137,14 @@
     if (['script', 'style', 'svg', 'nav', 'header', 'footer'].includes(tag)) {
       return '';
     }
-    // <button> is dropped like the tags above, EXCEPT for NotebookLM's
-    // citation-marker buttons (`<button class="citation-marker">N</button>`,
-    // no href/URL available) — those are citations, not UI chrome, so they
-    // go through the shared citation path below instead of being discarded.
-    if (tag === 'button' && !/citation-marker/.test(node.className || '')) {
+    // <button> is dropped like the tags above, EXCEPT for citation buttons
+    // with no real href that platforms route through a click/data-attribute
+    // instead of an <a> — NotebookLM's citation-marker buttons, and ChatGPT's
+    // web-search source-group buttons (`data-assistant-sources-trigger`,
+    // issue #5) — those are citations, not UI chrome, so they go through the
+    // shared citation path below instead of being discarded.
+    if (tag === 'button' && !/citation-marker/.test(node.className || '') &&
+        !node.hasAttribute('data-assistant-sources-trigger')) {
       return '';
     }
 
@@ -212,6 +215,29 @@
       }
 
       case 'button': {
+        // ChatGPT web-search source-group button (issue #5): groups one or
+        // more cited sources behind a single pill (e.g. "DOI, 2 sources").
+        // Unlike Gemini's <source-inline-chip> (no href anywhere, needs a
+        // hover simulation to reveal the real URL — see
+        // resolveGeminiSourceChips()), ChatGPT bakes the title/url/attribution
+        // for every grouped source directly into a JSON-encoded
+        // data-assistant-sources-payload attribute — synchronous, no DOM
+        // interaction needed. Emits one [^N] per source in the group.
+        if (node.hasAttribute('data-assistant-sources-trigger')) {
+          const raw = node.getAttribute('data-assistant-sources-payload');
+          if (raw) {
+            try {
+              const sources = JSON.parse(raw);
+              if (Array.isArray(sources) && sources.length) {
+                return sources
+                  .filter(s => s && typeof s.url === 'string' && s.url)
+                  .map(s => registerCitation(s.url))
+                  .join('');
+              }
+            } catch (_) { /* malformed payload — fall through to dropping the button */ }
+          }
+          return '';
+        }
         // NotebookLM citation-marker button — see the tag-filter note above.
         // The button's own text is already the 1-based source number.
         const numText = node.textContent.trim();

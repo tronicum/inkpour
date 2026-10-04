@@ -786,6 +786,73 @@ async function main() {
     });
   });
 
+  // ── ChatGPT web-search source-group buttons (issue #5) ─────────────────────
+  // ChatGPT groups one or more cited sources behind a single pill button
+  // (e.g. "DOI, 2 sources") with no real <a href> anywhere — the markup is a
+  // <span data-assistant-reference-title> label inside a
+  // <button data-assistant-sources-trigger data-assistant-sources-payload="[...]">,
+  // the JSON payload carrying {title, url, ...} per grouped source. Sample
+  // markup from a real ChatGPT response, provided on the issue. Unlike
+  // Gemini's <source-inline-chip> (resolveGeminiSourceChips(), needs a hover
+  // simulation since it has no href anywhere), the URL here is static JSON
+  // already in the DOM — no hover/click needed.
+  await suite('ChatGPT source-group buttons → [^N] footnotes (issue #5)', async () => {
+    const PAYLOAD = JSON.stringify([
+      { title: 'Assessing the impact of LEGO construction training — Wiley', url: 'https://doi.org/10.1111/desc.13432?utm_source=chatgpt.com', sourceIndex: 0, attribution: 'DOI', publishedAt: 1688515200 },
+      { title: 'Assessing the impact of LEGO construction training.', url: 'https://pubmed.ncbi.nlm.nih.gov/37408286/?utm_source=chatgpt.com', sourceIndex: 1, isSupporting: true, attribution: 'PubMed', publishedAt: 1688515200 },
+    ]).replace(/"/g, '&quot;');
+
+    const dom = new JSDOM(`<!DOCTYPE html><body>
+      <div id="test">
+        <p>LEGO construction training improves spatial skills
+          <span aria-label="Sources" role="group">
+            <span><button aria-haspopup="dialog" aria-label="DOI, 2 sources"
+                data-assistant-sources-trigger="" data-assistant-sources-payload="${PAYLOAD}" type="button">
+              <span data-assistant-reference-title="">DOI</span><span data-assistant-supporting-count="">+1</span>
+            </button></span>
+          </span>.
+        </p>
+      </div>
+    </body>`, { url: 'https://chatgpt.com/', runScripts: 'dangerously' });
+    dom.window.__inkpourTestHostname = 'chatgpt.com';
+    const ls = [];
+    dom.window.browser = { runtime: { onMessage: { addListener: fn => ls.push(fn) }, id: 't' }, i18n: mockI18n() };
+    dom.window.chrome  = dom.window.browser;
+    dom.window.HTMLElement.prototype.scrollTo = function () {};
+    dom.window.document.documentElement.scrollTo = function () {};
+    const s = dom.window.document.createElement('script');
+    s.textContent = CONTENT_JS;
+    dom.window.document.body.appendChild(s);
+    await new Promise(r => setTimeout(r, 50));
+    const htmlToMarkdown = dom.window.__inkpourHtmlToMarkdown;
+    const md = htmlToMarkdown(dom.window.document.getElementById('test'));
+
+    await test('emits one [^N] per grouped source, not just the visible label text', () => {
+      assert(md.includes('[^1]') && md.includes('[^2]'), `expected both [^1] and [^2] in: ${md}`);
+      assert(!md.includes('DOI, 2 sources'), `the button's own UI text ("DOI, 2 sources") must not leak into the Markdown body: ${md}`);
+    });
+    await test('Sources block carries both real URLs from the JSON payload', () => {
+      assert(md.includes('https://doi.org/10.1111/desc.13432?utm_source=chatgpt.com'), `missing DOI url: ${md}`);
+      assert(md.includes('https://pubmed.ncbi.nlm.nih.gov/37408286/?utm_source=chatgpt.com'), `missing PubMed url: ${md}`);
+    });
+    await test('a malformed/unparseable payload degrades to dropping the button, not throwing', () => {
+      const dom2 = new JSDOM(`<!DOCTYPE html><body>
+        <div id="d"><p>Text<button data-assistant-sources-trigger="" data-assistant-sources-payload="not json"><span>X</span></button> after.</p></div>
+      </body>`, { url: 'https://chatgpt.com/', runScripts: 'dangerously' });
+      dom2.window.__inkpourTestHostname = 'chatgpt.com';
+      const ls2 = [];
+      dom2.window.browser = { runtime: { onMessage: { addListener: fn => ls2.push(fn) }, id: 't' }, i18n: mockI18n() };
+      dom2.window.chrome  = dom2.window.browser;
+      dom2.window.HTMLElement.prototype.scrollTo = function () {};
+      const s2 = dom2.window.document.createElement('script');
+      s2.textContent = CONTENT_JS;
+      dom2.window.document.body.appendChild(s2);
+      const md2 = dom2.window.__inkpourHtmlToMarkdown(dom2.window.document.getElementById('d'));
+      assert(md2.includes('Text') && md2.includes('after'), `expected surrounding text to survive: ${md2}`);
+      assert(!md2.includes('[^'), `a malformed payload must not produce a footnote: ${md2}`);
+    });
+  });
+
   // ── <details> / thinking blocks + math + {time} token ────────────────────
   await suite('htmlToMarkdown — details/math/figure unit tests', async () => {
     // Shared JSDOM with test hook

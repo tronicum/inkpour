@@ -14,6 +14,13 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+### Fixed
+- ChatGPT's web-search citation pills (e.g. "DOI, 2 sources") are no longer
+  dropped from exports. They're a button with no real link, not the `<a>`
+  footnote markers other citation styles use — now resolved from the
+  structured source data ChatGPT already embeds on the button itself, into
+  the same `[^N]` footnote format every other platform's citations use.
+
 ## [0.4.34.0] - 2026-10-04
 
 ### Added
