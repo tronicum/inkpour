@@ -28,6 +28,12 @@ const SYNCABLE_SETTING_KEYS = [
   'webhookIncludeContent',
   'debugMode',
   'debugAttachGist',
+  // Deliberately NOT synced: 'localArchive'. The IndexedDB archive it
+  // controls is inherently per-device/per-browser-profile, and its cost is
+  // per-device too (disk space) — turning it off on one machine (say, a
+  // low-disk laptop) must not silently stop archiving on every other
+  // machine. Machine-specific storage mechanics stay local, like the vault
+  // handle and file paths above.
 ];
 
 /**

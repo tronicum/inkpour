@@ -693,6 +693,12 @@
   "settingsShowFabDesc": {
     "message": "A small \"ip\" button on every supported chat page for quick export without opening the popup. On by default; turn it off if you find it distracting."
   },
+  "settingsLocalArchiveLabel": {
+    "message": "Keep a full local export archive"
+  },
+  "settingsLocalArchiveDesc": {
+    "message": "Keep a copy of every export on this computer (IndexedDB), searchable from the History page — not just the last 20. On by default; grows with use, so the History page has a \"Clear archive\" button. Per-device: the archive itself never syncs or leaves your machine."
+  },
   "settingsWebhookUrlLabel": {
     "message": "Webhook URL"
   },
@@ -717,6 +723,9 @@
   "historyHeaderSubtitle": {
     "message": "최근 20개의 내보내기 — 로컬에 저장되며 업로드되지 않습니다"
   },
+  "historyHeaderSubtitleArchive": {
+    "message": "All exports — stored locally, never uploaded"
+  },
   "historySearchPlaceholder": {
     "message": "제목, 플랫폼 또는 대화 내용 검색…"
   },
@@ -728,6 +737,9 @@
   },
   "historyClearStarred": {
     "message": "★ 지우기"
+  },
+  "historyClearArchive": {
+    "message": "Clear archive"
   },
   "historyClearRecentTitle": {
     "message": "최근 기록 지우기 (즐겨찾기한 내보내기는 유지됩니다)"
@@ -764,6 +776,9 @@
   },
   "historySectionRecent": {
     "message": "최근"
+  },
+  "historySectionArchive": {
+    "message": "Archive"
   },
   "historyStarPin": {
     "message": "즐겨찾기에 고정"
@@ -868,6 +883,9 @@
   },
   "historyConfirmClearStarred": {
     "message": "즐겨찾기한 모든 내보내기를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+  },
+  "historyConfirmClearArchive": {
+    "message": "Delete the entire local export archive? Recent and starred exports are kept. This cannot be undone."
   },
   "printLoading": {
     "message": "대화를 불러오는 중…"

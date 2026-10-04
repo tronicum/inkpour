@@ -693,6 +693,12 @@
   "settingsShowFabDesc": {
     "message": "A small \"ip\" button on every supported chat page for quick export without opening the popup. On by default; turn it off if you find it distracting."
   },
+  "settingsLocalArchiveLabel": {
+    "message": "Keep a full local export archive"
+  },
+  "settingsLocalArchiveDesc": {
+    "message": "Keep a copy of every export on this computer (IndexedDB), searchable from the History page — not just the last 20. On by default; grows with use, so the History page has a \"Clear archive\" button. Per-device: the archive itself never syncs or leaves your machine."
+  },
   "settingsWebhookUrlLabel": {
     "message": "Webhook-URL"
   },
@@ -717,6 +723,9 @@
   "historyHeaderSubtitle": {
     "message": "Laatste 20 exports — lokaal opgeslagen, nooit geüpload"
   },
+  "historyHeaderSubtitleArchive": {
+    "message": "All exports — stored locally, never uploaded"
+  },
   "historySearchPlaceholder": {
     "message": "Zoek op titel, platform of gespreksinhoud…"
   },
@@ -728,6 +737,9 @@
   },
   "historyClearStarred": {
     "message": "★ wissen"
+  },
+  "historyClearArchive": {
+    "message": "Clear archive"
   },
   "historyClearRecentTitle": {
     "message": "Recente geschiedenis wissen (met ster gemarkeerde exports blijven behouden)"
@@ -764,6 +776,9 @@
   },
   "historySectionRecent": {
     "message": "Recent"
+  },
+  "historySectionArchive": {
+    "message": "Archive"
   },
   "historyStarPin": {
     "message": "Vastzetten als favoriet"
@@ -868,6 +883,9 @@
   },
   "historyConfirmClearStarred": {
     "message": "Alle met ster gemarkeerde exports verwijderen? Dit kan niet ongedaan worden gemaakt."
+  },
+  "historyConfirmClearArchive": {
+    "message": "Delete the entire local export archive? Recent and starred exports are kept. This cannot be undone."
   },
   "printLoading": {
     "message": "Gesprek wordt geladen…"

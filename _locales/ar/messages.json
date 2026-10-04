@@ -693,6 +693,12 @@
   "settingsShowFabDesc": {
     "message": "A small \"ip\" button on every supported chat page for quick export without opening the popup. On by default; turn it off if you find it distracting."
   },
+  "settingsLocalArchiveLabel": {
+    "message": "Keep a full local export archive"
+  },
+  "settingsLocalArchiveDesc": {
+    "message": "Keep a copy of every export on this computer (IndexedDB), searchable from the History page — not just the last 20. On by default; grows with use, so the History page has a \"Clear archive\" button. Per-device: the archive itself never syncs or leaves your machine."
+  },
   "settingsWebhookUrlLabel": {
     "message": "رابط Webhook"
   },
@@ -717,6 +723,9 @@
   "historyHeaderSubtitle": {
     "message": "آخر 20 عملية تصدير — تُخزَّن محليًا ولا تُرفع أبدًا"
   },
+  "historyHeaderSubtitleArchive": {
+    "message": "All exports — stored locally, never uploaded"
+  },
   "historySearchPlaceholder": {
     "message": "ابحث في العنوان أو المنصة أو محتوى المحادثة…"
   },
@@ -728,6 +737,9 @@
   },
   "historyClearStarred": {
     "message": "مسح ★"
+  },
+  "historyClearArchive": {
+    "message": "Clear archive"
   },
   "historyClearRecentTitle": {
     "message": "مسح السجل الأخير (يتم الاحتفاظ بالعناصر المميزة بنجمة)"
@@ -764,6 +776,9 @@
   },
   "historySectionRecent": {
     "message": "الأخيرة"
+  },
+  "historySectionArchive": {
+    "message": "Archive"
   },
   "historyStarPin": {
     "message": "تمييز بنجمة"
@@ -868,6 +883,9 @@
   },
   "historyConfirmClearStarred": {
     "message": "هل تريد إزالة جميع العناصر المميزة بنجمة؟ لا يمكن التراجع عن هذا الإجراء."
+  },
+  "historyConfirmClearArchive": {
+    "message": "Delete the entire local export archive? Recent and starred exports are kept. This cannot be undone."
   },
   "printLoading": {
     "message": "جارٍ تحميل المحادثة…"

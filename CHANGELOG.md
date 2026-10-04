@@ -15,6 +15,13 @@ new section here in the same commit as the version bump.
 ## [Unreleased]
 
 ### Added
+- Full local export archive (on by default, new "Keep a full local export
+  archive" setting): every export is now also kept, full content included, in
+  an uncapped local archive on your computer — nothing ages out after 20
+  exports anymore. The History page shows and searches the whole archive
+  (older entries appear under a new "Archive" section) and has a "Clear
+  archive" button to reclaim disk space. The archive never leaves your
+  machine. The existing last-20 quick list is unchanged.
 - Exports from Gemini and Google AI Mode now include a `share_url` YAML
   frontmatter field when Google's own native "Share" public link has already
   been generated on the page (e.g. you clicked Share yourself earlier).

@@ -336,6 +336,19 @@
 
     <div class="field">
       <div class="field-label">
+        <strong id="lbl-localArchive" data-i18n="settingsLocalArchiveLabel">Keep a full local export archive</strong>
+        <span id="desc-localArchive" data-i18n="settingsLocalArchiveDesc">Keep a copy of every export on this computer (IndexedDB), searchable from the History page — not just the last 20. On by default; grows with use, so the History page has a "Clear archive" button. Per-device: the archive itself never syncs or leaves your machine.</span>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="localArchive" role="switch"
+               aria-labelledby="lbl-localArchive"
+               aria-describedby="desc-localArchive" checked />
+        <div class="toggle-track"></div>
+      </label>
+    </div>
+
+    <div class="field">
+      <div class="field-label">
         <strong id="lbl-downloadSubfolder" data-i18n="settingsSubfolderLabel">Downloads subfolder</strong>
         <span id="desc-downloadSubfolder" data-i18n="settingsSubfolderDesc">Optional sub-path within your default downloads folder (e.g. <code>AI Chats</code>)</span>
       </div>
