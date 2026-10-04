@@ -1,6 +1,6 @@
 # Persona reviews
 
-Two ways to trigger one of these personas against a change. Both are proofs of concept.
+Three ways to trigger one of these personas against a change. All are proofs of concept.
 
 ## 1. Mention: `@claude review:<persona>`
 
@@ -44,6 +44,18 @@ The result appears in the workflow run's job summary, and as artifact `review-<p
 (`review.md` plus `review-meta.json`, kept 30 days). Useful for reviewing an arbitrary commit
 (not just an open PR) or for a deliberate, maintainer-only review pass — tag creation needs
 write access, so this path can't be triggered by an external commenter the way a PR mention can.
+
+## 3. Mention Copilot: `@copilot review:<persona>`
+
+Comment on a pull request:
+
+    @copilot review:security
+
+GitHub Copilot (the cloud agent) picks this up and reviews the PR as that persona, replying on the
+thread. No workflow or secret is involved: `.github/copilot-instructions.md` tells Copilot to read
+`_common.md` plus the persona file and answer in the same format. Use it to route some reviews to
+Copilot instead of Claude (e.g. when Claude quota is spent, or for a second opinion). Copilot's
+availability and permissions come from your GitHub Copilot settings, not from `claude.yml`.
 
 ## Personas
 
