@@ -2474,7 +2474,7 @@
     // the default 20px offset sits the two controls right on top of each
     // other (issue #11). Give this site extra bottom clearance so they don't
     // visually collide; every other supported site keeps the default offset.
-    const bottomOffset = site === 'googlesearch' ? '90px' : '20px';
+    const bottomOffset = (site === 'googlesearch' || site === 'gemini') ? '90px' : '20px';
     root.style.cssText = [
       'position:fixed',
       `bottom:${bottomOffset}`,
@@ -2667,7 +2667,8 @@
           downloadInPage(md, `${filename}.md`, 'text/markdown;charset=utf-8');
           setStatus(api.i18n.getMessage('contentStatusSaved'), 'ok');
         } else {
-          await navigator.clipboard.writeText(md);
+          try { await navigator.clipboard.writeText(md); }
+          catch (e) { if (!fallbackCopyToClipboard(md)) throw e; }
           setStatus(api.i18n.getMessage('contentStatusCopied'), 'ok');
         }
       } catch (err) {
@@ -3535,6 +3536,7 @@
 
     if (msg.action === 'copyToClipboard') {
       navigator.clipboard.writeText(msg.text)
+        .catch(err => { if (!fallbackCopyToClipboard(msg.text)) throw err; })
         .then(() => sendResponse({ ok: true }))
         .catch(err => sendResponse({ error: err.message }));
       return true; // async
