@@ -19,7 +19,7 @@
     {
       "name": "Google Gemini",
       "id": "gemini",
-      "hosts": ["gemini.google.com"],
+      "hosts": ["gemini.google.com", "share.gemini.google"],
       "status": "full",
       "notes": "Auto-scroll"
     },

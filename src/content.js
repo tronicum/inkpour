@@ -501,7 +501,7 @@
     if (host.includes('copilot.microsoft.com') ||
         host.includes('www.copilot.com') ||
         host.includes('copilot.com'))                                       return 'copilot';
-    if (host.includes('gemini.google.com'))                                 return 'gemini';
+    if (host.includes('gemini.google.com') || host === 'share.gemini.google')                                return 'gemini';
     if (host.includes('aistudio.google.com'))                               return 'aistudio';
     if ((host === 'www.google.com' || host === 'google.com') &&
         location.pathname === '/search')                                     return 'googlesearch';
