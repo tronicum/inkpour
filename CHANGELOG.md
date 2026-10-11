@@ -14,6 +14,8 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+## [0.4.35.0] - 2026-10-11
+
 ### Added
 - Debug mode gains a **Background health** check: tells you on the spot
   whether Inkpour's background script is running in your browser, when it
