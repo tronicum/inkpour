@@ -1117,6 +1117,18 @@
   "popupStatusDomCopied": {
     "message": "✓ Felsökningsinfo kopierad till urklipp"
   },
+  "popupBtnBgHealth": {
+    "message": "Bakgrundsstatus"
+  },
+  "popupBgHealthBtnTitle": {
+    "message": "Kontrollera om bakgrundsskriptet körs i den här webbläsaren (inget chattinnehåll ingår)"
+  },
+  "popupStatusBgHealthOk": {
+    "message": "Bakgrundsskriptet körs – detaljer kopierade"
+  },
+  "popupStatusBgHealthDown": {
+    "message": "Bakgrundsskriptet körs inte i den här webbläsaren"
+  },
   "popupReportBugBtnTitle": {
     "message": "Rapportera en bugg på GitHub (utan chattinnehåll)"
   },

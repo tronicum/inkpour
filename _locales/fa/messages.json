@@ -1117,6 +1117,18 @@
   "popupStatusDomCopied": {
     "message": "✓ اطلاعات اشکال‌زدایی در کلیپ‌بورد کپی شد"
   },
+  "popupBtnBgHealth": {
+    "message": "وضعیت اسکریپت پس‌زمینه"
+  },
+  "popupBgHealthBtnTitle": {
+    "message": "بررسی اینکه آیا اسکریپت پس‌زمینه در این مرورگر اجرا می‌شود (بدون محتوای گفت‌وگو)"
+  },
+  "popupStatusBgHealthOk": {
+    "message": "اسکریپت پس‌زمینه در حال اجراست — جزئیات کپی شد"
+  },
+  "popupStatusBgHealthDown": {
+    "message": "اسکریپت پس‌زمینه در این مرورگر اجرا نمی‌شود"
+  },
   "popupReportBugBtnTitle": {
     "message": "گزارش اشکال در گیت‌هاب (بدون محتوای گفتگو)"
   },

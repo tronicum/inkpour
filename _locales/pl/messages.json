@@ -1117,6 +1117,18 @@
   "popupStatusDomCopied": {
     "message": "✓ Informacje debugowania skopiowane do schowka"
   },
+  "popupBtnBgHealth": {
+    "message": "Stan skryptu w tle"
+  },
+  "popupBgHealthBtnTitle": {
+    "message": "Sprawdź, czy skrypt działający w tle jest uruchomiony w tej przeglądarce (bez treści czatu)"
+  },
+  "popupStatusBgHealthOk": {
+    "message": "Skrypt w tle działa — szczegóły skopiowane"
+  },
+  "popupStatusBgHealthDown": {
+    "message": "Skrypt w tle nie działa w tej przeglądarce"
+  },
   "popupReportBugBtnTitle": {
     "message": "Zgłoś błąd na GitHub (bez treści czatu)"
   },

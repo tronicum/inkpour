@@ -1117,6 +1117,18 @@
   "popupStatusDomCopied": {
     "message": "✓ Info de depuración copiada al portapapeles"
   },
+  "popupBtnBgHealth": {
+    "message": "Estado del segundo plano"
+  },
+  "popupBgHealthBtnTitle": {
+    "message": "Comprobar si el script en segundo plano se está ejecutando en este navegador (sin contenido del chat)"
+  },
+  "popupStatusBgHealthOk": {
+    "message": "El script en segundo plano se está ejecutando: detalles copiados"
+  },
+  "popupStatusBgHealthDown": {
+    "message": "El script en segundo plano no se está ejecutando en este navegador"
+  },
   "popupReportBugBtnTitle": {
     "message": "Informar de un error en GitHub (sin contenido del chat)"
   },

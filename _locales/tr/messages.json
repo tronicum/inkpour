@@ -1117,6 +1117,18 @@
   "popupStatusDomCopied": {
     "message": "✓ Hata ayıklama bilgisi panoya kopyalandı"
   },
+  "popupBtnBgHealth": {
+    "message": "Arka plan durumu"
+  },
+  "popupBgHealthBtnTitle": {
+    "message": "Arka plan betiğinin bu tarayıcıda çalışıp çalışmadığını denetle (sohbet içeriği eklenmez)"
+  },
+  "popupStatusBgHealthOk": {
+    "message": "Arka plan betiği çalışıyor — ayrıntılar kopyalandı"
+  },
+  "popupStatusBgHealthDown": {
+    "message": "Arka plan betiği bu tarayıcıda çalışmıyor"
+  },
   "popupReportBugBtnTitle": {
     "message": "GitHub'da hata bildir (sohbet içeriği olmadan)"
   },

@@ -1117,6 +1117,18 @@
   "popupStatusDomCopied": {
     "message": "✓ تم نسخ معلومات التصحيح إلى الحافظة"
   },
+  "popupBtnBgHealth": {
+    "message": "حالة النص البرمجي الخلفي"
+  },
+  "popupBgHealthBtnTitle": {
+    "message": "التحقق مما إذا كان النص البرمجي الخلفي يعمل في هذا المتصفح (دون تضمين محتوى المحادثة)"
+  },
+  "popupStatusBgHealthOk": {
+    "message": "النص البرمجي الخلفي يعمل — تم نسخ التفاصيل"
+  },
+  "popupStatusBgHealthDown": {
+    "message": "النص البرمجي الخلفي لا يعمل في هذا المتصفح"
+  },
   "popupReportBugBtnTitle": {
     "message": "الإبلاغ عن خطأ على GitHub (بدون محتوى المحادثة)"
   },

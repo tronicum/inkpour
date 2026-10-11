@@ -1117,6 +1117,18 @@
   "popupStatusDomCopied": {
     "message": "✓ Info di debug copiate negli appunti"
   },
+  "popupBtnBgHealth": {
+    "message": "Stato dello script in background"
+  },
+  "popupBgHealthBtnTitle": {
+    "message": "Verifica se lo script in background è in esecuzione in questo browser (nessun contenuto della chat incluso)"
+  },
+  "popupStatusBgHealthOk": {
+    "message": "Lo script in background è in esecuzione — dettagli copiati"
+  },
+  "popupStatusBgHealthDown": {
+    "message": "Lo script in background non è in esecuzione in questo browser"
+  },
   "popupReportBugBtnTitle": {
     "message": "Segnala un bug su GitHub (senza contenuto della chat)"
   },

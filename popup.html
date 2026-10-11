@@ -854,8 +854,21 @@
            which DOM elements ended up wrapping it. See src/content.js's
            startGoogleAiModeProbe for why. -->
       <button class="footer-link" id="probeAiModeBtn" data-i18n="popupBtnProbeAiMode" data-i18n-title="popupProbeAiModeBtnTitle" title="Fill a test prompt into Google AI Mode to diagnose why extraction isn't finding messages (Google AI Mode only)">Probe AI Mode</button>
+      <!-- Background health: renders the readout INLINE (see #bgHealthPanel
+           below) rather than only copying it to the clipboard, because the
+           browser this exists for most — Orion on iOS, where the background
+           context is reported not to run at all — is also the one where
+           attaching a remote inspector means owning and cabling a Mac. The
+           whole point is a diagnosis you can read on the phone itself. -->
+      <button class="footer-link" id="bgHealthBtn" data-i18n="popupBtnBgHealth" data-i18n-title="popupBgHealthBtnTitle" title="Check whether the background script is running on this browser (no chat content included)">Background health</button>
     </span>
   </div>
+
+  <!-- Populated and un-hidden by showBackgroundHealth() in popup.js. Plain
+       monospace diagnostic text, deliberately untranslated for the same
+       reason the "Copy debug info" report body is: it is API names,
+       timestamps and raw error strings meant to be pasted into an issue. -->
+  <pre id="bgHealthPanel" hidden style="display:none;margin:8px 0 0;padding:8px;font-size:10px;line-height:1.45;white-space:pre-wrap;word-break:break-word;max-height:180px;overflow:auto;background:var(--code-bg,rgba(127,127,127,0.12));border-radius:6px;color:var(--subtext);"></pre>
 
   <!-- Update notice: hidden unless a newer version than this install is
        found on GitHub Releases (see checkForUpdate() in popup.js). Stays

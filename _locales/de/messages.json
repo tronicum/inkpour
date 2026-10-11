@@ -1117,6 +1117,18 @@
   "popupStatusDomCopied": {
     "message": "✓ Debug-Infos in die Zwischenablage kopiert"
   },
+  "popupBtnBgHealth": {
+    "message": "Hintergrund-Status"
+  },
+  "popupBgHealthBtnTitle": {
+    "message": "Prüfen, ob das Hintergrundskript in diesem Browser läuft (ohne Chat-Inhalte)"
+  },
+  "popupStatusBgHealthOk": {
+    "message": "Hintergrundskript läuft — Details kopiert"
+  },
+  "popupStatusBgHealthDown": {
+    "message": "Hintergrundskript läuft in diesem Browser nicht"
+  },
   "popupReportBugBtnTitle": {
     "message": "Einen Fehler auf GitHub melden (ohne Chat-Inhalte)"
   },

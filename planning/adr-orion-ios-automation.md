@@ -4,6 +4,7 @@
 - **Date:** 2026-09-14
 - **Deciders:** Inkpour maintainers
 - **Related:** `playwright.config.js` (comments on why Orion/macOS has no Playwright project), `test/helpers/extension.js` (Chromium-only fixture), `planning/TODOs.md` → Batch 15 (Orion macOS documented as manual-test-only), `DEVELOPING.md` → Orion notes
+- **See also:** the [2026-10 addendum](#addendum-2026-10-why-the-background-script-does-nothing-on-orion-ios) at the end of this file — it answers the "does Inkpour actually run on Orion iOS at all?" question this ADR's verification checklist parks, and supersedes the "unverified" hedge in Context below for the background-script half of it.
 
 ## Context
 
@@ -191,3 +192,162 @@ If unblocked:
 - [Orion Browser TestFlight beta](https://testflight.apple.com/join/Ezjp0k4z)
 - [Appium XCUITest driver](https://github.com/appium/appium-xcuitest-driver)
 - [Appium XCUITest docs — simulator app capability](https://appium.readthedocs.io/en/latest/en/drivers/ios-xcuitest/)
+
+---
+
+# Addendum (2026-10): why the background script does nothing on Orion iOS
+
+- **Status:** Accepted — root cause identified and fixed; residual iOS API
+  gaps remain unverified (see "What is still unknown" below)
+- **Date:** 2026-10-11
+- **Related:** `manifest.json` → `background`, `background.js` → the
+  `typeof importScripts` guard and the "Background health beacon" block,
+  `popup.js` → `getBackgroundHealth()`/`formatBackgroundHealth()`,
+  `popup.html` → `#bgHealthBtn`/`#bgHealthPanel`
+
+This addendum lives in the same file as the automation ADR above rather than
+in its own, because it answers the question that ADR's verification checklist
+already parked ("Confirm Inkpour actually installs and runs in Orion iOS") and
+because splitting Orion-iOS findings across files helps nobody.
+
+## Context
+
+A maintainer reported from hands-on use on a real iPhone that Inkpour's
+background script "does not work" in Orion for iOS. That is a complete
+failure, not a degraded one — not "context menus are missing", but nothing
+background-side running at all.
+
+## The root cause (documented, not inferred)
+
+Two facts combine:
+
+1. **Orion always prefers `background.scripts` over
+   `background.service_worker`** when a manifest declares both. This is
+   documented as a bug on Kagi's own tracker — orionfeedback.org #13760,
+   *"Incorrect background environment preference in extensions"*, filed with a
+   reproducible demo extension: *"When extensions declare both
+   `background.scripts` and `background.service_worker`, Orion always favors
+   `background.scripts`, even tho chrome extensions are supposed to favor
+   `background.service_worker`."* (Filed against Orion macOS 1.0.6/WebKit
+   624.1.7, and the same engine-level WebExtensions port backs iOS.)
+   Corroborating signal from Kagi's own iOS release notes: Orion 1.3.0 lists
+   *"Essential Browser/Chrome variable not given in background and option
+   pages"* — i.e. Orion iOS runs background **pages**.
+2. **`importScripts()` does not exist in a background page.** It is a
+   `WorkerGlobalScope` API. Firefox MV3 and Orion both run the background
+   entry point as a non-persistent event/background page, where it is simply
+   undefined.
+
+`manifest.json` declared both keys, and `background.js` opened with two
+unguarded `importScripts()` calls on lines 7 and 9. So on Orion, Orion iOS
+**and Firefox**, the very first statement of the file threw a `ReferenceError`
+and the entire script aborted before a single listener was registered. Every
+background-owned feature — `commands` shortcuts, `contextMenus`, the in-page
+FAB's PDF/ZIP/DOCX/HTML exports, batch export, the toolbar icon state, the
+"What's new" panel — is dead as a consequence, with no visible error anywhere
+a user could reach.
+
+**This is a cross-browser bug, not an Orion-specific one.** The Orion report
+is what surfaced it; Firefox was affected by exactly the same mechanism.
+
+## Decision
+
+1. **Make `background.js` environment-portable rather than worker-only.**
+   Guard the `importScripts()` calls with
+   `if (typeof importScripts === 'function')`, and have `manifest.json` load
+   the same two modules via `background.scripts: ["src/utils.js",
+   "src/redact.js", "background.js"]` for the background-page browsers. Both
+   keys stay — Chrome/Edge keep using `service_worker`, everything else gets a
+   working background page. No build-time manifest rewriting, no bundler.
+2. **Feature-detect the APIs that plausibly are not in Orion's ~70% port,
+   instead of letting a missing one take the file down with it.**
+   `api.commands.onCommand` was registered at top level; on a browser without
+   `chrome.commands` (entirely plausible on a touch-only iOS browser) that
+   throws and silently deregisters every listener *below* it. Same for
+   `api.contextMenus.create` inside the `onInstalled` handler. Both are now
+   guarded and record the gap into the health beacon instead.
+3. **Answer "is the background script alive?" on the device itself.** See the
+   next section.
+
+### Should Inkpour's architecture work on Orion iOS?
+
+Yes, architecturally — with the above fixed. Inkpour is **not** a
+persistent-background extension. It has no long-lived connection, no
+`webRequest` filtering (the thing that reportedly keeps uBlock Origin from
+working on Orion iOS), no polling, no `alarms`. Every background entry point
+is event-driven and short-lived: a message arrives, work runs, done. That is
+the same shape as the extensions that are reported to work on Orion iOS and
+the opposite of the ones that are not.
+
+The feature that is genuinely background-dependent is **batch export**
+(`runBatchExport()`), which deliberately lives in the background context so it
+survives the popup closing while it drives background tabs one at a time. It
+needs the background context to stay alive for tens of seconds across
+`tabs.create`/`tabs.remove` cycles. That is the one responsibility that cannot
+be moved into the popup or a content script without redesigning it, and it is
+the one most exposed to aggressive suspension on iOS. Everything else
+(keyboard shortcuts, context menus, FAB exports) is a per-event wake-up and
+degrades gracefully to "that entry point is unavailable" if the API behind it
+is missing.
+
+## Making background health visible without a Mac
+
+Standard debugging is not a realistic instruction for an iPhone user: Safari
+Web Inspector requires a cabled Mac, inspects *Safari's* content, and reaching
+a third-party browser's web views needs the app to opt in. And in the failure
+mode above there is nothing running to attach to in the first place.
+
+So the background context reports its own vital signs into
+`chrome.storage.local` under `inkpour_bg_health`, and the popup's existing
+Debug mode tooling reads them back. Two deliberately independent signals,
+because the difference between them *is* the diagnosis:
+
+- **A stored beacon** — written on boot and on every handled event. Carries
+  `context` (`service_worker` vs `background_page` — the Orion tell),
+  `bootedAt`, `bootCount` (makes suspend/restart churn a number instead of a
+  hunch), `lastEvent`/`lastEventAt`, `lastError` (fed by `recordBgError()` plus
+  global `error`/`unhandledrejection` handlers), and `apiSupport`, a
+  presence-only probe of `commands`/`contextMenus`/`downloads`/`alarms`/
+  `action.setIcon`/`storage.session`/`tabs.*`. Storage is the only channel
+  that survives the context suspending, which live in-memory state cannot.
+- **A live `bgPing` round-trip** from the popup, raced against a 2s timeout
+  (some browsers leave `sendMessage()` pending forever with no listener rather
+  than rejecting).
+
+Crossing them yields three distinct verdicts, rendered in plain text into
+`#bgHealthPanel` in the popup — on screen, on the phone, no tooling:
+
+| ping | beacon | verdict |
+| --- | --- | --- |
+| replies | present | `RUNNING` — plus context, uptime, missing-API list |
+| fails | present | `NOT RESPONDING` — it ran before, unreachable now (suspension/wake bug) |
+| fails | absent | `NEVER STARTED` — this browser does not run the background script at all |
+
+The same block is folded into `buildDebugReport()`'s output, so "Copy debug
+info" and "Report bug" carry it automatically — "the background script never
+started" is invisible in a DOM/selector report but explains a whole class of
+symptoms. Like the rest of that report it is content-free: API names,
+timestamps and error strings only, never chat text.
+
+## What is still unknown (explicitly not claimed as verified)
+
+- Whether, with the fix applied, Orion iOS's background page actually **stays
+  alive long enough** for a multi-conversation batch export. Reported
+  second-hand that extensions relying on constant background work "behave
+  inconsistently once Orion gets backgrounded by iOS"; not measured here.
+- Whether `chrome.downloads` works on Orion iOS at all. `background.js`
+  already has a Safari fallback (`safeDownload()` → content-script
+  `<a download>`), which should cover it, but this is untested there.
+- Whether `contextMenus` and `commands` exist on Orion iOS. The new
+  `apiSupport` probe is precisely the instrument for answering this from a
+  real device — that is the next step, not a guess to make now.
+- Kagi publishes no per-API, per-platform support matrix; the "~70%" figure is
+  their own prose, not a checklist.
+
+## Sources (addendum)
+
+- [orionfeedback.org #13760 — Incorrect background environment preference in extensions](https://orionfeedback.org/d/13760-incorrect-background-environment-preference-in-extensions)
+- [W3C WebExtensions CG issue #282 — background environment preference](https://github.com/w3c/webextensions/issues/282)
+- [Orion iOS/iPadOS release notes](https://orionbrowser.com/updates/orion-iOS-release-notes) (1.3.0: "Essential Browser/Chrome variable not given in background and option pages")
+- [MDN — `background` manifest key](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/background) (Firefox MV3 uses event pages via `background.scripts`)
+- [Apple — Inspecting iOS and iPadOS](https://developer.apple.com/documentation/safari-developer-tools/inspecting-ios) (Web Inspector requires a connected Mac)

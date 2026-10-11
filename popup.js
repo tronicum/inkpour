@@ -26,6 +26,8 @@
   const debugDomBtn  = document.getElementById('debugDomBtn');
   const reportBugBtn = document.getElementById('reportBugBtn');
   const probeAiModeBtn = document.getElementById('probeAiModeBtn');
+  const bgHealthBtn    = document.getElementById('bgHealthBtn');
+  const bgHealthPanel  = document.getElementById('bgHealthPanel');
   const debugOptionsBtn = document.getElementById('debugOptionsBtn');
   const allBtn      = document.getElementById('allBtn');
   const exportSelectBtn    = document.getElementById('exportSelectBtn');
@@ -1441,8 +1443,114 @@
     const response = await api.tabs.sendMessage(tab.id, { action: 'debugDom' }).catch(() => null);
     if (!response) throw new Error(t('popupStatusRefreshTab'));
     if (response.error) throw new Error(response.error);
-    return response.report;
+    // Background health rides along with every debug report and bug report.
+    // "The background script never started" is invisible in a DOM/selector
+    // report but explains a whole class of symptoms (dead keyboard shortcuts,
+    // dead context menu, dead batch export), so it belongs in the first
+    // artefact anyone pastes into an issue, not behind a second button.
+    return { ...response.report, backgroundHealth: await getBackgroundHealth() };
   }
+
+  // ─── Background health ──────────────────────────────────────────────────
+  // See the matching "Background health beacon" block in background.js for
+  // why this exists and why it is two signals rather than one. Short version:
+  // on Orion (and Orion iOS especially) the background context may never run
+  // at all, and there is no console on the device to find that out from.
+  //
+  // `runtime.sendMessage()` is the live half. When no background context is
+  // listening, Chrome rejects with "Could not establish connection. Receiving
+  // end does not exist." and Firefox with a similar message — but some
+  // browsers instead leave the promise pending forever, hence the race with a
+  // timeout rather than a bare await.
+
+  const BG_PING_TIMEOUT_MS = 2000;
+
+  async function getBackgroundHealth() {
+    let ping = null, pingError = null;
+    try {
+      ping = await Promise.race([
+        api.runtime.sendMessage({ action: 'bgPing' }),
+        new Promise((_, rej) => setTimeout(
+          () => rej(new Error(`no reply within ${BG_PING_TIMEOUT_MS}ms`)), BG_PING_TIMEOUT_MS)),
+      ]);
+    } catch (err) {
+      pingError = err?.message || String(err);
+    }
+    // Other listeners in background.js return undefined for messages they
+    // don't handle, so an empty reply is not a healthy one.
+    if (!ping?.ok) { ping = null; pingError = pingError || 'background replied without {ok:true}'; }
+
+    let stored = null, storedError = null;
+    try {
+      stored = (await api.storage.local.get('inkpour_bg_health'))?.inkpour_bg_health ?? null;
+    } catch (err) {
+      storedError = err?.message || String(err);
+    }
+    return { alive: !!ping, ping, pingError, stored, storedError };
+  }
+
+  function formatBackgroundHealth(health) {
+    const lines = [];
+    const beacon = health.stored;
+
+    // The headline is the actual diagnosis, not a raw dump — the three cases
+    // below are genuinely different bugs and the distinction is the point.
+    if (health.alive) {
+      lines.push(`status: RUNNING (${health.ping.context}, up ${Math.round((health.ping.aliveForMs || 0) / 1000)}s)`);
+    } else if (beacon) {
+      lines.push('status: NOT RESPONDING — it started at least once before, but is not reachable now');
+      lines.push(`  ping: ${health.pingError}`);
+    } else {
+      lines.push('status: NEVER STARTED — no reply and no stored beacon; this browser');
+      lines.push('        appears not to run the extension background script at all');
+      lines.push(`  ping: ${health.pingError}`);
+    }
+
+    if (beacon) {
+      lines.push(`context: ${beacon.context || '?'}   boots: ${beacon.bootCount ?? '?'}   version: ${beacon.manifestVersion || '?'}`);
+      lines.push(`last boot: ${beacon.bootedAt || '?'}`);
+      lines.push(`last event: ${beacon.lastEvent || '(none recorded)'}${beacon.lastEventAt ? ' @ ' + beacon.lastEventAt : ''}`);
+      if (beacon.lastError) {
+        lines.push(`last error: [${beacon.lastError.where}] ${beacon.lastError.message} @ ${beacon.lastError.at}`);
+      } else {
+        lines.push('last error: (none)');
+      }
+      const support = beacon.apiSupport || (health.ping && health.ping.apiSupport);
+      if (support) {
+        const missing = Object.keys(support).filter(k => !support[k]);
+        lines.push(`APIs present: ${Object.keys(support).length - missing.length}/${Object.keys(support).length}`);
+        lines.push(`APIs missing: ${missing.length ? missing.join(', ') : '(none)'}`);
+      }
+    } else if (health.storedError) {
+      lines.push(`beacon read failed: ${health.storedError}`);
+    }
+    return lines.join('\n');
+  }
+
+  bgHealthBtn?.addEventListener('click', async () => {
+    clearStatus();
+    setLoading(bgHealthBtn, true);
+    try {
+      const health = await getBackgroundHealth();
+      if (bgHealthPanel) {
+        bgHealthPanel.textContent   = formatBackgroundHealth(health);
+        bgHealthPanel.hidden        = false;
+        bgHealthPanel.style.display = 'block';
+      }
+      // Clipboard too, so the same readout can go straight into an issue —
+      // but never as a substitute for showing it, since on the browser this
+      // was built for, clipboard access is itself something that may fail.
+      await navigator.clipboard.writeText(
+        '```\n' + formatBackgroundHealth(health) + '\n```'
+      ).catch(() => {});
+      setStatus(health.alive ? t('popupStatusBgHealthOk') : t('popupStatusBgHealthDown'),
+                health.alive ? 'success' : 'error');
+    } catch (err) {
+      setStatus(err.message, 'error');
+    } finally {
+      setLoading(bgHealthBtn, false);
+    }
+  });
 
   function formatDebugReportMarkdown(report) {
     const counts = Object.entries(report.selectorCounts)
@@ -1452,6 +1560,12 @@
       `**Platform detected:** ${report.detectedPlatform || '(none)'}`,
       `**URL:** ${report.url.hostname}${report.url.path}`,
       `**Timestamp:** ${report.timestamp}`,
+      '',
+      '**Background script**',
+      '',
+      '```',
+      report.backgroundHealth ? formatBackgroundHealth(report.backgroundHealth) : '(not collected)',
+      '```',
       '',
       '**Selector diagnostics**',
       '| selector | matches |',

@@ -1117,6 +1117,18 @@
   "popupStatusDomCopied": {
     "message": "✓ 调试信息已复制到剪贴板"
   },
+  "popupBtnBgHealth": {
+    "message": "后台脚本状态"
+  },
+  "popupBgHealthBtnTitle": {
+    "message": "检查后台脚本是否在此浏览器中运行（不含聊天内容）"
+  },
+  "popupStatusBgHealthOk": {
+    "message": "后台脚本正在运行 — 详情已复制"
+  },
+  "popupStatusBgHealthDown": {
+    "message": "后台脚本未在此浏览器中运行"
+  },
   "popupReportBugBtnTitle": {
     "message": "在 GitHub 上报告问题（不含聊天内容）"
   },

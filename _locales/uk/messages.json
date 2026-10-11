@@ -1117,6 +1117,18 @@
   "popupStatusDomCopied": {
     "message": "✓ Дані налагодження скопійовано в буфер обміну"
   },
+  "popupBtnBgHealth": {
+    "message": "Стан фонового скрипту"
+  },
+  "popupBgHealthBtnTitle": {
+    "message": "Перевірити, чи працює фоновий скрипт у цьому браузері (без вмісту чату)"
+  },
+  "popupStatusBgHealthOk": {
+    "message": "Фоновий скрипт працює — відомості скопійовано"
+  },
+  "popupStatusBgHealthDown": {
+    "message": "Фоновий скрипт не працює в цьому браузері"
+  },
   "popupReportBugBtnTitle": {
     "message": "Повідомити про помилку на GitHub (без вмісту чату)"
   },

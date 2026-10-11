@@ -1117,6 +1117,18 @@
   "popupStatusDomCopied": {
     "message": "✓ ডিবাগ তথ্য ক্লিপবোর্ডে কপি করা হয়েছে"
   },
+  "popupBtnBgHealth": {
+    "message": "ব্যাকগ্রাউন্ড অবস্থা"
+  },
+  "popupBgHealthBtnTitle": {
+    "message": "এই ব্রাউজারে ব্যাকগ্রাউন্ড স্ক্রিপ্ট চলছে কিনা পরীক্ষা করুন (চ্যাটের বিষয়বস্তু অন্তর্ভুক্ত নয়)"
+  },
+  "popupStatusBgHealthOk": {
+    "message": "ব্যাকগ্রাউন্ড স্ক্রিপ্ট চলছে — বিবরণ কপি করা হয়েছে"
+  },
+  "popupStatusBgHealthDown": {
+    "message": "এই ব্রাউজারে ব্যাকগ্রাউন্ড স্ক্রিপ্ট চলছে না"
+  },
   "popupReportBugBtnTitle": {
     "message": "GitHub-এ বাগ রিপোর্ট করুন (চ্যাট কনটেন্ট ছাড়া)"
   },

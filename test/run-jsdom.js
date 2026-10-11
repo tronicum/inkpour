@@ -3816,6 +3816,89 @@ No bullets here at all, just prose under the heading.
       "popup.js's probe handler should not be awaiting the long-running part of the probe");
   });
 
+  // ─── Background-context portability + health beacon ──────────────────────
+  // MV3's background entry point runs as a service worker in Chrome but as a
+  // background page in Firefox and Orion — and Orion prefers
+  // `background.scripts` even when `service_worker` is also declared
+  // (orionfeedback.org #13760), which is why background.js must not assume
+  // either environment. `importScripts` only exists in the worker one, so an
+  // unguarded call aborts the whole file on its first statement and silently
+  // deregisters every listener in it. Source-level checks, since background.js
+  // is not executed by this harness.
+  console.log('\nBackground-context portability + health beacon');
+
+  const BG_JS       = fs.readFileSync(path.resolve(__dirname, '../background.js'), 'utf8');
+  const BG_MANIFEST = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../manifest.json'), 'utf8'));
+
+  await test('manifest background.scripts loads utils + redact ahead of background.js (background-page browsers)', () => {
+    const scripts = BG_MANIFEST.background?.scripts;
+    assert(Array.isArray(scripts), 'manifest.json background.scripts must be an array');
+    assert(JSON.stringify(scripts) === JSON.stringify(['src/utils.js', 'src/redact.js', 'background.js']),
+      'background.scripts must list the shared modules before background.js, in importScripts() order — got ' + JSON.stringify(scripts));
+    assert(BG_MANIFEST.background?.service_worker === 'background.js',
+      'the service_worker entry must stay for Chrome/Edge');
+  });
+
+  await test('background.js never calls importScripts() unguarded', () => {
+    // Comment lines mention importScripts() by name on purpose (that is where
+    // the whole reasoning lives), so strip them before scanning for calls.
+    const code = BG_JS.split('\n').filter(l => !/^\s*(\/\/|\*|\/\*)/.test(l)).join('\n');
+    const calls = [...code.matchAll(/importScripts\s*\(/g)];
+    assert(calls.length > 0, 'expected background.js to still importScripts() on the service-worker path');
+    for (const m of calls) {
+      assert(/typeof\s+importScripts\s*===\s*'function'[\s\S]{0,200}$/.test(code.slice(0, m.index)),
+        "every importScripts() call must sit inside a `typeof importScripts === 'function'` guard — " +
+        'it is undefined in Firefox/Orion background pages and throws before any listener is registered');
+    }
+  });
+
+  await test('background.js guards optional APIs (commands, contextMenus) instead of throwing at top level', () => {
+    assert(/if\s*\(api\.commands\?\.onCommand\)/.test(BG_JS),
+      'api.commands.onCommand must be feature-detected — a missing commands API would kill every listener below it');
+    assert(/if\s*\(!api\.contextMenus\?\.create\)/.test(BG_JS),
+      'api.contextMenus.create must be feature-detected inside the onInstalled handler');
+  });
+
+  await test('background.js writes a health beacon to storage.local and answers a bgPing', () => {
+    assert(/BG_HEALTH_KEY\s*=\s*'inkpour_bg_health'/.test(BG_JS), 'expected the inkpour_bg_health storage key');
+    assert(/BG_CONTEXT\s*=\s*\(typeof importScripts === 'function'\)\s*\?\s*'service_worker'\s*:\s*'background_page'/.test(BG_JS),
+      'the beacon must record WHICH background environment actually ran — that is the Orion diagnosis');
+    assert(/action\s*!==\s*'bgPing'/.test(BG_JS), 'expected a bgPing liveness handler');
+    // The beacon is a diagnostic: it must never be able to break the thing it
+    // is diagnosing, so its storage writes stay inside a try/catch.
+    assert(/async function writeBgHealth[\s\S]{0,400}catch\s*\{/.test(BG_JS),
+      'writeBgHealth() must swallow storage failures');
+  });
+
+  await test('the beacon records lifecycle events for every background-only entry point', () => {
+    ['inPageExport:', 'startBatchExport', 'contextMenu:', 'command:'].forEach((evt) => {
+      assert(BG_JS.includes(`recordBgEvent('${evt}`),
+        `expected recordBgEvent() for ${evt} — "when did the background script last run" is the other half of the diagnosis`);
+    });
+  });
+
+  await test('popup pairs the stored beacon with a LIVE ping, and renders it on-screen, not only to the clipboard', () => {
+    assert(/action:\s*'bgPing'/.test(POPUP_JS), 'popup.js must send a live bgPing');
+    assert(/BG_PING_TIMEOUT_MS/.test(POPUP_JS),
+      'the ping must race a timeout — some browsers leave sendMessage() pending forever with no listener');
+    assert(/inkpour_bg_health/.test(POPUP_JS), 'popup.js must read the stored beacon back');
+    const panel = POPUP_DOM.getElementById('bgHealthPanel');
+    const btn   = POPUP_DOM.getElementById('bgHealthBtn');
+    assert(btn, '#bgHealthBtn missing from popup.html');
+    assert(panel, '#bgHealthPanel missing from popup.html');
+    assert(POPUP_DOM.getElementById('debug-group').contains(btn),
+      '#bgHealthBtn belongs in #debug-group with the other Debug-mode tools');
+    assert(/bgHealthPanel\.textContent\s*=/.test(POPUP_JS),
+      'the readout must be rendered into the popup — remote-inspecting a background context on iOS needs a cabled Mac');
+  });
+
+  await test('background health rides along with the standard debug/bug report', () => {
+    assert(/backgroundHealth:\s*await getBackgroundHealth\(\)/.test(POPUP_JS),
+      'getDebugReport() must attach backgroundHealth so "Report bug" carries it too');
+    assert(/\*\*Background script\*\*/.test(POPUP_JS),
+      'formatDebugReportMarkdown() must render a Background script section');
+  });
+
   // ─── Toolbar icon — bigger supported-site signal ─────────────────────────
   // The native OS badge corner is fixed-size by the browser and can't be
   // made bigger, so the "you can export this page" signal moved into the

@@ -14,7 +14,19 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+### Added
+- Debug mode gains a **Background health** check: tells you on the spot
+  whether Inkpour's background script is running in your browser, when it
+  last did anything, and which browser APIs it is missing. The result is
+  shown right in the popup (no developer tools or connected computer needed)
+  and is included automatically in "Copy debug info" and "Report bug".
+
 ### Fixed
+- Keyboard shortcuts, the right-click export menu, the in-page export button
+  and batch export now work in Firefox and in Orion (macOS and iOS). Those
+  browsers run the background script in a different environment than Chrome
+  does, and one line of Chrome-only setup code stopped the whole script from
+  starting there — so nothing outside the popup worked at all.
 - ChatGPT's web-search citation pills (e.g. "DOI, 2 sources") are no longer
   dropped from exports. They're a button with no real link, not the `<a>`
   footnote markers other citation styles use — now resolved from the

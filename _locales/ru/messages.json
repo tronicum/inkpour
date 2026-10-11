@@ -1117,6 +1117,18 @@
   "popupStatusDomCopied": {
     "message": "✓ Отладочная информация скопирована в буфer обмена"
   },
+  "popupBtnBgHealth": {
+    "message": "Состояние фонового скрипта"
+  },
+  "popupBgHealthBtnTitle": {
+    "message": "Проверить, работает ли фоновый скрипт в этом браузере (без содержимого чата)"
+  },
+  "popupStatusBgHealthOk": {
+    "message": "Фоновый скрипт работает — сведения скопированы"
+  },
+  "popupStatusBgHealthDown": {
+    "message": "Фоновый скрипт не работает в этом браузере"
+  },
   "popupReportBugBtnTitle": {
     "message": "Сообщить об ошибке на GitHub (без содержимого чата)"
   },

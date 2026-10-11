@@ -1117,6 +1117,18 @@
   "popupStatusDomCopied": {
     "message": "✓ डीबग जानकारी क्लिपबोर्ड पर कॉपी की गई"
   },
+  "popupBtnBgHealth": {
+    "message": "बैकग्राउंड स्थिति"
+  },
+  "popupBgHealthBtnTitle": {
+    "message": "जाँचें कि इस ब्राउज़र में बैकग्राउंड स्क्रिप्ट चल रही है या नहीं (चैट सामग्री शामिल नहीं)"
+  },
+  "popupStatusBgHealthOk": {
+    "message": "बैकग्राउंड स्क्रिप्ट चल रही है — विवरण कॉपी किया गया"
+  },
+  "popupStatusBgHealthDown": {
+    "message": "इस ब्राउज़र में बैकग्राउंड स्क्रिप्ट नहीं चल रही है"
+  },
   "popupReportBugBtnTitle": {
     "message": "GitHub पर बग रिपोर्ट करें (चैट सामग्री रहित)"
   },

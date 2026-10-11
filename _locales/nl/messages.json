@@ -1117,6 +1117,18 @@
   "popupStatusDomCopied": {
     "message": "✓ Debuginfo gekopieerd naar klembord"
   },
+  "popupBtnBgHealth": {
+    "message": "Achtergrondstatus"
+  },
+  "popupBgHealthBtnTitle": {
+    "message": "Controleren of het achtergrondscript in deze browser draait (zonder chatinhoud)"
+  },
+  "popupStatusBgHealthOk": {
+    "message": "Achtergrondscript draait — details gekopieerd"
+  },
+  "popupStatusBgHealthDown": {
+    "message": "Achtergrondscript draait niet in deze browser"
+  },
   "popupReportBugBtnTitle": {
     "message": "Bug melden op GitHub (zonder chatinhoud)"
   },

@@ -1092,6 +1092,18 @@
   "popupStatusDomCopied": {
     "message": "✓ Ladicí informace zkopírovány do schránky"
   },
+  "popupBtnBgHealth": {
+    "message": "Stav skriptu na pozadí"
+  },
+  "popupBgHealthBtnTitle": {
+    "message": "Zkontrolovat, zda v tomto prohlížeči běží skript na pozadí (bez obsahu chatu)"
+  },
+  "popupStatusBgHealthOk": {
+    "message": "Skript na pozadí běží — podrobnosti zkopírovány"
+  },
+  "popupStatusBgHealthDown": {
+    "message": "Skript na pozadí v tomto prohlížeči neběží"
+  },
   "popupReportBugBtnTitle": {
     "message": "Nahlásit chybu na GitHubu (bez obsahu chatu)"
   },

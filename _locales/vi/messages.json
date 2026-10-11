@@ -1117,6 +1117,18 @@
   "popupStatusDomCopied": {
     "message": "✓ Đã sao chép thông tin gỡ lỗi vào khay nhớ tạm"
   },
+  "popupBtnBgHealth": {
+    "message": "Tình trạng tập lệnh nền"
+  },
+  "popupBgHealthBtnTitle": {
+    "message": "Kiểm tra xem tập lệnh nền có đang chạy trên trình duyệt này không (không gồm nội dung trò chuyện)"
+  },
+  "popupStatusBgHealthOk": {
+    "message": "Tập lệnh nền đang chạy — đã sao chép chi tiết"
+  },
+  "popupStatusBgHealthDown": {
+    "message": "Tập lệnh nền không chạy trên trình duyệt này"
+  },
   "popupReportBugBtnTitle": {
     "message": "Báo cáo lỗi trên GitHub (không có nội dung trò chuyện)"
   },

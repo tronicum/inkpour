@@ -648,6 +648,18 @@
   "popupStatusDomCopied": {
     "message": "✓ Debug info copied to clipboard"
   },
+  "popupBtnBgHealth": {
+    "message": "Background health"
+  },
+  "popupBgHealthBtnTitle": {
+    "message": "Check whether the background script is running on this browser (no chat content included)"
+  },
+  "popupStatusBgHealthOk": {
+    "message": "Background script is running — details copied"
+  },
+  "popupStatusBgHealthDown": {
+    "message": "Background script is not running on this browser"
+  },
   "popupReportBugBtnTitle": {
     "message": "Report a bug on GitHub (no chat content included)"
   },

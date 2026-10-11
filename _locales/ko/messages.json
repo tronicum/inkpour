@@ -1117,6 +1117,18 @@
   "popupStatusDomCopied": {
     "message": "✓ 디버그 정보를 클립보드에 복사했습니다"
   },
+  "popupBtnBgHealth": {
+    "message": "백그라운드 상태"
+  },
+  "popupBgHealthBtnTitle": {
+    "message": "이 브라우저에서 백그라운드 스크립트가 실행 중인지 확인합니다(대화 내용은 포함되지 않음)"
+  },
+  "popupStatusBgHealthOk": {
+    "message": "백그라운드 스크립트가 실행 중입니다 — 세부 정보를 복사했습니다"
+  },
+  "popupStatusBgHealthDown": {
+    "message": "이 브라우저에서는 백그라운드 스크립트가 실행되고 있지 않습니다"
+  },
   "popupReportBugBtnTitle": {
     "message": "GitHub에 버그 신고 (채팅 내용 미포함)"
   },

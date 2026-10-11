@@ -3,12 +3,147 @@
  * Handles keyboard shortcut commands and context menus without needing the popup open.
  */
 
-// ─── Shared utilities (buildMarkdown, buildFilename, buildJSON, buildZip, etc.)
-importScripts('src/utils.js');
-// ─── Secret scrubbing (scanForSecrets, redactSecrets) ─────────────────────
-importScripts('src/redact.js');
+// ─── Shared utilities + secret scrubbing ──────────────────────────────────
+// buildMarkdown/buildFilename/buildJSON/buildZip/... from src/utils.js and
+// scanForSecrets/redactSecrets from src/redact.js.
+//
+// MV3's "background entry point" is not one single thing, and that matters
+// here more than it looks:
+//   - Chrome/Edge run this file as a SERVICE WORKER (manifest
+//     `background.service_worker`), where `importScripts()` exists.
+//   - Firefox MV3 and Orion (macOS *and* iOS) run it as a non-persistent
+//     BACKGROUND PAGE / event page (manifest `background.scripts`), where
+//     `importScripts()` does not exist at all — it is a WorkerGlobalScope
+//     API, not a window one. Orion specifically ALWAYS prefers
+//     `background.scripts` even when `service_worker` is also declared
+//     (orionfeedback.org #13760, "Incorrect background environment
+//     preference in extensions"), so the background-page path is what
+//     actually runs on Orion, including Orion iOS.
+// Calling `importScripts()` unconditionally therefore threw a ReferenceError
+// on the *first statement of this file* in every background-page browser,
+// which aborts the whole script before a single listener is registered — the
+// failure mode is "the background script does nothing at all", not a partial
+// one. Those browsers get utils.js/redact.js from manifest.json's
+// `background.scripts` array instead (listed ahead of this file, same global
+// scope, same load order), so the guard below simply skips.
+if (typeof importScripts === 'function') {
+  importScripts('src/utils.js');
+  importScripts('src/redact.js');
+}
 
 const api = (typeof browser !== 'undefined') ? browser : chrome;
+
+// ─── Background health beacon (Debug mode diagnostics) ────────────────────
+// Remote-inspecting a background context on iOS needs a cabled Mac and
+// Safari Web Inspector, which is not a realistic ask for someone running
+// Orion on an iPhone — and on a browser where the background context may
+// never have started at all, there is nothing to attach to anyway. So the
+// background context reports its own vital signs into storage.local, where
+// the popup's Debug mode UI can read them back with no tooling whatsoever
+// (see getBackgroundHealth() in popup.js).
+//
+// Two independent signals, because they fail differently and the difference
+// is the whole diagnosis:
+//   1. The stored beacon below — "did this file ever finish evaluating, in
+//      which context, and what has it done/thrown since". Survives the
+//      service worker suspending, which live in-memory state cannot.
+//   2. A live `bgPing` round-trip from the popup. If the beacon is missing
+//      AND the ping fails, the background context never ran (the Orion
+//      failure mode above). If the beacon exists but the ping times out, it
+//      ran once and is now unreachable/suspended-without-wake — a different
+//      bug entirely.
+// Deliberately content-free, exactly like buildDebugReport(): API names,
+// timestamps and error messages only, never chat text.
+
+const BG_HEALTH_KEY = 'inkpour_bg_health';
+const BG_CONTEXT    = (typeof importScripts === 'function') ? 'service_worker' : 'background_page';
+const BG_BOOTED_AT  = new Date().toISOString();
+
+/** Presence-only capability probe. Does not *call* anything (a probe with
+ *  side effects would be worse than no probe), so it answers "is this API
+ *  exposed by this browser build" — which is the question that actually
+ *  differs between Chrome, Firefox, Orion macOS and Orion iOS. */
+function probeBackgroundApis() {
+  const has = (path) => {
+    try {
+      return path.split('.').reduce((o, k) => (o == null ? o : o[k]), api) != null;
+    } catch { return false; }
+  };
+  return {
+    'commands':             has('commands.onCommand'),
+    'contextMenus':         has('contextMenus.create'),
+    'downloads':            has('downloads.download'),
+    'alarms':               has('alarms.create'),
+    'action.setIcon':       has('action.setIcon'),
+    'storage.local':        has('storage.local'),
+    'storage.session':      has('storage.session'),
+    'tabs.create':          has('tabs.create'),
+    'tabs.onUpdated':       has('tabs.onUpdated'),
+    'runtime.getManifest':  has('runtime.getManifest'),
+    'i18n.getMessage':      has('i18n.getMessage'),
+  };
+}
+
+/** Read-modify-write the beacon. Never throws and never blocks a caller:
+ *  a diagnostic must not be able to break the thing it is diagnosing. */
+async function writeBgHealth(patch) {
+  try {
+    const stored = (await api.storage.local.get(BG_HEALTH_KEY))?.[BG_HEALTH_KEY] ?? {};
+    await api.storage.local.set({
+      [BG_HEALTH_KEY]: { ...stored, context: BG_CONTEXT, bootedAt: BG_BOOTED_AT, ...patch },
+    });
+  } catch { /* storage itself may be unavailable — nothing useful to do */ }
+}
+
+/** Called from the handlers that represent "the background context actually
+ *  woke up and did work", so `lastEvent`/`lastEventAt` answer "when did this
+ *  thing last run" without needing it to be alive right now. */
+function recordBgEvent(name) {
+  writeBgHealth({ lastEvent: name, lastEventAt: new Date().toISOString() });
+}
+
+function recordBgError(where, err) {
+  writeBgHealth({
+    lastError: {
+      where,
+      message: (err && (err.message || String(err))) || 'unknown',
+      at:      new Date().toISOString(),
+    },
+  });
+}
+
+// Catch anything that escapes a handler, so a crash is visible in the popup
+// rather than only in a console nobody on iOS can open.
+self.addEventListener?.('error', (e) => recordBgError('uncaught', e?.error || e?.message));
+self.addEventListener?.('unhandledrejection', (e) => recordBgError('unhandledrejection', e?.reason));
+
+// Boot record. Written once per background-context start; `bootCount` makes
+// aggressive suspend/restart cycling (the other thing Orion is reported to
+// do differently) visible as a number instead of a hunch.
+(async () => {
+  try {
+    const stored = (await api.storage.local.get(BG_HEALTH_KEY))?.[BG_HEALTH_KEY] ?? {};
+    await writeBgHealth({
+      bootCount:   (stored.bootCount || 0) + 1,
+      apiSupport:  probeBackgroundApis(),
+      manifestVersion: api.runtime?.getManifest?.()?.version ?? null,
+    });
+  } catch { /* best-effort */ }
+})();
+
+// Liveness probe for the popup. Answers from live memory (not storage), so a
+// successful reply proves the context is running *now*.
+api.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message?.action !== 'bgPing') return;
+  sendResponse({
+    ok:         true,
+    context:    BG_CONTEXT,
+    bootedAt:   BG_BOOTED_AT,
+    aliveForMs: Date.now() - Date.parse(BG_BOOTED_AT),
+    apiSupport: probeBackgroundApis(),
+  });
+  return true;
+});
 
 // ─── Safari downloads polyfill ────────────────────────────────────────────
 // Safari does not implement browser.downloads — fall back to injecting a
@@ -65,6 +200,7 @@ api.runtime.onMessage.addListener((message) => {
 
 api.runtime.onMessage.addListener((message, sender) => {
   if (message.action !== 'inPageExport' || !sender.tab?.id) return;
+  recordBgEvent('inPageExport:' + (message.format || '?'));
 
   (async () => {
     const tabId = sender.tab.id;
@@ -258,16 +394,25 @@ async function runBatchExport(conversations, originTabId) {
 
 api.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.action !== 'startBatchExport' || !Array.isArray(message.conversations)) return;
+  recordBgEvent('startBatchExport');
   const originTabId = message.originTabId ?? sender.tab?.id;
   runBatchExport(message.conversations, originTabId)
     .then(result => sendResponse({ ok: true, ...result }))
-    .catch(err => sendResponse({ ok: false, error: err.message }));
+    .catch(err => { recordBgError('runBatchExport', err); sendResponse({ ok: false, error: err.message }); });
   return true; // async
 });
 
 // ─── Context menu setup ───────────────────────────────────────────────────
 
 api.runtime.onInstalled.addListener(() => {
+  // Same reasoning as the `api.commands` guard further down: `contextMenus`
+  // has no meaning on a touch-only iOS browser and may simply not be part of
+  // Orion's ported API surface. Without this guard the whole onInstalled
+  // handler throws on the first create() call.
+  if (!api.contextMenus?.create) {
+    recordBgError('contextMenus', new Error('chrome.contextMenus unavailable in this browser'));
+    return;
+  }
   // Parent item only appears on supported AI chat pages — reuse the exact
   // match patterns from manifest.json's content_scripts entry (read via the
   // manifest itself, not a separately maintained list) so this can't drift
@@ -324,6 +469,7 @@ api.runtime.onInstalled.addListener(() => {
 api.contextMenus.onClicked.addListener(async (info, tab) => {
   if (!tab?.id || !info.menuItemId.startsWith('inkpour-')) return;
   if (info.menuItemId === 'inkpour-parent') return;
+  recordBgEvent('contextMenu:' + info.menuItemId);
 
   let response;
   try {
@@ -521,6 +667,7 @@ async function doGistUpload(tab, settings, response, sourceUrl, filename) {
 // runCommand() below, shared by both paths.
 
 async function runCommand(command) {
+  recordBgEvent('command:' + command);
   const [tab] = await api.tabs.query({ active: true, currentWindow: true });
   if (!tab) return;
 
@@ -618,7 +765,19 @@ async function runCommand(command) {
   if (fmt) doWebhook(settings, fmt, response, wordCount, tab.id);
 }
 
-api.commands.onCommand.addListener((command) => { runCommand(command); });
+// `chrome.commands` is not universally present — Orion's WebExtensions
+// support is a ~70%-coverage port and keyboard shortcuts are meaningless on
+// iOS/iPadOS without a hardware keyboard, so this API is a realistic
+// candidate for being absent there. Unguarded, a missing `api.commands`
+// throws at TOP level and silently kills every listener registered BELOW
+// this line (the action-icon badge logic and the "What's new" hook), which
+// would look like an unrelated bug. The content-script fallback path
+// (`runShortcutCommand`, registered above) keeps working regardless.
+if (api.commands?.onCommand) {
+  api.commands.onCommand.addListener((command) => { runCommand(command); });
+} else {
+  recordBgError('commands', new Error('chrome.commands unavailable in this browser'));
+}
 
 // Fallback trigger for commands that don't fit Chrome's 4-shortcut cap
 // (see comment above runCommand). content.js listens for the raw key

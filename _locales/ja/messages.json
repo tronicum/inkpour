@@ -1117,6 +1117,18 @@
   "popupStatusDomCopied": {
     "message": "✓ デバッグ情報をクリップボードにコピーしました"
   },
+  "popupBtnBgHealth": {
+    "message": "バックグラウンドの状態"
+  },
+  "popupBgHealthBtnTitle": {
+    "message": "このブラウザーでバックグラウンドスクリプトが動作しているかを確認します（チャット内容は含みません）"
+  },
+  "popupStatusBgHealthOk": {
+    "message": "バックグラウンドスクリプトは動作中です — 詳細をコピーしました"
+  },
+  "popupStatusBgHealthDown": {
+    "message": "このブラウザーではバックグラウンドスクリプトが動作していません"
+  },
   "popupReportBugBtnTitle": {
     "message": "GitHubでバグを報告（チャット内容は含まれません）"
   },

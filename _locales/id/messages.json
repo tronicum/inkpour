@@ -1117,6 +1117,18 @@
   "popupStatusDomCopied": {
     "message": "✓ Info debug disalin ke clipboard"
   },
+  "popupBtnBgHealth": {
+    "message": "Status skrip latar"
+  },
+  "popupBgHealthBtnTitle": {
+    "message": "Periksa apakah skrip latar berjalan di peramban ini (tanpa isi obrolan)"
+  },
+  "popupStatusBgHealthOk": {
+    "message": "Skrip latar sedang berjalan — detail disalin"
+  },
+  "popupStatusBgHealthDown": {
+    "message": "Skrip latar tidak berjalan di peramban ini"
+  },
   "popupReportBugBtnTitle": {
     "message": "Laporkan bug di GitHub (tanpa konten obrolan)"
   },

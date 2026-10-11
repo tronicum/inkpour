@@ -1117,6 +1117,18 @@
   "popupStatusDomCopied": {
     "message": "✓ 偵錯資訊已複製到剪貼簿"
   },
+  "popupBtnBgHealth": {
+    "message": "背景指令碼狀態"
+  },
+  "popupBgHealthBtnTitle": {
+    "message": "檢查背景指令碼是否在此瀏覽器中執行（不含聊天內容）"
+  },
+  "popupStatusBgHealthOk": {
+    "message": "背景指令碼正在執行 — 詳細資料已複製"
+  },
+  "popupStatusBgHealthDown": {
+    "message": "背景指令碼未在此瀏覽器中執行"
+  },
   "popupReportBugBtnTitle": {
     "message": "在 GitHub 回報問題（不含聊天內容）"
   },

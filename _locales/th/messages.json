@@ -1117,6 +1117,18 @@
   "popupStatusDomCopied": {
     "message": "✓ คัดลอกข้อมูลดีบักไปยังคลิปบอร์ดแล้ว"
   },
+  "popupBtnBgHealth": {
+    "message": "สถานะสคริปต์เบื้องหลัง"
+  },
+  "popupBgHealthBtnTitle": {
+    "message": "ตรวจสอบว่าสคริปต์เบื้องหลังทำงานอยู่ในเบราว์เซอร์นี้หรือไม่ (ไม่รวมเนื้อหาแชต)"
+  },
+  "popupStatusBgHealthOk": {
+    "message": "สคริปต์เบื้องหลังกำลังทำงาน — คัดลอกรายละเอียดแล้ว"
+  },
+  "popupStatusBgHealthDown": {
+    "message": "สคริปต์เบื้องหลังไม่ได้ทำงานในเบราว์เซอร์นี้"
+  },
   "popupReportBugBtnTitle": {
     "message": "รายงานข้อบกพร่องบน GitHub (ไม่มีเนื้อหาแชท)"
   },

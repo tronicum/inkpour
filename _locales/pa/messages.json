@@ -1092,6 +1092,18 @@
   "popupStatusDomCopied": {
     "message": "✓ ਡੀਬੱਗ ਜਾਣਕਾਰੀ ਕਲਿੱਪਬੋਰਡ ਵਿੱਚ ਕਾਪੀ ਕੀਤੀ ਗਈ"
   },
+  "popupBtnBgHealth": {
+    "message": "ਬੈਕਗ੍ਰਾਊਂਡ ਸਥਿਤੀ"
+  },
+  "popupBgHealthBtnTitle": {
+    "message": "ਜਾਂਚੋ ਕਿ ਇਸ ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ ਬੈਕਗ੍ਰਾਊਂਡ ਸਕ੍ਰਿਪਟ ਚੱਲ ਰਹੀ ਹੈ ਜਾਂ ਨਹੀਂ (ਚੈਟ ਸਮੱਗਰੀ ਸ਼ਾਮਲ ਨਹੀਂ)"
+  },
+  "popupStatusBgHealthOk": {
+    "message": "ਬੈਕਗ੍ਰਾਊਂਡ ਸਕ੍ਰਿਪਟ ਚੱਲ ਰਹੀ ਹੈ — ਵੇਰਵੇ ਕਾਪੀ ਕੀਤੇ ਗਏ"
+  },
+  "popupStatusBgHealthDown": {
+    "message": "ਇਸ ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ ਬੈਕਗ੍ਰਾਊਂਡ ਸਕ੍ਰਿਪਟ ਨਹੀਂ ਚੱਲ ਰਹੀ"
+  },
   "popupReportBugBtnTitle": {
     "message": "GitHub 'ਤੇ ਬੱਗ ਰਿਪੋਰਟ ਕਰੋ (ਚੈਟ ਸਮੱਗਰੀ ਤੋਂ ਬਿਨਾਂ)"
   },

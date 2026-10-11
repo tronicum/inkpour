@@ -1117,6 +1117,18 @@
   "popupStatusDomCopied": {
     "message": "✓ Infos de débogage copiées dans le presse-papiers"
   },
+  "popupBtnBgHealth": {
+    "message": "État du script d’arrière-plan"
+  },
+  "popupBgHealthBtnTitle": {
+    "message": "Vérifier si le script d’arrière-plan fonctionne dans ce navigateur (sans contenu de conversation)"
+  },
+  "popupStatusBgHealthOk": {
+    "message": "Le script d’arrière-plan fonctionne — détails copiés"
+  },
+  "popupStatusBgHealthDown": {
+    "message": "Le script d’arrière-plan ne fonctionne pas dans ce navigateur"
+  },
   "popupReportBugBtnTitle": {
     "message": "Signaler un bug sur GitHub (sans contenu du chat)"
   },
