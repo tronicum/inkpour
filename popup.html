@@ -378,6 +378,11 @@
       cursor: pointer;
       text-align: start;
     }
+    /* `display: flex` above overrides the UA stylesheet's `[hidden] {
+       display: none }`, so popup.js setting `gistMenuOption.hidden = true`
+       (no GitHub token configured) left the row fully visible in the menu.
+       Re-assert it here — specificity beats the UA rule. */
+    .export-menu-item[hidden] { display: none; }
     .export-menu-item:hover { background: var(--bg); }
     .export-menu-item.selected {
       background: var(--accent);

@@ -9,22 +9,20 @@ module.exports = defineConfig({
   timeout:  30_000,
   retries:  process.env.CI ? 1 : 0,
   reporter: process.env.CI ? 'github' : 'list',
-  // Force serial execution in CI. Playwright's default worker count is half
-  // the host's logical CPUs (2 on hosted ubuntu-latest's 4-core runners —
-  // matches "Running 55 tests using 2 workers" in the 2026-10-05 scheduled
-  // run log). Every test in extraction.spec.js/per-message.spec.js spins up
-  // its OWN chromium.launchPersistentContext() with the real unpacked
-  // extension loaded (test/helpers/extension.js), which starts a fresh
-  // extension service worker each time. With workers:2, two of those heavy
-  // launches can land on the runner's shared/throttled CPU at the same
-  // moment, starving the service-worker startup past the 30s test timeout:
-  // "Test timeout of 30000ms exceeded while setting up 'extensionId'" hit
-  // every single test in both files (nothing file-specific — popup.spec.js
-  // uses the identical fixture and passed 19/19), while the two failures in
-  // that run landed within 0.4s of each other, consistent with simultaneous
-  // contention rather than a bug in either spec file. workers:1 serializes
-  // all persistent-context launches in CI so only one is ever starting up
-  // at a time; local runs keep Playwright's normal parallel default.
+  // Serial execution in CI. NOTE: this was originally added on the theory
+  // that CPU contention between two parallel launchPersistentContext() calls
+  // was starving extension service-worker startup past the 30s timeout. That
+  // theory was DISPROVEN by run 37684854533 — with workers:1 ("Running 55
+  // tests using 1 worker") the exact same 36 tests still failed, the very
+  // first one cold. The real cause was that Playwright >=1.49 launches the
+  // extension-less `chromium_headless_shell` binary for a plain
+  // `headless: true` chromium launch; see test/helpers/extension.js, which
+  // now pins channel:'chromium'. (The earlier read that "popup.spec.js
+  // passed 19/19" was a miscount: the 19 passing tests were all of
+  // markdown-output.spec.js, which never launches a browser. Every single
+  // browser-backed test, popup.spec.js included, failed.)
+  // workers:1 is kept anyway — these are heavy per-test browser launches and
+  // serializing them on a 4-core hosted runner is cheap insurance.
   workers: process.env.CI ? 1 : undefined,
 
   projects: [

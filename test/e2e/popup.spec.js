@@ -119,10 +119,18 @@ test.describe('Popup UI', () => {
   });
 
   test('Export button is disabled during export', async ({ popupPage }) => {
-    await popupPage.click('#exportGoBtn');
-    // Immediately check — button should be disabled while working (mirrors
-    // the underlying mdBtn's own loading state, see popup.js's setLoading()).
-    await expect(popupPage.locator('#exportGoBtn')).toBeDisabled();
+    // Must be read SYNCHRONOUSLY after the click: on a blank context the
+    // export fails almost instantly (no chat tab to query), so setLoading()
+    // flips the button back to enabled long before Playwright's out-of-process
+    // expect() can poll it — the old `click()` + `toBeDisabled()` pair was
+    // racing and lost every time. popup.js's handler calls setLoading(btn,
+    // true) synchronously before its first await, so dispatching the click and
+    // reading .disabled in the same in-page task is deterministic.
+    const disabledDuring = await popupPage.evaluate(() => {
+      document.getElementById('exportGoBtn').click();
+      return document.getElementById('exportGoBtn').disabled;
+    });
+    expect(disabledDuring).toBe(true);
     // Eventually re-enabled after error
     await expect(popupPage.locator('#exportGoBtn')).toBeEnabled({ timeout: 5000 });
   });
@@ -197,8 +205,14 @@ test.describe('Settings page', () => {
 
     await expect(page.locator('#defaultFormat')).toBeVisible();
     await expect(page.locator('#filenameTemplate')).toBeVisible();
-    await expect(page.locator('#pdfAutoPrint')).toBeVisible();
-    await expect(page.locator('#yamlFrontMatter')).toBeVisible();
+    // pdfAutoPrint/yamlFrontMatter are role="switch" checkboxes rendered via
+    // the visually-hidden-input + styled-slider pattern, so the <input> itself
+    // is deliberately not "visible" to Playwright — assert it's in the DOM
+    // instead. (These used to read toBeVisible() and would have failed from
+    // the day they were written; nobody noticed because the whole suite was
+    // timing out in the extensionId fixture before reaching any assertion.)
+    await expect(page.locator('#pdfAutoPrint')).toBeAttached();
+    await expect(page.locator('#yamlFrontMatter')).toBeAttached();
     await expect(page.locator('#saveBtn')).toBeVisible();
   });
 
