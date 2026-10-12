@@ -22,10 +22,23 @@ exports.test = base.extend({
   context: async ({}, use) => {
     const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'inkpour-pw-'));
     const context = await chromium.launchPersistentContext(userDataDir, {
-      // headless=new supports extensions in Chromium 112+
+      // channel:'chromium' is LOAD-BEARING, not cosmetic. Since Playwright
+      // 1.49, a plain `headless: true` chromium launch does NOT start the
+      // full Chromium binary — it starts the separate `chromium_headless_shell`
+      // build, which has no extensions subsystem at all. It silently ignores
+      // --load-extension, so no extension service worker ever registers and
+      // the `extensionId` fixture below hangs until the test times out with
+      // "Test timeout of 30000ms exceeded while setting up 'extensionId'".
+      // That is exactly what every browser-backed e2e test did in CI once the
+      // resolved @playwright/test crossed 1.49 (^1.45.0 → 1.61.1 in the
+      // lockfile). `channel: 'chromium'` forces the real Chromium binary in
+      // new-headless mode, which does support extensions.
+      channel: 'chromium',
       headless: true,
       args: [
-        '--headless=new',
+        // No '--headless=new' here: channel:'chromium' + headless:true is
+        // already new headless, and passing the flag by hand did nothing to
+        // steer the headless-shell launch away from the shell binary.
         `--disable-extensions-except=${EXTENSION_PATH}`,
         `--load-extension=${EXTENSION_PATH}`,
       ],
