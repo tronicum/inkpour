@@ -1196,14 +1196,28 @@ GitHub issue: https://github.com/tronicum/inkpour/issues/34
 - [ ] **M** `perMessageCopyButtons` (off by default) passes 12/12 against a
   saved static Playwright fixture of claude.ai but produces 0 button hosts on
   the real live site — `cfg.sel` matches 18 message elements, `[data-inkpour-
-  msg]`/`[data-inkpour-msg-host]` stay at 0, no console error (decorateMessages()
-  wraps the whole pass in try/catch). Leading theory: `MESSAGE_ANCHORS.claude
-  .anchor()`'s ancestor walk-up (src/content.js) returns null against claude.ai's
-  actual current DOM shape even though the flat selector still matches, so
-  `decorateOne()` is silently skipped for every message.
-- [ ] **S** Needs live-browser diagnosis to confirm/refute the theory — doesn't
-  reproduce in jsdom or the static-fixture harness, only the real site. Log
-  `el.outerHTML` and the ancestor-walk result against the live DOM.
+  msg]`/`[data-inkpour-msg-host]` stay at 0, no console error.
+  **Original "ancestor-walk returns null" theory is REFUTED** (2026-10-04 on
+  the issue): `MESSAGE_ANCHORS.claude.anchor` is just `el => el` — identity,
+  no DOM walk at all — so it cannot be the cause on Claude. The decisive live
+  probe instead found `#inkpour-msg-style` (a page-level `<style>` tag
+  `ensureMsgStyleTag()` injects *before* touching any individual message)
+  completely absent on the live page despite 18 matching anchors — meaning
+  `decorateMessages()` never even started running, not "ran and silently
+  failed per node." Current leading theory: `_perMessageCopy` read `false`
+  at content-script boot time in that browser/profile, and the live
+  `storage.onChanged` listener (which should flip decoration on immediately,
+  no reload needed) never fired when the setting was toggled — i.e. a
+  wrong-profile or stale-unpacked-build issue, not a code bug in the
+  decoration path itself.
+- [ ] **S** Needs a live-browser confirm: in the SAME Chrome profile/window
+  running Inkpour, `chrome://extensions` → Reload, confirm the version bumped,
+  re-open Settings → confirm "Copy button on each message" is actually
+  checked (not just clicked once previously), hard-reload the claude.ai tab,
+  check whether `#inkpour-msg-style` now appears. A 2026-10-04 `@copilot` ping
+  on the issue asking it to test went unanswered (no comment, no PR) — Copilot
+  has no live browser either, so this still needs a human with the real
+  profile open, not another agent.
 - [ ] **XS** Once fixed: re-verify all three platforms (ChatGPT/Claude/Gemini)
   live, not just via the harness, before re-marking
   `planning/adr-per-message-share-buttons.md` as "Accepted — verified working"
@@ -1325,16 +1339,22 @@ landing, not just started:
   `gh secret set REFRESH_TOKEN --env Chrome --repo tronicum/inkpour` to
   replace the short-lived one. Miss this window and Chrome auto-publish
   silently starts failing on the next release after 2026-09-21.
-- [ ] **S** Wire both into a new job in `.github/workflows/release.yml` (or a
+- [x] **S** Wire both into a new job in `.github/workflows/release.yml` (or a
   separate `publish.yml` triggered by the same tag push), gated behind GitHub
   [Environments](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment)
   (`Firefox` / `Chrome`) the way the reference workflow does — lets each store's
   secrets be scoped separately and optionally gated behind a manual approval
   step before publishing goes live, which is worth keeping given "auto-publish"
   is otherwise irreversible.
-- [ ] **XS** First real run needs to be watched live and treated as a dry run
+  Done — `publish-chrome`/`publish-edge` jobs exist in `release.yml`, each
+  gated behind their own Environment.
+- [x] **XS** First real run needs to be watched live and treated as a dry run
   even though the CLIs don't offer one — can't fully verify secrets/permissions
   are right without actually attempting a submission.
+  Done — multiple real tagged releases (v0.4.31.0 onward) have run live;
+  Firefox and (when the token is current) Chrome publish for real. Chrome's
+  OAuth token currently needs re-minting again — see the item above, still
+  unchecked and genuinely overdue as of this release.
 - [x] **M — implemented 2026-09-15, needs Stefan's Partner Center secrets +
   a live run** Microsoft Edge Add-ons auto-submit. Added a `publish-edge`
   job to `.github/workflows/release.yml`, `needs: release`, gated behind a
