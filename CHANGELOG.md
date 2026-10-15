@@ -14,6 +14,15 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+## [0.4.35.1] - 2026-10-15
+
+### Fixed
+- ChatGPT citation links in the exported Sources list were plain text, not
+  clickable — a real URL was there, but some Markdown viewers only turn a
+  proper `[text](url)` link into something you can click, not a bare URL on
+  its own. Every citation's Sources entry across every platform is now a
+  real Markdown link.
+
 ## [0.4.35.0] - 2026-10-11
 
 ### Added
