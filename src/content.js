@@ -113,7 +113,13 @@
   function formatSourcesBlock() {
     if (!_footnotes.length) return '';
     const block = '\n\n**Sources:**\n\n' +
-      _footnotes.map((target, i) => `[^${_footnoteOffset + i + 1}]: ${target}`).join('\n');
+      _footnotes.map((target, i) => {
+        const num = `[^${_footnoteOffset + i + 1}]`;
+        if (/^https?:\/\//i.test(target)) {
+          return `${num}: [${target}](${target})`;
+        }
+        return `${num}: ${target}`;
+      }).join('\n');
     _footnoteOffset += _footnotes.length;
     return block;
   }

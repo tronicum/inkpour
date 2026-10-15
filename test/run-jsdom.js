@@ -682,7 +682,7 @@ async function main() {
       assert(perplexityMsgs.length >= 2, `expected 2 Perplexity messages, got ${perplexityMsgs.length}`);
       const secondAnswer = perplexityMsgs[1].content;
       assert(secondAnswer.includes('[^3]'), `second answer should cite [^3], got: ${secondAnswer.slice(0, 300)}`);
-      assert(secondAnswer.includes('[^3]: https://en.wikipedia.org/wiki/Quantum_teleportation'),
+      assert(secondAnswer.includes('[^3]: [https://en.wikipedia.org/wiki/Quantum_teleportation](https://en.wikipedia.org/wiki/Quantum_teleportation)'),
         `second answer missing [^3] definition: ${secondAnswer}`);
       assert(!secondAnswer.includes('[^1]') && !secondAnswer.includes('[^2]'),
         `second answer must not reuse [^1]/[^2] from the first answer: ${secondAnswer}`);
@@ -726,8 +726,10 @@ async function main() {
       assert(md.includes('[^1]'), `no [^1] in: ${md}`);
       assert(md.includes('[^2]'), `no [^2] in: ${md}`);
     });
-    await test('appends Sources section with footnote URLs', () => {
+    await test('appends Sources section with clickable footnote URLs', () => {
       assert(md.includes('**Sources:**'), `no Sources: in: ${md}`);
+      assert(md.includes('[^1]: [https://example.com/water](https://example.com/water)'), 'missing clickable water URL');
+      assert(md.includes('[^2]: [https://example.com/fahrenheit](https://example.com/fahrenheit)'), 'missing clickable fahrenheit URL');
       assert(md.includes('https://example.com/water'), 'missing water URL');
       assert(md.includes('https://example.com/fahrenheit'), 'missing fahrenheit URL');
     });
@@ -777,9 +779,9 @@ async function main() {
       const mdA = dom3.window.__inkpourHtmlToMarkdown(dom3.window.document.getElementById('msgA'));
       const mdB = dom3.window.__inkpourHtmlToMarkdown(dom3.window.document.getElementById('msgB'));
 
-      assert(mdA.includes('[^1]') && mdA.includes('[^1]: https://a.com/one'),
+      assert(mdA.includes('[^1]') && mdA.includes('[^1]: [https://a.com/one](https://a.com/one)'),
         `message A should define [^1]: ${mdA}`);
-      assert(mdB.includes('[^2]') && mdB.includes('[^2]: https://b.com/two'),
+      assert(mdB.includes('[^2]') && mdB.includes('[^2]: [https://b.com/two](https://b.com/two)'),
         `message B should continue the count at [^2], got: ${mdB}`);
       assert(!mdB.includes('[^1]'),
         `message B must not reuse [^1] from message A: ${mdB}`);
