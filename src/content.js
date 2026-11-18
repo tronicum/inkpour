@@ -3131,6 +3131,7 @@
   // Never used by real extension code.
   if (typeof window !== 'undefined' && window.__inkpourTestHostname !== undefined) {
     window.__inkpourHtmlToMarkdown = htmlToMarkdown;
+    window.__inkpourBuildDomSkeleton = buildDomSkeleton;
     window.__inkpourGetConversationList = getConversationList;
     window.__inkpourDescribeAncestorChain = describeAncestorChain;
     window.__inkpourBuildProbeReport = buildProbeReport;
@@ -3243,7 +3244,10 @@
    * size-capped so pasting it somewhere (or a future bot parsing it) stays
    * manageable on very long chats.
    */
-  function buildDomSkeleton(root, maxDepth = 25, maxChars = 150000) {
+  // maxDepth was 25 until ChatGPT's octane UI (issue #58) put assistant text
+  // at depth 26 — the report showed its wrapper as an empty element. Cut-off
+  // subtrees are now marked explicitly so a cap can't pass for "empty".
+  function buildDomSkeleton(root, maxDepth = 40, maxChars = 150000) {
     let out = '';
     let truncated = false;
 
@@ -3283,6 +3287,8 @@
 
       if (depth < maxDepth) {
         for (const child of node.childNodes) walk(child, depth + 1);
+      } else if (node.childElementCount || node.textContent.trim()) {
+        out += '  '.repeat(depth + 1) + `… [${node.childNodes.length} child node(s) not shown — depth limit ${maxDepth}]\n`;
       }
     }
 

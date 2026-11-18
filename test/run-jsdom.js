@@ -3518,6 +3518,26 @@ No bullets here at all, just prose under the heading.
     assert(/#text\(\d+\)/.test(result.report.domSkeleton), 'expected #text(N) markers in skeleton');
   });
 
+  await test('skeleton reaches depth 26+ and marks depth-capped subtrees (issue #58)', async () => {
+    // 50 nested <div>s with text at the bottom: depth 26 used to be silently
+    // dropped (octane ChatGPT's assistant text lives there); now it shows,
+    // and anything past the cap gets an explicit "not shown" marker.
+    const nested = '<div>'.repeat(50) + 'deep text' + '</div>'.repeat(50);
+    const dom = new JSDOM(`<!DOCTYPE html><body>${nested}</body>`, { url: 'https://chatgpt.com/', runScripts: 'dangerously' });
+    dom.window.__inkpourTestHostname = 'chatgpt.com';
+    dom.window.browser = { runtime: { onMessage: { addListener: () => {} }, id: 't' }, i18n: mockI18n() };
+    dom.window.chrome  = dom.window.browser;
+    const s = dom.window.document.createElement('script');
+    s.textContent = CONTENT_JS;
+    dom.window.document.body.appendChild(s);
+    await new Promise(r => setTimeout(r, 50));
+    const skel = dom.window.__inkpourBuildDomSkeleton(dom.window.document.body);
+    const divLines = skel.split('\n').filter(l => l.trim() === '<div>');
+    assert(divLines.length >= 26, `only ${divLines.length} levels shown`);
+    assert(/… \[1 child node\(s\) not shown — depth limit 40\]/.test(skel), `no depth-limit marker:\n${skel.slice(-300)}`);
+    assert(!skel.includes('deep text'), 'text content leaked');
+  });
+
   await test('includes selector diagnostics as counts, not matched content', async () => {
     const result = await extractFromFixture('chatgpt.html', 'chatgpt.com', 'debugDom');
     const counts = result.report.selectorCounts;
