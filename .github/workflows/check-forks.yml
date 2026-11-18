@@ -50,27 +50,51 @@ jobs:
               continue
             fi
 
-            ahead_shas=$(git log origin/main.."${remote_name}/${fork_default_branch}" --format='%H' || true)
+            fork_ref="${remote_name}/${fork_default_branch}"
+            fork_tip=$(git rev-parse "$fork_ref")
+
+            # Exclude everything up to the last human-reviewed commit (see
+            # .github/fork-watch-reviewed.txt). Ignored if that commit is no
+            # longer in the fork's history (force-push), so nothing is hidden.
+            range=(origin/main..."$fork_ref")
+            reviewed_sha=$(grep -E "^${fork_full_name}[[:space:]]" .github/fork-watch-reviewed.txt 2>/dev/null \
+              | tr -s '[:space:]' ' ' | cut -d' ' -f2 || true)
+            if [ -n "$reviewed_sha" ] && git merge-base --is-ancestor "$reviewed_sha" "$fork_ref" 2>/dev/null; then
+              range+=("^${reviewed_sha}")
+              echo "  Reviewed up to ${reviewed_sha:0:7} — only reporting newer commits."
+            fi
+
+            # --cherry-pick drops commits whose exact patch already landed in main.
+            ahead_shas=$(git log --right-only --cherry-pick --no-merges "${range[@]}" --format='%H' || true)
             ahead_count=$(echo "$ahead_shas" | grep -c . || true)
 
             if [ "$ahead_count" -eq 0 ]; then
-              echo "  Nothing ahead of main — skipping."
+              echo "  Nothing new ahead of main — skipping."
               continue
             fi
 
             echo "  $ahead_count commit(s) ahead of main."
 
-            commit_list=$(git log origin/main.."${remote_name}/${fork_default_branch}" \
+            commit_list=$(git log --right-only --cherry-pick --no-merges "${range[@]}" \
               --format='- [`%h`](https://github.com/'"${fork_full_name}"'/commit/%H) %s (%an)')
 
             issue_title="Fork watch: ${fork_full_name} has unmerged commits"
             existing_issue=$(gh issue list --repo "$REPO" --label fork-watch --state open \
               --search "in:title \"${fork_full_name}\"" --json number --jq '.[0].number' || true)
 
+            # Already reported this exact fork tip on the open issue — don't
+            # re-post an identical list every week.
+            if [ -n "${existing_issue:-}" ] && [ "$existing_issue" != "null" ] && \
+               gh issue view "$existing_issue" --repo "$REPO" --json body,comments \
+                 --jq '[.body, .comments[].body] | join("\n")' | grep -q "$fork_tip"; then
+              echo "  Tip ${fork_tip:0:7} already reported on #$existing_issue — skipping."
+              continue
+            fi
+
             checked_date=$(date -u +'%Y-%m-%d')
             body="Automated weekly check found **${ahead_count} commit(s)** in [\`${fork_full_name}\`](https://github.com/${fork_full_name}) not present in \`main\` (as of ${checked_date}):"
             body="${body}"$'\n\n'"${commit_list}"
-            body="${body}"$'\n\n'"Review these and cherry-pick anything worth adopting, then close this issue. It will reopen automatically (a new one, if closed) next time this fork has new unmerged commits."
+            body="${body}"$'\n\n'"Review these and cherry-pick anything worth adopting, then set this fork's line in \`.github/fork-watch-reviewed.txt\` to \`${fork_tip}\` and close this issue. A new issue opens automatically next time this fork has commits after that point."
 
             if [ -n "${existing_issue:-}" ] && [ "$existing_issue" != "null" ]; then
               gh issue comment "$existing_issue" --repo "$REPO" --body "$body"

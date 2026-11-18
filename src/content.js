@@ -604,9 +604,20 @@
   // overlay attaches to (usually the message element itself — for ChatGPT,
   // the enclosing <article> turn wrapper, with a same-element fallback if
   // that wrapper isn't present).
+  // ChatGPT turn elements across both of its current DOMs: the classic React
+  // UI ([data-message-author-role]) and the newer "octane" UI (issue #58,
+  // seen logged-out on chatgpt.com/uc/<id>), where each turn is an
+  // <li data-message-role="user|assistant"> in ol[data-conversation-transcript].
+  const CHATGPT_TURN_SEL = '[data-message-author-role], li[data-message-role]';
+
+  function chatgptRoleOf(el) {
+    return (el.getAttribute('data-message-author-role') ||
+            el.getAttribute('data-message-role') || '').toLowerCase();
+  }
+
   const MESSAGE_ANCHORS = {
     chatgpt: {
-      sel: '[data-message-author-role]',
+      sel: CHATGPT_TURN_SEL,
       anchor: el => el.closest('article[data-testid^="conversation-turn-"]') ?? el,
     },
     claude: {
@@ -623,13 +634,23 @@
   // ChatGPT / OpenAI
 
   /**
-   * Converts one ChatGPT turn element (a [data-message-author-role] node) to
-   * its Markdown body. Extracted out of extractChatGPT()'s per-message logic
+   * Converts one ChatGPT turn element (a CHATGPT_TURN_SEL node) to its
+   * Markdown body. Extracted out of extractChatGPT()'s per-message logic
    * so both the full extractor and the per-message "Copy as Markdown" button
    * (copyOneMessageMarkdown()) share exactly one implementation.
    */
   function chatgptMessageToMarkdown(turn) {
-    const contentEl = (turn.querySelector('.markdown, [class*="prose"], .text-message') ?? turn).cloneNode(true);
+    const contentEl = (turn.querySelector(
+      '[data-assistant-markdown-root], [data-user-message-bubble], .markdown, [class*="prose"], .text-message'
+    ) ?? turn).cloneNode(true);
+
+    // Octane UI: per-turn chrome that lives inside the turn element — the
+    // visually-hidden "You:"/"ChatGPT:" heading, copy/share action rows,
+    // ad supplement, streaming placeholder, and aria-live announcers.
+    contentEl.querySelectorAll(
+      '[data-message-attribution], [data-message-actions], [data-message-intervention], ' +
+      '[data-conversation-ads-supplement], [data-assistant-placeholder-slot], [role="status"]'
+    ).forEach(n => n.remove());
 
     // ChatGPT Canvas: canvas documents appear as embedded components.
     // Extract the code/text from them before stripping.
@@ -649,11 +670,12 @@
   }
 
   function extractChatGPT() {
-    const turns = document.querySelectorAll('[data-message-author-role]');
+    // Outermost matches only, in case a turn ever carries both shapes nested.
+    const turns = Array.from(document.querySelectorAll(CHATGPT_TURN_SEL))
+      .filter(el => !el.parentElement?.closest(CHATGPT_TURN_SEL));
     if (!turns.length) return null;
-    return Array.from(turns).map(turn => {
-      const role  = turn.getAttribute('data-message-author-role');
-      const label = role === 'user' ? 'You' : 'ChatGPT';
+    return turns.map(turn => {
+      const label = chatgptRoleOf(turn) === 'user' ? 'You' : 'ChatGPT';
       return { role: label, content: chatgptMessageToMarkdown(turn) };
     }).filter(m => m.content);
   }
@@ -2862,7 +2884,7 @@
       return (el.matches && el.matches('[data-testid="user-message"]')) ? 'claude-user' : 'claude-assistant';
     }
     if (platform === 'chatgpt') {
-      const role = (el.getAttribute && el.getAttribute('data-message-author-role')) || '';
+      const role = el.getAttribute ? chatgptRoleOf(el) : '';
       return role === 'user' ? 'chatgpt-user' : 'chatgpt-assistant';
     }
     if (platform === 'gemini') {
@@ -3109,6 +3131,7 @@
   // Never used by real extension code.
   if (typeof window !== 'undefined' && window.__inkpourTestHostname !== undefined) {
     window.__inkpourHtmlToMarkdown = htmlToMarkdown;
+    window.__inkpourBuildDomSkeleton = buildDomSkeleton;
     window.__inkpourGetConversationList = getConversationList;
     window.__inkpourDescribeAncestorChain = describeAncestorChain;
     window.__inkpourBuildProbeReport = buildProbeReport;
@@ -3221,7 +3244,10 @@
    * size-capped so pasting it somewhere (or a future bot parsing it) stays
    * manageable on very long chats.
    */
-  function buildDomSkeleton(root, maxDepth = 25, maxChars = 150000) {
+  // maxDepth was 25 until ChatGPT's octane UI (issue #58) put assistant text
+  // at depth 26 — the report showed its wrapper as an empty element. Cut-off
+  // subtrees are now marked explicitly so a cap can't pass for "empty".
+  function buildDomSkeleton(root, maxDepth = 40, maxChars = 150000) {
     let out = '';
     let truncated = false;
 
@@ -3261,6 +3287,8 @@
 
       if (depth < maxDepth) {
         for (const child of node.childNodes) walk(child, depth + 1);
+      } else if (node.childElementCount || node.textContent.trim()) {
+        out += '  '.repeat(depth + 1) + `… [${node.childNodes.length} child node(s) not shown — depth limit ${maxDepth}]\n`;
       }
     }
 

@@ -349,6 +349,32 @@ async function main() {
     });
   });
 
+  // ── ChatGPT octane UI (issue #58) ─────────────────────────────────────────
+  // Newer ChatGPT DOM with no [data-message-author-role] at all — exports
+  // failed with "No messages found" until extractChatGPT() learned it.
+  await suite('ChatGPT extraction — octane UI (issue #58)', async () => {
+    const result = await extractFromFixture('chatgpt-octane.html', 'chatgpt.com');
+
+    await test('extracts 2 messages with user / assistant roles', () => {
+      assert(result.messages.length === 2, `got ${result.messages.length}`);
+      assert(result.messages[0].role === 'You',     `role[0]=${result.messages[0].role}`);
+      assert(result.messages[1].role === 'ChatGPT', `role[1]=${result.messages[1].role}`);
+    });
+    await test('user message keeps its text', () => {
+      assert(result.messages[0].content.includes('Wie schnell ist Licht? 🚀'), result.messages[0].content);
+    });
+    await test('assistant message keeps markdown + code block', () => {
+      assert(result.messages[1].content.includes('**299.792.458 m/s**'), result.messages[1].content);
+      assert(result.messages[1].content.includes('```python'), result.messages[1].content);
+    });
+    await test('strips attribution, action rows, status announcers and ads', () => {
+      const all = result.messages.map(m => m.content).join('\n');
+      for (const junk of ['Du:', 'ChatGPT:', 'Kopieren', 'Kopiert', 'Teilen', 'Antwort abgeschlossen', 'Gesponsert', '…']) {
+        assert(!all.includes(junk), `leaked "${junk}": ${all}`);
+      }
+    });
+  });
+
   // ── Claude ────────────────────────────────────────────────────────────────
   await suite('Claude extraction', async () => {
     const result = await extractFromFixture('claude.html', 'claude.ai');
@@ -3490,6 +3516,26 @@ No bullets here at all, just prose under the heading.
     const result = await extractFromFixture('chatgpt.html', 'chatgpt.com', 'debugDom');
     assert(typeof result.report.domSkeleton === 'string' && result.report.domSkeleton.length > 0);
     assert(/#text\(\d+\)/.test(result.report.domSkeleton), 'expected #text(N) markers in skeleton');
+  });
+
+  await test('skeleton reaches depth 26+ and marks depth-capped subtrees (issue #58)', async () => {
+    // 50 nested <div>s with text at the bottom: depth 26 used to be silently
+    // dropped (octane ChatGPT's assistant text lives there); now it shows,
+    // and anything past the cap gets an explicit "not shown" marker.
+    const nested = '<div>'.repeat(50) + 'deep text' + '</div>'.repeat(50);
+    const dom = new JSDOM(`<!DOCTYPE html><body>${nested}</body>`, { url: 'https://chatgpt.com/', runScripts: 'dangerously' });
+    dom.window.__inkpourTestHostname = 'chatgpt.com';
+    dom.window.browser = { runtime: { onMessage: { addListener: () => {} }, id: 't' }, i18n: mockI18n() };
+    dom.window.chrome  = dom.window.browser;
+    const s = dom.window.document.createElement('script');
+    s.textContent = CONTENT_JS;
+    dom.window.document.body.appendChild(s);
+    await new Promise(r => setTimeout(r, 50));
+    const skel = dom.window.__inkpourBuildDomSkeleton(dom.window.document.body);
+    const divLines = skel.split('\n').filter(l => l.trim() === '<div>');
+    assert(divLines.length >= 26, `only ${divLines.length} levels shown`);
+    assert(/… \[1 child node\(s\) not shown — depth limit 40\]/.test(skel), `no depth-limit marker:\n${skel.slice(-300)}`);
+    assert(!skel.includes('deep text'), 'text content leaked');
   });
 
   await test('includes selector diagnostics as counts, not matched content', async () => {
