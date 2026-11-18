@@ -1,0 +1,14 @@
+# Fork watch cursor — read by .github/workflows/check-forks.yml.
+#
+# One line per fork: "<owner>/<repo> <full commit sha>". Everything up to and
+# including that commit has been reviewed by a human (ported, or deliberately
+# skipped), so the weekly check only reports commits made after it. Without
+# this, a fork whose work we ported by hand (different SHAs) or whose history
+# predates a rewrite of ours gets re-reported in full every week.
+#
+# After reviewing a fork-watch issue: set the fork's line to its current tip
+# (`git ls-remote https://github.com/<owner>/<repo> HEAD`), then close the issue.
+
+# Qwen + Gemini source-inline-chip ported in #30 (f963997); the rest is our
+# own pre-rewrite history.
+lpslp/inkpour ebeb553522a6d426d233b589f2d6138e49cd6457
