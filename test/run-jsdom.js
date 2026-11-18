@@ -349,6 +349,32 @@ async function main() {
     });
   });
 
+  // ── ChatGPT octane UI (issue #58) ─────────────────────────────────────────
+  // Newer ChatGPT DOM with no [data-message-author-role] at all — exports
+  // failed with "No messages found" until extractChatGPT() learned it.
+  await suite('ChatGPT extraction — octane UI (issue #58)', async () => {
+    const result = await extractFromFixture('chatgpt-octane.html', 'chatgpt.com');
+
+    await test('extracts 2 messages with user / assistant roles', () => {
+      assert(result.messages.length === 2, `got ${result.messages.length}`);
+      assert(result.messages[0].role === 'You',     `role[0]=${result.messages[0].role}`);
+      assert(result.messages[1].role === 'ChatGPT', `role[1]=${result.messages[1].role}`);
+    });
+    await test('user message keeps its text', () => {
+      assert(result.messages[0].content.includes('Wie schnell ist Licht? 🚀'), result.messages[0].content);
+    });
+    await test('assistant message keeps markdown + code block', () => {
+      assert(result.messages[1].content.includes('**299.792.458 m/s**'), result.messages[1].content);
+      assert(result.messages[1].content.includes('```python'), result.messages[1].content);
+    });
+    await test('strips attribution, action rows, status announcers and ads', () => {
+      const all = result.messages.map(m => m.content).join('\n');
+      for (const junk of ['Du:', 'ChatGPT:', 'Kopieren', 'Kopiert', 'Teilen', 'Antwort abgeschlossen', 'Gesponsert', '…']) {
+        assert(!all.includes(junk), `leaked "${junk}": ${all}`);
+      }
+    });
+  });
+
   // ── Claude ────────────────────────────────────────────────────────────────
   await suite('Claude extraction', async () => {
     const result = await extractFromFixture('claude.html', 'claude.ai');
