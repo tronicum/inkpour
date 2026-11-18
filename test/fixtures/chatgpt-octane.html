@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="de">
+<head><meta charset="UTF-8"><title>ChatGPT — Octane UI Test Fixture</title></head>
+<body>
+  <!-- ChatGPT's "octane" UI (issue #58): no [data-message-author-role]
+       anywhere; turns are <li data-message-role> in
+       ol[data-conversation-transcript]. Structure (tags/attributes) taken
+       from a real logged-out chatgpt.com/uc/<id> debug report, 2026-11-18;
+       message text is synthetic (the report only carries text lengths). -->
+  <main data-slot="conversation">
+    <section data-web-mobile-conversation data-conversation-id="00000000-0000-0000-0000-000000000000">
+      <ol data-conversation-transcript aria-label="">
+
+        <li data-message-role="user" id="u1">
+          <h4 data-message-attribution aria-label="Du:">Du:</h4>
+          <div data-submit-message-animation-target>
+            <div>
+              <div data-user-message-bubble>
+                <p data-user-message-copy>Wie schnell ist Licht? 🚀</p>
+              </div>
+            </div>
+            <div data-user-message-actions data-message-actions role="group">
+              <button aria-label="Kopieren" data-copy-message>Kopieren</button>
+              <span aria-live="polite" role="status">Kopiert</span>
+            </div>
+            <div data-message-intervention></div>
+          </div>
+        </li>
+
+        <li data-message-role="assistant" id="a1" data-assistant-content-started data-message-complete>
+          <h4 data-message-attribution aria-label="ChatGPT:">ChatGPT:</h4>
+          <div>
+            <span aria-hidden="true" data-assistant-placeholder-slot><span><span>…</span></span></span>
+            <div><div>
+              <div data-assistant-markdown data-assistant-markdown-root>
+                <div aria-busy="false">
+                  <div>
+                    <section aria-label="DIL content">
+                      <p>Licht bewegt sich mit <strong>299.792.458 m/s</strong>.</p>
+                      <pre><code class="language-python">C = 299_792_458</code></pre>
+                    </section>
+                  </div>
+                  <div role="status">Antwort abgeschlossen</div>
+                </div>
+                <a></a>
+              </div>
+            </div></div>
+            <div data-message-intervention></div>
+          </div>
+          <div aria-label="Antwortaktionen" data-assistant-message-actions data-message-actions role="group">
+            <button aria-label="Antwort kopieren" data-copy-message>Kopieren</button>
+            <button aria-label="Weitergeben" data-share-message>Teilen</button>
+          </div>
+          <div>
+            <section data-conversation-ads-supplement>Gesponsert: Werbung</section>
+          </div>
+        </li>
+
+      </ol>
+    </section>
+  </main>
+</body>
+</html>
