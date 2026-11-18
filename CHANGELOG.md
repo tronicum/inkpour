@@ -14,6 +14,15 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+## [0.4.35.2] - 2026-11-18
+
+### Fixed
+- ChatGPT export failed with "No messages found" on ChatGPT's new page
+  layout. Both the new and the previous layout now export normally.
+- Debug mode's "Copy debug info" report showed deeply nested page parts as
+  empty instead of saying they were cut off; it now goes deeper and marks
+  anything it leaves out.
+
 ## [0.4.35.1] - 2026-10-15
 
 ### Fixed
