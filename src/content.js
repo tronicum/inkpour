@@ -89,8 +89,11 @@
    * footnote semantics, where identifiers are expected to be document-wide.
    * Populated by the <a> branch of convertNode when a citation link is detected.
    * Each entry is a URL string; offset + index+1 is the footnote number.
+   * `_footnoteTitles` maps a target to a human-readable title when the
+   * platform supplies one (ChatGPT's sources payload), used as link text.
    */
   let _footnotes = [];
+  let _footnoteTitles = new Map();
   let _footnoteOffset = 0;
 
   /**
@@ -103,9 +106,12 @@
    * message dedups to the same number (dedup is per-message, matching
    * `_footnotes` being reset per htmlToMarkdown() call below).
    */
-  function registerCitation(target) {
+  function registerCitation(target, title = '') {
     let idx = _footnotes.indexOf(target);
     if (idx < 0) { _footnotes.push(target); idx = _footnotes.length - 1; }
+    // Brackets/backslashes/newlines would break the `[title](url)` link syntax.
+    const clean = String(title).replace(/[\[\]\\]/g, '').replace(/\s+/g, ' ').trim();
+    if (clean && !_footnoteTitles.has(target)) _footnoteTitles.set(target, clean);
     return `[^${_footnoteOffset + idx + 1}]`;
   }
 
@@ -116,7 +122,7 @@
       _footnotes.map((target, i) => {
         const num = `[^${_footnoteOffset + i + 1}]`;
         if (/^https?:\/\//i.test(target)) {
-          return `${num}: [${target}](${target})`;
+          return `${num}: [${_footnoteTitles.get(target) || target}](${target})`;
         }
         return `${num}: ${target}`;
       }).join('\n');
@@ -127,6 +133,7 @@
   function htmlToMarkdown(element) {
     if (!element) return '';
     _footnotes = [];
+    _footnoteTitles = new Map();
     let md = convertNode(element).replace(/\n{3,}/g, '\n\n').trim();
     md += formatSourcesBlock();
     return md;
@@ -237,7 +244,7 @@
               if (Array.isArray(sources) && sources.length) {
                 return sources
                   .filter(s => s && typeof s.url === 'string' && s.url)
-                  .map(s => registerCitation(s.url))
+                  .map(s => registerCitation(s.url, typeof s.title === 'string' ? s.title : ''))
                   .join('');
               }
             } catch (_) { /* malformed payload — fall through to dropping the button */ }

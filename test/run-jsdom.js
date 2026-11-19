@@ -863,6 +863,10 @@ async function main() {
       assert(md.includes('https://doi.org/10.1111/desc.13432?utm_source=chatgpt.com'), `missing DOI url: ${md}`);
       assert(md.includes('https://pubmed.ncbi.nlm.nih.gov/37408286/?utm_source=chatgpt.com'), `missing PubMed url: ${md}`);
     });
+    await test('Sources entries use the payload title as link text, not the bare URL', () => {
+      assert(md.includes('[^1]: [Assessing the impact of LEGO construction training — Wiley](https://doi.org/'), md);
+      assert(md.includes('[^2]: [Assessing the impact of LEGO construction training.](https://pubmed.'), md);
+    });
     await test('a malformed/unparseable payload degrades to dropping the button, not throwing', () => {
       const dom2 = new JSDOM(`<!DOCTYPE html><body>
         <div id="d"><p>Text<button data-assistant-sources-trigger="" data-assistant-sources-payload="not json"><span>X</span></button> after.</p></div>
@@ -2540,6 +2544,52 @@ async function main() {
     const text  = new TextDecoder().decode(bytes);
     assert(text.includes('print'), 'code content missing from docx');
     assert(text.includes('Courier New'), 'code font not applied');
+  });
+
+  // Citation footnotes in non-Markdown exports (issue #5): content.js emits
+  // GFM `[^N]` markers + `[^N]: [title](url)` definitions, which used to come
+  // through as dead literal text in HTML/PDF, DOCX and plain text.
+  const FN_MD = 'LEGO helps [^1][^2].\n\n**Sources:**\n\n' +
+    '[^1]: [Wiley paper](https://doi.org/10.1111/desc.13432)\n' +
+    '[^2]: [PubMed entry](https://pubmed.ncbi.nlm.nih.gov/37408286/)';
+
+  await test('mdToHTML: [^N] becomes a superscript link to an anchored definition', () => {
+    const html = mdToHTML(FN_MD);
+    assert(html.includes('<sup class="fn-ref"><a href="#fn-1">1</a></sup><sup class="fn-ref"><a href="#fn-2">2</a></sup>'), html);
+    assert(html.includes('<span class="fn-def" id="fn-1">1.</span> <a href="https://doi.org/10.1111/desc.13432">Wiley paper</a>'), html);
+    assert(html.includes('id="fn-2"'), html);
+    assert(!html.includes('[^'), `literal footnote syntax left over: ${html}`);
+    assert(/<br><span class="fn-def" id="fn-2">/.test(html), `definitions must stay on separate lines: ${html}`);
+  });
+
+  await test('mdToHTML: a bold label straight into a list never nests the list inside <p>', () => {
+    // Review finding on the step-8 change: "**Pros:**\n- a" used to become
+    // <p>…<ul>…</ul></p> (invalid HTML; DOCX flattened the list to "ab").
+    const html = mdToHTML('**Pros:**\n- fast\n- cheap');
+    assert(html.startsWith('<p><strong>Pros:</strong></p>\n<ul>'), html);
+    assert(!/<p>[^]*<ul>[^]*<\/p>/.test(html), html);
+    const docx = new TextDecoder().decode(buildDocx([{ role: 'ChatGPT', content: '**Pros:**\n- fast\n- cheap' }], 'T', 'chatgpt'));
+    assert(!docx.includes('fastcheap'), 'DOCX list items flattened into one run');
+  });
+
+  await test('a literal `[^1]` inside inline code is left alone', () => {
+    assert(mdToHTML('Use `[^1]` syntax').includes('<code>[^1]</code>'), mdToHTML('Use `[^1]` syntax'));
+    assert(buildPlainText([{ role: 'You', content: 'Use `[^1]` syntax' }], 'T', 'x').includes('Use [^1] syntax'));
+  });
+
+  await test('buildDocx: footnote markers are superscript, not "#fn-N" hyperlinks', () => {
+    const text = new TextDecoder().decode(buildDocx([{ role: 'ChatGPT', content: FN_MD }], 'T', 'chatgpt'));
+    assert(text.includes('<w:vertAlign w:val="superscript"/>'), 'no superscript run');
+    assert(!text.includes('#fn-'), 'in-document anchor leaked into docx relationships/text');
+    assert(text.includes('Target="https://doi.org/10.1111/desc.13432"'), 'source URL hyperlink missing');
+    assert(!text.includes('[^'), 'literal footnote syntax left in docx');
+  });
+
+  await test('buildPlainText: footnotes read as [N] with "title (url)" definitions', () => {
+    const txt = buildPlainText([{ role: 'ChatGPT', content: FN_MD }], 'T', 'chatgpt');
+    assert(txt.includes('LEGO helps [1][2].'), txt);
+    assert(txt.includes('[1] Wiley paper (https://doi.org/10.1111/desc.13432)'), txt);
+    assert(!txt.includes('[^'), txt);
   });
 
   await test('buildDocx contains required OOXML parts', () => {
@@ -5373,13 +5423,20 @@ No bullets here at all, just prose under the heading.
 
     await test('mdToHTML() still renders the legitimate Markdown it always did', () => {
       // Guards against the escape pass breaking structural parsing.
-      assert(mdToHTML('**bold**') === '<strong>bold</strong>', mdToHTML('**bold**'));
+      assert(mdToHTML('**bold**') === '<p><strong>bold</strong></p>', mdToHTML('**bold**'));
       assert(mdToHTML('plain **bold** text') === '<p>plain <strong>bold</strong> text</p>', mdToHTML('plain **bold** text'));
       assert(mdToHTML('> quoted line').includes('<blockquote>quoted line</blockquote>'), mdToHTML('> quoted line'));
       const code = mdToHTML('```js\nif (a < b) { x(); }\n```');
       assert(code.includes('<pre><code class="lang-js">if (a &lt; b) { x(); }</code></pre>'), code);
       assert(mdToHTML('if `a < b` then') === '<p>if <code>a &lt; b</code> then</p>', mdToHTML('if `a < b` then'));
       assert(mdToHTML('## Heading') === '<h2>Heading</h2>', mdToHTML('## Heading'));
+    });
+
+    await test('paragraphs that start with bold keep their own <p> and line breaks', () => {
+      // Used to be returned as bare inline markup, so consecutive ones (and
+      // the line break inside one) ran together in HTML/PDF output.
+      const html = mdToHTML('**Pros:** fast\nsecond line\n\n**Cons:** slow');
+      assert(html === '<p><strong>Pros:</strong> fast<br>second line</p>\n<p><strong>Cons:</strong> slow</p>', html);
     });
 
     await test('a code block is escaped exactly once (no &amp;lt; double-escaping)', () => {
