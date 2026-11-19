@@ -14,6 +14,8 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+## [0.4.35.3] - 2026-11-19
+
 ### Changed
 - "Export All (MD + DOCX + ZIP)" is now "MD + DOCX as ZIP": one ZIP holding
   chat.md, chat.docx and the code files, instead of three separate
