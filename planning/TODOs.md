@@ -941,7 +941,13 @@ path is one self-contained click handler (settings.js:138–162) building one
   `--exclude` patterns would strip out any referenced file — catches this
   exact bug shape for any current or future getURL() reference, not just
   these two links. Full suite: 303 passed, 0 failed.
-- [ ] **M — scoped, not started** N-up PDF support: can the PDF-import
+- [x] **M — shipped 2026-09-29 (#36)** `detectNupGrid()` +
+  `groupItemsIntoLines()` in `debug/import-pdf-fuzzer.js` split an N-up
+  sheet into per-cell logical sub-pages (`"<page>.<cell>"` ids) before line
+  grouping; covered by the "PDF fuzzer — N-up grid detection" suite in
+  `test/run-jsdom.js` (synthetic coordinates — still no real N-up PDF
+  fixture in the repo). Original scoping notes below.
+  N-up PDF support: can the PDF-import
   debug fuzzer (`debug/import-pdf-fuzzer.js`) handle a PDF where multiple
   logical pages are printed onto one physical landscape sheet at reduced
   scale (a common "N-up" print layout, e.g. 8 pages arranged in a grid)?
@@ -1326,7 +1332,12 @@ landing, not just started:
   needed. Bigger setup surface than Firefox's single API-key pair, and
   unlike AMO, the Chrome Web Store has no "what's new" release-notes API
   field — `CHANGELOG.md` extraction (see above) only feeds AMO for now.
-- [ ] **XS — deadline 2026-09-21** The OAuth consent screen backing the
+- [x] **XS — done 2026-11-18 (missed the deadline; #56)** Consent screen
+  published to Production, new non-expiring `REFRESH_TOKEN` minted
+  (loopback flow) and a new `CLIENT_SECRET` set in the `Chrome`
+  environment — the old secret was rejected. v0.4.35.2 then published via
+  a re-run of its Chrome job. Original note below.
+  The OAuth consent screen backing the
   Chrome publishing client is still in "Testing" status, so the current
   `REFRESH_TOKEN` expires in 7 days (`refresh_token_expires_in: 604799`) —
   a hard Google-imposed cap for apps not yet published to production,
@@ -1382,6 +1393,16 @@ landing, not just started:
   means repeating step 1 and updating the `EDGE_API_KEY` secret, no code
   change needed; worth a calendar reminder since a silent expiry means the
   next release's Edge publish just starts failing.
+- [ ] **XS — blocked on Microsoft account verification (2026-11-18, #56)**
+  Edge has never actually published: `publish-edge` (v0.4.35.2 release run)
+  and the daily credential check both get HTTP 404, consistent with step (3)
+  above never having happened — a draft exists in Partner Center but can't
+  be submitted until the account verification clears. Once it does: upload
+  the Edge-patched zip (`release.sh` output with `background.scripts`
+  deleted from `manifest.json`, same as the workflow's patch step) to the
+  draft and submit, then steps (1)/(2)/(4) above, set the
+  `EDGE_API_KEY_ROTATED_AT` repo variable, and re-run
+  `check-credentials.yml` to confirm before closing #56.
 - GitHub issue drafted 2026-07 condensing the above into a tracked ticket
   (same no-GitHub-auth-in-this-sandbox situation as Batch 11's debug/ bug —
   handed Stefan a pre-filled `issues/new?title=...&body=...` link to sign
