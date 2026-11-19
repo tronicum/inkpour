@@ -52,8 +52,8 @@ Experimental = selectors verified against fixture HTML; real-page accuracy needs
 - **PDF** — opens a clean, ad-free print-preview tab and triggers the browser print dialog
 - **HTML** — fully self-contained single file with dark/light mode, no external dependencies
 - **JSON** — structured `{ exporter, version, title, platform, exportedAt, messages[] }`
-- **ZIP** — `chat.md` + every code block extracted as its own file (`snippet-1.py`, `snippet-2.js`, …)
-- **Export All** — popup button that simultaneously saves MD + DOCX + ZIP in one click
+- **MD as ZIP** — `chat.md` + every code block extracted as its own file (`snippet-1.py`, `snippet-2.js`, …)
+- **MD + DOCX as ZIP** — the same, plus `chat.docx`, in one ZIP
 
 ### Clipboard
 - **Copy MD** (`Alt+Shift+C`) — Markdown to clipboard instantly

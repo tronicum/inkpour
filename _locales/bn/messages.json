@@ -95,7 +95,7 @@
     "description": "Notion button tooltip"
   },
   "popupAllBtnTitle": {
-    "message": "একসাথে MD + DOCX + ZIP এক্সপোর্ট করুন",
+    "message": "chat.md, chat.docx ও বের করা কোড ফাইলসহ একটি ZIP এক্সপোর্ট করুন",
     "description": "Export All button tooltip"
   },
   "popupBtnMd": {
@@ -123,7 +123,7 @@
     "message": "টেক্সট কপি করুন"
   },
   "popupBtnZip": {
-    "message": "ZIP"
+    "message": "MD ZIP হিসেবে"
   },
   "popupBtnGist": {
     "message": "Gist"
@@ -132,7 +132,7 @@
     "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "সব এক্সপোর্ট করুন (MD + DOCX + ZIP)"
+    "message": "MD + DOCX ZIP হিসেবে"
   },
   "popupIncrementalBtnTitle": {
     "message": "শুধু আপনার শেষ এক্সপোর্টের পর যোগ হওয়া বার্তাগুলো এক্সপোর্ট করুন",
@@ -236,7 +236,7 @@
     }
   },
   "popupStatusExportAllSaved": {
-    "message": "✓ MD + DOCX + ZIP সংরক্ষিত হয়েছে"
+    "message": "✓ ZIP সংরক্ষিত — chat.md + chat.docx"
   },
   "popupStatusGistTokenMissing": {
     "message": "প্রথমে সেটিংসে একটি GitHub টোকেন যোগ করুন।"
@@ -1213,7 +1213,7 @@
     "message": "আরও এক্সপোর্ট বিকল্প"
   },
   "popupBtnAllShort": {
-    "message": "সব"
+    "message": "MD + DOCX ZIP হিসেবে"
   },
   "popupExportGoBtn": {
     "message": "এক্সপোর্ট করুন"

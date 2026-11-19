@@ -14,6 +14,17 @@ new section here in the same commit as the version bump.
 
 ## [Unreleased]
 
+## [0.4.35.3] - 2026-11-19
+
+### Changed
+- "Export All (MD + DOCX + ZIP)" is now "MD + DOCX as ZIP": one ZIP holding
+  chat.md, chat.docx and the code files, instead of three separate
+  downloads. The plain ZIP button is now labelled "MD as ZIP".
+
+### Fixed
+- Citation numbers in exported chats now link to their sources in HTML,
+  PDF and DOCX, and source lists show page titles instead of bare URLs.
+
 ## [0.4.35.2] - 2026-11-18
 
 ### Fixed

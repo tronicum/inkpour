@@ -95,7 +95,7 @@
     "description": "Notion button tooltip"
   },
   "popupAllBtnTitle": {
-    "message": "MD + DOCX + ZIP'i aynı anda dışa aktar",
+    "message": "chat.md, chat.docx ve çıkarılan kod dosyalarını tek bir ZIP olarak dışa aktar",
     "description": "Export All button tooltip"
   },
   "popupBtnMd": {
@@ -123,7 +123,7 @@
     "message": "Metni kopyala"
   },
   "popupBtnZip": {
-    "message": "ZIP"
+    "message": "ZIP olarak MD"
   },
   "popupBtnGist": {
     "message": "Gist"
@@ -132,7 +132,7 @@
     "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "Tümünü Dışa Aktar (MD + DOCX + ZIP)"
+    "message": "ZIP olarak MD + DOCX"
   },
   "popupIncrementalBtnTitle": {
     "message": "Yalnızca son dışa aktarımdan sonra eklenen mesajları dışa aktarır",
@@ -236,7 +236,7 @@
     }
   },
   "popupStatusExportAllSaved": {
-    "message": "✓ MD + DOCX + ZIP kaydedildi"
+    "message": "✓ ZIP kaydedildi — chat.md + chat.docx"
   },
   "popupStatusGistTokenMissing": {
     "message": "Önce Ayarlar'dan bir GitHub token'ı ekleyin."
@@ -1213,7 +1213,7 @@
     "message": "Diğer dışa aktarma seçenekleri"
   },
   "popupBtnAllShort": {
-    "message": "Tümü"
+    "message": "ZIP olarak MD + DOCX"
   },
   "popupExportGoBtn": {
     "message": "Dışa Aktar"

@@ -1190,7 +1190,10 @@
     }
   });
 
-  // ─── Export All (MD + DOCX + ZIP) ────────────────────────────────────────
+  // ─── MD + DOCX as ZIP (chat.md + chat.docx + code files) ──────────────────
+  // One download. Used to be "Export All (MD + DOCX + ZIP)", firing three
+  // separate downloads whose ZIP held only chat.md + snippets — which read as
+  // "the ZIP is missing the DOCX".
 
   allBtn?.addEventListener('click', async () => {
     clearStatus();
@@ -1201,25 +1204,9 @@
       const notes = getExportNotes();
       const slug  = buildFilename(userSettings.filenameTemplate, data.platform, data.filename, data.sourceUrl, countWords(msgs), msgs.length);
 
-      // Build MD
-      const md = notesBlockMD(notes) + buildMarkdown(msgs, title, data.site, userSettings, data.sourceUrl, data.shareUrl);
-      downloadFile(md, slug + '.md', 'text/markdown;charset=utf-8');
-
-      // Build DOCX
-      const docxBytes = buildDocx(msgs, title, data.site, userSettings, data.sourceUrl);
-      const docxBlob  = new Blob([docxBytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-      const docxUrl   = URL.createObjectURL(docxBlob);
-      const docxA     = Object.assign(document.createElement('a'), {
-        href:     docxUrl,
-        download: withSubfolder(slug + '.docx'),
-      });
-      document.body.appendChild(docxA);
-      docxA.click();
-      document.body.removeChild(docxA);
-      setTimeout(() => URL.revokeObjectURL(docxUrl), 1000);
-
-      // Build ZIP
-      const { files } = buildZipExport(msgs, title, data.site, userSettings, data.sourceUrl, data.shareUrl);
+      const { files, codeCount } = buildMdDocxZipExport(
+        msgs, title, data.site, userSettings, data.sourceUrl, data.shareUrl, notesBlockMD(notes)
+      );
       const zipBytes  = buildZip(files);
       const zipBlob   = new Blob([zipBytes], { type: 'application/zip' });
       const zipUrl    = URL.createObjectURL(zipBlob);
@@ -1232,7 +1219,10 @@
       document.body.removeChild(zipA);
       setTimeout(() => URL.revokeObjectURL(zipUrl), 1000);
 
-      setStatus(t('popupStatusExportAllSaved'), 'success');
+      const note = codeCount > 0
+        ? t(codeCount === 1 ? 'popupCodeFileOne' : 'popupCodeFileOther', [String(codeCount)])
+        : '';
+      setStatus(t('popupStatusExportAllSaved') + note, 'success');
       saveLastExport('all', { ...data, messages: msgs }, '');
     } catch (err) {
       setStatus(err.message, err.streaming ? 'warning' : 'error');
@@ -1822,9 +1812,8 @@
   }
 
   /** Label for the selector face — reuses the menu row's own (already-
-   *  localized) span text, except 'all' which gets its own much shorter
-   *  dedicated string (the real row's label is a full sentence, "⬇ Export
-   *  All (MD + DOCX + ZIP)", too long for the compact selector). */
+   *  localized) span text, except 'all' which has its own dedicated
+   *  string (popupBtnAllShort). */
   function labelFor(format) {
     if (format === 'all') return t('popupBtnAllShort');
     return menuItemFor(format)?.querySelector('span:last-child')?.textContent || format.toUpperCase();
