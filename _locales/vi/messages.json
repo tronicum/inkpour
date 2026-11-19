@@ -95,7 +95,7 @@
     "description": "Notion button tooltip"
   },
   "popupAllBtnTitle": {
-    "message": "Xuất đồng thời MD + DOCX + ZIP",
+    "message": "Xuất một tệp ZIP gồm chat.md, chat.docx và các tệp mã đã trích xuất",
     "description": "Export All button tooltip"
   },
   "popupBtnMd": {
@@ -123,7 +123,7 @@
     "message": "Sao chép văn bản"
   },
   "popupBtnZip": {
-    "message": "ZIP"
+    "message": "MD dạng ZIP"
   },
   "popupBtnGist": {
     "message": "Gist"
@@ -132,7 +132,7 @@
     "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "Xuất tất cả (MD + DOCX + ZIP)"
+    "message": "MD + DOCX dạng ZIP"
   },
   "popupIncrementalBtnTitle": {
     "message": "Chỉ xuất các tin nhắn được thêm kể từ lần xuất gần nhất",
@@ -236,7 +236,7 @@
     }
   },
   "popupStatusExportAllSaved": {
-    "message": "✓ Đã lưu MD + DOCX + ZIP"
+    "message": "✓ Đã lưu ZIP — chat.md + chat.docx"
   },
   "popupStatusGistTokenMissing": {
     "message": "Hãy thêm token GitHub trong Cài đặt trước."
@@ -1213,7 +1213,7 @@
     "message": "Thêm tùy chọn xuất"
   },
   "popupBtnAllShort": {
-    "message": "Tất cả"
+    "message": "MD + DOCX dạng ZIP"
   },
   "popupExportGoBtn": {
     "message": "Xuất"

@@ -95,7 +95,7 @@
     "description": "Notion button tooltip"
   },
   "popupAllBtnTitle": {
-    "message": "MD + DOCX + ZIPを同時にエクスポート",
+    "message": "chat.md、chat.docx、抽出したコードファイルを 1 つの ZIP でエクスポート",
     "description": "Export All button tooltip"
   },
   "popupBtnMd": {
@@ -123,7 +123,7 @@
     "message": "テキストをコピー"
   },
   "popupBtnZip": {
-    "message": "ZIP"
+    "message": "MD を ZIP で"
   },
   "popupBtnGist": {
     "message": "Gist"
@@ -132,7 +132,7 @@
     "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "全てエクスポート（MD + DOCX + ZIP）"
+    "message": "MD + DOCX を ZIP で"
   },
   "popupIncrementalBtnTitle": {
     "message": "前回のエクスポート以降に追加されたメッセージのみをエクスポート",
@@ -236,7 +236,7 @@
     }
   },
   "popupStatusExportAllSaved": {
-    "message": "✓ MD + DOCX + ZIPを保存しました"
+    "message": "✓ ZIP を保存しました — chat.md + chat.docx"
   },
   "popupStatusGistTokenMissing": {
     "message": "先に設定でGitHubトークンを追加してください。"
@@ -1213,7 +1213,7 @@
     "message": "他のエクスポートオプション"
   },
   "popupBtnAllShort": {
-    "message": "全て"
+    "message": "MD + DOCX を ZIP で"
   },
   "popupExportGoBtn": {
     "message": "エクスポート"

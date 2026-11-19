@@ -95,7 +95,7 @@
     "description": "Notion button tooltip"
   },
   "popupAllBtnTitle": {
-    "message": "同时导出 MD + DOCX + ZIP",
+    "message": "导出一个包含 chat.md、chat.docx 和提取出的代码文件的 ZIP",
     "description": "Export All button tooltip"
   },
   "popupBtnMd": {
@@ -123,7 +123,7 @@
     "message": "复制文本"
   },
   "popupBtnZip": {
-    "message": "ZIP"
+    "message": "MD 打包为 ZIP"
   },
   "popupBtnGist": {
     "message": "Gist"
@@ -132,7 +132,7 @@
     "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "导出全部（MD + DOCX + ZIP）"
+    "message": "MD + DOCX 打包为 ZIP"
   },
   "popupIncrementalBtnTitle": {
     "message": "仅导出自上次导出以来新增的消息",
@@ -236,7 +236,7 @@
     }
   },
   "popupStatusExportAllSaved": {
-    "message": "✓ MD + DOCX + ZIP 已保存"
+    "message": "✓ ZIP 已保存 — chat.md + chat.docx"
   },
   "popupStatusGistTokenMissing": {
     "message": "请先在设置中添加 GitHub 令牌。"
@@ -1213,7 +1213,7 @@
     "message": "更多导出选项"
   },
   "popupBtnAllShort": {
-    "message": "全部"
+    "message": "MD + DOCX 打包为 ZIP"
   },
   "popupExportGoBtn": {
     "message": "导出"

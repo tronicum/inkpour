@@ -979,7 +979,8 @@ function buildZip(files) {
 
   const entries = files.map(f => {
     const name = enc.encode(f.name);
-    const data = enc.encode(f.content);
+    // Binary entries (e.g. a .docx from buildDocx) go in as-is.
+    const data = f.content instanceof Uint8Array ? f.content : enc.encode(f.content);
     return { name, data, crc: _crc32(data) };
   });
 
@@ -1071,6 +1072,19 @@ function buildZipExport(messages, title, site, opts, sourceUrl, shareUrl) {
   }
 
   return { files, codeCount: files.length - 1 };
+}
+
+/**
+ * Build the file list for "MD + DOCX as ZIP": buildZipExport's chat.md and
+ * snippet files plus chat.docx, all in one archive.
+ * `mdPrefix` is prepended to chat.md (the popup's notes block).
+ * @returns {{ files: Array<{name:string,content:string|Uint8Array}>, codeCount: number }}
+ */
+function buildMdDocxZipExport(messages, title, site, opts, sourceUrl, shareUrl, mdPrefix = '') {
+  const { files, codeCount } = buildZipExport(messages, title, site, opts, sourceUrl, shareUrl);
+  files[0].content = mdPrefix + files[0].content;
+  files.splice(1, 0, { name: 'chat.docx', content: buildDocx(messages, title, site, opts, sourceUrl) });
+  return { files, codeCount };
 }
 
 // ─── DOCX builder (pure JS, reuses buildZip) ─────────────────────────────────

@@ -95,7 +95,7 @@
     "description": "Notion button tooltip"
   },
   "popupAllBtnTitle": {
-    "message": "同時匯出 MD + DOCX + ZIP",
+    "message": "匯出一個包含 chat.md、chat.docx 與擷取出的程式碼檔案的 ZIP",
     "description": "Export All button tooltip"
   },
   "popupBtnMd": {
@@ -123,7 +123,7 @@
     "message": "複製文字"
   },
   "popupBtnZip": {
-    "message": "ZIP"
+    "message": "MD 打包為 ZIP"
   },
   "popupBtnGist": {
     "message": "Gist"
@@ -132,7 +132,7 @@
     "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "匯出全部 (MD + DOCX + ZIP)"
+    "message": "MD + DOCX 打包為 ZIP"
   },
   "popupIncrementalBtnTitle": {
     "message": "僅匯出自上次匯出後新增的訊息",
@@ -236,7 +236,7 @@
     }
   },
   "popupStatusExportAllSaved": {
-    "message": "✓ 已儲存 MD + DOCX + ZIP"
+    "message": "✓ ZIP 已儲存 — chat.md + chat.docx"
   },
   "popupStatusGistTokenMissing": {
     "message": "請先在設定中新增 GitHub 權杖。"
@@ -1213,7 +1213,7 @@
     "message": "更多匯出選項"
   },
   "popupBtnAllShort": {
-    "message": "全部"
+    "message": "MD + DOCX 打包為 ZIP"
   },
   "popupExportGoBtn": {
     "message": "匯出"

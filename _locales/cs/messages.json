@@ -73,7 +73,7 @@
     "description": "Notion button tooltip"
   },
   "popupAllBtnTitle": {
-    "message": "Exportovat MD + DOCX + ZIP najednou"
+    "message": "Exportovat jeden ZIP s chat.md, chat.docx a extrahovanými soubory kódu"
   },
   "popupBtnMd": {
     "message": "MD"
@@ -100,7 +100,7 @@
     "message": "Kopírovat text"
   },
   "popupBtnZip": {
-    "message": "ZIP"
+    "message": "MD jako ZIP"
   },
   "popupBtnGist": {
     "message": "Gist"
@@ -109,7 +109,7 @@
     "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "Exportovat vše (MD + DOCX + ZIP)"
+    "message": "MD + DOCX jako ZIP"
   },
   "popupIncrementalBtnTitle": {
     "message": "Exportovat pouze zprávy přidané od posledního exportu"
@@ -211,7 +211,7 @@
     }
   },
   "popupStatusExportAllSaved": {
-    "message": "✓ MD + DOCX + ZIP uloženy"
+    "message": "✓ ZIP uložen — chat.md + chat.docx"
   },
   "popupStatusGistTokenMissing": {
     "message": "Nejprve přidejte token pro GitHub v Nastavení."
@@ -1188,7 +1188,7 @@
     "message": "Další možnosti exportu"
   },
   "popupBtnAllShort": {
-    "message": "Vše"
+    "message": "MD + DOCX jako ZIP"
   },
   "popupExportGoBtn": {
     "message": "Exportovat"
