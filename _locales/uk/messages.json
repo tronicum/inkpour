@@ -95,7 +95,7 @@
     "description": "Notion button tooltip"
   },
   "popupAllBtnTitle": {
-    "message": "Експортувати одночасно MD + DOCX + ZIP",
+    "message": "Експортувати один ZIP із chat.md, chat.docx і видобутими файлами коду",
     "description": "Export All button tooltip"
   },
   "popupBtnMd": {
@@ -123,7 +123,7 @@
     "message": "Копіювати текст"
   },
   "popupBtnZip": {
-    "message": "ZIP"
+    "message": "MD у ZIP"
   },
   "popupBtnGist": {
     "message": "Gist"
@@ -132,7 +132,7 @@
     "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "Експортувати все (MD + DOCX + ZIP)"
+    "message": "MD + DOCX у ZIP"
   },
   "popupIncrementalBtnTitle": {
     "message": "Експортувати лише повідомлення, додані після останнього експорту",
@@ -236,7 +236,7 @@
     }
   },
   "popupStatusExportAllSaved": {
-    "message": "✓ Збережено MD + DOCX + ZIP"
+    "message": "✓ ZIP збережено — chat.md + chat.docx"
   },
   "popupStatusGistTokenMissing": {
     "message": "Спочатку додайте токен GitHub у Налаштуваннях."
@@ -1213,7 +1213,7 @@
     "message": "Додаткові параметри експорту"
   },
   "popupBtnAllShort": {
-    "message": "Все"
+    "message": "MD + DOCX у ZIP"
   },
   "popupExportGoBtn": {
     "message": "Експортувати"

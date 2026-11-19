@@ -95,7 +95,7 @@
     "description": "Notion button tooltip"
   },
   "popupAllBtnTitle": {
-    "message": "تصدير MD وDOCX وZIP في آن واحد",
+    "message": "تصدير ملف ZIP واحد يحتوي على chat.md وchat.docx وملفات الشيفرة المستخرجة",
     "description": "Export All button tooltip"
   },
   "popupBtnMd": {
@@ -123,7 +123,7 @@
     "message": "نسخ النص"
   },
   "popupBtnZip": {
-    "message": "ZIP"
+    "message": "MD كملف ZIP"
   },
   "popupBtnGist": {
     "message": "Gist"
@@ -132,7 +132,7 @@
     "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "تصدير الكل (MD + DOCX + ZIP)"
+    "message": "MD + DOCX كملف ZIP"
   },
   "popupIncrementalBtnTitle": {
     "message": "تصدير الرسائل المضافة منذ آخر تصدير فقط",
@@ -236,7 +236,7 @@
     }
   },
   "popupStatusExportAllSaved": {
-    "message": "✓ تم حفظ MD وDOCX وZIP"
+    "message": "✓ تم حفظ ZIP — chat.md + chat.docx"
   },
   "popupStatusGistTokenMissing": {
     "message": "أضف رمز GitHub في الإعدادات أولًا."
@@ -1213,7 +1213,7 @@
     "message": "المزيد من خيارات التصدير"
   },
   "popupBtnAllShort": {
-    "message": "الكل"
+    "message": "MD + DOCX كملف ZIP"
   },
   "popupExportGoBtn": {
     "message": "تصدير"

@@ -95,7 +95,7 @@
     "description": "Notion button tooltip"
   },
   "popupAllBtnTitle": {
-    "message": "Ekspor MD + DOCX + ZIP sekaligus",
+    "message": "Ekspor satu ZIP berisi chat.md, chat.docx, dan file kode yang diekstrak",
     "description": "Export All button tooltip"
   },
   "popupBtnMd": {
@@ -123,7 +123,7 @@
     "message": "Salin teks"
   },
   "popupBtnZip": {
-    "message": "ZIP"
+    "message": "MD sebagai ZIP"
   },
   "popupBtnGist": {
     "message": "Gist"
@@ -132,7 +132,7 @@
     "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "Ekspor Semua (MD + DOCX + ZIP)"
+    "message": "MD + DOCX sebagai ZIP"
   },
   "popupIncrementalBtnTitle": {
     "message": "Ekspor hanya pesan yang ditambahkan sejak ekspor terakhir Anda",
@@ -236,7 +236,7 @@
     }
   },
   "popupStatusExportAllSaved": {
-    "message": "✓ MD + DOCX + ZIP tersimpan"
+    "message": "✓ ZIP disimpan — chat.md + chat.docx"
   },
   "popupStatusGistTokenMissing": {
     "message": "Tambahkan token GitHub di Pengaturan terlebih dahulu."
@@ -1213,7 +1213,7 @@
     "message": "Opsi ekspor lainnya"
   },
   "popupBtnAllShort": {
-    "message": "Semua"
+    "message": "MD + DOCX sebagai ZIP"
   },
   "popupExportGoBtn": {
     "message": "Ekspor"

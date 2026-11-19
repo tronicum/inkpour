@@ -95,7 +95,7 @@
     "description": "Notion button tooltip"
   },
   "popupAllBtnTitle": {
-    "message": "Exporter MD + DOCX + ZIP simultanément",
+    "message": "Exporter un ZIP avec chat.md, chat.docx et les fichiers de code extraits",
     "description": "Export All button tooltip"
   },
   "popupBtnMd": {
@@ -123,7 +123,7 @@
     "message": "Copier le texte"
   },
   "popupBtnZip": {
-    "message": "ZIP"
+    "message": "MD en ZIP"
   },
   "popupBtnGist": {
     "message": "Gist"
@@ -132,7 +132,7 @@
     "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "Tout exporter (MD + DOCX + ZIP)"
+    "message": "MD + DOCX en ZIP"
   },
   "popupIncrementalBtnTitle": {
     "message": "Exporter uniquement les messages ajoutés depuis votre dernier export",
@@ -236,7 +236,7 @@
     }
   },
   "popupStatusExportAllSaved": {
-    "message": "✓ MD + DOCX + ZIP enregistrés"
+    "message": "✓ ZIP enregistré — chat.md + chat.docx"
   },
   "popupStatusGistTokenMissing": {
     "message": "Ajoutez d'abord un jeton GitHub dans les paramètres."
@@ -1213,7 +1213,7 @@
     "message": "Plus d'options d'export"
   },
   "popupBtnAllShort": {
-    "message": "Tout"
+    "message": "MD + DOCX en ZIP"
   },
   "popupExportGoBtn": {
     "message": "Exporter"

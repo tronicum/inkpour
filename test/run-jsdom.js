@@ -2381,6 +2381,30 @@ async function main() {
       assert(count === 3, `expected 3 entries, got ${count}`);
     });
 
+    await test('Uint8Array content is stored verbatim, not re-encoded', () => {
+      const bytes = new Uint8Array([0x50, 0x4b, 0x00, 0xff, 0x80]);
+      const zip   = buildZip([{ name: 'b.bin', content: bytes }]);
+      const view  = new DataView(zip.buffer);
+      assert(view.getUint32(18, true) === bytes.length, `stored size ${view.getUint32(18, true)}, expected ${bytes.length}`);
+      const stored = zip.slice(30 + 'b.bin'.length, 30 + 'b.bin'.length + bytes.length);
+      assert(stored.every((b, i) => b === bytes[i]), 'binary bytes changed');
+    });
+
+    await test('MD + DOCX ZIP holds chat.md (with prefix), chat.docx and snippets', () => {
+      const msgs = [
+        { role: 'You', content: 'hi' },
+        { role: 'ChatGPT', content: 'Here:\n\n```python\nprint(1)\n```' },
+      ];
+      const { files, codeCount } = buildMdDocxZipExport(msgs, 'T', 'ChatGPT', {}, 'https://chatgpt.com/c/1', '', '> **Notes**\n> n\n\n');
+      const names = files.map(f => f.name).join(',');
+      assert(names === 'chat.md,chat.docx,snippet-1.py', `file list: ${names}`);
+      assert(files[0].content.startsWith('> **Notes**'), 'notes prefix missing from chat.md');
+      assert(files[1].content instanceof Uint8Array && files[1].content[0] === 0x50 && files[1].content[1] === 0x4b, 'chat.docx is not a ZIP/OOXML byte array');
+      assert(codeCount === 1, `codeCount ${codeCount}`);
+      const zip = buildZip(files);
+      assert(new DataView(zip.buffer).getUint32(zip.length - 22, true) === 0x06054b50, 'combined ZIP missing EOCD');
+    });
+
     await test('uint8ToBase64 produces valid base64 for large arrays', () => {
       // Uses uint8ToBase64 from src/utils.js
       // 100 000 bytes — well above the ~65536 spread stack limit

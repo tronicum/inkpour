@@ -95,7 +95,7 @@
     "description": "Notion button tooltip"
   },
   "popupAllBtnTitle": {
-    "message": "MD + DOCX + ZIP 동시에 내보내기",
+    "message": "chat.md, chat.docx 및 추출된 코드 파일을 하나의 ZIP으로 내보내기",
     "description": "Export All button tooltip"
   },
   "popupBtnMd": {
@@ -123,7 +123,7 @@
     "message": "텍스트 복사"
   },
   "popupBtnZip": {
-    "message": "ZIP"
+    "message": "MD를 ZIP으로"
   },
   "popupBtnGist": {
     "message": "Gist"
@@ -132,7 +132,7 @@
     "message": "Notion"
   },
   "popupBtnExportAll": {
-    "message": "모두 내보내기 (MD + DOCX + ZIP)"
+    "message": "MD + DOCX를 ZIP으로"
   },
   "popupIncrementalBtnTitle": {
     "message": "마지막 내보내기 이후 추가된 메시지만 내보냅니다",
@@ -236,7 +236,7 @@
     }
   },
   "popupStatusExportAllSaved": {
-    "message": "✓ MD + DOCX + ZIP 저장됨"
+    "message": "✓ ZIP 저장됨 — chat.md + chat.docx"
   },
   "popupStatusGistTokenMissing": {
     "message": "먼저 설정에서 GitHub 토큰을 추가하세요."
@@ -1213,7 +1213,7 @@
     "message": "더 많은 내보내기 옵션"
   },
   "popupBtnAllShort": {
-    "message": "모두"
+    "message": "MD + DOCX를 ZIP으로"
   },
   "popupExportGoBtn": {
     "message": "내보내기"
