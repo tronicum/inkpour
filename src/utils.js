@@ -98,6 +98,17 @@ function mdToHTML(md) {
   // 2. Inline code (text already escaped by step 1b)
   md = md.replace(/`([^`\n]+)`/g, (_, c) => `<code>${c}</code>`);
 
+  // 2b. Citation footnotes (issue #5). content.js emits GFM-style `[^N]`
+  //     markers plus `[^N]: [title](url)` lines in a trailing Sources block;
+  //     without this they'd render as dead literal text. Definitions become
+  //     an anchor target, each marker a superscript link to it. N is unique
+  //     per export (content.js's _footnoteOffset), so ids don't collide.
+  //     Inline <code> spans (step 2) are skipped, so a literal `[^1]` survives.
+  md = md.split(/(<code>[\s\S]*?<\/code>)/).map((part, i) => i % 2 ? part : part
+    .replace(/^\[\^(\d+)\]:[ \t]*/gm, (_, n) => `<span class="fn-def" id="fn-${n}">${n}.</span> `)
+    .replace(/\[\^(\d+)\]/g, (_, n) => `<sup class="fn-ref"><a href="#fn-${n}">${n}</a></sup>`)
+  ).join('');
+
   // 3. Headings (must come before bold/italic)
   md = md.replace(/^(#{1,6})\s+(.+)$/gm, (_, h, t) => `<h${h.length}>${t}</h${h.length}>`);
 
@@ -191,7 +202,17 @@ function mdToHTML(md) {
   md = md.split(/\n{2,}/).map(chunk => {
     chunk = chunk.trim();
     if (!chunk) return '';
-    if (/^</.test(chunk) || chunk.includes('\x00BLK')) return chunk;
+    // Only real block markup is left as-is — a chunk that merely *starts*
+    // with inline markup (**bold**, a footnote definition, a link) is still
+    // a paragraph and needs its <p> + line breaks. When inline text runs
+    // straight into a block ("**Pros:**\n- a"), only the text before the
+    // block is wrapped: a <ul>/<table> must never end up inside a <p>.
+    const blockAt = chunk.search(/<(?:h[1-6]|ul|ol|li|pre|blockquote|table|hr|p|div|details)\b|\x00BLK/);
+    if (blockAt === 0) return chunk;
+    if (blockAt > 0) {
+      const lead = chunk.slice(0, blockAt).trim();
+      return `<p>${lead.replace(/\n/g, '<br>')}</p>\n${chunk.slice(blockAt)}`;
+    }
     return `<p>${chunk.replace(/\n/g, '<br>')}</p>`;
   }).filter(Boolean).join('\n');
 
@@ -496,6 +517,13 @@ function stripMarkdownSyntax(md) {
   text = text.replace(/^```[^\n]*$/gm, ''); // stray unclosed fence line
 
   // Inline code: keep the content, drop the backticks.
+  // Citation footnotes (issue #5): "[^N]: …" definition → "[N] …", "[^N]" →
+  // "[N]". Before the inline-code strip below, skipping `code` spans so a
+  // literal `[^1]` survives.
+  text = text.split(/(`[^`\n]*`)/).map((part, i) => i % 2 ? part : part
+    .replace(/^\[\^(\d+)\]:[ \t]*/gm, '[$1] ')
+    .replace(/\[\^(\d+)\]/g, '[$1]')
+  ).join('');
   text = text.replace(/`([^`\n]*)`/g, '$1');
   // Images, then links: "label (url)". Image before link so "![" isn't
   // half-consumed by the link rule.
@@ -1110,7 +1138,7 @@ function _htmlDecodeText(s) {
  * Hyperlinks are registered in _docxLinkMap so buildDocx can emit relationship entries.
  */
 function _htmlInlineToRuns(html) {
-  const TOKEN = /<strong><em>([\s\S]*?)<\/em><\/strong>|<strong>([\s\S]*?)<\/strong>|<em>([\s\S]*?)<\/em>|<code>([\s\S]*?)<\/code>|<del>([\s\S]*?)<\/del>|<u>([\s\S]*?)<\/u>|<a\s+href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g;
+  const TOKEN = /<strong><em>([\s\S]*?)<\/em><\/strong>|<strong>([\s\S]*?)<\/strong>|<em>([\s\S]*?)<\/em>|<code>([\s\S]*?)<\/code>|<del>([\s\S]*?)<\/del>|<u>([\s\S]*?)<\/u>|<a\s+href="([^"]*)"[^>]*>([\s\S]*?)<\/a>|<sup[^>]*>([\s\S]*?)<\/sup>/g;
   let result = '';
   let last   = 0;
   let m;
@@ -1132,6 +1160,10 @@ function _htmlInlineToRuns(html) {
       const rPr  = `<w:rPr><w:color w:val="5B5BD6"/><w:u w:val="single"/></w:rPr>`;
       result += `<w:hyperlink r:id="${rId}"><w:r>${rPr}<w:t xml:space="preserve">${_xmlEsc(text)}</w:t></w:r></w:hyperlink>`;
     }
+    // Footnote marker (mdToHTML step 2b) — its inner <a href="#fn-N"> is an
+    // in-document anchor, not an external link, so render plain superscript
+    // text rather than registering "#fn-N" as a hyperlink relationship.
+    else if (m[9] !== undefined) result += _wRun(_htmlDecodeText(m[9]), { superscript: true });
     last = m.index + m[0].length;
   }
   if (last < html.length) result += _wRun(_htmlDecodeText(html.slice(last)));
@@ -1195,6 +1227,7 @@ function _wRun(text, props = {}) {
     rpr.push('<w:sz w:val="18"/><w:szCs w:val="18"/>');
     rpr.push('<w:shd w:val="clear" w:color="auto" w:fill="F3F4F6"/>');
   }
+  if (props.superscript) rpr.push('<w:vertAlign w:val="superscript"/>'); // after shd, per CT_RPr order
   const rprXml = rpr.length ? `<w:rPr>${rpr.join('')}</w:rPr>` : '';
   return `<w:r>${rprXml}<w:t xml:space="preserve">${_xmlEsc(text)}</w:t></w:r>`;
 }
